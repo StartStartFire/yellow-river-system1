@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-tech-bg text-tech-text;
+  }
+
+  body {
+    @apply m-0 min-h-screen antialiased;
+  }
+}
+
+/* Element Plus 深色主题覆盖 */
+@layer components {
+  .el-button {
+    @apply border-tech-border bg-tech-card text-tech-text;
+  }
+
+  .el-button--primary {
+    @apply bg-tech-primary border-tech-primary text-black;
+  }
+
+  .el-card {
+    @apply bg-tech-card border-tech-border text-tech-text;
+  }
+
+  .el-table {
+    @apply bg-tech-card text-tech-text;
+  }
+
+  .el-table th,
+  .el-table tr {
+    @apply bg-tech-card text-tech-text;
+  }
+
+  .el-table--striped .el-table__body tr.el-table__row--striped td {
+    @apply bg-tech-bg;
+  }
+
+  .el-tabs__item {
+    @apply text-tech-muted;
+  }
+
+  .el-tabs__item.is-active {
+    @apply text-tech-primary;
+  }
+
+  .el-input__inner,
+  .el-input__wrapper {
+    @apply bg-tech-card border-tech-border text-tech-text;
+  }
+
+  .el-dialog {
+    @apply bg-tech-card;
+  }
+
+  .el-dialog__title {
+    @apply text-tech-text;
+  }
+}
