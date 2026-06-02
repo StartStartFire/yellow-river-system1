@@ -13,7 +13,6 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // ========== 坐标系统 ==========
-// 背景图 1672x940, 高程范围动态计算
 const elevMin = computed(() => {
   const all = props.section.levels.map(l => l.value)
   all.push(props.section.currentLevel)
@@ -74,54 +73,28 @@ const levelLines = computed<LevelLine[]>(() => {
 })
 
 // ========== 库区水体裁剪路径 (clipPath) ==========
-// 注意: 水体层在 PNG 下方 (z-index:1), PNG 会遮挡多余水体,
-// 所以 clipPath 需比地形更宽, 确保水体填满山体透明区域
+// 水体仅在坝体上游侧（左侧）显示，坝面右侧为绝对边界。
+const DAM_FACE_X = 1340
 const TERRAIN_BOTTOM = 875
 const reservoirClipPath = computed(() => {
-  // 左岸线 (从坝顶左侧到河床底部, 向外扩展贴合山体)
-  const leftPoints = [
-    { x: 20,  y: toY(props.section.dam.crestElevation) - 50 },
-    { x: 80,  y: toY(props.section.dam.crestElevation) + 10 },
-    { x: 180, y: toY(elevMin.value + 80) },
-    { x: 320, y: toY(elevMin.value + 50) },
-    { x: 480, y: toY(elevMin.value + 20) },
-    { x: 660, y: TERRAIN_BOTTOM },
+  const crestY = toY(props.section.dam.crestElevation)
+  const midLowY = toY(elevMin.value + 40)
+  const bottomY = TERRAIN_BOTTOM + 30
+
+  // 左岸沿山谷轮廓，右侧垂直切割在坝面
+  const pts = [
+    `M -80,${Math.max(0, crestY - 140).toFixed(1)}`,
+    `L 40,${(crestY + 25).toFixed(1)}`,
+    `L 180,${midLowY.toFixed(1)}`,
+    `L 380,${toY(elevMin.value + 20).toFixed(1)}`,
+    `L 660,${bottomY.toFixed(1)}`,
+    // 河床底部到坝面位置
+    `L ${DAM_FACE_X},${bottomY.toFixed(1)}`,
+    // 垂直向上切割到坝顶（绝对边界，不让水体到下游）
+    `L ${DAM_FACE_X},${Math.max(0, crestY - 140).toFixed(1)}`,
+    'Z',
   ]
-  // 右岸线 (河床底部到坝顶右侧)
-  const rightPoints = [
-    { x: 1030, y: TERRAIN_BOTTOM },
-    { x: 1120, y: toY(elevMin.value + 20) },
-    { x: 1220, y: toY(elevMin.value + 50) },
-    { x: 1320, y: toY(props.section.dam.crestElevation) + 10 },
-    { x: 1380, y: toY(props.section.dam.crestElevation) - 50 },
-  ]
-
-  let d = `M ${leftPoints[0].x.toFixed(1)} ${leftPoints[0].y.toFixed(1)}`
-
-  // 左岸
-  for (let i = 1; i < leftPoints.length; i++) {
-    const prev = leftPoints[i - 1]
-    const p = leftPoints[i]
-    d += ` C ${(prev.x + (p.x - prev.x) * 0.4).toFixed(1)} ${(prev.y + 8).toFixed(1)},`
-    d += ` ${(prev.x + (p.x - prev.x) * 0.6).toFixed(1)} ${p.y.toFixed(1)},`
-    d += ` ${p.x.toFixed(1)} ${p.y.toFixed(1)}`
-  }
-
-  // 河床底部连线
-  d += ` L ${rightPoints[0].x.toFixed(1)} ${rightPoints[0].y.toFixed(1)}`
-
-  // 右岸
-  for (let i = 1; i < rightPoints.length; i++) {
-    const prev = rightPoints[i - 1]
-    const p = rightPoints[i]
-    d += ` C ${(prev.x + (p.x - prev.x) * 0.4).toFixed(1)} ${prev.y.toFixed(1)},`
-    d += ` ${(prev.x + (p.x - prev.x) * 0.6).toFixed(1)} ${(p.y + 8).toFixed(1)},`
-    d += ` ${p.x.toFixed(1)} ${p.y.toFixed(1)}`
-  }
-
-  // 上方闭合
-  d += ` L ${leftPoints[0].x.toFixed(1)} ${leftPoints[0].y.toFixed(1)} Z`
-  return d
+  return pts.join(' ')
 })
 
 // ========== 水面波动纹理 ==========
@@ -141,90 +114,79 @@ const wavePath2 = computed(() => {
   <div class="section-graph">
     <PanelCard :title="section.title">
       <div class="graph-wrap">
-        <!-- ===== 水体层 (z-index: 1) ===== -->
-        <svg
-          class="layer water-layer"
-          :viewBox="`0 0 1672 940`"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <defs>
-            <clipPath id="reservoirClip">
-              <path :d="reservoirClipPath" />
-            </clipPath>
+        <!-- ===== 水体+背景共享容器：与 PNG 完全相同的位置和尺寸 ===== -->
+        <div class="graph-visual">
+          <!-- 水体层 (z-index: 1) -->
+          <svg
+            class="layer water-layer"
+            :viewBox="`0 0 1672 940`"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              <clipPath id="reservoirClip">
+                <path :d="reservoirClipPath" />
+              </clipPath>
 
-            <!-- 水体渐变 -->
-            <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stop-color="rgba(0, 160, 255, 0.60)" />
-              <stop offset="40%"  stop-color="rgba(0, 110, 230, 0.55)" />
-              <stop offset="100%" stop-color="rgba(0, 50, 160, 0.70)" />
-            </linearGradient>
+              <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="rgba(0, 160, 255, 0.60)" />
+                <stop offset="40%"  stop-color="rgba(0, 110, 230, 0.55)" />
+                <stop offset="100%" stop-color="rgba(0, 50, 160, 0.70)" />
+              </linearGradient>
 
-            <!-- 水底渐变 -->
-            <linearGradient id="deepGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stop-color="rgba(0, 60, 180, 0.20)" />
-              <stop offset="100%" stop-color="rgba(0, 20, 80, 0.40)" />
-            </linearGradient>
-          </defs>
-          <rect
-            x="0"
-            :y="Math.max(0, waterY)"
-            width="1672"
-            :height="TERRAIN_BOTTOM - Math.max(0, waterY)"
-            fill="url(#waterGrad)"
-            clip-path="url(#reservoirClip)"
+              <linearGradient id="deepGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="rgba(0, 60, 180, 0.20)" />
+                <stop offset="100%" stop-color="rgba(0, 20, 80, 0.40)" />
+              </linearGradient>
+            </defs>
+            <rect
+              x="0"
+              :y="Math.max(0, waterY)"
+              width="1672"
+              :height="TERRAIN_BOTTOM - Math.max(0, waterY)"
+              fill="url(#waterGrad)"
+              clip-path="url(#reservoirClip)"
+            />
+            <rect
+              x="0"
+              :y="Math.max(0, waterY)"
+              width="1672"
+              :height="TERRAIN_BOTTOM - Math.max(0, waterY)"
+              fill="url(#deepGrad)"
+              clip-path="url(#reservoirClip)"
+            />
+            <path
+              v-if="waterY > 10"
+              :d="wavePath1"
+              fill="none"
+              stroke="rgba(255,255,255,0.20)"
+              stroke-width="2"
+              clip-path="url(#reservoirClip)"
+            />
+            <path
+              v-if="waterY > 20"
+              :d="wavePath2"
+              fill="none"
+              stroke="rgba(255,255,255,0.12)"
+              stroke-width="1.5"
+              clip-path="url(#reservoirClip)"
+            />
+          </svg>
+
+          <!-- 静态断面背景图 (z-index: 2) -->
+          <img
+            src="/map/section-bg.png"
+            class="layer section-bg"
+            alt="水库断面"
           />
+        </div>
 
-          <!-- 水底深度渐变 -->
-          <rect
-            x="0"
-            :y="Math.max(0, waterY)"
-            width="1672"
-            :height="TERRAIN_BOTTOM - Math.max(0, waterY)"
-            fill="url(#deepGrad)"
-            clip-path="url(#reservoirClip)"
-          />
-
-          <!-- 表面波纹 -->
-          <path
-            v-if="waterY > 10"
-            :d="wavePath1"
-            fill="none"
-            stroke="rgba(255,255,255,0.20)"
-            stroke-width="2"
-            clip-path="url(#reservoirClip)"
-          />
-          <path
-            v-if="waterY > 20"
-            :d="wavePath2"
-            fill="none"
-            stroke="rgba(255,255,255,0.12)"
-            stroke-width="1.5"
-            clip-path="url(#reservoirClip)"
-          />
-        </svg>
-
-        <!-- ===== 静态断面背景图 (z-index: 2) ===== -->
-        <img
-          src="/map/section-bg.png"
-          class="layer section-bg"
-          alt="水库断面"
-        />
-
-        <!-- ===== 标注层 (z-index: 3) ===== -->
+        <!-- ===== 标注层 (z-index: 3, 独立在全宽容器中) ===== -->
         <svg
           class="layer label-layer"
           :viewBox="`0 0 1672 940`"
           preserveAspectRatio="xMidYMid slice"
         >
           <defs>
-            <!-- 水位线发光 -->
-            <filter id="levelGlow" x="-20%" y="-30%" width="140%" height="160%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
             <filter id="currentGlow" x="-30%" y="-50%" width="160%" height="200%">
               <feGaussianBlur stdDeviation="4" result="blur" />
               <feMerge>
@@ -237,7 +199,6 @@ const wavePath2 = computed(() => {
 
           <!-- ---- 高程坐标轴 ---- -->
           <g class="axis-group">
-            <!-- 轴主线 -->
             <line
               x1="55" y1="20" x2="55" y2="920"
               stroke="rgba(50,150,255,0.45)" stroke-width="2.5"
@@ -248,18 +209,15 @@ const wavePath2 = computed(() => {
             >高程(m)</text>
 
             <template v-for="tk in elevationTicks" :key="'tk-' + tk.elev">
-              <!-- 横向虚线对齐线 (贯穿整个图表区) -->
               <line
                 :x1="55" :y1="tk.y" :x2="1670" :y2="tk.y"
                 stroke="rgba(50,150,255,0.15)" stroke-width="2"
                 stroke-dasharray="6,5"
               />
-              <!-- 刻度线 -->
               <line
                 :x1="43" :y1="tk.y" :x2="55" :y2="tk.y"
                 stroke="rgba(50,150,255,0.45)" stroke-width="2.5"
               />
-              <!-- 刻度标签 -->
               <text
                 :x="40" :y="tk.y + 7"
                 fill="#5a7a9a" font-size="20" text-anchor="end"
@@ -294,29 +252,23 @@ const wavePath2 = computed(() => {
             :key="lv.name"
             class="level-line-group"
           >
-            <!-- 水位线从左侧刻度贯穿到右侧数值 -->
             <line
               :x1="55" :y1="lv.y" :x2="1560" :y2="lv.y"
               :stroke="lv.color"
-              :stroke-width="lv.isCurrent ? 1 : 1"
+              :stroke-width="lv.isCurrent ? 4 : 3"
               :stroke-dasharray="lv.isCurrent ? 'none' : '12,6'"
               :filter="lv.isCurrent ? 'url(#currentGlow)' : 'none'"
               opacity="1"
             />
-            <!-- 左侧标签 -->
             <text
               :x="60" :y="lv.y - 12"
               :fill="lv.color"
-              font-size="20"
-              font-weight="600"
-              opacity="0.95"
+              font-size="20" font-weight="600" opacity="0.95"
             >{{ lv.name }}</text>
-            <!-- 右侧数值 -->
             <text
               :x="1555" :y="lv.y - 12"
               :fill="lv.color"
-              font-size="20"
-              text-anchor="end"
+              font-size="20" text-anchor="end"
               :font-weight="lv.isCurrent ? 700 : 500"
               font-family="'DIN Alternate', 'Roboto Mono', monospace"
             >{{ lv.value.toFixed(2) }} m</text>
@@ -335,14 +287,13 @@ const wavePath2 = computed(() => {
             >坝顶 {{ section.dam.crestElevation.toFixed(2) }}m</text>
           </g>
 
-          <!-- ---- 入库流量 (仅数值, 无箭头) ---- -->
+          <!-- ---- 入库流量 ---- -->
           <g class="flow-indicator inflow">
             <rect
               :x="110" :y="52"
               width="120" height="36" rx="6"
               fill="rgba(6,30,70,0.85)"
-              stroke="rgba(0,229,255,0.30)"
-              stroke-width="1"
+              stroke="rgba(0,229,255,0.30)" stroke-width="1"
             />
             <text
               :x="170" :y="76"
@@ -355,14 +306,13 @@ const wavePath2 = computed(() => {
             >入库流量</text>
           </g>
 
-          <!-- ---- 出库流量 (仅数值, 无箭头) ---- -->
+          <!-- ---- 出库流量 ---- -->
           <g class="flow-indicator outflow">
             <rect
               :x="1470" :y="52"
               width="120" height="36" rx="6"
               fill="rgba(6,30,70,0.85)"
-              stroke="rgba(0,212,255,0.30)"
-              stroke-width="1"
+              stroke="rgba(0,212,255,0.30)" stroke-width="1"
             />
             <text
               :x="1530" :y="76"
@@ -430,8 +380,16 @@ const wavePath2 = computed(() => {
   margin: 0 auto;
 }
 
-/* 所有图层共用定位 */
-.layer {
+/* 水体+背景共享容器：与 PNG 完全相同的位置和尺寸 */
+.graph-visual {
+  position: absolute;
+  left: 38px;
+  top: 0;
+  width: calc(100% - 100px);
+  height: 100%;
+}
+
+.graph-visual .layer {
   position: absolute;
   left: 0;
   top: 0;
@@ -440,21 +398,23 @@ const wavePath2 = computed(() => {
   pointer-events: none;
 }
 
-/* 水体层 */
-.water-layer {
+.graph-visual .water-layer {
   z-index: 1;
 }
 
-/* 静态断面图：向右偏移，避免与左侧刻度重叠 */
-.section-bg {
+.graph-visual .section-bg {
   z-index: 2;
-  left: 38px;
-  width: calc(100% - 100px);
   object-fit: fill;
 }
 
-/* 标注层 */
+/* 标注层：独立在全宽容器中 */
 .label-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   z-index: 3;
 }
 
