@@ -113,29 +113,8 @@ AI 编程必须遵守以下原则：
 8. 不允许提前接入 MATLAB。
 9. 页面数据优先使用 src/mock/ 中的模拟数据。
 10. 页面开发必须参考 docs/page-design/ 中对应页面说明。
+11. 优先跑通页面闭环，再逐步补充细节。
 ```
-
----
-
-## 5. 每次开发前必须说明范围
-
-AI 每次写代码前，必须先说明本次开发范围。
-
-格式如下：
-
-```md
-## 本次开发范围
-
-- 本次开发内容：
-- 参考文档：
-- 允许修改目录：
-- 允许修改文件：
-- 不允许修改内容：
-- 使用的数据：
-- 完成标准：
-```
-
-如果没有说明开发范围，不允许直接生成代码。
 
 ---
 
@@ -174,6 +153,12 @@ src/mock/
 
 存放每个页面对应的模拟数据。
 
+```text
+docs/requirements/system-requirements.md
+```
+
+说明系统总体初步功能需求。
+
 ---
 
 ## 7. 推荐项目目录结构
@@ -188,6 +173,9 @@ project-root/
 ├─ index.html
 │
 ├─ docs/
+│  ├─ requirements/
+│  │  └─ system-requirements.md
+│  │
 │  └─ page-design/
 │     ├─ README.md
 │     ├─ 01-home.md
@@ -276,10 +264,10 @@ project-root/
 7. 创建 mock 数据目录
 8. 开发首页
 9. 开发基础数据页面
-10. 开发水调水情页面
-11. 开发模型配置页面
-12. 开发过程透明页面
-13. 开发评价决策页面
+10. 开发模型配置页面
+11. 开发过程透明页面
+12. 开发评价决策页面
+13. 开发水调水情页面
 14. 开发案例库页面
 15. 开发报表统计页面
 16. 统一优化样式和组件
@@ -306,7 +294,7 @@ project-root/
 报表统计 → docs/page-design/08-report-statistics.md
 ```
 
-例如，开发模型配置页面时，只允许参考：
+例如，开发模型配置页面时，允许参考：
 
 ```text
 docs/page-design/README.md
@@ -371,16 +359,23 @@ src/mock/
 示例：
 
 ```ts
-export const reservoirList = [
-  {
-    id: 'longyangxia',
-    name: '龙羊峡',
-    waterLevel: 2598.42,
-    inflow: 835,
-    outflow: 720,
-    storage: 186.5,
+export const reservoirOverviewMock = {
+  code: 200,
+  message: 'success',
+  data: {
+    reservoirList: [
+      {
+        id: 'longyangxia',
+        name: '龙羊峡水库',
+        waterLevel: 2472.35,
+        inflow: 1250,
+        outflow: 1180,
+        storage: 247.58,
+        status: 'normal',
+      },
+    ],
   },
-]
+}
 ```
 
 ---
@@ -605,14 +600,6 @@ camelCase，例如 reservoir.ts
 
 -
 
-## 运行方式
-
--
-
-## 验证方式
-
--
-
 ## 下一步建议
 
 -
@@ -622,28 +609,7 @@ camelCase，例如 reservoir.ts
 
 ---
 
-## 19. 当前阶段验收标准
-
-当前阶段完成后，应满足：
-
-```text
-1. 前端项目可以正常启动。
-2. 顶部导航可以切换八个模块。
-3. 所有页面都能正常打开。
-4. 页面使用统一深色科技风。
-5. 首页地图可以展示水库点位。
-6. 图表可以使用 mock 数据正常渲染。
-7. 模型配置五步流程可以切换。
-8. 模型配置点击开始计算后可以跳转过程透明。
-9. 过程透明可以模拟进度变化。
-10. 过程透明可以跳转评价决策。
-11. 评价决策可以展示 mock 评价结果。
-12. 案例库和报表统计可以展示静态 mock 页面。
-```
-
----
-
-## 20. 最重要原则
+## 19. 最重要原则
 
 当前阶段只做一件事：
 
