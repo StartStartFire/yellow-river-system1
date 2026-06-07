@@ -178,14 +178,13 @@ const wavePath2 = computed(() => {
             class="layer section-bg"
             alt="水库断面"
           />
-        </div>
 
-        <!-- ===== 标注层 (z-index: 3, 独立在全宽容器中) ===== -->
-        <svg
-          class="layer label-layer"
-          :viewBox="`0 0 1672 940`"
-          preserveAspectRatio="xMidYMid slice"
-        >
+          <!-- 标注层 (z-index: 3, 与水体/背景共享坐标空间) -->
+          <svg
+            class="layer label-layer"
+            :viewBox="`0 0 1672 940`"
+            preserveAspectRatio="none"
+          >
           <defs>
             <filter id="currentGlow" x="-30%" y="-50%" width="160%" height="200%">
               <feGaussianBlur stdDeviation="4" result="blur" />
@@ -200,26 +199,17 @@ const wavePath2 = computed(() => {
           <!-- ---- 高程坐标轴 ---- -->
           <g class="axis-group">
             <line
-              x1="55" y1="20" x2="55" y2="920"
-              stroke="rgba(50,150,255,0.45)" stroke-width="2.5"
+              x1="0" y1="20" x2="0" y2="920"
+              stroke="rgba(50,150,255,0.45)" stroke-width="4"
             />
-            <text
-              x="48" y="14" fill="#5a7a9a" font-size="22"
-              text-anchor="end" font-weight="600"
-            >高程(m)</text>
-
             <template v-for="tk in elevationTicks" :key="'tk-' + tk.elev">
               <line
-                :x1="55" :y1="tk.y" :x2="1670" :y2="tk.y"
+                :x1="0" :y1="tk.y" :x2="1670" :y2="tk.y"
                 stroke="rgba(50,150,255,0.15)" stroke-width="2"
                 stroke-dasharray="6,5"
               />
-              <line
-                :x1="43" :y1="tk.y" :x2="55" :y2="tk.y"
-                stroke="rgba(50,150,255,0.45)" stroke-width="2.5"
-              />
               <text
-                :x="40" :y="tk.y + 7"
+                :x="50" :y="tk.y + 7"
                 fill="#5a7a9a" font-size="20" text-anchor="end"
                 font-family="'DIN Alternate', 'Roboto Mono', monospace"
               >{{ tk.elev }}</text>
@@ -253,9 +243,9 @@ const wavePath2 = computed(() => {
             class="level-line-group"
           >
             <line
-              :x1="55" :y1="lv.y" :x2="1560" :y2="lv.y"
+              :x1="0" :y1="lv.y" :x2="1560" :y2="lv.y"
               :stroke="lv.color"
-              :stroke-width="lv.isCurrent ? 4 : 3"
+              :stroke-width="lv.isCurrent ? 3 : 2"
               :stroke-dasharray="lv.isCurrent ? 'none' : '12,6'"
               :filter="lv.isCurrent ? 'url(#currentGlow)' : 'none'"
               opacity="1"
@@ -263,7 +253,7 @@ const wavePath2 = computed(() => {
             <text
               :x="60" :y="lv.y - 12"
               :fill="lv.color"
-              font-size="20" font-weight="600" opacity="0.95"
+              font-size="15" font-weight="550" opacity="0.95"
             >{{ lv.name }}</text>
             <text
               :x="1555" :y="lv.y - 12"
@@ -274,15 +264,14 @@ const wavePath2 = computed(() => {
             >{{ lv.value.toFixed(2) }} m</text>
           </g>
 
-          <!-- ---- 坝顶标注 ---- -->
+          <!-- ---- 坝顶标注（固定坐标，所有水库共用同一张 PNG，坝顶位置不变） ---- -->
           <g class="dam-label">
             <line
-              :x1="1295" :y1="toY(section.dam.crestElevation)"
-              :x2="1360" :y2="toY(section.dam.crestElevation)"
+              x1="1295" y1="204" x2="1360" y2="204"
               stroke="rgba(150,180,210,0.50)" stroke-width="2"
             />
             <text
-              :x="1350" :y="toY(section.dam.crestElevation) - 10"
+              x="1350" y="194"
               fill="#94A3B8" font-size="17" text-anchor="end" font-weight="600"
             >坝顶 {{ section.dam.crestElevation.toFixed(2) }}m</text>
           </g>
@@ -325,7 +314,8 @@ const wavePath2 = computed(() => {
             >出库流量</text>
           </g>
         </svg>
-      </div>
+        </div><!-- graph-visual end -->
+      </div><!-- graph-wrap end -->
 
       <!-- 底部工程参数栏 -->
       <div class="params-bar">
@@ -370,8 +360,8 @@ const wavePath2 = computed(() => {
 
 .graph-wrap {
   position: relative;
-  width: 95%;
-  max-width: 1600px;
+  width: 100%;
+  max-width: 2200px;
   aspect-ratio: 1672 / 940;
   background: #061a3a;
   overflow: hidden;
@@ -407,14 +397,7 @@ const wavePath2 = computed(() => {
   object-fit: fill;
 }
 
-/* 标注层：独立在全宽容器中 */
-.label-layer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+.graph-visual .label-layer {
   z-index: 3;
 }
 

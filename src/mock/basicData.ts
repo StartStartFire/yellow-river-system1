@@ -290,6 +290,114 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
   ],
+  gongboxia: [
+    {
+      title: '工程属性',
+      items: [
+        { key: '水库名称', value: '公伯峡水库' },
+        { key: '水库编码', value: 'B61041010' },
+        { key: '所属流域', value: '黄河上游' },
+        { key: '所在水系', value: '公伯峡峡谷段' },
+        { key: '水库类型', value: '年调节水库' },
+        { key: '坝型', value: '混凝土双曲拱坝' },
+        { key: '坝顶高程', value: '2002.00 m' },
+        { key: '坝顶长度', value: '260.00 m' },
+        { key: '最大坝高', value: '155.00 m' },
+        { key: '装机容量', value: '750 MW' },
+        { key: '机组台数', value: '5 台' },
+      ],
+    },
+    {
+      title: '特征水位',
+      items: [
+        { key: '正常蓄水位', value: '1988.00 m' },
+        { key: '汛限水位', value: '1985.00 m' },
+        { key: '死水位', value: '1950.00 m' },
+        { key: '设计洪水位（P=2%）', value: '1997.00 m' },
+        { key: '校核洪水位（P=0.2%）', value: '2005.00 m' },
+      ],
+    },
+    {
+      title: '调度规则',
+      items: [
+        { key: '调度目标', value: '发电为主，兼顾防洪' },
+        { key: '汛期时段', value: '6月1日 — 9月30日' },
+        { key: '生态下泄流量', value: '≥ 50 m³/s' },
+      ],
+    },
+  ],
+  jishixia: [
+    {
+      title: '工程属性',
+      items: [
+        { key: '水库名称', value: '积石峡水库' },
+        { key: '水库编码', value: 'B61051010' },
+        { key: '所属流域', value: '黄河上游' },
+        { key: '所在水系', value: '积石峡峡谷段' },
+        { key: '水库类型', value: '年调节水库' },
+        { key: '坝型', value: '混凝土重力坝' },
+        { key: '坝顶高程', value: '1868.00 m' },
+        { key: '坝顶长度', value: '210.00 m' },
+        { key: '最大坝高', value: '138.00 m' },
+        { key: '装机容量', value: '1020 MW' },
+        { key: '机组台数', value: '3 台' },
+      ],
+    },
+    {
+      title: '特征水位',
+      items: [
+        { key: '正常蓄水位', value: '1858.00 m' },
+        { key: '汛限水位', value: '1855.00 m' },
+        { key: '死水位', value: '1820.00 m' },
+        { key: '设计洪水位（P=2%）', value: '1862.00 m' },
+        { key: '校核洪水位（P=0.2%）', value: '1870.00 m' },
+      ],
+    },
+    {
+      title: '调度规则',
+      items: [
+        { key: '调度目标', value: '发电为主，兼顾防洪、防凌' },
+        { key: '汛期时段', value: '6月1日 — 9月30日' },
+        { key: '生态下泄流量', value: '≥ 45 m³/s' },
+      ],
+    },
+  ],
+  qingtongxia: [
+    {
+      title: '工程属性',
+      items: [
+        { key: '水库名称', value: '青铜峡水库' },
+        { key: '水库编码', value: 'B61061010' },
+        { key: '所属流域', value: '黄河上游' },
+        { key: '所在水系', value: '青铜峡峡谷段' },
+        { key: '水库类型', value: '日调节水库' },
+        { key: '坝型', value: '碾压混凝土重力坝' },
+        { key: '坝顶高程', value: '1162.00 m' },
+        { key: '坝顶长度', value: '365.00 m' },
+        { key: '最大坝高', value: '52.00 m' },
+        { key: '装机容量', value: '272 MW' },
+        { key: '机组台数', value: '8 台' },
+      ],
+    },
+    {
+      title: '特征水位',
+      items: [
+        { key: '正常蓄水位', value: '1157.00 m' },
+        { key: '汛限水位', value: '1155.00 m' },
+        { key: '死水位', value: '1130.00 m' },
+        { key: '设计洪水位（P=2%）', value: '1160.00 m' },
+        { key: '校核洪水位（P=0.2%）', value: '1168.00 m' },
+      ],
+    },
+    {
+      title: '调度规则',
+      items: [
+        { key: '调度目标', value: '灌溉为主，兼顾发电、防洪' },
+        { key: '汛期时段', value: '6月15日 — 9月15日' },
+        { key: '生态下泄流量', value: '≥ 35 m³/s' },
+      ],
+    },
+  ],
 }
 
 // 各水库水情过程数据

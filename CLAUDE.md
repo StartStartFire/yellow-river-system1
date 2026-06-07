@@ -159,6 +159,12 @@ docs/requirements/system-requirements.md
 
 说明系统总体初步功能需求。
 
+```text
+docs/development/AI-WORKLOG.md
+```
+
+说明AI编程完成和未完成的任务记录，方便新会话快速开始。
+
 ---
 
 ## 7. 推荐项目目录结构
@@ -175,6 +181,9 @@ project-root/
 ├─ docs/
 │  ├─ requirements/
 │  │  └─ system-requirements.md
+│  │
+│  ├─ development/
+│  │  └─ AI-WORKLOG.md
 │  │
 │  └─ page-design/
 │     ├─ README.md
