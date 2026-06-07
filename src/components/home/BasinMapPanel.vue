@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import PanelCard from '@/components/common/PanelCard.vue'
 import { reservoirPoints, mapLayers } from '@/mock/home'
 
 const mapContainer = ref<HTMLDivElement | null>(null)
@@ -93,9 +92,11 @@ const addReservoirMarkers = () => {
 
     const marker = L.marker([point.lat, point.lng], { icon })
     marker.on('click', () => {
+      if (!map) return
+
       emit('select-reservoir', point.id)
       // 直接弹出水库信息窗口
-      map?.closePopup()
+      map.closePopup()
       const popupContent = `
         <div class="map-popup">
           <div class="popup-header">${point.name}</div>
@@ -120,7 +121,7 @@ const addReservoirMarkers = () => {
         .setLatLng([point.lat, point.lng])
         .setContent(popupContent)
         .openOn(map)
-      map?.flyTo([point.lat, point.lng], 9, { duration: 1 })
+      map.flyTo([point.lat, point.lng], 9, { duration: 1 })
     })
     marker.addTo(map!)
     markers.push(marker)

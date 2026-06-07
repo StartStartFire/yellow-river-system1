@@ -359,23 +359,16 @@ src/mock/
 示例：
 
 ```ts
-export const reservoirOverviewMock = {
-  code: 200,
-  message: 'success',
-  data: {
-    reservoirList: [
-      {
-        id: 'longyangxia',
-        name: '龙羊峡水库',
-        waterLevel: 2472.35,
-        inflow: 1250,
-        outflow: 1180,
-        storage: 247.58,
-        status: 'normal',
-      },
-    ],
+export const reservoirList = [
+  {
+    id: 'longyangxia',
+    name: '龙羊峡',
+    waterLevel: 2598.42,
+    inflow: 835,
+    outflow: 720,
+    storage: 186.5,
   },
-}
+]
 ```
 
 ---
