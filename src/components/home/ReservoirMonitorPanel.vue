@@ -3,6 +3,8 @@ import PanelCard from '@/components/common/PanelCard.vue'
 import StatusTag from '@/components/common/StatusTag.vue'
 import { homeReservoirMonitor } from '@/mock/home'
 
+const monitorData = homeReservoirMonitor.data
+
 const emit = defineEmits<{
   (e: 'select-reservoir', id: string): void
 }>()
@@ -12,7 +14,7 @@ const emit = defineEmits<{
   <PanelCard title="水情监控">
     <div class="space-y-3">
       <div
-        v-for="reservoir in homeReservoirMonitor"
+        v-for="reservoir in monitorData"
         :key="reservoir.id"
         class="reservoir-block"
         style="background: rgba(2, 27, 63, 0.6); border: 1px solid rgba(50, 150, 255, 0.2); border-radius: 8px; padding: 12px;"

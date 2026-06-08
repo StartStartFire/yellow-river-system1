@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { announcement, weatherInfo } from '@/mock/home'
+
+const announcementData = announcement.data
+const weatherData = weatherInfo.data
 </script>
 
 <template>
@@ -9,14 +12,14 @@ import { announcement, weatherInfo } from '@/mock/home'
     <div class="footer-section announcement-section">
       <span class="footer-label">通知公告</span>
       <div class="announcement-content">
-        <span class="announcement-text">{{ announcement.content }}</span>
+        <span class="announcement-text">{{ announcementData.content }}</span>
       </div>
     </div>
 
     <!-- 天气 -->
     <div class="footer-section weather-section">
-      <span class="footer-label">{{ weatherInfo.city }}</span>
-      <span class="weather-info">{{ weatherInfo.weather }} {{ weatherInfo.temperature }} {{ weatherInfo.wind }}</span>
+      <span class="footer-label">{{ weatherData.city }}</span>
+      <span class="weather-info">{{ weatherData.weather }} {{ weatherData.temperature }} {{ weatherData.wind }}</span>
     </div>
 
     <!-- 退出系统 -->

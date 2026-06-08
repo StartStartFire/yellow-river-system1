@@ -687,68 +687,87 @@ src/mock/basicData.ts
 src/mock/basicData.ts
 ```
 
-建议 mock 数据结构如下：
+建议 mock 数据统一使用以下 API 响应格式：
 
 ```ts
-export const reservoirList = [
-  {
-    id: 'longyangxia',
-    name: '龙羊峡',
-    status: '运行正常',
-    image: '/images/reservoir/longyangxia.png',
-  },
-  {
-    id: 'liujiaxia',
-    name: '刘家峡',
-    status: '运行正常',
-    image: '/images/reservoir/liujiaxia.png',
-  },
-]
+// 统一 API 响应结构
+interface ApiResponse<T> {
+  code: number
+  message: string
+  data: T
+}
+```
 
-export const reservoirOverview = {
-  longyangxia: {
-    name: '龙羊峡',
-    currentLevel: 2467.35,
-    currentLevelChange: -0.12,
-    inflow: 487.6,
-    inflowChange: 23.4,
-    outflow: 612.3,
-    outflowChange: 15.7,
-    storage: 24.58,
-    storageChange: -0.18,
-  },
-  liujiaxia: {
-    name: '刘家峡',
-    currentLevel: 1738.62,
-    currentLevelChange: -0.08,
-    inflow: 426.5,
-    inflowChange: 18.2,
-    outflow: 520.4,
-    outflowChange: 12.6,
-    storage: 57.32,
-    storageChange: -0.11,
+```ts
+export const reservoirList: ApiResponse<ReservoirBrief[]> = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      id: 'longyangxia',
+      name: '龙羊峡',
+      status: 'normal',
+    },
+    {
+      id: 'liujiaxia',
+      name: '刘家峡',
+      status: 'normal',
+    },
+  ],
+}
+
+export const reservoirOverview: ApiResponse<Record<string, MetricCardData>> = {
+  code: 200,
+  message: 'success',
+  data: {
+    longyangxia: {
+      name: '龙羊峡',
+      currentLevel: 2467.35,
+      currentLevelChange: -0.12,
+      inflow: 487.6,
+      inflowChange: 23.4,
+      outflow: 612.3,
+      outflowChange: 15.7,
+      storage: 24.58,
+      storageChange: -0.18,
+    },
+    liujiaxia: {
+      name: '刘家峡',
+      currentLevel: 1738.62,
+      currentLevelChange: -0.08,
+      inflow: 426.5,
+      inflowChange: 18.2,
+      outflow: 520.4,
+      outflowChange: 12.6,
+      storage: 57.32,
+      storageChange: -0.11,
+    },
   },
 }
 
-export const reservoirSection = {
-  longyangxia: {
-    title: '龙羊峡水库断面示意图',
-    elevationAxis: [2520, 2500, 2480, 2460, 2440, 2420, 2400, 2380],
-    levels: [
-      { name: '校核洪水位', value: 2505.0, color: '#C084FC' },
-      { name: '设计洪水位', value: 2497.0, color: '#F97316' },
-      { name: '正常蓄水位', value: 2480.0, color: '#38BDF8' },
-      { name: '汛限水位', value: 2470.0, color: '#EAB308' },
-      { name: '当前水位', value: 2467.35, color: '#00AFFF' },
-      { name: '死水位', value: 2410.0, color: '#CBD5E1' },
-    ],
-    inflow: 487.6,
-    outflow: 612.3,
-    dam: {
-      type: '混凝土重力坝',
-      crestElevation: 2510.0,
-      crestLength: 393.0,
-      maxHeight: 178.0,
+export const reservoirSection: ApiResponse<Record<string, ReservoirSection>> = {
+  code: 200,
+  message: 'success',
+  data: {
+    longyangxia: {
+      title: '龙羊峡水库断面示意图',
+      elevationAxis: [2520, 2500, 2480, 2460, 2440, 2420, 2400, 2380],
+      levels: [
+        { name: '校核洪水位', value: 2505.0, color: '#C084FC' },
+        { name: '设计洪水位', value: 2497.0, color: '#F97316' },
+        { name: '正常蓄水位', value: 2480.0, color: '#38BDF8' },
+        { name: '汛限水位', value: 2470.0, color: '#EAB308' },
+        { name: '当前水位', value: 2467.35, color: '#00AFFF' },
+        { name: '死水位', value: 2410.0, color: '#CBD5E1' },
+      ],
+      inflow: 487.6,
+      outflow: 612.3,
+      dam: {
+        type: '混凝土重力坝',
+        crestElevation: 2510.0,
+        crestLength: 393.0,
+        maxHeight: 178.0,
+      },
     },
   },
 }

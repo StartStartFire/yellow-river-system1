@@ -4,6 +4,8 @@ import * as echarts from 'echarts'
 import PanelCard from '@/components/common/PanelCard.vue'
 import { loadSeries } from '@/mock/home'
 
+const seriesData = loadSeries.data
+
 const chartRef = ref<HTMLDivElement | null>(null)
 const activeType = ref<'active' | 'reactive'>('active')
 let chart: echarts.ECharts | null = null
@@ -21,7 +23,7 @@ const initChart = () => {
     chart = echarts.init(chartRef.value)
   }
 
-  const rawData = activeType.value === 'active' ? loadSeries.activePower : loadSeries.reactivePower
+  const rawData = activeType.value === 'active' ? seriesData.activePower : seriesData.reactivePower
   const displayData = rawData.filter(
     s => s.name === '龙羊峡水库' || s.name === '刘家峡水库'
   )
@@ -47,7 +49,7 @@ const initChart = () => {
     },
     xAxis: {
       type: 'category' as const,
-      data: loadSeries.xAxis,
+      data: seriesData.xAxis,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
       axisLabel: { color: '#7a8fa3', fontSize: 11 },
       splitLine: { show: false },

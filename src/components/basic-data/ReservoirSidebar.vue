@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import StatusTag from '@/components/common/StatusTag.vue'
 import { reservoirList } from '@/mock/basicData'
 
+const listData = reservoirList.data
+
 interface Props {
   selectedId: string
   collapsed: boolean
@@ -24,7 +26,7 @@ const statusMap: Record<string, 'normal' | 'warning' | 'abnormal'> = {
 const displayName = computed(() => {
   // 展开时显示全名，收起时只显示第一个字
   if (props.collapsed) {
-    return reservoirList.find(r => r.id === props.selectedId)?.name.charAt(0) || '-'
+    return listData.find(r => r.id === props.selectedId)?.name.charAt(0) || '-'
   }
   return ''
 })
@@ -48,7 +50,7 @@ const displayName = computed(() => {
     <!-- 列表区 -->
     <div class="sidebar-list">
       <div
-        v-for="item in reservoirList"
+        v-for="item in listData"
         :key="item.id"
         class="sidebar-item"
         :class="{ active: item.id === selectedId }"

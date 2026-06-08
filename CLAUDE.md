@@ -190,7 +190,13 @@ project-root/
 │     ├─ 01-home.md
 │     ├─ 02-basic-data.md
 │     ├─ 03-water-condition.md
-│     ├─ 04-model-config.md
+│     ├─ 04-model-config/
+│     │  ├─ README.md                    # 模型配置模块总说明，只写五步流程关系
+│     │  ├─ 01-model-data.md             # Step 1 模型数据
+│     │  ├─ 02-basic-config.md           # Step 2 基础配置
+│     │  ├─ 03-model-algorithm.md        # Step 3 模型算法
+│     │  ├─ 04-scenario-constraint.md    # Step 4 场景约束
+│     │  └─ 05-config-summary.md         # Step 5 配置汇总
 │     ├─ 05-process-transparent.md
 │     ├─ 06-evaluation-decision.md
 │     ├─ 07-case-library.md
@@ -296,7 +302,7 @@ project-root/
 首页 → docs/page-design/01-home.md
 基础数据 → docs/page-design/02-basic-data.md
 水调水情 → docs/page-design/03-water-condition.md
-模型配置 → docs/page-design/04-model-config.md
+模型配置 → docs/page-design/04-model-config/具体文档.md
 过程透明 → docs/page-design/05-process-transparent.md
 评价决策 → docs/page-design/06-evaluation-decision.md
 案例库 → docs/page-design/07-case-library.md
@@ -307,7 +313,7 @@ project-root/
 
 ```text
 docs/page-design/README.md
-docs/page-design/04-model-config.md
+docs/page-design/04-model-config/具体文档.md
 src/mock/modelConfig.ts
 ```
 
@@ -368,16 +374,23 @@ src/mock/
 示例：
 
 ```ts
-export const reservoirList = [
-  {
-    id: 'longyangxia',
-    name: '龙羊峡',
-    waterLevel: 2598.42,
-    inflow: 835,
-    outflow: 720,
-    storage: 186.5,
+export const reservoirOverviewMock = {
+  code: 200,
+  message: 'success',
+  data: {
+    reservoirList: [
+      {
+        id: 'longyangxia',
+        name: '龙羊峡水库',
+        waterLevel: 2472.35,
+        inflow: 1250,
+        outflow: 1180,
+        storage: 247.58,
+        status: 'normal',
+      },
+    ],
   },
-]
+}
 ```
 
 ---

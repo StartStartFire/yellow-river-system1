@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 使用 :root:root（双倍 specificity）覆盖 Element Plus 默认 CSS 变量，不受 @layer 影响 */
+:root:root {
+  --el-bg-color: #112536;
+  --el-bg-color-overlay: #0f1f33;
+  --el-fill-color-blank: #112536;
+  --el-fill-color: #0d1f36;
+  --el-fill-color-light: #0f2340;
+  --el-table-bg-color: #112536;
+  --el-table-header-bg-color: #0a1a2e;
+  --el-table-row-bg-color: #112536;
+  --el-table-tr-bg-color: #112536;
+  --el-border-color: #1a3a52;
+  --el-border-color-light: #1a3a52;
+  --el-border-color-lighter: #1a3a52;
+  --el-border-color-extra-light: #1a3a52;
+  --el-border-color-dark: #1a3a52;
+  --el-input-bg-color: #112536;
+}
+
 @layer base {
   html {
     @apply bg-tech-bg text-tech-text;

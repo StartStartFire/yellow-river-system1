@@ -749,77 +749,118 @@ ECharts 多折线图
 src/mock/home.ts
 ```
 
-建议 mock 数据包括：
+建议 mock 数据统一使用以下 API 响应格式：
 
 ```ts
-export const homeReservoirMonitor = [
-  {
-    id: 'longyangxia',
-    name: '龙羊峡水库',
-    status: 'normal',
-    inflow: 1250,
-    outflow: 1180,
-    forebayLevel: 2472.35,
-    tailwaterLevel: 2058.45,
-    storage: 247.58,
-    turbineFlow: 1180,
-  },
-  {
-    id: 'liujiaxia',
-    name: '刘家峡水库',
-    status: 'normal',
-    inflow: 1060,
-    outflow: 1020,
-    forebayLevel: 1738.62,
-    tailwaterLevel: 1694.22,
-    storage: 57.32,
-    turbineFlow: 1020,
-  },
-]
+// 统一 API 响应结构
+interface ApiResponse<T> {
+  code: number
+  message: string
+  data: T
+}
+```
 
-export const reservoirPoints = [
-  {
-    id: 'longyangxia',
-    name: '龙羊峡水库',
-    lat: 36.12,
-    lng: 100.92,
-    status: 'normal',
-    waterLevel: 2472.35,
-    inflow: 1250,
-    outflow: 1180,
-  },
-]
-
-export const powerStatistics = [
-  {
-    reservoirName: '龙羊峡水库',
-    dailyPower: 2450.8,
-    monthlyPower: 61320.5,
-    yearlyPower: 512430.6,
-  },
-]
-
-export const waterLevelSeries = {
-  xAxis: ['05-10', '05-11', '05-12', '05-13', '05-14', '05-15', '05-16'],
-  series: [],
+```ts
+export const homeReservoirMonitor: ApiResponse<ReservoirMonitor[]> = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      id: 'longyangxia',
+      name: '龙羊峡水库',
+      status: 'normal',
+      inflow: 1250,
+      outflow: 1180,
+      forebayLevel: 2472.35,
+      tailwaterLevel: 2058.45,
+      storage: 247.58,
+      turbineFlow: 1180,
+    },
+    {
+      id: 'liujiaxia',
+      name: '刘家峡水库',
+      status: 'normal',
+      inflow: 1060,
+      outflow: 1020,
+      forebayLevel: 1738.62,
+      tailwaterLevel: 1694.22,
+      storage: 57.32,
+      turbineFlow: 1020,
+    },
+  ],
 }
 
-export const loadSeries = {
-  activePower: [],
-  reactivePower: [],
+export const reservoirPoints: ApiResponse<ReservoirPoint[]> = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      id: 'longyangxia',
+      name: '龙羊峡水库',
+      lat: 36.12,
+      lng: 100.92,
+      status: 'normal',
+      waterLevel: 2472.35,
+      inflow: 1250,
+      outflow: 1180,
+    },
+  ],
 }
 
-export const warningList = []
-
-export const announcement = {
-  content: '黄委发布调度指令：5月16日10时起，龙羊峡水库出库流量增至1200m³/s，刘家峡水库出库流量增至1050m³/s。',
+export const powerStatistics: ApiResponse<PowerStatistic[]> = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      reservoirName: '龙羊峡水库',
+      dailyPower: 2450.8,
+      monthlyPower: 61320.5,
+      yearlyPower: 512430.6,
+    },
+  ],
 }
 
-export const weatherInfo = {
-  city: '兰州市',
-  weather: '阴',
-  temperature: '18~26℃',
-  wind: '西北风 2级',
+export const waterLevelSeries: ApiResponse<WaterLevelSeries> = {
+  code: 200,
+  message: 'success',
+  data: {
+    xAxis: ['05-10', '05-11', '05-12', '05-13', '05-14', '05-15', '05-16'],
+    series: [],
+  },
+}
+
+export const loadSeries: ApiResponse<LoadSeries> = {
+  code: 200,
+  message: 'success',
+  data: {
+    activePower: [],
+    reactivePower: [],
+  },
+}
+
+export const warningList: ApiResponse<WarningItem[]> = {
+  code: 200,
+  message: 'success',
+  data: [],
+}
+
+export const announcement: ApiResponse<Announcement> = {
+  code: 200,
+  message: 'success',
+  data: {
+    content: '黄委发布调度指令：5月16日10时起，龙羊峡水库出库流量增至1200m³/s，刘家峡水库出库流量增至1050m³/s。',
+  },
+}
+
+export const weatherInfo: ApiResponse<WeatherInfo> = {
+  code: 200,
+  message: 'success',
+  data: {
+    city: '兰州市',
+    weather: '阴',
+    temperature: '18~26℃',
+    wind: '西北风 2级',
+  },
 }
 ```
 

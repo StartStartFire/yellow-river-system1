@@ -4,12 +4,14 @@ import * as echarts from 'echarts'
 import PanelCard from '@/components/common/PanelCard.vue'
 import { waterLevelSeries } from '@/mock/home'
 
+const seriesData = waterLevelSeries.data
+
 const chartRef = ref<HTMLDivElement | null>(null)
 let chart: echarts.ECharts | null = null
 let resizeObserver: ResizeObserver | null = null
 
 // 只展示龙羊峡和刘家峡
-const displaySeries = waterLevelSeries.series.filter(
+const displaySeries = seriesData.series.filter(
   s => s.name === '龙羊峡水库' || s.name === '刘家峡水库'
 )
 const colorMap: Record<string, string> = {
@@ -43,7 +45,7 @@ const initChart = () => {
     },
     xAxis: {
       type: 'category' as const,
-      data: waterLevelSeries.xAxis,
+      data: seriesData.xAxis,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
       axisLabel: { color: '#7a8fa3', fontSize: 11 },
       splitLine: { show: false },

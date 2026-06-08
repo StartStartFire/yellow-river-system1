@@ -22,8 +22,12 @@ const routes = [
   },
   {
     path: '/model-config',
-    name: 'ModelConfig',
-    component: () => import('@/views/model-config/ModelConfigView.vue')
+    redirect: '/model-config/model-data'
+  },
+  {
+    path: '/model-config/model-data',
+    name: 'ModelData',
+    component: () => import('@/views/model-config/model-data/ModelDataView.vue')
   },
   {
     path: '/process-transparent',

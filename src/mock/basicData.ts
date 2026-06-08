@@ -67,16 +67,27 @@ export interface EngineeringSummary {
   totalOutput: number // 当前总出力 kW
 }
 
-// ==================== Mock 数据 ====================
+// ==================== API 统一响应类型 ====================
+export interface ApiResponse<T> {
+  code: number
+  message: string
+  data: T
+}
+
+// ==================== Mock 数据（统一 API 响应格式） ====================
 
 // 水库列表（左侧列表用）
-export const reservoirList: ReservoirBrief[] = [
-  { id: 'longyangxia', name: '龙羊峡', status: 'normal' },
-  { id: 'liujiaxia', name: '刘家峡', status: 'normal' },
-  { id: 'gongboxia', name: '公伯峡', status: 'warning' },
-  { id: 'jishixia', name: '积石峡', status: 'normal' },
-  { id: 'qingtongxia', name: '青铜峡', status: 'normal' },
-]
+export const reservoirList: ApiResponse<ReservoirBrief[]> = {
+  code: 200,
+  message: 'success',
+  data: [
+    { id: 'longyangxia', name: '龙羊峡', status: 'normal' },
+    { id: 'liujiaxia', name: '刘家峡', status: 'normal' },
+    { id: 'gongboxia', name: '公伯峡', status: 'warning' },
+    { id: 'jishixia', name: '积石峡', status: 'normal' },
+    { id: 'qingtongxia', name: '青铜峡', status: 'normal' },
+  ],
+}
 
 // 各水库核心指标
 const metricsMap: Record<string, Record<string, MetricCardData>> = {
@@ -476,23 +487,43 @@ const engineeringMap: Record<string, { summary: EngineeringSummary; turbines: Tu
   },
 }
 
-// 导出统一方法
-export function getMetrics(reservoirId: string): MetricCardData[] {
-  return Object.values(metricsMap[reservoirId] || metricsMap.longyangxia)
+// 导出统一方法（返回 API 响应格式）
+export function getMetrics(reservoirId: string): ApiResponse<MetricCardData[]> {
+  return {
+    code: 200,
+    message: 'success',
+    data: Object.values(metricsMap[reservoirId] || metricsMap.longyangxia),
+  }
 }
 
-export function getSection(reservoirId: string): ReservoirSection {
-  return sectionsMap[reservoirId] || sectionsMap.longyangxia
+export function getSection(reservoirId: string): ApiResponse<ReservoirSection> {
+  return {
+    code: 200,
+    message: 'success',
+    data: sectionsMap[reservoirId] || sectionsMap.longyangxia,
+  }
 }
 
-export function getBaseInfo(reservoirId: string): BaseInfoGroup[] {
-  return baseInfoMap[reservoirId] || baseInfoMap.longyangxia
+export function getBaseInfo(reservoirId: string): ApiResponse<BaseInfoGroup[]> {
+  return {
+    code: 200,
+    message: 'success',
+    data: baseInfoMap[reservoirId] || baseInfoMap.longyangxia,
+  }
 }
 
-export function getProcessData(reservoirId: string) {
-  return processDataMap[reservoirId] || processDataMap.longyangxia
+export function getProcessData(reservoirId: string): ApiResponse<{ dates: string[]; levels: number[]; inflows: number[]; outflows: number[] }> {
+  return {
+    code: 200,
+    message: 'success',
+    data: processDataMap[reservoirId] || processDataMap.longyangxia,
+  }
 }
 
-export function getEngineeringInfo(reservoirId: string) {
-  return engineeringMap[reservoirId] || engineeringMap.longyangxia
+export function getEngineeringInfo(reservoirId: string): ApiResponse<{ summary: EngineeringSummary; turbines: TurbineItem[]; gates: GateItem[] }> {
+  return {
+    code: 200,
+    message: 'success',
+    data: engineeringMap[reservoirId] || engineeringMap.longyangxia,
+  }
 }

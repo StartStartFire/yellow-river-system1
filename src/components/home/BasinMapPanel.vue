@@ -4,6 +4,9 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { reservoirPoints, mapLayers } from '@/mock/home'
 
+const pointsData = reservoirPoints.data
+const layersData = mapLayers.data
+
 const mapContainer = ref<HTMLDivElement | null>(null)
 let map: L.Map | null = null
 let markers: L.Marker[] = []
@@ -19,7 +22,7 @@ const emit = defineEmits<{
 }>()
 
 // 初始化图层状态
-mapLayers.forEach((layer) => {
+layersData.forEach((layer) => {
   activeLayers.value[layer.id] = layer.visible
 })
 
@@ -77,7 +80,7 @@ const addReservoirMarkers = () => {
   markers.forEach((m) => map!.removeLayer(m))
   markers = []
 
-  reservoirPoints.forEach((point) => {
+  pointsData.forEach((point) => {
     const icon = L.divIcon({
       className: 'reservoir-marker',
       html: `
@@ -133,7 +136,7 @@ watch(
   () => props.selectedId,
   (id) => {
     if (!map || !id) return
-    const point = reservoirPoints.find((p) => p.id === id)
+    const point = pointsData.find((p) => p.id === id)
     if (!point) return
 
     map.closePopup()
@@ -209,7 +212,7 @@ onUnmounted(() => {
         style="background: rgba(6, 30, 70, 0.9); border: 1px solid rgba(50, 150, 255, 0.3); border-radius: 8px;"
       >
         <div class="text-xs font-medium text-tech-text mb-2">图层控制</div>
-        <div v-for="layer in mapLayers" :key="layer.id" class="flex items-center justify-between py-0.5">
+        <div v-for="layer in layersData" :key="layer.id" class="flex items-center justify-between py-0.5">
           <span class="text-xs text-tech-muted">{{ layer.name }}</span>
           <input
             type="checkbox"

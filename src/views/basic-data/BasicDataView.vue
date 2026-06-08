@@ -16,6 +16,8 @@ import {
   getEngineeringInfo,
 } from '@/mock/basicData'
 
+const reservoirData = reservoirList.data
+
 // 当前选中的水库（默认龙羊峡）
 const selectedId = ref('longyangxia')
 
@@ -24,21 +26,21 @@ const sidebarCollapsed = ref(false)
 
 // 当前水库名称
 const currentName = computed(() => {
-  return reservoirList.find(r => r.id === selectedId.value)?.name || '龙羊峡'
+  return reservoirData.find(r => r.id === selectedId.value)?.name || '龙羊峡'
 })
 
 // 核心指标卡片数据
-const metricCards = computed(() => getMetrics(selectedId.value))
+const metricCards = computed(() => getMetrics(selectedId.value).data)
 
 // 断面图数据
-const section = computed(() => getSection(selectedId.value))
+const section = computed(() => getSection(selectedId.value).data)
 
 // 基础信息数据
-const baseInfoGroups = computed(() => getBaseInfo(selectedId.value))
+const baseInfoGroups = computed(() => getBaseInfo(selectedId.value).data)
 
 // 水情过程数据
 const processData = computed(() => {
-  const data = getProcessData(selectedId.value)
+  const data = getProcessData(selectedId.value).data
   return {
     xAxis: data.dates,
     series: [
@@ -50,7 +52,7 @@ const processData = computed(() => {
 })
 
 // 工情信息数据
-const engineeringInfo = computed(() => getEngineeringInfo(selectedId.value))
+const engineeringInfo = computed(() => getEngineeringInfo(selectedId.value).data)
 
 // 二级标签页
 const activeTab = ref('section') // section | baseinfo | process | engineering

@@ -2,6 +2,8 @@
 import PanelCard from '@/components/common/PanelCard.vue'
 import { warningList } from '@/mock/home'
 
+const warningData = warningList.data
+
 const levelConfig = {
   1: { label: '一级', color: '#FF4D4F' },
   2: { label: '二级', color: '#FFAA00' },
@@ -14,7 +16,7 @@ const levelConfig = {
   <PanelCard title="预警信息">
     <!-- 预警表格 -->
     <div class="warning-list">
-      <div v-for="warning in warningList" :key="warning.id" class="warning-item">
+      <div v-for="warning in warningData" :key="warning.id" class="warning-item">
         <div class="warning-time">{{ warning.time }}</div>
         <div class="warning-type">{{ warning.type }}</div>
         <div class="warning-content" :title="warning.content">{{ warning.content }}</div>
