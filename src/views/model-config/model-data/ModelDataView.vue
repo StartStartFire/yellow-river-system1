@@ -7,6 +7,10 @@ import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue
 import { modelDataMock } from '@/mock/modelConfig'
 import type { MenuGroup, MenuContentMap, PageState } from '@/mock/modelConfig'
 
+// ==================== 弹窗状态 ====================
+const saveDialogVisible = ref(false)
+const cancelDialogVisible = ref(false)
+
 // ==================== Mock 数据 ====================
 const mockData = modelDataMock.data
 
@@ -82,11 +86,21 @@ const handleDownload = () => {
 }
 
 const handleSave = () => {
-  ElMessage.success('模型数据配置已保存')
+  saveDialogVisible.value = true
 }
 
 const handleCancel = () => {
-  ElMessage.info('已取消')
+  cancelDialogVisible.value = true
+}
+
+const confirmSave = () => {
+  saveDialogVisible.value = false
+  ElMessage.success('模型数据配置已保存')
+}
+
+const confirmCancel = () => {
+  cancelDialogVisible.value = false
+  ElMessage.info('已取消，未保存任何更改')
 }
 
 const handleNext = () => {
@@ -367,6 +381,58 @@ const iconMap: Record<string, string> = {
       </div>
     </div>
   </div>
+
+    <!-- 保存确认弹窗 -->
+    <el-dialog
+      v-model="saveDialogVisible"
+      title="保存确认"
+      width="400px"
+      :close-on-click-modal="false"
+      class="confirm-dialog"
+    >
+      <div class="dialog-body">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
+          <circle cx="24" cy="24" r="22" stroke="#00afff" stroke-width="2" fill="rgba(0,175,255,0.1)"/>
+          <path d="M16 24l6 6 10-10" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="dialog-text">
+          <span class="dialog-title-main">确认保存当前模型数据配置？</span>
+          <span class="dialog-desc">保存后当前目录选择和时间范围将保留。</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="saveDialogVisible = false">取消</el-button>
+          <el-button type="primary" size="small" @click="confirmSave">确认保存</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 取消确认弹窗 -->
+    <el-dialog
+      v-model="cancelDialogVisible"
+      title="取消确认"
+      width="400px"
+      :close-on-click-modal="false"
+      class="confirm-dialog"
+    >
+      <div class="dialog-body">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
+          <circle cx="24" cy="24" r="22" stroke="#f0a020" stroke-width="2" fill="rgba(240,160,32,0.1)"/>
+          <path d="M16 16l16 16M32 16l-16 16" stroke="#f0a020" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="dialog-text">
+          <span class="dialog-title-main">确认取消当前操作？</span>
+          <span class="dialog-desc">取消后当前页面的更改将不会保存。</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="cancelDialogVisible = false">继续编辑</el-button>
+          <el-button type="warning" size="small" @click="confirmCancel">确认取消</el-button>
+        </div>
+      </template>
+    </el-dialog>
 </template>
 
 <style scoped>
@@ -719,6 +785,69 @@ const iconMap: Record<string, string> = {
   --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
   --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
   --el-button-hover-text-color: #e0e6ed;
+}
+
+/* ===== 弹窗样式 ===== */
+.confirm-dialog :deep(.el-dialog) {
+  background: rgba(6, 30, 70, 0.98) !important;
+  border: 1px solid rgba(50, 150, 255, 0.4);
+  border-radius: 12px;
+}
+
+.confirm-dialog :deep(.el-dialog__header) {
+  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
+  padding: 16px 20px;
+  margin: 0;
+}
+
+.confirm-dialog :deep(.el-dialog__title) {
+  color: #e0e6ed;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.confirm-dialog :deep(.el-dialog__body) {
+  padding: 24px 20px;
+}
+
+.confirm-dialog :deep(.el-dialog__footer) {
+  border-top: 1px solid rgba(50, 150, 255, 0.1);
+  padding: 12px 20px;
+}
+
+.dialog-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dialog-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dialog-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialog-title-main {
+  color: #e0e6ed;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dialog-desc {
+  color: #7a8fa3;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 :deep(.el-button--primary) {
