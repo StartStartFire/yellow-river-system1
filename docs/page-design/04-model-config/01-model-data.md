@@ -548,7 +548,7 @@ ECharts 双轴折线图 + 面积图
 src/mock/modelConfig.ts
 ```
 
-建议 mock 数据结构：
+建议 mock 数据统一使用以下 API 响应格式：
 
 ```ts
 export const modelDataMock = {
