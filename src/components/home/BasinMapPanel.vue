@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { leafletLayer, LineSymbolizer } from 'protomaps-leaflet'
 import { reservoirPoints, mapLayers } from '@/mock/home'
 
 const pointsData = reservoirPoints.data
@@ -9,8 +10,10 @@ const layersData = mapLayers.data
 
 const mapContainer = ref<HTMLDivElement | null>(null)
 let map: L.Map | null = null
-let markers: L.Marker[] = []
+let markerGroup: L.LayerGroup | null = null
+let riverLayer: ReturnType<typeof leafletLayer> | null = null
 const activeLayers = ref<Record<string, boolean>>({})
+const layerControlOpen = ref(false)
 
 const props = defineProps<{
   selectedId: string | null
@@ -67,7 +70,30 @@ const initMap = () => {
     }
   ).addTo(map)
 
+  // 黄河河网 PMTiles 矢量瓦片
+  riverLayer = leafletLayer({
+    url: '/static/river_network.pmtiles',
+    paintRules: [
+      {
+        dataLayer: 'rivers',
+        symbolizer: new LineSymbolizer({
+          color: 'rgba(0, 180, 255, 0.7)',
+          width: 1.2,
+        }),
+      },
+    ],
+  })
+  riverLayer.addTo(map)
+
   addReservoirMarkers()
+
+  // 根据当前图层状态初始化显隐
+  if (!activeLayers.value['reservoir'] && markerGroup) {
+    map.removeLayer(markerGroup)
+  }
+  if (!activeLayers.value['river'] && riverLayer) {
+    map.removeLayer(riverLayer)
+  }
 
   // 强制地图重新计算大小
   setTimeout(() => {
@@ -77,8 +103,10 @@ const initMap = () => {
 
 const addReservoirMarkers = () => {
   if (!map) return
-  markers.forEach((m) => map!.removeLayer(m))
-  markers = []
+  if (markerGroup) {
+    map.removeLayer(markerGroup)
+  }
+  markerGroup = L.layerGroup()
 
   pointsData.forEach((point) => {
     const icon = L.divIcon({
@@ -126,9 +154,9 @@ const addReservoirMarkers = () => {
         .openOn(map)
       map.flyTo([point.lat, point.lng], 9, { duration: 1 })
     })
-    marker.addTo(map!)
-    markers.push(marker)
+    marker.addTo(markerGroup!)
   })
+  markerGroup!.addTo(map)
 }
 
 // 从左侧面板选中水库时弹出 popup
@@ -178,6 +206,23 @@ const handleReset = () => map?.setView([36.2, 102.8], 7)
 
 const toggleLayer = (id: string) => {
   activeLayers.value[id] = !activeLayers.value[id]
+  const visible = activeLayers.value[id]
+
+  if (!map) return
+
+  if (id === 'reservoir') {
+    if (visible && markerGroup && !map.hasLayer(markerGroup)) {
+      markerGroup.addTo(map)
+    } else if (!visible && markerGroup && map.hasLayer(markerGroup)) {
+      map.removeLayer(markerGroup)
+    }
+  } else if (id === 'river') {
+    if (visible && riverLayer && !map.hasLayer(riverLayer)) {
+      riverLayer.addTo(map)
+    } else if (!visible && riverLayer && map.hasLayer(riverLayer)) {
+      map.removeLayer(riverLayer)
+    }
+  }
 }
 
 onMounted(() => {
@@ -211,15 +256,23 @@ onUnmounted(() => {
         class="layer-control"
         style="background: rgba(6, 30, 70, 0.9); border: 1px solid rgba(50, 150, 255, 0.3); border-radius: 8px;"
       >
-        <div class="text-xs font-medium text-tech-text mb-2">图层控制</div>
-        <div v-for="layer in layersData" :key="layer.id" class="flex items-center justify-between py-0.5">
-          <span class="text-xs text-tech-muted">{{ layer.name }}</span>
-          <input
-            type="checkbox"
-            :checked="activeLayers[layer.id]"
-            @change="toggleLayer(layer.id)"
-            class="layer-toggle"
-          />
+        <div
+          class="layer-control-header"
+          @click="layerControlOpen = !layerControlOpen"
+        >
+          <span class="text-xs font-medium text-tech-text">图层控制</span>
+          <span class="layer-toggle-icon" :class="{ rotated: layerControlOpen }">▶</span>
+        </div>
+        <div v-show="layerControlOpen" class="layer-control-body">
+          <div v-for="layer in layersData" :key="layer.id" class="flex items-center justify-between py-0.5">
+            <span class="text-xs text-tech-muted">{{ layer.name }}</span>
+            <input
+              type="checkbox"
+              :checked="activeLayers[layer.id]"
+              @change="toggleLayer(layer.id)"
+              class="layer-toggle"
+            />
+          </div>
         </div>
       </div>
 
@@ -235,9 +288,6 @@ onUnmounted(() => {
         <span class="toolbar-divider"></span>
         <button @click="handleZoomIn" class="toolbar-btn">缩放+</button>
         <button @click="handleZoomOut" class="toolbar-btn">缩放-</button>
-        <span class="toolbar-divider"></span>
-        <button class="toolbar-btn">测距</button>
-        <button class="toolbar-btn">清除</button>
       </div>
     </div>
   </div>
@@ -302,6 +352,33 @@ onUnmounted(() => {
 
 .layer-toggle {
   accent-color: #00afff;
+}
+
+.layer-control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.layer-control-header:hover {
+  opacity: 0.8;
+}
+
+.layer-toggle-icon {
+  font-size: 10px;
+  color: #00afff;
+  transition: transform 0.25s ease;
+  line-height: 1;
+}
+
+.layer-toggle-icon.rotated {
+  transform: rotate(90deg);
+}
+
+.layer-control-body {
+  margin-top: 8px;
 }
 
 /* 工具栏 */
