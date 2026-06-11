@@ -13,6 +13,8 @@
     "element-plus": "^2.14.1",
     "leaflet": "^1.9.4",
     "pinia": "^2.3.1",
+    "pmtiles": "^4.4.1",
+    "protomaps-leaflet": "^5.1.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
