@@ -68,15 +68,18 @@ export const modelDataMock = {
           { id: 'lanzhou-demand', name: '兰州断面需水数据', icon: 'clock' },
           { id: 'long-liu-demand', name: '龙刘区间用水数据', icon: 'river' },
           { id: 'inflow-frequency', name: '来水频率', icon: 'bar' },
+          { id: 'long-liu-inflow', name: '龙刘区间来水', icon: 'inflow' },
         ],
       },
       {
         groupName: '原始表格',
         children: [
+          { id: 'raw-inflow-level', name: '入库与水位', icon: 'table' },
           { id: 'raw-west-route', name: '西线调水数据', icon: 'table' },
           { id: 'raw-level-boundary', name: '水位上下限', icon: 'table' },
           { id: 'raw-lanzhou-demand', name: '兰州断面需水数据', icon: 'table' },
           { id: 'raw-long-liu-demand', name: '龙刘区间用水数据', icon: 'table' },
+          { id: 'raw-long-liu-inflow', name: '龙刘区间来水', icon: 'table' },
           { id: 'raw-inflow-frequency', name: '来水频率', icon: 'table' },
         ],
       },
@@ -147,6 +150,17 @@ export const modelDataMock = {
           series: {
             inflow: [75, 82, 68, 79, 85, 72, 80],
             level: [25, 28, 22, 26, 30, 24, 27],
+          },
+        },
+      },
+      'long-liu-inflow': {
+        type: 'chart',
+        chartData: {
+          title: '输入数据概览（龙刘区间来水）',
+          xAxis: ['05-19', '05-20', '05-21', '05-22', '05-23', '05-24', '05-25'],
+          series: {
+            inflow: [320, 380, 410, 360, 340, 395, 370],
+            level: [1865, 1868, 1870, 1867, 1866, 1869, 1867],
           },
         },
       },
@@ -235,6 +249,46 @@ export const modelDataMock = {
             { date: '2025-05-23', irrigation: 65, domestic: 27, industrial: 40, total: 132 },
             { date: '2025-05-24', irrigation: 58, domestic: 25, industrial: 42, total: 125 },
             { date: '2025-05-25', irrigation: 70, domestic: 28, industrial: 40, total: 138 },
+          ],
+        },
+      },
+      'raw-inflow-level': {
+        type: 'table',
+        tableData: {
+          title: '入库与水位原始数据',
+          columns: [
+            { key: 'date', label: '日期' },
+            { key: 'inflow', label: '入库流量', unit: 'm³/s' },
+            { key: 'level', label: '水位', unit: 'm' },
+          ],
+          rows: [
+            { date: '2025-05-19', inflow: 430, level: 2486 },
+            { date: '2025-05-20', inflow: 560, level: 2484 },
+            { date: '2025-05-21', inflow: 820, level: 2488 },
+            { date: '2025-05-22', inflow: 620, level: 2486 },
+            { date: '2025-05-23', inflow: 420, level: 2484 },
+            { date: '2025-05-24', inflow: 340, level: 2481 },
+            { date: '2025-05-25', inflow: 460, level: 2485 },
+          ],
+        },
+      },
+      'raw-long-liu-inflow': {
+        type: 'table',
+        tableData: {
+          title: '龙刘区间来水原始数据',
+          columns: [
+            { key: 'date', label: '日期' },
+            { key: 'inflow', label: '来水流量', unit: 'm³/s' },
+            { key: 'level', label: '水位', unit: 'm' },
+          ],
+          rows: [
+            { date: '2025-05-19', inflow: 320, level: 1865 },
+            { date: '2025-05-20', inflow: 380, level: 1868 },
+            { date: '2025-05-21', inflow: 410, level: 1870 },
+            { date: '2025-05-22', inflow: 360, level: 1867 },
+            { date: '2025-05-23', inflow: 340, level: 1866 },
+            { date: '2025-05-24', inflow: 395, level: 1869 },
+            { date: '2025-05-25', inflow: 370, level: 1867 },
           ],
         },
       },

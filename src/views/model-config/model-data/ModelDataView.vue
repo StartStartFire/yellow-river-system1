@@ -248,6 +248,7 @@ const iconMap: Record<string, string> = {
   level: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="7" width="12" height="2" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M4 7V4" stroke="currentColor" stroke-width="1.3"/><path d="M8 7V3" stroke="currentColor" stroke-width="1.3"/><path d="M12 7V5" stroke="currentColor" stroke-width="1.3"/></svg>',
   clock: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/></svg>',
   river: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12C4 10 6 12 8 12S12 10 14 12" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2 9C4 7 6 9 8 9S12 7 14 9" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2 6C4 4 6 6 8 6S12 4 14 6" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>',
+  inflow: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10h12M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12v1.5h12V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
   bar: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="3" height="4" rx="0.5" fill="currentColor"/><rect x="6.5" y="6" width="3" height="8" rx="0.5" fill="currentColor"/><rect x="11" y="3" width="3" height="11" rx="0.5" fill="currentColor"/></svg>',
   table: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 7h12M7 3v10" stroke="currentColor" stroke-width="1.3"/></svg>',
 }
@@ -273,17 +274,19 @@ const iconMap: Record<string, string> = {
             <span v-if="!sidebarCollapsed" class="sidebar-title">数据目录</span>
           </div>
 
-          <div v-for="(group, gIdx) in menus" :key="gIdx" class="menu-group">
-            <div v-if="!sidebarCollapsed" class="group-header">{{ group.groupName }}</div>
-            <div
-              v-for="item in group.children"
-              :key="item.id"
-              class="menu-item"
-              :class="{ active: item.id === activeMenuId }"
-              @click="handleSelectMenu(item.id)"
-            >
-              <span class="menu-icon" v-html="iconMap[item.icon] || iconMap.database"></span>
-              <span v-if="!sidebarCollapsed" class="menu-name">{{ item.name }}</span>
+          <div class="menu-scroll-area">
+            <div v-for="(group, gIdx) in menus" :key="gIdx" class="menu-group">
+              <div v-if="!sidebarCollapsed" class="group-header">{{ group.groupName }}</div>
+              <div
+                v-for="item in group.children"
+                :key="item.id"
+                class="menu-item"
+                :class="{ active: item.id === activeMenuId }"
+                @click="handleSelectMenu(item.id)"
+              >
+                <span class="menu-icon" v-html="iconMap[item.icon] || iconMap.database"></span>
+                <span v-if="!sidebarCollapsed" class="menu-name">{{ item.name }}</span>
+              </div>
             </div>
           </div>
 
@@ -476,6 +479,30 @@ const iconMap: Record<string, string> = {
   overflow: hidden;
 }
 
+.menu-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.menu-scroll-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.25);
+  border-radius: 2px;
+}
+
+.menu-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(50, 150, 255, 0.45);
+}
+
 .sidebar-title-row {
   display: flex;
   align-items: center;
@@ -495,6 +522,29 @@ const iconMap: Record<string, string> = {
 .menu-group {
   padding: 6px 0;
   border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+}
+
+/* 调度输入和原始表格组均固定显示6项高度，超出滚动 */
+.menu-group {
+  max-height: 230px;
+  overflow-y: auto;
+}
+
+.menu-group::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-group::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-group::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.25);
+  border-radius: 2px;
+}
+
+.menu-group::-webkit-scrollbar-thumb:hover {
+  background: rgba(50, 150, 255, 0.45);
 }
 
 .group-header {
