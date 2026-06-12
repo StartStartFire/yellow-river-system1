@@ -30,6 +30,26 @@ const routes = [
     component: () => import('@/views/model-config/model-data/ModelDataView.vue')
   },
   {
+    path: '/model-config/basic-config',
+    name: 'BasicConfig',
+    component: () => import('@/views/model-config/basic-config/BasicConfigView.vue')
+  },
+  {
+    path: '/model-config/model-algorithm',
+    name: 'ModelAlgorithm',
+    component: () => import('@/views/model-config/model-algorithm/ModelAlgorithmView.vue')
+  },
+  {
+    path: '/model-config/scenario-constraint',
+    name: 'ScenarioConstraint',
+    component: () => import('@/views/model-config/scenario-constraint/ScenarioConstraintView.vue')
+  },
+  {
+    path: '/model-config/config-summary',
+    name: 'ConfigSummary',
+    component: () => import('@/views/model-config/config-summary/ConfigSummaryView.vue')
+  },
+  {
     path: '/process-transparent',
     name: 'ProcessTransparent',
     component: () => import('@/views/process-transparent/ProcessTransparentView.vue')
