@@ -15,7 +15,7 @@
 | 4    | 首页       | 已完成          | 地图展示 + 水库点位 + 概览指标卡片 + 水情简报 |
 | 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息 + 过程数据表格 + 机组工况 |
 | 6    | 水调水情   | 未开始          | 骨架页面 |
-| 7    | 模型配置   | 未开始          | 骨架页面 |
+| 7    | 模型配置   | Step 1 已完成   | 模型数据页面（5 步流程中的 Step 1） |
 | 8    | 过程透明   | 未开始          | 骨架页面 |
 | 9    | 评价决策   | 未开始          | 骨架页面 |
 | 10   | 案例库     | 未开始          | 骨架页面 |
@@ -39,28 +39,36 @@
 ### 开发时间
 
 ```text
-2026-06-07（第三次）
+2026-06-12（第四次）
 ```
 
 ### 本次完成内容
 
 ```text
-1. 坝顶标签位置修复：标注层 SVG 移入 graph-visual 共享容器，与水体 SVG、背景 PNG 统一坐标空间（left:38px），消除坐标偏移导致的标签错位
-2. 坝顶标签改用固定坐标（y=204）：所有水库共用同一张背景 PNG，坝顶在图片中位置固定，标签 XY 不再随水库高程范围变化，确保各水库标签一致对齐
-3. 标注层统一使用 preserveAspectRatio="none" 缩放模式
-4. 补充公伯峡、积石峡、青铜峡的基础信息 mock 数据（之前只有龙羊峡和刘家峡有数据，其余会回退到龙羊峡数据）
-   - 工程属性（水库名称、编码、流域、坝型、装机容量等）
-   - 特征水位（正常蓄水位、汛限水位、死水位、设计/校核洪水位）
-   - 调度规则（调度目标、汛期时段、生态下泄流量）
-5. 修复 baseInfoMap 语法错误（新数据插入时跑出对象体外）
+1. Mock 数据格式标准化：所有 mock 文件（home.ts, basicData.ts）统一为 { code, message, data } API 响应格式，所有消费组件已同步更新
+2. 文档更新：01-home.md、02-basic-data.md 中的 mock 数据示例更新为统一格式
+3. 模型配置 Step 1「模型数据页面」全功能开发完成：
+   - 5 步流程步骤条（ModelConfigStepBar.vue）
+   - 左侧可折叠数据目录（调度输入/原始表格两组菜单，SVG 图标）
+   - 右侧 ECharts 双轴折线面积图（入库流量左轴 + 水位右轴）
+   - 右侧 Element Plus 深色表格（原始表格数据）
+   - 顶部操作栏（上传数据、下载模板按钮）
+   - 底部操作栏（取消、保存、下一步按钮）
+   - 菜单切换时图表/表格联动
+4. 修复 CSS 层叠问题：
+   - Element Plus 日期选择器白色背景 → 通过 :root:root CSS 变量覆盖
+   - 表格单元格白色背景 → 通过 :root:root 覆盖 --el-table-row-bg-color 等变量
+   - 输入框边框白色 → Element Plus 使用 box-shadow inset 而非 border，需同时设置 box-shadow: none
+   - 全局 @layer 内规则被 Element Plus 无层叠 CSS 覆盖，改用 :root:root 双倍 specificity 绕过
+5. Bug 修复：表格切换到图表时图表空白 → 切换为非图表类型时 dispose 销毁实例而非 clear
 ```
 
 ### 本次未完成内容
 
 ```text
-1. 水体左右两侧与山体边缘仍有轻微空隙（部分水库），需进一步微调 clipPath 轮廓
-2. 特征水位线虚线是否对齐、水体贴合效果需用户验证
-3. feature/test 分支上的代码变更未提交
+1. 模型配置 Step 2~5 未开发
+2. Element Plus 弹框组件（如日期选择器下拉面板）的深色适配可能需要进一步处理
+3. 其他页面（水调水情、过程透明、评价决策、案例库、报表统计）未开始
 ```
 
 ------
@@ -70,16 +78,16 @@
 下一步优先做：
 
 ```text
-任务名称：验证基础信息展示 + 水体贴合微调
+任务名称：模型配置 Step 2「基础配置」页面开发
 ```
 
 任务目标：
 
 ```text
-1. 用户验证所有 5 个水库的坝顶标签是否已正确对齐到坝体顶部
-2. 用户验证点击左侧水库，右侧基础信息（工程属性、特征水位、调度规则）是否正确显示对应水库数据
-3. 如仍有偏移，继续微调 clipPath 轮廓，消除水体与山体边缘的空隙
-4. 考虑将未提交的代码提交到 feature/test 分支
+1. 参考 docs/page-design/04-model-config/02-basic-config.md 开发 Step 2 页面
+2. 在 src/mock/modelConfig.ts 中补充 Step 2 的 mock 数据
+3. 实现步骤条联动（Step 1 → Step 2）
+4. 保持深色科技风统一风格
 ```
 
 不允许修改：
@@ -91,25 +99,14 @@
 4. 不接真实接口
 ```
 
-完成标准：
-
-```text
-1. 所有 5 个水库的坝顶标签都在坝体顶部位置
-2. 所有 5 个水库的基础信息数据均正确显示对应水库内容
-3. 所有 5 个水库的水体在坝面左侧、左右贴合山体无可见空隙
-4. 不影响已有页面功能
-5. npm run dev 能正常运行
-```
-
 其它候选任务（按优先级排序）：
 
 ```text
-任务 1：开发水调水情页面（页面模板 + mock 数据 + 图表）
-任务 2：开发模型配置页面（配置步骤、参数表单）
-任务 3：开发过程透明页面（任务列表、运行状态、步骤展示）
-任务 4：开发评价决策页面（评价指标、方案对比）
-任务 5：开发案例库页面（案例卡片、搜索筛选）
-任务 6：开发报表统计页面（数据概览、导出原型）
+任务 1：开发模型配置 Step 2「基础配置」页面
+任务 2：开发模型配置 Step 3「模型算法」页面
+任务 3：开发模型配置 Step 4「场景约束」页面
+任务 4：开发模型配置 Step 5「配置汇总」页面
+任务 5：开发水调水情页面
 ```
 
 ------
@@ -152,18 +149,16 @@ Vue 3 + Vite + TypeScript + Element Plus + Tailwind CSS + ECharts + Leaflet + Pi
 npm run dev
 ```
 
-### 当前工作分支
-
-```text
-feature/test
-```
-
 ### 关键文件
 
 ```text
-src/components/chart/ReservoirSectionGraph.vue    -- 断面示意图组件（近期重点修改）
-src/mock/basicData.ts                              -- 基础数据 mock（含 5 个水库全量数据）
-src/views/basic-data/BasicDataView.vue             -- 基础数据页面
-src/components/basic-data/BaseInfoPanel.vue        -- 基础信息卡片组件
-docs/development/AI-WORKLOG.md                     -- 本文件
+src/components/chart/ReservoirSectionGraph.vue                    -- 断面示意图组件
+src/mock/basicData.ts                                              -- 基础数据 mock（含 5 个水库全量数据）
+src/mock/modelConfig.ts                                            -- 模型配置 mock 数据
+src/views/basic-data/BasicDataView.vue                             -- 基础数据页面
+src/views/model-config/model-data/ModelDataView.vue                -- 模型配置 Step 1 页面
+src/components/model-config/ModelConfigStepBar.vue                 -- 模型配置步骤条组件
+src/components/basic-data/BaseInfoPanel.vue                        -- 基础信息卡片组件
+src/styles/index.css                                               -- 全局样式（:root:root CSS 变量覆盖）
+docs/development/AI-WORKLOG.md                                     -- 本文件
 ```
