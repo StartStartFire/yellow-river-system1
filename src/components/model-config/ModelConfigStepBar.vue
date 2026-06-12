@@ -9,7 +9,18 @@ interface Props {
   currentStep: number
 }
 
-defineProps<Props>()
+const emit = defineEmits<{
+  (e: 'step-click', step: number): void
+}>()
+
+const props = defineProps<Props>()
+
+const handleStepClick = (step: number) => {
+  // Only allow clicking on completed steps (steps before current)
+  if (step < props.currentStep) {
+    emit('step-click', step)
+  }
+}
 
 const steps: StepItem[] = [
   { step: 1, title: '模型数据', desc: '选择与管理模型输入数据' },
@@ -31,7 +42,14 @@ const steps: StepItem[] = [
       class="flex items-center flex-1"
     >
       <!-- 步骤项 -->
-      <div class="flex items-center gap-3">
+      <div
+        class="flex items-center gap-3 cursor-pointer"
+        :class="{
+          'cursor-pointer': s.step < currentStep,
+          'cursor-default': s.step >= currentStep,
+        }"
+        @click="handleStepClick(s.step)"
+      >
         <!-- 步骤编号 -->
         <div
           class="step-number flex items-center justify-center rounded-full text-sm font-bold shrink-0 transition-all duration-300"

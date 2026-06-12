@@ -15,7 +15,7 @@
 | 4    | 首页       | 已完成          | 地图展示 + 水库点位 + 概览指标卡片 + 水情简报 |
 | 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息 + 过程数据表格 + 机组工况 |
 | 6    | 水调水情   | 未开始          | 骨架页面 |
-| 7    | 模型配置   | Step 1 已完成   | 模型数据页面（5 步流程中的 Step 1） |
+| 7    | 模型配置   | Step 1~3 已完成 | Step 1 模型数据页面 + Step 2 基础配置页面 + Step 3 模型算法页面 |
 | 8    | 过程透明   | 未开始          | 骨架页面 |
 | 9    | 评价决策   | 未开始          | 骨架页面 |
 | 10   | 案例库     | 未开始          | 骨架页面 |
@@ -39,36 +39,36 @@
 ### 开发时间
 
 ```text
-2026-06-12（第四次）
+2026-06-12（第六次）
 ```
 
 ### 本次完成内容
 
 ```text
-1. Mock 数据格式标准化：所有 mock 文件（home.ts, basicData.ts）统一为 { code, message, data } API 响应格式，所有消费组件已同步更新
-2. 文档更新：01-home.md、02-basic-data.md 中的 mock 数据示例更新为统一格式
-3. 模型配置 Step 1「模型数据页面」全功能开发完成：
-   - 5 步流程步骤条（ModelConfigStepBar.vue）
-   - 左侧可折叠数据目录（调度输入/原始表格两组菜单，SVG 图标）
-   - 右侧 ECharts 双轴折线面积图（入库流量左轴 + 水位右轴）
-   - 右侧 Element Plus 深色表格（原始表格数据）
-   - 顶部操作栏（上传数据、下载模板按钮）
-   - 底部操作栏（取消、保存、下一步按钮）
-   - 菜单切换时图表/表格联动
-4. 修复 CSS 层叠问题：
-   - Element Plus 日期选择器白色背景 → 通过 :root:root CSS 变量覆盖
-   - 表格单元格白色背景 → 通过 :root:root 覆盖 --el-table-row-bg-color 等变量
-   - 输入框边框白色 → Element Plus 使用 box-shadow inset 而非 border，需同时设置 box-shadow: none
-   - 全局 @layer 内规则被 Element Plus 无层叠 CSS 覆盖，改用 :root:root 双倍 specificity 绕过
-5. Bug 修复：表格切换到图表时图表空白 → 切换为非图表类型时 dispose 销毁实例而非 clear
+1. 模型配置 Step 3「模型算法」页面全功能开发完成（ModelAlgorithmView.vue）：
+   - 步骤条联动：Step 1→Step 2→Step 3，支持点击已完成步骤返回
+   - 调度模型选择：Element Plus 下拉框，4 种模型可选，默认"水库群优化调度模型"
+   - 优化算法选择：模型联动，切换模型时自动过滤算法，默认"NSGA-II 多目标遗传算法"
+   - 算法参数设置：6 个参数卡片（3×2 网格布局），含滑块+数值输入框双向联动
+     - 种群规模（50-1000，默认200）
+     - 迭代次数（100-2000，默认500）
+     - 交叉概率 Pc（0.50-1.00，默认0.90）
+     - 变异概率 Pm（0.01-0.30，默认0.10）
+     - 精英保留比例（0.01-0.20，默认0.05）
+     - 拥挤度因子（1.00-3.00，默认2.00）
+   - 参数说明 Tooltip：鼠标悬浮问号图标显示参数说明文字
+   - 滑块+数值联动：拖动滑块同步更新数值，手动输入同步更新滑块，step 取整
+   - Element Plus 滑块深色适配（按钮/轨道/进度条颜色）
+   - 底部操作栏：取消（确认弹窗）/ 上一步 / 保存（确认弹窗）/ 下一步
+2. 补充 Step 3 mock 数据（modelConfig.ts）：
+   - modelAlgorithmState / dispatchModels / optimizationAlgorithms / algorithmParameters
 ```
 
 ### 本次未完成内容
 
 ```text
-1. 模型配置 Step 2~5 未开发
-2. Element Plus 弹框组件（如日期选择器下拉面板）的深色适配可能需要进一步处理
-3. 其他页面（水调水情、过程透明、评价决策、案例库、报表统计）未开始
+1. 模型配置 Step 4~5 仅创建骨架页面，未实现具体功能
+2. 其他页面（水调水情、过程透明、评价决策、案例库、报表统计）未开始
 ```
 
 ------
@@ -78,15 +78,15 @@
 下一步优先做：
 
 ```text
-任务名称：模型配置 Step 2「基础配置」页面开发
+任务名称：模型配置 Step 4「场景约束」页面开发
 ```
 
 任务目标：
 
 ```text
-1. 参考 docs/page-design/04-model-config/02-basic-config.md 开发 Step 2 页面
-2. 在 src/mock/modelConfig.ts 中补充 Step 2 的 mock 数据
-3. 实现步骤条联动（Step 1 → Step 2）
+1. 参考 docs/page-design/04-model-config/04-scenario-constraint.md 开发 Step 4 页面
+2. 在 src/mock/modelConfig.ts 中补充 Step 4 的 mock 数据
+3. 实现步骤条联动（Step 3 → Step 4）
 4. 保持深色科技风统一风格
 ```
 
@@ -102,11 +102,9 @@
 其它候选任务（按优先级排序）：
 
 ```text
-任务 1：开发模型配置 Step 2「基础配置」页面
-任务 2：开发模型配置 Step 3「模型算法」页面
-任务 3：开发模型配置 Step 4「场景约束」页面
-任务 4：开发模型配置 Step 5「配置汇总」页面
-任务 5：开发水调水情页面
+任务 1：开发模型配置 Step 4「场景约束」页面
+任务 2：开发模型配置 Step 5「配置汇总」页面
+任务 3：开发水调水情页面
 ```
 
 ------
@@ -157,6 +155,8 @@ src/mock/basicData.ts                                              -- 基础数�
 src/mock/modelConfig.ts                                            -- 模型配置 mock 数据
 src/views/basic-data/BasicDataView.vue                             -- 基础数据页面
 src/views/model-config/model-data/ModelDataView.vue                -- 模型配置 Step 1 页面
+src/views/model-config/basic-config/BasicConfigView.vue            -- 模型配置 Step 2 页面
+src/views/model-config/model-algorithm/ModelAlgorithmView.vue      -- 模型配置 Step 3 页面（本次新增）
 src/components/model-config/ModelConfigStepBar.vue                 -- 模型配置步骤条组件
 src/components/basic-data/BaseInfoPanel.vue                        -- 基础信息卡片组件
 src/styles/index.css                                               -- 全局样式（:root:root CSS 变量覆盖）
