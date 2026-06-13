@@ -4,12 +4,39 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import { useModelConfigStore } from '@/stores/modelConfig'
 import {
   configPlanList,
   modelDistribution,
   algorithmDistribution,
 } from '@/mock/modelConfig'
 import type { ConfigPlan, DistributionItem } from '@/mock/modelConfig'
+
+// ==================== Store ====================
+const store = useModelConfigStore()
+
+// ==================== 辅助计算属性 ====================
+const reservoirGroupName = computed(() => {
+  const map: Record<string, string> = {
+    'long-liu': '龙刘组合',
+    'long-liu-hei': '龙刘黑组合',
+    'long-liu-qing': '龙刘青组合',
+    'long-liu-gong': '龙刘公组合',
+    all: '全部水库组合',
+  }
+  return map[store.basicConfig.selectedReservoirGroup] || store.basicConfig.selectedReservoirGroup
+})
+
+const scenarioParamLabels: Record<string, Record<string, string>> = {
+  westRoute: { none: '无', upper: '上线', lower: '下线', both: '上下线同引', all: '全有' },
+  backboneStatus: { normal: '正常运行', limited: '限制运行', maintenance: '检修停运', emergency: '应急运行' },
+  ecologicalFlow: { none: '不考虑', plan: '按方案执行', minimum: '最低生态需水', enhanced: '强化生态保障', custom: '自定义' },
+}
+
+const scenarioParamLabel = (key: string) => {
+  const value = store.scenarioConstraint.params[key]
+  return scenarioParamLabels[key]?.[value] || value
+}
 
 // ==================== Mock 数据 ====================
 const allPlans = configPlanList.data as ConfigPlan[]
@@ -21,7 +48,7 @@ const router = useRouter()
 
 // 表格数据
 const currentPage = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(13)
 const searchQuery = ref('')
 
 // 本地可修改的方案列表（含选中状态）
@@ -221,8 +248,7 @@ const handleFilter = () => {
 }
 
 // ==================== 行操作 ====================
-const handleDetail = (plan: ConfigPlan) => {
-  detailPlan.value = plan
+const handleDetail = () => {
   detailDialogVisible.value = true
 }
 
@@ -351,6 +377,7 @@ const pageNumbers = computed(() => {
           <div class="table-wrapper">
             <el-table
               :data="currentPagePlans"
+              height="100%"
               style="width: 100%"
               size="small"
               stripe
@@ -367,7 +394,7 @@ const pageNumbers = computed(() => {
               <el-table-column label="功能操作" width="240" fixed="right">
                 <template #default="{ row }">
                   <div class="action-btns">
-                    <el-button size="small" text class="action-btn action-detail" @click="handleDetail(row)">详情</el-button>
+                    <el-button size="small" text class="action-btn action-detail" @click="handleDetail">详情</el-button>
                     <el-button size="small" text class="action-btn action-edit" @click="handleEdit">编辑</el-button>
                     <el-button size="small" text class="action-btn action-copy" @click="handleCopy(row)">复制</el-button>
                     <el-button size="small" text class="action-btn action-delete" @click="handleDelete(row)">删除</el-button>
@@ -490,51 +517,32 @@ const pageNumbers = computed(() => {
           </div>
         </div>
 
-        <!-- 说明 -->
-        <div class="card info-card">
-          <div class="card-header info-card-header">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M8 5.5v4M8 5.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            <span class="card-title">说明</span>
-          </div>
-          <div class="card-body info-card-body">
-            <div class="info-note">
-              以上为基于当前配置参数的预估信息，实际运行时间可能因计算资源和数据量等因素差异。
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- 底部操作栏 -->
     <div class="footer-bar">
-      <div class="footer-left">
-        <el-button size="default" @click="handleCancel" class="footer-btn-cancel">取消</el-button>
-        <el-button size="default" @click="handleSave" class="footer-btn-save">保存</el-button>
-      </div>
       <div class="footer-center">
-        <el-button type="primary" size="default" class="footer-btn-run" @click="handleRunAll">
+        <el-button size="default" @click="handlePrev" class="footer-btn footer-btn-prev">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
+            <path d="M10 13L5 8l5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          上一步
+        </el-button>
+        <div class="footer-divider" />
+        <el-button type="primary" size="default" class="footer-btn footer-btn-run" @click="handleRunAll">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
             <path d="M4 2v12l10-6L4 2z" fill="currentColor"/>
           </svg>
           一键运行
         </el-button>
-        <el-button size="default" class="footer-btn-export" @click="handleExport">
+        <el-button size="default" class="footer-btn footer-btn-export" @click="handleExport">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
             <path d="M8 2v9M4 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M2 12v2h12v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
           导出配置
         </el-button>
-      </div>
-      <div class="footer-right">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="footer-hint-icon">
-          <circle cx="8" cy="8" r="5.5" stroke="#5a6f83" stroke-width="1.3"/>
-          <path d="M8 5.5v4M8 5.5v-1" stroke="#5a6f83" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        <span class="footer-hint">请确认所有配置无误后再执行运行操作</span>
       </div>
     </div>
 
@@ -593,38 +601,103 @@ const pageNumbers = computed(() => {
     <!-- ===== 方案详情弹窗 ===== -->
     <el-dialog
       v-model="detailDialogVisible"
-      title="方案详情"
-      width="520px"
+      title="当前配置摘要"
+      width="640px"
       :close-on-click-modal="false"
       class="confirm-dialog detail-dialog"
     >
-      <div v-if="detailPlan" class="detail-body">
-        <div class="detail-field">
-          <span class="detail-field-label">方案名称</span>
-          <span class="detail-field-value">{{ detailPlan.name }}</span>
+      <div class="summary-body">
+
+        <!-- Step 1: 模型数据 -->
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <div class="step-badge">1</div>
+            <span class="summary-section-title">模型数据</span>
+          </div>
+          <div class="summary-fields">
+            <el-descriptions :column="2" size="small" border class="dark-descriptions">
+              <el-descriptions-item label="时间范围">
+                {{ store.modelData.dateRange[0] }} ~ {{ store.modelData.dateRange[1] }}
+              </el-descriptions-item>
+              <el-descriptions-item label="数据项数">
+                {{ store.modelData.selectedDataIds.length || 7 }} 项
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
         </div>
-        <div class="detail-field">
-          <span class="detail-field-label">调度模型</span>
-          <span class="detail-field-value">{{ detailPlan.model }}</span>
+
+        <!-- Step 2: 基础配置 -->
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <div class="step-badge">2</div>
+            <span class="summary-section-title">基础配置</span>
+          </div>
+          <div class="summary-fields">
+            <el-descriptions :column="2" size="small" border class="dark-descriptions">
+              <el-descriptions-item label="方案名称">
+                {{ store.basicConfig.schemeName || '（未命名）' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="水库组合">
+                {{ reservoirGroupName }}
+              </el-descriptions-item>
+              <el-descriptions-item label="调度周期">
+                {{ store.basicConfig.timeStep }}
+              </el-descriptions-item>
+              <el-descriptions-item label="调度频率">
+                {{ store.basicConfig.scheduleFrequency }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
         </div>
-        <div class="detail-field">
-          <span class="detail-field-label">优化算法</span>
-          <span class="detail-field-value">{{ detailPlan.algorithm }}</span>
+
+        <!-- Step 3: 模型算法 -->
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <div class="step-badge">3</div>
+            <span class="summary-section-title">模型算法</span>
+          </div>
+          <div class="summary-fields">
+            <el-descriptions :column="2" size="small" border class="dark-descriptions">
+              <el-descriptions-item label="调度模型">
+                {{ store.modelAlgorithm.selectedModel }}
+              </el-descriptions-item>
+              <el-descriptions-item label="优化算法">
+                {{ store.modelAlgorithm.selectedAlgorithm }}
+              </el-descriptions-item>
+              <el-descriptions-item label="参数摘要" :span="2">
+                种群: {{ store.modelAlgorithm.parameters.populationSize }} |
+                迭代: {{ store.modelAlgorithm.parameters.iterationCount }} |
+                交叉: {{ store.modelAlgorithm.parameters.crossoverRate }} |
+                变异: {{ store.modelAlgorithm.parameters.mutationRate }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
         </div>
-        <div class="detail-field">
-          <span class="detail-field-label">场景类型</span>
-          <span class="detail-field-value">{{ detailPlan.scenario }}</span>
+
+        <!-- Step 4: 场景约束 -->
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <div class="step-badge">4</div>
+            <span class="summary-section-title">场景约束</span>
+          </div>
+          <div class="summary-fields">
+            <el-descriptions :column="2" size="small" border class="dark-descriptions">
+              <el-descriptions-item label="场景类型">
+                {{ store.scenarioConstraint.scenarioType === 'typical' ? '典型场景' : '自定义场景' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="西线调水">
+                {{ scenarioParamLabel('westRoute') }}
+              </el-descriptions-item>
+              <el-descriptions-item label="骨干工程">
+                {{ scenarioParamLabel('backboneStatus') }}
+              </el-descriptions-item>
+              <el-descriptions-item label="生态流量">
+                {{ scenarioParamLabel('ecologicalFlow') }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
         </div>
-        <div class="detail-field">
-          <span class="detail-field-label">参数摘要</span>
-          <span class="detail-field-value detail-params-text">
-            种群规模: 200 | 迭代次数: 500 | 交叉概率: 0.90 | 变异概率: 0.10
-          </span>
-        </div>
-        <div class="detail-field">
-          <span class="detail-field-label">状态</span>
-          <span class="detail-status-badge">已配置</span>
-        </div>
+
       </div>
       <template #footer>
         <div class="dialog-footer">
@@ -666,7 +739,8 @@ const pageNumbers = computed(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px 12px;
+  box-sizing: border-box;
+  padding: 8px 12px 0;
   gap: 8px;
   overflow: hidden;
 }
@@ -684,6 +758,7 @@ const pageNumbers = computed(() => {
 .table-section {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
 }
 
@@ -814,13 +889,15 @@ const pageNumbers = computed(() => {
 
 /* ===== 表格 ===== */
 .table-wrapper {
-  flex: 1;
-  overflow: auto;
+  flex: 1 1 auto;
+  display: flex;
+  overflow: hidden;
   min-height: 0;
 }
 
 .dark-table {
   width: 100%;
+  height: 100%;
 }
 
 .dark-table :deep(.el-table__header th) {
@@ -847,11 +924,13 @@ const pageNumbers = computed(() => {
 }
 
 .dark-table :deep(.el-table__inner-wrapper) {
+  height: 100%;
   background: transparent !important;
 }
 
 .dark-table :deep(.el-table__body-wrapper) {
   background: transparent !important;
+  overflow-y: auto !important;
 }
 
 .dark-table :deep(.el-checkbox__inner) {
@@ -1048,55 +1127,37 @@ const pageNumbers = computed(() => {
   margin-left: auto;
 }
 
-/* 说明 */
-.info-note {
-  font-size: 11px;
-  color: #5a6f83;
-  line-height: 1.5;
-}
 
 /* ===== 底部操作栏 ===== */
 .footer-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 10px 16px;
   background: rgba(6, 30, 70, 0.85);
   border: 1px solid rgba(50, 150, 255, 0.35);
   border-radius: 12px;
   flex-shrink: 0;
-  position: relative;
 }
 
-.footer-left,
-.footer-center,
-.footer-right {
+.footer-center {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.footer-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+.footer-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(50, 150, 255, 0.15);
+  flex-shrink: 0;
 }
 
-.footer-btn-cancel,
-.footer-btn-save,
-.footer-btn-export {
+.footer-btn {
   font-size: 12px !important;
-}
-
-.footer-btn-save {
-  background: rgba(0, 175, 255, 0.1) !important;
-  border-color: rgba(0, 175, 255, 0.4) !important;
-  color: #00d4ff !important;
-}
-
-.footer-btn-save:hover {
-  background: rgba(0, 175, 255, 0.2) !important;
-  border-color: rgba(0, 175, 255, 0.6) !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
 }
 
 .footer-btn-run {
@@ -1117,55 +1178,98 @@ const pageNumbers = computed(() => {
   flex-shrink: 0;
 }
 
-.footer-hint-icon {
-  flex-shrink: 0;
-}
-
-.footer-hint {
-  font-size: 11px;
-  color: #5a6f83;
-}
-
-/* ===== 详情弹窗 ===== */
-.detail-body {
+/* ===== 配置摘要弹窗 ===== */
+.summary-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-.detail-field {
+.summary-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.summary-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.summary-body::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.25);
+  border-radius: 2px;
+}
+
+.summary-section {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.detail-field-label {
-  font-size: 12px;
-  color: #7a8fa3;
-  min-width: 70px;
+.summary-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 175, 255, 0.15);
+  border: 1px solid rgba(0, 175, 255, 0.4);
+  color: #00d4ff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  padding-top: 2px;
 }
 
-.detail-field-value {
+.summary-section-title {
   font-size: 13px;
-  color: #c0c8d4;
-  line-height: 1.4;
+  font-weight: 600;
+  color: #e0e6ed;
 }
 
-.detail-params-text {
-  font-size: 11px;
-  color: #7a8fa3;
-  font-family: monospace;
+.summary-fields {
+  padding-left: 30px;
 }
 
-.detail-status-badge {
-  font-size: 11px;
-  color: #00ff88;
-  background: rgba(0, 255, 136, 0.1);
-  border: 1px solid rgba(0, 255, 136, 0.25);
-  padding: 2px 10px;
-  border-radius: 10px;
+/* el-descriptions 深色适配 */
+:deep(.dark-descriptions) {
+  --el-descriptions-table-bg-color: transparent;
+}
+
+:deep(.dark-descriptions .el-descriptions__header) {
+  display: none;
+}
+
+:deep(.dark-descriptions .el-descriptions__body) {
+  background: transparent !important;
+}
+
+:deep(.dark-descriptions .el-descriptions__table) {
+  border-collapse: collapse;
+}
+
+:deep(.dark-descriptions .el-descriptions__cell) {
+  background: rgba(2, 27, 63, 0.6) !important;
+  border-color: rgba(50, 150, 255, 0.15) !important;
+  color: #c0c8d4 !important;
+  font-size: 12px;
+}
+
+:deep(.dark-descriptions .el-descriptions__label.is-bordered-label) {
+  background: rgba(2, 27, 63, 0.8) !important;
+  color: #7a8fa3 !important;
+  font-weight: 500;
+}
+
+:deep(.dark-descriptions .el-descriptions__content) {
+  color: #c0c8d4 !important;
 }
 
 /* ===== Element Plus 深色覆盖 ===== */
