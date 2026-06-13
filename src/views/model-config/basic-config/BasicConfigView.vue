@@ -61,6 +61,22 @@ const frequencyOptions = [
   { value: '按需调度', label: '按需调度' },
 ]
 
+// 调度目标中文名映射（用于自动生成方案名称）
+const objectiveNameMap: Record<string, string> = {
+  'flood-control': '防洪',
+  'power-generation': '兴利',
+  'ecology': '生态',
+}
+
+/** 根据当前表单自动生成方案名称（未填写时使用） */
+const generateSchemeName = () => {
+  const manual = schemeName.value.trim()
+  if (manual) return manual
+  const tags = selectedObjectives.value.map(id => objectiveNameMap[id] || id)
+  const dateStr = startTime.value || 'today'
+  return `${tags.join('')}调度方案_${dateStr}`
+}
+
 // ==================== 页面加载 ====================
 onMounted(() => {
   // 从 Step 1 同步时间范围
@@ -124,18 +140,13 @@ const handlePrev = () => {
 }
 
 const handleNext = () => {
-  // 方案名称校验
-  if (!schemeName.value.trim()) {
-    ElMessage.warning('请输入方案名称')
-    return
-  }
   // 写入 Store（联动 Step 3）
   store.setBasicConfig({
     startTime: startTime.value,
     endTime: endTime.value,
     timeStep: timeStep.value,
     scheduleFrequency: scheduleFrequency.value,
-    schemeName: schemeName.value,
+    schemeName: generateSchemeName(),
     selectedReservoirGroup: selectedGroup.value,
     selectedObjectives: selectedObjectives.value,
     constraintEnabled: constraintEnabled.value,
@@ -154,7 +165,7 @@ const confirmSave = () => {
     endTime: endTime.value,
     timeStep: timeStep.value,
     scheduleFrequency: scheduleFrequency.value,
-    schemeName: schemeName.value,
+    schemeName: generateSchemeName(),
     selectedReservoirGroup: selectedGroup.value,
     selectedObjectives: selectedObjectives.value,
     constraintEnabled: constraintEnabled.value,

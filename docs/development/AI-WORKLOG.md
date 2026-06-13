@@ -47,32 +47,83 @@
 ```text
 1. 模型配置 Step 5「配置汇总」页面全功能开发完成（ConfigSummaryView.vue）：
    - 步骤条联动：Step 1~4 均可点击返回，Step 5 高亮
-   - 左侧配置方案表格（El-Table）：
-     - 勾选列（默认前 3 条选中，表头全选支持）
-     - 序号 / 方案名 / 模型 / 算法 / 场景 / 功能操作（详情/编辑/复制/删除/运行）
-     - 表格操作按钮行（新增 / 筛选 / 搜索框）
-     - 搜索框实时过滤（按方案名、模型、算法、场景关键词）
-     - 分页条（页数按钮、前后翻页、共 N 条）
-     - 详情弹窗（展示方案完整信息）
-     - 删除确认弹窗（红色风格）
-     - 复制方案（在列表顶部插入副本）
-     - 单行运行（生成 mock 跳转过程透明）
-   - 右侧预计计算信息面板：
-     - 时间预估卡片（02:18:45）
-     - 方案数量卡片（24 个）
-     - 模型分布（ECharts 环形图 + 图例列表，3 种模型）
-     - 算法分布（ECharts 环形图 + 图例列表，4 种算法）
-     - 说明文字
-   - 底部操作栏：取消 / 保存 / 一键运行（居中蓝色主按钮）/ 导出配置 / 提示说明
-   - 一键运行：校验至少选择一个方案，生成 mock 跳转 /process-transparent
+   - 左侧配置方案表格（El-Table）
+   - 右侧预计计算信息面板（时间预估、方案数量、模型/算法分布环形图）
+   - 底部操作栏：上一步 / 一键运行 / 导出配置
 2. 补充 Step 5 mock 数据（modelConfig.ts）：
-   - configSummaryState / configPlanList（24 条完整方案数据）/ modelDistribution / algorithmDistribution
+   - configSummaryState / configPlanList（24 条方案）/ modelDistribution / algorithmDistribution
+```
+
+------
+
+### 开发时间
+
+```text
+2026-06-13（第九次）
+```
+
+### 本次完成内容
+
+```text
+1. 模型配置底部操作栏公用组件（ModelConfigFooter.vue）：
+   - Step 1~4 统一使用，居中排列：取消 / 上一步 / 保存 / 下一步
+   - Step 5 保持独立底部
+2. 约束条件交互优化：
+   - Step 2 约束卡片改为弹窗中可编辑 el-switch 开关
+   - Step 4 删除约束条件卡片，场景参数改为全宽
+3. 建立 Pinia 模型配置 Store（src/stores/modelConfig.ts）：
+   - 串联五步配置数据：modelData / basicConfig / modelAlgorithm / scenarioConstraint
+   - 步骤完成状态管理：stepCompleted / markStepCompleted
+4. Step 5 详情弹窗改为配置摘要：
+   - 从 Store 读取前四步实时配置，按步骤分区块展示
+5. 更新所有模型配置设计文档（docs/page-design/04-model-config/ 下 6 个文件）
+```
+
+------
+
+### 开发时间
+
+```text
+2026-06-13（第十次）
+```
+
+### 本次完成内容
+
+```text
+1. 步骤间数据联动（核心跨步骤数据流）：
+   - Step 1 → Step 2：模型数据时间范围自动同步到基础配置起止时间
+   - Step 2 → Step 3：水库组合切换 → 自动检查模型兼容性，不兼容则自动切换
+   - Step 2 → Step 3：时间步长切换 → 自动建议算法参数（种群规模、迭代次数）
+   - Step 2 → Step 4：调度目标选择 → 关联场景参数高亮标记「关联」标签
+   - 所有步骤的"下一步"按钮自动将当前配置写入 Store
+2. 联动数据源（src/mock/modelConfig.ts）：
+   - reservoirGroupModelMap：水库组合 → 兼容模型ID
+   - timeStepParamSuggestions：时间步长 → 建议算法参数
+   - objectiveRelevantParams：调度目标 → 关联场景参数ID
+   - modelLabelMap / algorithmLabelMap：ID → 中文名称
+3. 联动视觉反馈：
+   - Step 3 模型选择框下方显示「当前水库组合××可用的模型」提示
+   - Step 4 关联参数显示蓝色边框 +「关联」标签 + 顶部调度目标提示
+4. Step 5 方案列表同步前四步配置：
+   - 方案列表首条自动插入当前配置方案（方案名/模型/算法/场景均来自 Store）
+   - 方案名未填写时自动按调度目标+日期生成
+   - 新增按钮也将当前配置作为新方案加入列表
+   - 每次进入 Step 5 从 Store 重建列表，始终反映最新配置
+5. 方案名称自动生成：
+   - 已填写 → 使用填写内容
+   - 未填写 → 自动按调度目标生成（如"防洪调度方案_2025-05-16"）
+   - 不再弹出名称校验提示
 ```
 
 ### 本次未完成内容
 
 ```text
 1. 其他页面（水调水情、过程透明、评价决策、案例库、报表统计）尚未开发具体功能
+2. 以下 brainstorm 建议尚未实现：
+   - Step 1 改为"数据选择"（勾选参与计算的数据项）
+   - "保存"改为"暂存"（语义改为暂存到 Pinia）
+   - 方案管理移出配置流程（移入案例库模块）
+   - Step 5 改为纯配置摘要页（去掉方案列表）
 ```
 
 ------
@@ -110,6 +161,10 @@
 任务 3：开发评价决策页面
 任务 4：开发案例库页面
 任务 5：开发报表统计页面
+任务 6：Step 1 改为"数据选择"（勾选数据项）
+任务 7："保存"改为"暂存"语义
+任务 8：方案管理移出到案例库
+任务 9：Step 5 改为纯配置摘要页
 ```
 
 ------
@@ -155,17 +210,20 @@ npm run dev
 ### 关键文件
 
 ```text
-src/components/chart/ReservoirSectionGraph.vue                    -- 断面示意图组件
-src/mock/basicData.ts                                              -- 基础数据 mock（含 5 个水库全量数据）
-src/mock/modelConfig.ts                                            -- 模型配置 mock 数据
-src/views/basic-data/BasicDataView.vue                             -- 基础数据页面
-src/views/model-config/model-data/ModelDataView.vue                -- 模型配置 Step 1 页面
-src/views/model-config/basic-config/BasicConfigView.vue            -- 模型配置 Step 2 页面
-src/views/model-config/model-algorithm/ModelAlgorithmView.vue      -- 模型配置 Step 3 页面
-src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型配置 Step 4 页面
-src/views/model-config/config-summary/ConfigSummaryView.vue          -- 模型配置 Step 5 页面（本次新增）
-src/components/model-config/ModelConfigStepBar.vue                 -- 模型配置步骤条组件
-src/components/basic-data/BaseInfoPanel.vue                        -- 基础信息卡片组件
-src/styles/index.css                                               -- 全局样式（:root:root CSS 变量覆盖）
-docs/development/AI-WORKLOG.md                                     -- 本文件
+src/stores/modelConfig.ts                                           -- 模型配置 Pinia Store（步骤间联动核心）
+src/mock/modelConfig.ts                                             -- 模型配置 mock 数据（含联动映射表）
+src/mock/basicData.ts                                               -- 基础数据 mock（含 5 个水库全量数据）
+src/views/model-config/model-data/ModelDataView.vue                 -- 模型配置 Step 1
+src/views/model-config/basic-config/BasicConfigView.vue             -- 模型配置 Step 2（联动模型筛选/参数建议）
+src/views/model-config/model-algorithm/ModelAlgorithmView.vue       -- 模型配置 Step 3（受水库组合过滤）
+src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型配置 Step 4（关联参数高亮）
+src/views/model-config/config-summary/ConfigSummaryView.vue         -- 模型配置 Step 5（含当前配置方案同步）
+src/components/model-config/ModelConfigFooter.vue                   -- 模型配置底部公用操作栏
+src/components/model-config/ModelConfigStepBar.vue                  -- 模型配置步骤条组件
+src/components/chart/ReservoirSectionGraph.vue                      -- 断面示意图组件
+src/components/basic-data/BaseInfoPanel.vue                         -- 基础信息卡片组件
+src/views/basic-data/BasicDataView.vue                              -- 基础数据页面
+src/styles/index.css                                                -- 全局样式（:root:root CSS 变量覆盖）
+docs/page-design/04-model-config/README.md                          -- 模型配置模块总设计文档（含联动说明）
+docs/development/AI-WORKLOG.md                                      -- 本文件
 ```
