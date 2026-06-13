@@ -9,13 +9,15 @@ import {
   configPlanList,
   modelDistribution,
   algorithmDistribution,
+  modelLabelMap,
+  algorithmLabelMap,
 } from '@/mock/modelConfig'
 import type { ConfigPlan, DistributionItem } from '@/mock/modelConfig'
 
 // ==================== Store ====================
 const store = useModelConfigStore()
 
-// ==================== 辅助计算属性 ====================
+// ==================== 辅助函数 ====================
 const reservoirGroupName = computed(() => {
   const map: Record<string, string> = {
     'long-liu': '龙刘组合',
@@ -38,6 +40,23 @@ const scenarioParamLabel = (key: string) => {
   return scenarioParamLabels[key]?.[value] || value
 }
 
+/** 根据 Store 当前配置生成方案名称（与 Step 2 逻辑一致） */
+const currentPlanName = computed(() => {
+  const name = store.basicConfig.schemeName?.trim()
+  if (name) return name
+  const objectives = store.basicConfig.selectedObjectives
+  const objNames: Record<string, string> = { 'flood-control': '防洪', 'power-generation': '兴利', 'ecology': '生态' }
+  const tag = objectives.map(o => objNames[o] || o).join('')
+  return `${tag}调度方案_${store.basicConfig.startTime || 'today'}`
+})
+
+/** 根据 Store 当前配置生成场景描述 */
+const currentScenarioDesc = computed(() => {
+  const type = store.scenarioConstraint.scenarioType === 'typical' ? '典型场景' : '自定义场景'
+  const eco = scenarioParamLabel('ecologicalFlow')
+  return `${type}_${eco}`
+})
+
 // ==================== Mock 数据 ====================
 const allPlans = configPlanList.data as ConfigPlan[]
 const modelDist = modelDistribution.data as DistributionItem[]
@@ -51,8 +70,25 @@ const currentPage = ref(1)
 const pageSize = ref(13)
 const searchQuery = ref('')
 
-// 本地可修改的方案列表（含选中状态）
-const plansList = ref<ConfigPlan[]>(JSON.parse(JSON.stringify(allPlans)))
+// 本地可修改的方案列表（先插入当前方案）
+const plansList = ref<ConfigPlan[]>(buildPlanList())
+
+/** 构建方案列表：当前配置方案 + 历史 mock 方案 */
+function buildPlanList(): ConfigPlan[] {
+  const current: ConfigPlan = {
+    id: 'current-plan',
+    index: 1,
+    name: currentPlanName.value,
+    model: modelLabelMap[store.modelAlgorithm.selectedModel] || store.modelAlgorithm.selectedModel,
+    algorithm: algorithmLabelMap[store.modelAlgorithm.selectedAlgorithm] || store.modelAlgorithm.selectedAlgorithm,
+    scenario: currentScenarioDesc.value,
+    selected: true,
+  }
+  const historical = JSON.parse(JSON.stringify(allPlans)) as ConfigPlan[]
+  // 重新编号历史方案
+  historical.forEach((p, i) => { p.index = i + 2 })
+  return [current, ...historical]
+}
 
 // 过滤后的列表
 const filteredPlans = computed(() => {
@@ -159,6 +195,8 @@ const initAllCharts = () => {
 }
 
 onMounted(() => {
+  // 从 Store 当前配置重建方案列表，确保前四步最新配置已同步
+  plansList.value = buildPlanList()
   setTimeout(initAllCharts, 300)
 })
 
@@ -240,7 +278,20 @@ const handleExport = () => {
 }
 
 const handleAdd = () => {
-  ElMessage.info('当前为前端原型，暂不支持新增方案')
+  // 把当前配置作为新方案加入列表
+  const newPlan: ConfigPlan = {
+    id: `plan-new-${Date.now()}`,
+    index: 1,
+    name: currentPlanName.value,
+    model: modelLabelMap[store.modelAlgorithm.selectedModel] || store.modelAlgorithm.selectedModel,
+    algorithm: algorithmLabelMap[store.modelAlgorithm.selectedAlgorithm] || store.modelAlgorithm.selectedAlgorithm,
+    scenario: currentScenarioDesc.value,
+    selected: true,
+  }
+  // 重新编号现有方案
+  plansList.value.forEach((p, i) => { p.index = i + 2 })
+  plansList.value.unshift(newPlan)
+  ElMessage.success(`已新增方案「${newPlan.name}」`)
 }
 
 const handleFilter = () => {
