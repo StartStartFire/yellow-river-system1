@@ -32,14 +32,14 @@ src/mock/modelConfig.ts
 
 ```text
 1. 展示模型配置顶部五步流程。
-2. 高亮当前步骤“模型数据”。
+2. 高亮当前步骤"模型数据"。
 3. 展示左侧数据目录。
-4. 默认选中“入库与水位”。
-5. 展示右侧操作区：上传数据、下载模板、时间范围。
+4. 默认选中"入库与水位"。
+5. 展示右侧操作区：上传数据、下载模板。
 6. 展示输入数据概览图表。
 7. 支持左侧目录切换。
-8. 支持底部取消、保存、下一步按钮。
-9. 点击“下一步”进入 Step 2：基础配置。
+8. 支持底部取消、保存、下一步按钮（使用 ModelConfigFooter 公用组件）。
+9. 点击"下一步"进入 Step 2：基础配置。
 ```
 
 当前阶段不实现：
@@ -61,7 +61,7 @@ src/mock/modelConfig.ts
 页面采用：
 
 ```text
-顶部系统栏 + 模型配置流程步骤条 + 左侧数据目录 + 右侧数据展示区 + 底部操作栏
+顶部系统栏 + 模型配置流程步骤条 + 左侧数据目录 + 右侧数据展示区 + 底部操作栏（公用组件）
 ```
 
 结构如下：
@@ -73,12 +73,12 @@ src/mock/modelConfig.ts
 │ 模型配置流程步骤条：模型数据 → 基础配置 → 模型算法 → 场景约束 → 配置汇总 │
 ├───────────────┬──────────────────────────────────────────────┤
 │ 左侧数据目录   │ 右侧内容区                                   │
-│               │ 顶部操作区：上传数据 / 下载模板 / 时间范围    │
+│               │ 顶部操作区：上传数据 / 下载模板              │
 │ 调度输入       │                                              │
 │ 原始表格       │ 输入数据概览图表                             │
 │               │                                              │
 ├───────────────┴──────────────────────────────────────────────┤
-│ 底部操作栏：取消 / 保存 / 下一步                              │
+│ 底部操作栏（LevelConfigFooter）：取消 / 保存 / 下一步          │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -184,7 +184,7 @@ src/mock/modelConfig.ts
 展示要求：
 
 ```text
-1. “1 模型数据”高亮显示。
+1. "1 模型数据"高亮显示。
 2. 其他步骤为未激活状态。
 3. 步骤之间使用箭头或连接线表示流程关系。
 4. 步骤编号使用圆形数字。
@@ -196,7 +196,7 @@ src/mock/modelConfig.ts
 ```text
 1. 当前阶段允许点击已完成步骤或当前步骤。
 2. 未完成步骤可暂不允许直接跳转。
-3. 点击“下一步”后进入 Step 2：基础配置。
+3. 点击"下一步"后进入 Step 2：基础配置。
 4. 步骤切换只在前端完成，不调用接口。
 ```
 
@@ -299,12 +299,11 @@ src/mock/modelConfig.ts
 
 ## 9. 右侧顶部操作区
 
-右侧内容区顶部包含三个控件：
+右侧内容区顶部包含两个按钮：
 
 ```text
 上传数据
 下载模板
-时间范围选择
 ```
 
 ### 9.1 上传数据按钮
@@ -356,23 +355,6 @@ src/mock/modelConfig.ts
 1. 只做 UI。
 2. 不生成真实模板文件。
 3. 不触发浏览器下载。
-```
-
-### 9.3 时间范围选择器
-
-默认显示：
-
-```text
-2025-05-19 ~ 2025-05-25
-```
-
-要求：
-
-```text
-1. 使用 Element Plus 日期范围选择器。
-2. 控件样式适配深色主题。
-3. 切换时间后可更新 mock 图表数据。
-4. 不调用后端接口。
 ```
 
 ------
@@ -458,7 +440,7 @@ ECharts 双轴折线图 + 面积图
 
 ### 10.5 原始表格展示规则
 
-当点击左侧“原始表格”分组下的目录项时，右侧内容区可以切换为表格展示。
+当点击左侧"原始表格"分组下的目录项时，右侧内容区可以切换为表格展示。
 
 表格要求：
 
@@ -476,19 +458,15 @@ ECharts 双轴折线图 + 面积图
 
 ## 11. 底部操作栏
 
-底部操作栏包含：
+使用公用组件 `ModelConfigFooter.vue`，step=1。
+
+按钮布局（居中）：
 
 ```text
-取消
-保存
-下一步
+取消 | 保存 | 下一步
 ```
 
 ### 11.1 取消按钮
-
-```text
-取消
-```
 
 交互要求：
 
@@ -502,32 +480,24 @@ ECharts 双轴折线图 + 面积图
 
 ### 11.2 保存按钮
 
-```text
-保存
-```
-
 交互要求：
 
 ```text
-1. 点击后弹出确认弹窗，提示”确认保存当前模型数据配置？”。
-2. 弹窗提供”取消”和”确认保存”两个按钮。
-3. 点击”确认保存”后关闭弹窗，保存当前目录项和时间范围等前端状态，可使用 Pinia 暂存。
-4. 点击”取消”关闭弹窗，不保存。
+1. 点击后弹出确认弹窗，提示"确认保存当前模型数据配置？"。
+2. 弹窗提供"取消"和"确认保存"两个按钮。
+3. 点击"确认保存"后关闭弹窗，保存当前前端状态，可写入 Pinia store。
+4. 点击"取消"关闭弹窗，不保存。
 5. 不调用接口。
 ```
 
 ### 11.3 下一步按钮
-
-```text
-下一步
-```
 
 交互要求：
 
 ```text
 1. 点击后进入 Step 2：基础配置页面。
 2. 可通过 Vue Router 跳转到对应路由。
-3. 也可以在模型配置页面内切换 step 状态。
+3. 也可在模型配置页面内切换 step 状态。
 4. 不做真实数据校验。
 ```
 
@@ -558,42 +528,9 @@ export const modelDataMock = {
   code: 200,
   message: 'success',
   data: {
-    menus: [
-      {
-        groupName: '调度输入',
-        children: [
-          { id: 'inflow-level', name: '入库与水位', icon: 'database' },
-          { id: 'west-route', name: '西线调水数据', icon: 'water' },
-          { id: 'level-boundary', name: '水位上下限', icon: 'level' },
-          { id: 'lanzhou-demand', name: '兰州断面需水数据', icon: 'clock' },
-          { id: 'long-liu-demand', name: '龙刘区间用水数据', icon: 'river' },
-          { id: 'inflow-frequency', name: '来水频率', icon: 'bar' },
-        ],
-      },
-      {
-        groupName: '原始表格',
-        children: [
-          { id: 'raw-west-route', name: '西线调水数据', icon: 'table' },
-          { id: 'raw-level-boundary', name: '水位上下限', icon: 'table' },
-          { id: 'raw-lanzhou-demand', name: '兰州断面需水数据', icon: 'table' },
-          { id: 'raw-long-liu-demand', name: '龙刘区间用水数据', icon: 'table' },
-          { id: 'raw-inflow-frequency', name: '来水频率', icon: 'table' },
-        ],
-      },
-    ],
-    inflowLevelChart: {
-      title: '输入数据概览（近7日入库流量与水位）',
-      xAxis: ['05-19', '05-20', '05-21', '05-22', '05-23', '05-24', '05-25'],
-      series: {
-        inflow: [430, 560, 820, 620, 420, 340, 460],
-        level: [2486, 2484, 2488, 2486, 2484, 2481, 2485],
-      },
-    },
-    pageState: {
-      currentStep: 1,
-      activeMenuId: 'inflow-level',
-      dateRange: ['2025-05-19', '2025-05-25'],
-    },
+    menus: [ /* ... */ ],
+    menuContents: { /* ... */ },
+    pageState: { currentStep: 1, activeMenuId: 'inflow-level', dateRange: ['2025-05-19', '2025-05-25'] },
   },
 }
 ```
@@ -605,47 +542,38 @@ export const modelDataMock = {
 ### 13.1 目录切换
 
 ```text
-1. 默认选中“入库与水位”。
+1. 默认选中"入库与水位"。
 2. 点击左侧目录项后更新 activeMenuId。
 3. 右侧标题、图表或表格随 activeMenuId 切换。
 4. 当前阶段只切换本地 mock 数据。
 ```
 
-### 13.2 时间范围切换
+### 13.2 上传数据
 
 ```text
-1. 默认时间范围为 2025-05-19 ~ 2025-05-25。
-2. 用户选择新的时间范围后更新页面状态。
-3. 图表可根据时间范围切换 mock 数据。
-4. 不调用接口。
-```
-
-### 13.3 上传数据
-
-```text
-1. 点击上传数据按钮，当前阶段可弹出提示“当前为前端原型，暂不支持真实上传”。
+1. 点击上传数据按钮，当前阶段可弹出提示"当前为前端原型，暂不支持真实上传"。
 2. 不读取本地文件。
 3. 不解析 Excel。
 4. 不改变真实数据。
 ```
 
-### 13.4 下载模板
+### 13.3 下载模板
 
 ```text
-1. 点击下载模板按钮，当前阶段可弹出提示“当前为前端原型，暂不支持真实下载”。
+1. 点击下载模板按钮，当前阶段可弹出提示"当前为前端原型，暂不支持真实下载"。
 2. 不生成真实文件。
 ```
 
-### 13.5 保存
+### 13.4 保存
 
 ```text
 1. 点击保存按钮，弹出确认弹窗。
-2. 确认后保存当前前端状态。
-3. 可提示”模型数据配置已保存”。
+2. 确认后保存当前前端状态到 Pinia。
+3. 可提示"模型数据配置已保存"。
 4. 不调用接口。
 ```
 
-### 13.6 下一步
+### 13.5 下一步
 
 ```text
 1. 点击下一步，进入基础配置页面。
@@ -667,11 +595,11 @@ src/views/model-config/model-data/ModelDataView.vue
 
 ```text
 src/components/model-config/ModelConfigStepBar.vue
+src/components/model-config/ModelConfigFooter.vue       ← 公用底部组件
 src/components/model-config/model-data/ModelDataSidebar.vue
 src/components/model-config/model-data/ModelDataToolbar.vue
 src/components/model-config/model-data/ModelDataChart.vue
 src/components/model-config/model-data/ModelDataTable.vue
-src/components/model-config/model-data/ModelDataFooter.vue
 ```
 
 可复用公共组件：
@@ -680,15 +608,6 @@ src/components/model-config/model-data/ModelDataFooter.vue
 src/components/chart/BaseChart.vue
 src/components/panel/PanelCard.vue
 src/components/common/StatusTag.vue
-```
-
-开发原则：
-
-```text
-1. 如果项目还没有公共组件，先在 ModelDataView.vue 中完成页面。
-2. 页面稳定后再拆分组件。
-3. 不要因为开发模型数据页面而重构其他页面。
-4. 不要一次性开发模型配置其余四个步骤。
 ```
 
 ------
@@ -707,4 +626,3 @@ src/components/common/StatusTag.vue
 9. 不做复杂数据版本管理。
 10. 不做真实任务提交。
 ```
-

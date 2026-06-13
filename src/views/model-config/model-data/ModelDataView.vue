@@ -4,12 +4,17 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import { useModelConfigStore } from '@/stores/modelConfig'
 import { modelDataMock } from '@/mock/modelConfig'
 import type { MenuGroup, MenuContentMap, PageState } from '@/mock/modelConfig'
 
 // ==================== 弹窗状态 ====================
 const saveDialogVisible = ref(false)
 const cancelDialogVisible = ref(false)
+
+// ==================== Store ====================
+const store = useModelConfigStore()
 
 // ==================== Mock 数据 ====================
 const mockData = modelDataMock.data
@@ -95,6 +100,12 @@ const handleCancel = () => {
 
 const confirmSave = () => {
   saveDialogVisible.value = false
+  // 写入 Store（联动 Step 2 时间范围）
+  store.setModelData({
+    activeMenuId: activeMenuId.value,
+    dateRange: ['2025-05-19', '2025-05-25'], // 当前为固定 mock，后续可从日历选择
+    selectedDataIds: [],
+  })
   ElMessage.success('模型数据配置已保存')
 }
 
@@ -104,6 +115,12 @@ const confirmCancel = () => {
 }
 
 const handleNext = () => {
+  // 同步当前数据到 Store（联动 Step 2）
+  store.setModelData({
+    activeMenuId: activeMenuId.value,
+    dateRange: ['2025-05-19', '2025-05-25'],
+    selectedDataIds: [],
+  })
   router.push('/model-config/basic-config')
 }
 
@@ -369,20 +386,12 @@ const iconMap: Record<string, string> = {
     </div>
 
     <!-- 底部操作栏 -->
-    <div class="footer-bar">
-      <div class="footer-left">
-        <el-button size="default" @click="handleCancel" class="footer-btn-cancel">取消</el-button>
-      </div>
-      <div class="footer-right">
-        <el-button size="default" @click="handleSave" class="footer-btn-save">保存</el-button>
-        <el-button type="primary" size="default" @click="handleNext" class="footer-btn-next">
-          下一步
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </el-button>
-      </div>
-    </div>
+    <ModelConfigFooter
+      :step="1"
+      @cancel="handleCancel"
+      @save="handleSave"
+      @next="handleNext"
+    />
   </div>
 
     <!-- 保存确认弹窗 -->
@@ -785,47 +794,6 @@ const iconMap: Record<string, string> = {
 }
 
 
-/* ===== 底部操作栏 ===== */
-.footer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.footer-left,
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-btn-cancel {
-  font-size: 12px !important;
-}
-
-.footer-btn-save {
-  font-size: 12px !important;
-  background: rgba(0, 175, 255, 0.1) !important;
-  border-color: rgba(0, 175, 255, 0.4) !important;
-  color: #00d4ff !important;
-}
-
-.footer-btn-save:hover {
-  background: rgba(0, 175, 255, 0.2) !important;
-  border-color: rgba(0, 175, 255, 0.6) !important;
-}
-
-.footer-btn-next {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
 
 /* ===== Element Plus 按钮深色覆盖 ===== */
 :deep(.el-button) {

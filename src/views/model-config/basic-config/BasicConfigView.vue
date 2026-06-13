@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import { useModelConfigStore } from '@/stores/modelConfig'
 import {
-  basicConfigState,
   reservoirGroups,
   dispatchObjectives,
   constraintSummary,
 } from '@/mock/modelConfig'
 import type { ReservoirGroup, DispatchObjective } from '@/mock/modelConfig'
 
+// ==================== Store ====================
+const store = useModelConfigStore()
+
 // ==================== Mock 数据 ====================
-const configData = basicConfigState.data
 const groups = reservoirGroups.data as ReservoirGroup[]
 const objectives = dispatchObjectives.data as DispatchObjective[]
 const constraintData = constraintSummary.data
@@ -20,14 +23,14 @@ const constraintData = constraintSummary.data
 // ==================== 响应式状态 ====================
 const router = useRouter()
 
-// 表单数据
-const startTime = ref(configData.startTime)
-const endTime = ref(configData.endTime)
-const timeStep = ref(configData.timeStep)
-const scheduleFrequency = ref(configData.scheduleFrequency)
-const schemeName = ref(configData.schemeName)
-const selectedGroup = ref(configData.selectedReservoirGroup)
-const selectedObjectives = ref<string[]>([...configData.selectedObjectives])
+// 表单数据 - 从 Store 读取，联动 Step 1
+const startTime = ref(store.basicConfig.startTime)
+const endTime = ref(store.basicConfig.endTime)
+const timeStep = ref(store.basicConfig.timeStep)
+const scheduleFrequency = ref(store.basicConfig.scheduleFrequency)
+const schemeName = ref(store.basicConfig.schemeName)
+const selectedGroup = ref(store.basicConfig.selectedReservoirGroup)
+const selectedObjectives = ref<string[]>([...store.basicConfig.selectedObjectives])
 
 // 计算总时段数
 const totalPeriods = computed(() => {
@@ -51,17 +54,34 @@ const timeStepOptions = [
   { value: '每月', label: '每月' },
 ]
 
-// 调度频率选项
+// 频率选项
 const frequencyOptions = [
   { value: '每周一次', label: '每周一次' },
   { value: '每月一次', label: '每月一次' },
   { value: '按需调度', label: '按需调度' },
 ]
 
+// ==================== 页面加载 ====================
+onMounted(() => {
+  // 从 Step 1 同步时间范围
+  store.syncBasicConfigFromModelData()
+  // 刷新本地表单值
+  startTime.value = store.basicConfig.startTime
+  endTime.value = store.basicConfig.endTime
+  selectedGroup.value = store.basicConfig.selectedReservoirGroup
+  selectedObjectives.value = [...store.basicConfig.selectedObjectives]
+  timeStep.value = store.basicConfig.timeStep
+  scheduleFrequency.value = store.basicConfig.scheduleFrequency
+  schemeName.value = store.basicConfig.schemeName
+})
+
 // ==================== 弹窗状态 ====================
 const saveDialogVisible = ref(false)
 const cancelDialogVisible = ref(false)
 const constraintDialogVisible = ref(false)
+
+// 约束开关状态（默认全部启用）
+const constraintEnabled = ref<boolean[]>(constraintData.constraints.map(() => true))
 
 // ==================== 交互 ====================
 
@@ -72,9 +92,10 @@ const handleStepClick = (step: number) => {
   }
 }
 
-// 水库组合选择
+// 水库组合选择 — 联动 Step 3 模型筛选
 const handleSelectGroup = (id: string) => {
   selectedGroup.value = id
+  store.ensureCompatibleModelOnGroupChange(id)
 }
 
 // 调度目标切换
@@ -108,13 +129,38 @@ const handleNext = () => {
     ElMessage.warning('请输入方案名称')
     return
   }
+  // 写入 Store（联动 Step 3）
+  store.setBasicConfig({
+    startTime: startTime.value,
+    endTime: endTime.value,
+    timeStep: timeStep.value,
+    scheduleFrequency: scheduleFrequency.value,
+    schemeName: schemeName.value,
+    selectedReservoirGroup: selectedGroup.value,
+    selectedObjectives: selectedObjectives.value,
+    constraintEnabled: constraintEnabled.value,
+  })
+  // 同步时间步长建议参数到 Step 3
+  store.applyTimeStepToAlgorithmParams(timeStep.value)
   router.push('/model-config/model-algorithm')
 }
 
 // 弹窗确认
 const confirmSave = () => {
   saveDialogVisible.value = false
-  // 实际保存可写入 Pinia，当前阶段只做前端提示
+  // 写入 Store
+  store.setBasicConfig({
+    startTime: startTime.value,
+    endTime: endTime.value,
+    timeStep: timeStep.value,
+    scheduleFrequency: scheduleFrequency.value,
+    schemeName: schemeName.value,
+    selectedReservoirGroup: selectedGroup.value,
+    selectedObjectives: selectedObjectives.value,
+    constraintEnabled: constraintEnabled.value,
+  })
+  // 联动：时间步长影响 Step 3 参数
+  store.applyTimeStepToAlgorithmParams(timeStep.value)
   ElMessage.success('基础配置已保存')
 }
 
@@ -336,26 +382,13 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
     </div>
 
     <!-- 底部操作栏 -->
-    <div class="footer-bar">
-      <div class="footer-left">
-        <el-button size="default" @click="handleCancel" class="footer-btn-cancel">取消</el-button>
-      </div>
-      <div class="footer-right">
-        <el-button size="default" @click="handlePrev" class="footer-btn-prev">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M10 13L5 8l5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          上一步
-        </el-button>
-        <el-button size="default" @click="handleSave" class="footer-btn-save">保存</el-button>
-        <el-button type="primary" size="default" @click="handleNext" class="footer-btn-next">
-          下一步
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </el-button>
-      </div>
-    </div>
+    <ModelConfigFooter
+      :step="2"
+      @cancel="handleCancel"
+      @save="handleSave"
+      @prev="handlePrev"
+      @next="handleNext"
+    />
 
     <!-- ===== 保存确认弹窗 ===== -->
     <el-dialog
@@ -419,19 +452,26 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
     >
       <div class="constraint-detail-body">
         <div class="constraint-summary-text">
-          当前已配置 <span class="count-value">{{ constraintData.count }}</span> 项约束条件
+          选择本次计算需要启用的约束条件：
         </div>
-        <div class="constraint-list">
+        <div class="constraint-switch-list">
           <div
             v-for="(c, cIdx) in constraintData.constraints"
             :key="cIdx"
-            class="constraint-item"
+            class="constraint-switch-item"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="constraint-item-icon">
-              <circle cx="8" cy="8" r="4" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.2"/>
-              <path d="M6 8l1.5 1.5L10 7" stroke="#00afff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="constraint-item-name">{{ c }}</span>
+            <div class="constraint-switch-left">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="constraint-item-icon">
+                <circle cx="8" cy="8" r="4" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.2"/>
+                <path d="M6 8l1.5 1.5L10 7" stroke="#00afff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="constraint-item-name">{{ c }}</span>
+            </div>
+            <el-switch
+              v-model="constraintEnabled[cIdx]"
+              size="small"
+              class="dark-switch"
+            />
           </div>
         </div>
       </div>
@@ -829,59 +869,6 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
   color: #c0c8d4;
 }
 
-/* ===== 底部操作栏 ===== */
-.footer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.footer-left,
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-btn-cancel {
-  font-size: 12px !important;
-}
-
-.footer-btn-prev {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.footer-btn-save {
-  font-size: 12px !important;
-  background: rgba(0, 175, 255, 0.1) !important;
-  border-color: rgba(0, 175, 255, 0.4) !important;
-  color: #00d4ff !important;
-}
-
-.footer-btn-save:hover {
-  background: rgba(0, 175, 255, 0.2) !important;
-  border-color: rgba(0, 175, 255, 0.6) !important;
-}
-
-.footer-btn-next {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-icon {
-  flex-shrink: 0;
-}
-
 /* ===== Element Plus 深色覆盖 ===== */
 
 /* 日期选择器深色适配 */
@@ -1067,5 +1054,63 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 :deep(.el-select-dropdown__item.selected) {
   color: #00d4ff !important;
   font-weight: 600;
+}
+
+/* ===== 约束开关列表 ===== */
+.constraint-switch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.constraint-switch-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.constraint-switch-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.constraint-switch-list::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.25);
+  border-radius: 2px;
+}
+
+.constraint-switch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+}
+
+.constraint-switch-item:last-child {
+  border-bottom: none;
+}
+
+.constraint-switch-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+:deep(.dark-switch .el-switch__core) {
+  background: rgba(50, 150, 255, 0.15) !important;
+  border-color: rgba(50, 150, 255, 0.25) !important;
+}
+
+:deep(.dark-switch.is-checked .el-switch__core) {
+  background: rgba(0, 175, 255, 0.4) !important;
+  border-color: rgba(0, 175, 255, 0.5) !important;
+}
+
+:deep(.dark-switch .el-switch__core .el-switch__action) {
+  background: #7a8fa3 !important;
+}
+
+:deep(.dark-switch.is-checked .el-switch__core .el-switch__action) {
+  background: #00d4ff !important;
 }
 </style>

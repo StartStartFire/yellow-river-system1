@@ -3,31 +3,47 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import { useModelConfigStore } from '@/stores/modelConfig'
 import {
   dispatchModels,
   optimizationAlgorithms,
   algorithmParameters,
+  reservoirGroups,
 } from '@/mock/modelConfig'
 import type { DispatchModel, OptimizationAlgorithm, AlgorithmParameter } from '@/mock/modelConfig'
 
+// ==================== Store ====================
+const store = useModelConfigStore()
+
 // ==================== Mock 数据 ====================
-const models = dispatchModels.data as DispatchModel[]
+const allModels = dispatchModels.data as DispatchModel[]
 const allAlgorithms = optimizationAlgorithms.data as OptimizationAlgorithm[]
 const paramDefs = algorithmParameters.data as AlgorithmParameter[]
+const groups = reservoirGroups.data
 
 // ==================== 响应式状态 ====================
 const router = useRouter()
 
-// 选中的模型和算法
-const selectedModelId = ref('lro')
-const selectedAlgorithmId = ref('nsga2')
+// 从 Store 读取初始值（已被 Step 2 联动影响）
+const selectedModelId = ref(store.modelAlgorithm.selectedModel)
+const selectedAlgorithmId = ref(store.modelAlgorithm.selectedAlgorithm)
 
 // 参数值 - 以 id 为 key 存储当前值
-const paramValues = ref<Record<string, number>>({})
-// 初始化参数值
-paramDefs.forEach(p => {
-  paramValues.value[p.id] = p.value
-})
+const paramValues = ref<Record<string, number>>({...store.modelAlgorithm.parameters})
+// 如果 Store 参数为空才用 mock 默认值初始化
+if (Object.keys(paramValues.value).length === 0) {
+  paramDefs.forEach(p => {
+    paramValues.value[p.id] = p.value
+  })
+} else {
+  // 确保所有参数定义都有值
+  paramDefs.forEach(p => {
+    if (!(p.id in paramValues.value)) {
+      paramValues.value[p.id] = p.value
+    }
+  })
+}
 
 // 弹窗状态
 const saveDialogVisible = ref(false)
@@ -35,9 +51,19 @@ const cancelDialogVisible = ref(false)
 
 // ==================== 计算属性 ====================
 
+// 当前水库组合名称（联动 Step 2）
+const currentGroupName = computed(() => {
+  return groups.find(g => g.id === store.basicConfig.selectedReservoirGroup)?.name || '龙刘组合'
+})
+
+// 当前水库组合兼容的模型列表
+const models = computed(() => {
+  return store.compatibleModels.length > 0 ? store.compatibleModels : allModels
+})
+
 // 当前选中的模型
 const currentModel = computed(() => {
-  return models.find(m => m.id === selectedModelId.value)
+  return models.value.find(m => m.id === selectedModelId.value)
 })
 
 // 当前模型支持的算法列表
@@ -98,11 +124,23 @@ const handleNext = () => {
     ElMessage.warning('请选择调度模型和优化算法')
     return
   }
+  // 写入 Store（联动 Step 4）
+  store.setModelAlgorithm({
+    selectedModel: selectedModelId.value,
+    selectedAlgorithm: selectedAlgorithmId.value,
+    parameters: { ...paramValues.value },
+  })
   router.push('/model-config/scenario-constraint')
 }
 
 const confirmSave = () => {
   saveDialogVisible.value = false
+  // 写入 Store
+  store.setModelAlgorithm({
+    selectedModel: selectedModelId.value,
+    selectedAlgorithm: selectedAlgorithmId.value,
+    parameters: { ...paramValues.value },
+  })
   ElMessage.success('模型算法配置已保存')
 }
 
@@ -133,7 +171,7 @@ const formatParamValue = (param: AlgorithmParameter) => {
     <div class="main-content">
       <!-- 第一行：模型与算法选择 -->
       <div class="selection-row">
-        <!-- 左侧：调度模型选择 -->
+        <!-- 左侧：调度模型选择（联动 Step 2 水库组合） -->
         <div class="card select-card">
           <div class="card-header">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
@@ -159,6 +197,12 @@ const formatParamValue = (param: AlgorithmParameter) => {
             <div class="select-hint">
               当前模型：
               <span class="hint-value">{{ currentModel?.name || '未选择' }}</span>
+            </div>
+            <div class="linkage-hint">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="linkage-icon">
+                <path d="M4 8h8M8 4v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <span class="linkage-text">当前水库组合「{{ currentGroupName }}」可用的模型</span>
             </div>
           </div>
         </div>
@@ -259,26 +303,13 @@ const formatParamValue = (param: AlgorithmParameter) => {
     </div>
 
     <!-- 底部操作栏 -->
-    <div class="footer-bar">
-      <div class="footer-left">
-        <el-button size="default" @click="handleCancel" class="footer-btn-cancel">取消</el-button>
-      </div>
-      <div class="footer-right">
-        <el-button size="default" @click="handlePrev" class="footer-btn-prev">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M10 13L5 8l5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          上一步
-        </el-button>
-        <el-button size="default" @click="handleSave" class="footer-btn-save">保存</el-button>
-        <el-button type="primary" size="default" @click="handleNext" class="footer-btn-next">
-          下一步
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </el-button>
-      </div>
-    </div>
+    <ModelConfigFooter
+      :step="3"
+      @cancel="handleCancel"
+      @save="handleSave"
+      @prev="handlePrev"
+      @next="handleNext"
+    />
 
     <!-- ===== 保存确认弹窗 ===== -->
     <el-dialog
@@ -436,6 +467,29 @@ const formatParamValue = (param: AlgorithmParameter) => {
   font-weight: 500;
 }
 
+/* ===== 联动提示 ===== */
+.linkage-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 175, 255, 0.06);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 175, 255, 0.12);
+}
+
+.linkage-icon {
+  color: #00d4ff;
+  flex-shrink: 0;
+}
+
+.linkage-text {
+  font-size: 11px;
+  color: #7a8fa3;
+  line-height: 1.4;
+}
+
 /* ===== 参数卡片 ===== */
 .params-card {
   flex: 1;
@@ -533,59 +587,6 @@ const formatParamValue = (param: AlgorithmParameter) => {
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-}
-
-/* ===== 底部操作栏 ===== */
-.footer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.footer-left,
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-btn-cancel {
-  font-size: 12px !important;
-}
-
-.footer-btn-prev {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.footer-btn-save {
-  font-size: 12px !important;
-  background: rgba(0, 175, 255, 0.1) !important;
-  border-color: rgba(0, 175, 255, 0.4) !important;
-  color: #00d4ff !important;
-}
-
-.footer-btn-save:hover {
-  background: rgba(0, 175, 255, 0.2) !important;
-  border-color: rgba(0, 175, 255, 0.6) !important;
-}
-
-.footer-btn-next {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-icon {
-  flex-shrink: 0;
 }
 
 /* ===== Element Plus 深色覆盖 ===== */

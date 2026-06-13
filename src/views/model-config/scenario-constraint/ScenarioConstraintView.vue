@@ -3,19 +3,24 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import { useModelConfigStore } from '@/stores/modelConfig'
 import {
   scenarioConstraintState,
   scenarioTypeOptions,
   scenarioParams,
-  constraintList,
+  dispatchObjectives,
 } from '@/mock/modelConfig'
-import type { ScenarioParam, ConstraintItem } from '@/mock/modelConfig'
+import type { ScenarioParam } from '@/mock/modelConfig'
+
+// ==================== Store ====================
+const store = useModelConfigStore()
 
 // ==================== Mock 数据 ====================
 const stateData = scenarioConstraintState.data
 const typeOptions = scenarioTypeOptions.data
 const paramsDef = scenarioParams.data as ScenarioParam[]
-const constraints = constraintList.data as ConstraintItem[]
+const objectives = dispatchObjectives.data
 
 // ==================== 响应式状态 ====================
 const router = useRouter()
@@ -38,11 +43,10 @@ const cancelDialogVisible = ref(false)
 // 字数统计
 const descLength = computed(() => scenarioDescription.value.length)
 
-// 约束已配置数量
-const configuredCount = computed(() => constraints.length)
-
-// 是否为典型场景
-const isTypical = computed(() => scenarioType.value === 'typical')
+// 当前调度目标关联的场景参数ID集合（联动 Step 2）
+const relevantParamIds = computed(() => {
+  return new Set(store.relevantScenarioParamIds)
+})
 
 // ==================== 交互 ====================
 
@@ -72,26 +76,29 @@ const handleNext = () => {
     ElMessage.warning('请填写场景描述')
     return
   }
+  // 写入 Store（联动 Step 5 配置汇总）
+  store.setScenarioConstraint({
+    scenarioType: scenarioType.value,
+    scenarioDescription: scenarioDescription.value,
+    params: { ...paramValues.value },
+  })
   router.push('/model-config/config-summary')
 }
 
 const confirmSave = () => {
   saveDialogVisible.value = false
+  // 写入 Store
+  store.setScenarioConstraint({
+    scenarioType: scenarioType.value,
+    scenarioDescription: scenarioDescription.value,
+    params: { ...paramValues.value },
+  })
   ElMessage.success('场景约束配置已保存')
 }
 
 const confirmCancel = () => {
   cancelDialogVisible.value = false
   ElMessage.info('已取消，未保存任何更改')
-}
-
-// 获取参数定义
-const getParamDef = (id: string) => paramsDef.find(p => p.id === id)
-
-// 获取参数当前选中选项的 label
-const getParamLabel = (param: ScenarioParam) => {
-  const opt = param.options.find(o => o.value === paramValues.value[param.id])
-  return opt ? opt.label : param.options[0].label
 }
 
 // ==================== SVG 图标 ====================
@@ -103,16 +110,6 @@ const paramIcons: Record<string, string> = {
   ecologicalFlow: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2C8 2 4 6.5 4 9.5C4 11.7 5.8 13.5 8 13.5S12 11.7 12 9.5C12 6.5 8 2 8 2Z" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6.5 9.5C6.5 10.3 7.2 11 8 11" stroke="currentColor" stroke-width="1.2"/></svg>`,
 }
 
-const constraintIcons: Record<string, string> = {
-  level: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="6" width="10" height="2" rx="0.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 6V3" stroke="currentColor" stroke-width="1.2"/><path d="M7 6V2" stroke="currentColor" stroke-width="1.2"/><path d="M10 6V4" stroke="currentColor" stroke-width="1.2"/></svg>`,
-  flow: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10c2-2 3 0 5 0s3-2 5 0" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1 7c2-2 3 0 5 0s3-2 5 0" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>`,
-  flood: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L2 5v7h10V5L7 1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M7 5v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="10.5" r="0.5" fill="currentColor"/></svg>`,
-  power: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8 1L3 8h4l-1 5 5-7H7l1-5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>`,
-  sediment: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v5M4.5 7h5" stroke="currentColor" stroke-width="1.2"/></svg>`,
-  ecology: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2c-2 0-4 1.5-5 4 1.5-2 3.5-3 5.5-2.5L7 2z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M7 2c2 0 4 1.5 5 4-1.5-2-3.5-3-5.5-2.5L7 2z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>`,
-  engineering: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2.5" y="2.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/></svg>`,
-  balance: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 12h12M7 2v10" stroke="currentColor" stroke-width="1.2"/><path d="M4 6l3-4 3 4" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>`,
-}
 </script>
 
 <template>
@@ -129,6 +126,16 @@ const constraintIcons: Record<string, string> = {
             <div class="header-accent-line"></div>
             <span class="header-title">场景配置</span>
           </div>
+        </div>
+
+        <!-- 联动上下文提示：来自 Step 2 调度目标 -->
+        <div class="linkage-context" v-if="store.basicConfig.selectedObjectives.length > 0">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="linkage-icon">
+            <path d="M4 8h8M8 4v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span class="linkage-text">
+            调度目标「{{ store.basicConfig.selectedObjectives.map(o => objectives.find(d => d.id === o)?.name || o).join('、') }}」关联的约束参数已高亮
+          </span>
         </div>
 
         <!-- 场景类型切换 -->
@@ -169,10 +176,8 @@ const constraintIcons: Record<string, string> = {
         </div>
       </div>
 
-      <!-- 下部：场景参数配置 + 约束条件展示 -->
-      <div class="bottom-row">
-        <!-- 左侧：场景参数配置 -->
-        <div class="card params-card">
+      <!-- 下部：场景参数配置（全宽） -->
+      <div class="card params-card full-width-card">
           <div class="card-header">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
               <circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/>
@@ -186,10 +191,12 @@ const constraintIcons: Record<string, string> = {
               v-for="param in paramsDef"
               :key="param.id"
               class="param-row"
+              :class="{ 'param-relevant': relevantParamIds.has(param.id) }"
             >
               <div class="param-label-row">
                 <span class="param-icon" v-html="paramIcons[param.id] || ''"></span>
                 <span class="param-name">{{ param.name }}</span>
+                <span v-if="relevantParamIds.has(param.id)" class="param-tag">关联</span>
               </div>
               <div class="param-control">
                 <el-select
@@ -210,63 +217,16 @@ const constraintIcons: Record<string, string> = {
           </div>
         </div>
 
-        <!-- 右侧：约束条件展示 -->
-        <div class="card constraint-card">
-          <div class="card-header">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M6 5.5h4M6 8h4M6 10.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            <span class="card-title">约束条件展示</span>
-            <div class="constraint-count-badge">
-              已配置 <span class="badge-num">{{ configuredCount }}</span> 项约束
-            </div>
-          </div>
-          <div class="card-body constraint-body-list">
-            <div
-              v-for="item in constraints"
-              :key="item.id"
-              class="constraint-row"
-            >
-              <div class="constraint-icon" v-html="constraintIcons[item.id] || ''"></div>
-              <div class="constraint-info">
-                <div class="constraint-name">{{ item.name }}</div>
-                <div class="constraint-desc">{{ item.description }}</div>
-              </div>
-              <div class="constraint-status">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="status-check">
-                  <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2" fill="rgba(0,255,136,0.1)"/>
-                  <path d="M4 6l1.5 1.5L8 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="status-text">已配置</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- 底部操作栏 -->
-    <div class="footer-bar">
-      <div class="footer-left">
-        <el-button size="default" @click="handleCancel" class="footer-btn-cancel">取消</el-button>
-      </div>
-      <div class="footer-right">
-        <el-button size="default" @click="handlePrev" class="footer-btn-prev">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M10 13L5 8l5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          上一步
-        </el-button>
-        <el-button size="default" @click="handleSave" class="footer-btn-save">保存</el-button>
-        <el-button type="primary" size="default" @click="handleNext" class="footer-btn-next">
-          下一步
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-            <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </el-button>
-      </div>
-    </div>
+    <ModelConfigFooter
+      :step="4"
+      @cancel="handleCancel"
+      @save="handleSave"
+      @prev="handlePrev"
+      @next="handleNext"
+    />
 
     <!-- ===== 保存确认弹窗 ===== -->
     <el-dialog
@@ -459,6 +419,48 @@ const constraintIcons: Record<string, string> = {
   flex-shrink: 0;
 }
 
+/* ===== 联动上下文提示 ===== */
+.linkage-context {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 16px 10px;
+  padding: 6px 10px;
+  background: rgba(0, 175, 255, 0.05);
+  border: 1px solid rgba(0, 175, 255, 0.12);
+  border-radius: 6px;
+}
+
+.linkage-icon {
+  color: #00d4ff;
+  flex-shrink: 0;
+}
+
+.linkage-text {
+  font-size: 11px;
+  color: #7a8fa3;
+  line-height: 1.4;
+}
+
+/* ===== 关联参数高亮 ===== */
+.param-row.param-relevant {
+  background: rgba(0, 175, 255, 0.06);
+  border-radius: 6px;
+  margin: 0 -8px;
+  padding: 10px 8px;
+  border: 1px solid rgba(0, 175, 255, 0.15);
+}
+
+.param-tag {
+  font-size: 10px;
+  color: #00d4ff;
+  background: rgba(0, 175, 255, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
 /* ===== 场景描述 ===== */
 .description-section {
   padding: 0 16px 14px;
@@ -481,22 +483,14 @@ const constraintIcons: Record<string, string> = {
   margin-top: 4px;
 }
 
-/* ===== 下部双列布局 ===== */
-.bottom-row {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-  min-height: 0;
-}
-
-.bottom-row > * {
-  flex: 1;
-  min-width: 0;
-}
-
-/* ===== 场景参数 ===== */
+/* ===== 场景参数（全宽） ===== */
 .params-card {
   flex: 1;
+}
+
+.full-width-card {
+  flex: 1;
+  min-height: 0;
 }
 
 .params-body {
@@ -544,159 +538,6 @@ const constraintIcons: Record<string, string> = {
 
 .param-select {
   width: 170px;
-}
-
-/* ===== 约束条件 ===== */
-.constraint-card {
-  flex: 1;
-}
-
-.constraint-count-badge {
-  margin-left: auto;
-  font-size: 11px;
-  color: #00ff88;
-  background: rgba(0, 255, 136, 0.1);
-  border: 1px solid rgba(0, 255, 136, 0.25);
-  padding: 2px 10px;
-  border-radius: 12px;
-  white-space: nowrap;
-}
-
-.badge-num {
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.constraint-body-list {
-  padding: 4px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow-y: auto;
-}
-
-.constraint-body-list::-webkit-scrollbar {
-  width: 3px;
-}
-
-.constraint-body-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.constraint-body-list::-webkit-scrollbar-thumb {
-  background: rgba(50, 150, 255, 0.2);
-  border-radius: 2px;
-}
-
-.constraint-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.06);
-}
-
-.constraint-row:last-child {
-  border-bottom: none;
-}
-
-.constraint-icon {
-  color: #00d4ff;
-  flex-shrink: 0;
-  opacity: 0.8;
-  display: flex;
-  align-items: center;
-}
-
-.constraint-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.constraint-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: #c0c8d4;
-  margin-bottom: 1px;
-}
-
-.constraint-desc {
-  font-size: 11px;
-  color: #5a6f83;
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.constraint-status {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.status-check {
-  color: #00ff88;
-}
-
-.status-text {
-  font-size: 11px;
-  color: #00ff88;
-  font-weight: 500;
-}
-
-/* ===== 底部操作栏 ===== */
-.footer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.footer-left,
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-btn-cancel {
-  font-size: 12px !important;
-}
-
-.footer-btn-prev {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.footer-btn-save {
-  font-size: 12px !important;
-  background: rgba(0, 175, 255, 0.1) !important;
-  border-color: rgba(0, 175, 255, 0.4) !important;
-  color: #00d4ff !important;
-}
-
-.footer-btn-save:hover {
-  background: rgba(0, 175, 255, 0.2) !important;
-  border-color: rgba(0, 175, 255, 0.6) !important;
-}
-
-.footer-btn-next {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-icon {
-  flex-shrink: 0;
 }
 
 /* ===== Element Plus 深色覆盖 ===== */
@@ -830,4 +671,5 @@ const constraintIcons: Record<string, string> = {
   justify-content: flex-end;
   gap: 8px;
 }
+
 </style>
