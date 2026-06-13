@@ -610,3 +610,276 @@ export const algorithmParameters = {
     },
   ] as AlgorithmParameter[],
 }
+
+// ==================== Step 4: 场景约束 Mock 数据 ====================
+
+export interface ScenarioParam {
+  id: string
+  name: string
+  value: string
+  options: { label: string; value: string }[]
+}
+
+export interface ConstraintItem {
+  id: string
+  name: string
+  description: string
+  status: string
+}
+
+export interface ScenarioConstraintState {
+  currentStep: number
+  scenarioType: string
+  scenarioDescription: string
+  params: Record<string, string>
+}
+
+export const scenarioConstraintState = {
+  code: 200,
+  message: 'success',
+  data: {
+    currentStep: 4,
+    scenarioType: 'typical',
+    scenarioDescription:
+      '典型场景基于历史调度经验与水文条件组合，用于评估不同调度策略下的系统响应。适用于常规调度方案的模拟与优化分析。',
+    params: {
+      westRoute: 'all',
+      sedimentFlow: '1800',
+      backboneStatus: 'normal',
+      sedimentRequirement: 'min',
+      ecologicalFlow: 'plan',
+    },
+  } as ScenarioConstraintState,
+}
+
+export const scenarioTypeOptions = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      id: 'typical',
+      name: '典型场景',
+      description: '基于历史调度经验与水文条件组合形成的预设场景',
+    },
+    {
+      id: 'custom',
+      name: '自定义场景',
+      description: '由用户自行定义调度场景和约束参数',
+    },
+  ],
+}
+
+export const scenarioParams = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      id: 'westRoute',
+      name: '西线调水',
+      value: 'all',
+      options: [
+        { label: '无', value: 'none' },
+        { label: '上线', value: 'upper' },
+        { label: '下线', value: 'lower' },
+        { label: '上下线同引', value: 'both' },
+        { label: '全有', value: 'all' },
+      ],
+    },
+    {
+      id: 'sedimentFlow',
+      name: '调沙流量',
+      value: '1800',
+      options: [
+        { label: '1600 m³/s', value: '1600' },
+        { label: '1800 m³/s', value: '1800' },
+        { label: '2000 m³/s', value: '2000' },
+        { label: '自定义', value: 'custom' },
+      ],
+    },
+    {
+      id: 'backboneStatus',
+      name: '骨干工程运行状态',
+      value: 'normal',
+      options: [
+        { label: '正常运行', value: 'normal' },
+        { label: '限制运行', value: 'limited' },
+        { label: '检修停运', value: 'maintenance' },
+        { label: '应急运行', value: 'emergency' },
+      ],
+    },
+    {
+      id: 'sedimentRequirement',
+      name: '冲沙流量要求',
+      value: 'min',
+      options: [
+        { label: '不考虑', value: 'none' },
+        { label: '满足最小冲沙流量', value: 'min' },
+        { label: '满足推荐冲沙流量', value: 'recommended' },
+        { label: '自定义冲沙流量', value: 'custom' },
+      ],
+    },
+    {
+      id: 'ecologicalFlow',
+      name: '下游生态流量',
+      value: 'plan',
+      options: [
+        { label: '不考虑', value: 'none' },
+        { label: '按方案执行', value: 'plan' },
+        { label: '最低生态需水', value: 'minimum' },
+        { label: '强化生态保障', value: 'enhanced' },
+        { label: '自定义', value: 'custom' },
+      ],
+    },
+  ] as ScenarioParam[],
+}
+
+export const constraintList = {
+  code: 200,
+  message: 'success',
+  data: [
+    {
+      id: 'level',
+      name: '水库水位约束',
+      description: '龙羊峡水库、刘家峡水库、青铜峡水库',
+      status: 'configured',
+    },
+    {
+      id: 'flow',
+      name: '流量过程约束',
+      description: '下游控制断面流量满足过程要求',
+      status: 'configured',
+    },
+    {
+      id: 'flood',
+      name: '防洪安全约束',
+      description: '水库汛限水位约束，洪水期防洪安全',
+      status: 'configured',
+    },
+    {
+      id: 'power',
+      name: '发电约束',
+      description: '满足发电任务要求，保证电站出力',
+      status: 'configured',
+    },
+    {
+      id: 'sediment',
+      name: '泥沙冲淤约束',
+      description: '满足最小冲沙流量要求',
+      status: 'configured',
+    },
+    {
+      id: 'ecology',
+      name: '生态流量约束',
+      description: '下游生态流量不低于最小生态需水',
+      status: 'configured',
+    },
+    {
+      id: 'engineering',
+      name: '工程运行约束',
+      description: '泵站、闸门等工程运行状态约束',
+      status: 'configured',
+    },
+    {
+      id: 'balance',
+      name: '水量平衡约束',
+      description: '系统水量平衡，满足水资源可利用量',
+      status: 'configured',
+    },
+  ] as ConstraintItem[],
+}
+
+// ==================== Step 5: 配置汇总 Mock 数据 ====================
+
+export interface ConfigPlan {
+  id: string
+  index: number
+  name: string
+  model: string
+  algorithm: string
+  scenario: string
+  selected: boolean
+}
+
+export interface DistributionItem {
+  name: string
+  value: number
+  percent: number
+}
+
+export interface ConfigSummaryState {
+  currentStep: number
+  selectedPlanIds: string[]
+  total: number
+  pageSize: number
+  currentPage: number
+  estimatedTime: string
+  planCount: number
+}
+
+export const configSummaryState = {
+  code: 200,
+  message: 'success',
+  data: {
+    currentStep: 5,
+    selectedPlanIds: ['plan-001', 'plan-002', 'plan-003'],
+    total: 24,
+    pageSize: 10,
+    currentPage: 1,
+    estimatedTime: '02:18:45',
+    planCount: 24,
+  } as ConfigSummaryState,
+}
+
+const allPlans: ConfigPlan[] = [
+  { id: 'plan-001', index: 1, name: '防洪调度方案_20250516_A', model: '联动水库优化调度模型（LRO）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_主汛期', selected: true },
+  { id: 'plan-002', index: 2, name: '防洪调度方案_20250515_B', model: '联动水库优化调度模型（LRO）', algorithm: '改进粒子群算法（PSO）', scenario: '极端场景_设计洪水', selected: true },
+  { id: 'plan-003', index: 3, name: '兴利调度方案_20250514_C', model: '来水预报模型（LSTM）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_平水年', selected: true },
+  { id: 'plan-004', index: 4, name: '生态调度方案_20250513_D', model: '水库调蓄模型（MIKE11）', algorithm: 'Pareto最优解集算法', scenario: '生态场景_生态流量保障', selected: false },
+  { id: 'plan-005', index: 5, name: '防洪调度方案_20250512_E', model: '联动水库优化调度模型（LRO）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_主汛期', selected: false },
+  { id: 'plan-006', index: 6, name: '兴利调度方案_20250511_F', model: '来水预报模型（LSTM）', algorithm: '差分进化算法', scenario: '典型场景_枯水年', selected: false },
+  { id: 'plan-007', index: 7, name: '生态调度方案_20250510_G', model: '水库调蓄模型（MIKE11）', algorithm: 'Pareto最优解集算法', scenario: '生态场景_生态流量保障', selected: false },
+  { id: 'plan-008', index: 8, name: '防洪调度方案_20250509_H', model: '联动水库优化调度模型（LRO）', algorithm: '改进粒子群算法（PSO）', scenario: '极端场景_设计洪水', selected: false },
+  { id: 'plan-009', index: 9, name: '兴利调度方案_20250508_I', model: '来水预报模型（LSTM）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_平水年', selected: false },
+  { id: 'plan-010', index: 10, name: '生态调度方案_20250507_J', model: '水库调蓄模型（MIKE11）', algorithm: '差分进化算法', scenario: '典型场景_枯水年', selected: false },
+  { id: 'plan-011', index: 11, name: '防洪调度方案_20250506_K', model: '联动水库优化调度模型（LRO）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_主汛期', selected: false },
+  { id: 'plan-012', index: 12, name: '兴利调度方案_20250505_L', model: '来水预报模型（LSTM）', algorithm: '改进粒子群算法（PSO）', scenario: '典型场景_平水年', selected: false },
+  { id: 'plan-013', index: 13, name: '生态调度方案_20250504_M', model: '水库调蓄模型（MIKE11）', algorithm: 'Pareto最优解集算法', scenario: '生态场景_生态流量保障', selected: false },
+  { id: 'plan-014', index: 14, name: '防洪调度方案_20250503_N', model: '联动水库优化调度模型（LRO）', algorithm: '改进粒子群算法（PSO）', scenario: '极端场景_设计洪水', selected: false },
+  { id: 'plan-015', index: 15, name: '兴利调度方案_20250502_O', model: '来水预报模型（LSTM）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_枯水年', selected: false },
+  { id: 'plan-016', index: 16, name: '生态调度方案_20250501_P', model: '水库调蓄模型（MIKE11）', algorithm: '差分进化算法', scenario: '典型场景_平水年', selected: false },
+  { id: 'plan-017', index: 17, name: '防洪调度方案_20250430_Q', model: '联动水库优化调度模型（LRO）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_主汛期', selected: false },
+  { id: 'plan-018', index: 18, name: '兴利调度方案_20250429_R', model: '来水预报模型（LSTM）', algorithm: '改进粒子群算法（PSO）', scenario: '典型场景_平水年', selected: false },
+  { id: 'plan-019', index: 19, name: '生态调度方案_20250428_S', model: '水库调蓄模型（MIKE11）', algorithm: 'Pareto最优解集算法', scenario: '生态场景_生态流量保障', selected: false },
+  { id: 'plan-020', index: 20, name: '防洪调度方案_20250427_T', model: '联动水库优化调度模型（LRO）', algorithm: '差分进化算法', scenario: '典型场景_主汛期', selected: false },
+  { id: 'plan-021', index: 21, name: '兴利调度方案_20250426_U', model: '来水预报模型（LSTM）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '极端场景_设计洪水', selected: false },
+  { id: 'plan-022', index: 22, name: '生态调度方案_20250425_V', model: '水库调蓄模型（MIKE11）', algorithm: '改进粒子群算法（PSO）', scenario: '典型场景_枯水年', selected: false },
+  { id: 'plan-023', index: 23, name: '防洪调度方案_20250424_W', model: '联动水库优化调度模型（LRO）', algorithm: 'Pareto最优解集算法', scenario: '生态场景_生态流量保障', selected: false },
+  { id: 'plan-024', index: 24, name: '兴利调度方案_20250423_X', model: '来水预报模型（LSTM）', algorithm: 'NSGA-II 多目标遗传算法', scenario: '典型场景_平水年', selected: false },
+]
+
+export const configPlanList = {
+  code: 200,
+  message: 'success',
+  data: allPlans,
+}
+
+export const modelDistribution = {
+  code: 200,
+  message: 'success',
+  data: [
+    { name: 'LRO模型', value: 10, percent: 41.7 },
+    { name: 'LSTM模型', value: 6, percent: 25.0 },
+    { name: 'MIKE11模型', value: 8, percent: 33.3 },
+  ] as DistributionItem[],
+}
+
+export const algorithmDistribution = {
+  code: 200,
+  message: 'success',
+  data: [
+    { name: 'NSGA-II', value: 10, percent: 41.7 },
+    { name: '改进PSO', value: 7, percent: 29.2 },
+    { name: 'Pareto算法', value: 4, percent: 16.7 },
+    { name: '差分进化', value: 3, percent: 12.5 },
+  ] as DistributionItem[],
+}

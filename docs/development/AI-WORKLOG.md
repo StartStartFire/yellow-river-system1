@@ -15,7 +15,7 @@
 | 4    | 首页       | 已完成          | 地图展示 + 水库点位 + 概览指标卡片 + 水情简报 |
 | 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息 + 过程数据表格 + 机组工况 |
 | 6    | 水调水情   | 未开始          | 骨架页面 |
-| 7    | 模型配置   | Step 1~3 已完成 | Step 1 模型数据页面 + Step 2 基础配置页面 + Step 3 模型算法页面 |
+| 7    | 模型配置   | Step 1~5 已完成 | 模型配置 5 步流程全部完成，支持完整闭环 |
 | 8    | 过程透明   | 未开始          | 骨架页面 |
 | 9    | 评价决策   | 未开始          | 骨架页面 |
 | 10   | 案例库     | 未开始          | 骨架页面 |
@@ -39,36 +39,40 @@
 ### 开发时间
 
 ```text
-2026-06-12（第六次）
+2026-06-13（第八次）
 ```
 
 ### 本次完成内容
 
 ```text
-1. 模型配置 Step 3「模型算法」页面全功能开发完成（ModelAlgorithmView.vue）：
-   - 步骤条联动：Step 1→Step 2→Step 3，支持点击已完成步骤返回
-   - 调度模型选择：Element Plus 下拉框，4 种模型可选，默认"水库群优化调度模型"
-   - 优化算法选择：模型联动，切换模型时自动过滤算法，默认"NSGA-II 多目标遗传算法"
-   - 算法参数设置：6 个参数卡片（3×2 网格布局），含滑块+数值输入框双向联动
-     - 种群规模（50-1000，默认200）
-     - 迭代次数（100-2000，默认500）
-     - 交叉概率 Pc（0.50-1.00，默认0.90）
-     - 变异概率 Pm（0.01-0.30，默认0.10）
-     - 精英保留比例（0.01-0.20，默认0.05）
-     - 拥挤度因子（1.00-3.00，默认2.00）
-   - 参数说明 Tooltip：鼠标悬浮问号图标显示参数说明文字
-   - 滑块+数值联动：拖动滑块同步更新数值，手动输入同步更新滑块，step 取整
-   - Element Plus 滑块深色适配（按钮/轨道/进度条颜色）
-   - 底部操作栏：取消（确认弹窗）/ 上一步 / 保存（确认弹窗）/ 下一步
-2. 补充 Step 3 mock 数据（modelConfig.ts）：
-   - modelAlgorithmState / dispatchModels / optimizationAlgorithms / algorithmParameters
+1. 模型配置 Step 5「配置汇总」页面全功能开发完成（ConfigSummaryView.vue）：
+   - 步骤条联动：Step 1~4 均可点击返回，Step 5 高亮
+   - 左侧配置方案表格（El-Table）：
+     - 勾选列（默认前 3 条选中，表头全选支持）
+     - 序号 / 方案名 / 模型 / 算法 / 场景 / 功能操作（详情/编辑/复制/删除/运行）
+     - 表格操作按钮行（新增 / 筛选 / 搜索框）
+     - 搜索框实时过滤（按方案名、模型、算法、场景关键词）
+     - 分页条（页数按钮、前后翻页、共 N 条）
+     - 详情弹窗（展示方案完整信息）
+     - 删除确认弹窗（红色风格）
+     - 复制方案（在列表顶部插入副本）
+     - 单行运行（生成 mock 跳转过程透明）
+   - 右侧预计计算信息面板：
+     - 时间预估卡片（02:18:45）
+     - 方案数量卡片（24 个）
+     - 模型分布（ECharts 环形图 + 图例列表，3 种模型）
+     - 算法分布（ECharts 环形图 + 图例列表，4 种算法）
+     - 说明文字
+   - 底部操作栏：取消 / 保存 / 一键运行（居中蓝色主按钮）/ 导出配置 / 提示说明
+   - 一键运行：校验至少选择一个方案，生成 mock 跳转 /process-transparent
+2. 补充 Step 5 mock 数据（modelConfig.ts）：
+   - configSummaryState / configPlanList（24 条完整方案数据）/ modelDistribution / algorithmDistribution
 ```
 
 ### 本次未完成内容
 
 ```text
-1. 模型配置 Step 4~5 仅创建骨架页面，未实现具体功能
-2. 其他页面（水调水情、过程透明、评价决策、案例库、报表统计）未开始
+1. 其他页面（水调水情、过程透明、评价决策、案例库、报表统计）尚未开发具体功能
 ```
 
 ------
@@ -78,16 +82,15 @@
 下一步优先做：
 
 ```text
-任务名称：模型配置 Step 4「场景约束」页面开发
+任务名称：开发水调水情页面
 ```
 
 任务目标：
 
 ```text
-1. 参考 docs/page-design/04-model-config/04-scenario-constraint.md 开发 Step 4 页面
-2. 在 src/mock/modelConfig.ts 中补充 Step 4 的 mock 数据
-3. 实现步骤条联动（Step 3 → Step 4）
-4. 保持深色科技风统一风格
+1. 参考 docs/page-design/03-water-condition.md 开发水调水情页面
+2. 在 src/mock/waterCondition.ts 中补充 mock 数据
+3. 保持深色科技风统一风格
 ```
 
 不允许修改：
@@ -102,9 +105,11 @@
 其它候选任务（按优先级排序）：
 
 ```text
-任务 1：开发模型配置 Step 4「场景约束」页面
-任务 2：开发模型配置 Step 5「配置汇总」页面
-任务 3：开发水调水情页面
+任务 1：开发水调水情页面
+任务 2：开发过程透明页面
+任务 3：开发评价决策页面
+任务 4：开发案例库页面
+任务 5：开发报表统计页面
 ```
 
 ------
@@ -156,7 +161,9 @@ src/mock/modelConfig.ts                                            -- 模型配�
 src/views/basic-data/BasicDataView.vue                             -- 基础数据页面
 src/views/model-config/model-data/ModelDataView.vue                -- 模型配置 Step 1 页面
 src/views/model-config/basic-config/BasicConfigView.vue            -- 模型配置 Step 2 页面
-src/views/model-config/model-algorithm/ModelAlgorithmView.vue      -- 模型配置 Step 3 页面（本次新增）
+src/views/model-config/model-algorithm/ModelAlgorithmView.vue      -- 模型配置 Step 3 页面
+src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型配置 Step 4 页面
+src/views/model-config/config-summary/ConfigSummaryView.vue          -- 模型配置 Step 5 页面（本次新增）
 src/components/model-config/ModelConfigStepBar.vue                 -- 模型配置步骤条组件
 src/components/basic-data/BaseInfoPanel.vue                        -- 基础信息卡片组件
 src/styles/index.css                                               -- 全局样式（:root:root CSS 变量覆盖）
