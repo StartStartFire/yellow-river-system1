@@ -10,7 +10,7 @@ import {
   dispatchObjectives,
   constraintSummary,
 } from '@/mock/modelConfig'
-import type { ReservoirGroup, DispatchObjective } from '@/mock/modelConfig'
+import type { ReservoirGroup, DispatchObjective, ConstraintDetail } from '@/mock/modelConfig'
 
 // ==================== Store ====================
 const store = useModelConfigStore()
@@ -99,6 +99,14 @@ const constraintDialogVisible = ref(false)
 // 约束开关状态（默认全部启用）
 const constraintEnabled = ref<boolean[]>(constraintData.constraints.map(() => true))
 
+// 约束数值编辑状态（深拷贝，避免直接修改 mock 数据）
+const editingConstraints = ref<ConstraintDetail[]>(
+  constraintData.constraints.map(c => ({ ...c }))
+)
+
+// 实时启用的约束数量
+const enabledConstraintCount = computed(() => constraintEnabled.value.filter(Boolean).length)
+
 // ==================== 交互 ====================
 
 // 步骤条点击（从 Step 1 跳转回来）
@@ -177,8 +185,8 @@ const confirmSave = () => {
 
 const confirmCancel = () => {
   cancelDialogVisible.value = false
+  schemeName.value = ''
   ElMessage.info('已取消，未保存任何更改')
-  router.push('/model-config/model-data')
 }
 
 // ==================== 图标映射 ====================
@@ -379,7 +387,7 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
               </div>
             </div>
             <div class="constraint-middle">
-              <div class="constraint-count">已配置 <span class="count-value">{{ constraintData.count }}</span> 项约束条件</div>
+              <div class="constraint-count">已启用 <span class="count-value">{{ enabledConstraintCount }}</span> 项约束条件</div>
               <div class="constraint-desc">{{ constraintData.description }}</div>
             </div>
             <div class="constraint-right">
@@ -457,32 +465,58 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
     <el-dialog
       v-model="constraintDialogVisible"
       title="约束条件详情"
-      width="520px"
+      width="620px"
       :close-on-click-modal="false"
       class="confirm-dialog constraint-detail-dialog"
     >
       <div class="constraint-detail-body">
         <div class="constraint-summary-text">
-          选择本次计算需要启用的约束条件：
+          选择本次计算需要启用的约束条件，并可编辑各约束的数值范围：
         </div>
         <div class="constraint-switch-list">
           <div
-            v-for="(c, cIdx) in constraintData.constraints"
+            v-for="(c, cIdx) in editingConstraints"
             :key="cIdx"
             class="constraint-switch-item"
+            :class="{ 'constraint-disabled': !constraintEnabled[cIdx] }"
           >
-            <div class="constraint-switch-left">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="constraint-item-icon">
-                <circle cx="8" cy="8" r="4" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.2"/>
-                <path d="M6 8l1.5 1.5L10 7" stroke="#00afff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span class="constraint-item-name">{{ c }}</span>
+            <div class="constraint-switch-top">
+              <div class="constraint-switch-left">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="constraint-item-icon">
+                  <circle cx="8" cy="8" r="4" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.2"/>
+                  <path d="M6 8l1.5 1.5L10 7" stroke="#00afff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="constraint-item-name">{{ c.name }}</span>
+              </div>
+              <el-switch
+                v-model="constraintEnabled[cIdx]"
+                size="small"
+                class="dark-switch"
+              />
             </div>
-            <el-switch
-              v-model="constraintEnabled[cIdx]"
-              size="small"
-              class="dark-switch"
-            />
+            <div class="constraint-range-row">
+              <div class="range-item">
+                <label class="range-label">最小值</label>
+                <el-input-number
+                  v-model="c.min"
+                  size="small"
+                  :disabled="!constraintEnabled[cIdx]"
+                  controls-position="right"
+                  class="dark-input-number"
+                />
+              </div>
+              <div class="range-item">
+                <label class="range-label">最大值</label>
+                <el-input-number
+                  v-model="c.max"
+                  size="small"
+                  :disabled="!constraintEnabled[cIdx]"
+                  controls-position="right"
+                  class="dark-input-number"
+                />
+              </div>
+              <span class="range-unit">{{ c.unit }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -884,8 +918,7 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 
 /* 日期选择器深色适配 */
 :deep(.dark-date-picker .el-input__wrapper) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
+  border: 1px solid rgba(50, 150, 255, 0.25) !important;
 }
 
 :deep(.dark-date-picker .el-input__inner) {
@@ -894,8 +927,7 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 }
 
 :deep(.dark-select .el-input__wrapper) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
+  border: 1px solid rgba(50, 150, 255, 0.25) !important;
 }
 
 :deep(.dark-select .el-input__inner) {
@@ -1072,7 +1104,7 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 320px;
+  max-height: 420px;
   overflow-y: auto;
 }
 
@@ -1091,14 +1123,24 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 
 .constraint-switch-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
+  flex-direction: column;
+  padding: 10px 0;
   border-bottom: 1px solid rgba(50, 150, 255, 0.08);
 }
 
 .constraint-switch-item:last-child {
   border-bottom: none;
+}
+
+.constraint-switch-item.constraint-disabled {
+  opacity: 0.45;
+}
+
+/* 约束项第一行：名称 + 开关 */
+.constraint-switch-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .constraint-switch-left {
@@ -1107,6 +1149,64 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
   gap: 10px;
 }
 
+/* 约束项第二行：最小值 / 最大值编辑 */
+.constraint-range-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-left: 26px;
+}
+
+.range-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.range-label {
+  font-size: 11px;
+  color: #5a6f83;
+  white-space: nowrap;
+}
+
+.range-unit {
+  font-size: 11px;
+  color: #7a8fa3;
+  flex-shrink: 0;
+}
+
+/* ===== 深色 el-input-number 适配 ===== */
+:deep(.dark-input-number .el-input__wrapper) {
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
+  width: 120px;
+}
+
+:deep(.dark-input-number .el-input__inner) {
+  color: #c0c8d4 !important;
+  font-size: 12px;
+  text-align: left;
+}
+
+:deep(.dark-input-number .el-input-number__decrease),
+:deep(.dark-input-number .el-input-number__increase) {
+  background: rgba(0, 175, 255, 0.08) !important;
+  border-color: rgba(50, 150, 255, 0.15) !important;
+  color: #7a8fa3 !important;
+}
+
+:deep(.dark-input-number .el-input-number__decrease:hover),
+:deep(.dark-input-number .el-input-number__increase:hover) {
+  color: #00d4ff !important;
+  background: rgba(0, 175, 255, 0.15) !important;
+}
+
+:deep(.dark-input-number.is-disabled .el-input__wrapper) {
+  background: rgba(2, 27, 63, 0.3) !important;
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.1) inset !important;
+}
+
+/* ===== 深色 el-switch ===== */
 :deep(.dark-switch .el-switch__core) {
   background: rgba(50, 150, 255, 0.15) !important;
   border-color: rgba(50, 150, 255, 0.25) !important;

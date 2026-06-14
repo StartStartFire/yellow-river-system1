@@ -337,7 +337,39 @@ ECharts
 Element Plus
 ```
 
-------
+### Element Plus 深色主题 CSS 变量
+
+项目通过 `src/styles/index.css` 的 `:root:root` 块全局覆盖 Element Plus CSS 变量。
+开发新页面时必须确保以下变量已正确设置，否则组件会回退到浅色主题默认值。
+
+**必须覆盖的文字颜色变量**（最容易遗漏）：
+
+```css
+--el-text-color-primary: #e0e6ed;     /* 标题/强调 */
+--el-text-color-regular: #c0c8d4;     /* 正文/输入框值 */
+--el-text-color-secondary: #7a8fa3;   /* 辅助说明 */
+--el-text-color-placeholder: #5a6f83; /* placeholder */
+--el-text-color-disabled: #4a5f73;    /* 禁用态 */
+```
+
+**必须覆盖的背景变量**：
+
+```css
+--el-fill-color-blank: transparent;   /* 输入框背景（透明继承父级卡片） */
+--el-fill-color: #0d1f36;            /* 下拉菜单等填充 */
+--el-fill-color-light: #0f2340;      /* hover 态等浅填充 */
+--el-input-bg-color: transparent;     /* 输入框背景 */
+```
+
+**常见问题速查**：
+
+| 现象 | 根因 | 解决 |
+|------|------|------|
+| 输入框是灰黑色块 | `--el-fill-color-blank` 不透明 | 改为 `transparent` |
+| 文字灰蒙蒙看不清 | `--el-text-color-regular` 未覆盖 | 设为 `#c0c8d4` |
+| ElMessage 出现在底部 | 命令式调用 CSS 未加载 | `main.ts` 显式 import message CSS |
+
+---
 
 ### 通用组件
 

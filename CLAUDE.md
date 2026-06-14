@@ -434,7 +434,76 @@ el-tooltip
 
 ---
 
-## 13. ECharts 使用约束
+## 13. Element Plus 深色主题 CSS 变量规范（重要）
+
+项目使用 Element Plus 组件库，其内部样式大量依赖 CSS 变量。
+全局深色主题通过 `:root:root` 覆盖 Element Plus 默认 CSS 变量实现，
+统一管理在 `src/styles/index.css`。
+
+### 13.1 必须覆盖的变量清单
+
+以下 CSS 变量必须在 `:root:root` 中显式覆盖，否则 Element Plus
+组件会回退到浅色主题默认值，导致文字不可见、背景异常等问题：
+
+```css
+:root:root {
+  /* ===== 背景色系 ===== */
+  --el-bg-color: #112536;                /* 主背景（卡片、面板） */
+  --el-bg-color-overlay: #0f1f33;        /* 弹窗/浮层背景 */
+  --el-fill-color-blank: transparent;     /* 输入框背景 → 透明继承父级 */
+  --el-fill-color: #0d1f36;              /* 一般填充（下拉菜单等） */
+  --el-fill-color-light: #0f2340;        /* 浅填充（hover 态等） */
+  --el-input-bg-color: transparent;       /* 输入框背景变量 */
+
+  /* ===== 文字色系（必须覆盖！默认是浅色主题的深色文字）===== */
+  --el-text-color-primary: #e0e6ed;       /* 标题/强调文字 */
+  --el-text-color-regular: #c0c8d4;       /* 正文/输入框值/下拉选中值 */
+  --el-text-color-secondary: #7a8fa3;     /* 辅助说明文字 */
+  --el-text-color-placeholder: #5a6f83;   /* placeholder 占位文字 */
+  --el-text-color-disabled: #4a5f73;      /* 禁用态文字 */
+
+  /* ===== 表格 ===== */
+  --el-table-bg-color: #112536;
+  --el-table-header-bg-color: #0a1a2e;
+  --el-table-row-bg-color: #112536;
+  --el-table-tr-bg-color: #112536;
+
+  /* ===== 边框色系 ===== */
+  --el-border-color: #1a3a52;
+  --el-border-color-light: #1a3a52;
+  --el-border-color-lighter: #1a3a52;
+  --el-border-color-extra-light: #1a3a52;
+  --el-border-color-dark: #1a3a52;
+}
+```
+
+### 13.2 常见问题速查
+
+| 现象 | 根因 | 解决 |
+|------|------|------|
+| 输入框/选择框背景是灰黑色 | `--el-fill-color-blank` 设为不透明暗色 | 改为 `transparent` 继承卡片背景 |
+| 输入框文字灰蒙蒙像被蒙住 | `--el-text-color-regular` 未覆盖 | 设为 `#c0c8d4` |
+| placeholder 看不见 | `--el-text-color-placeholder` 未覆盖 | 设为 `#5a6f83` |
+| ElMessage 消息出现在页面底部 | `unplugin-vue-components` 不加载命令式调用的组件 CSS | 在 `main.ts` 中显式 `import 'element-plus/es/components/message/style/css'` |
+| 下拉菜单背景太亮/太暗 | `--el-fill-color` 值不合适 | 调整为 `#0d1f36` |
+
+### 13.3 开发页面时的检查清单
+
+新开发或修改页面时，检查以下项目：
+
+```text
+1. 输入框/选择框背景是否与卡片背景融为一体（不应出现灰黑色块）
+2. 输入框/选择框文字是否清晰可读（不应灰蒙蒙）
+3. 选择框下拉面板背景是否为深色
+4. 日期选择器弹出面板背景是否为深色
+5. 弹窗标题和正文文字是否清晰
+6. 开关/滑块等小组件颜色是否与主题统一
+7. ElMessage 消息提示是否出现在页面顶部居中位置
+```
+
+---
+
+## 14. ECharts 使用约束
 
 ECharts 用于业务图表。
 
@@ -473,7 +542,7 @@ src/components/chart/BaseChart.vue
 
 ---
 
-## 14. Leaflet 使用约束
+## 15. Leaflet 使用约束
 
 Leaflet 用于首页或水库空间展示。
 
@@ -505,7 +574,7 @@ src/mock/home.ts
 
 ---
 
-## 15. 路由约束
+## 16. 路由约束
 
 推荐路由：
 
@@ -536,7 +605,7 @@ src/mock/home.ts
 
 ---
 
-## 16. 状态管理约束
+## 17. 状态管理约束
 
 Pinia 只做轻量状态管理。
 
@@ -561,7 +630,7 @@ Pinia 只做轻量状态管理。
 
 ---
 
-## 17. 命名规范
+## 18. 命名规范
 
 组件文件：
 
@@ -602,7 +671,7 @@ camelCase，例如 reservoir.ts
 
 ---
 
-## 18. AI 每次任务输出要求
+## 19. AI 每次任务输出要求
 
 每次完成代码后，AI 必须输出：
 
@@ -624,7 +693,7 @@ camelCase，例如 reservoir.ts
 
 ---
 
-## 19. 最重要原则
+## 20. 最重要原则
 
 当前阶段只做一件事：
 

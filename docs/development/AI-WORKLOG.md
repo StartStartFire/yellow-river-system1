@@ -128,6 +128,143 @@
 
 ------
 
+### 开发时间
+
+```text
+2026-06-14（第十一次）
+```
+
+### 本次完成内容
+
+```text
+修复：模型配置页面 ElMessage 消息提示定位问题
+
+问题描述：
+  模型配置五步页面（Step 1~5）中所有通过 ElMessage 命令式调用的消息提示
+  （如保存成功、取消确认等），其 CSS 样式未被正确加载。
+  原因是项目使用 unplugin-vue-components 按需导入 Element Plus 组件样式，
+  但 ElMessage 是命令式调用（不在 Vue 模板中使用），导致其 CSS 未被自动加载，
+  消息提示出现在页面底部而非顶部的窗口 toast 通知位置。
+
+修复方案：
+  在 src/main.ts 中添加全局 CSS 导入：
+    import 'element-plus/es/components/message/style/css'
+  
+  该导入确保 ElMessage 的消息样式在所有页面中正确加载，
+  消息提示将以顶部居中浮动 toast 形式显示，不再出现在页面底部。
+
+影响范围：
+  - src/views/model-config/model-data/ModelDataView.vue（取消、保存）
+  - src/views/model-config/basic-config/BasicConfigView.vue（取消、保存）
+  - src/views/model-config/model-algorithm/ModelAlgorithmView.vue（取消、保存）
+  - src/views/model-config/scenario-constraint/ScenarioConstraintView.vue（取消、保存）
+  - src/views/model-config/config-summary/ConfigSummaryView.vue（多项操作）
+```
+
+---
+
+### 开发时间
+
+```text
+2026-06-14（第十二次）
+```
+
+### 本次完成内容
+
+```text
+全局 CSS 变量修复系列（Element Plus 深色主题适配）：
+
+1. 约束条件详情弹窗升级（BasicConfigView）：
+   - 约束数据从 string[] 升级为 ConstraintDetail 对象（name/min/max/unit）
+   - 弹窗中每个约束显示名称+开关+最小值/最大值编辑框+单位
+   - 使用 el-input-number 组件，开关关闭时输入框自动禁用+降透明度
+   - 页面约束卡片数量实时联动弹窗中启用的约束数量（enabledConstraintCount）
+
+2. 输入框背景色全局修复（src/styles/index.css）：
+   问题：所有页面中 input/select/date-picker 背景为灰黑色块
+   根因：--el-fill-color-blank 设为不透明的 #112536
+   修复：改为 transparent，input 背景透明继承父级卡片
+
+3. 文字颜色全局修复（src/styles/index.css）：
+   问题：输入框/选择框文字灰蒙蒙像被蒙住，placeholder 看不见
+   根因：--el-text-color-regular 等 5 个文字颜色 CSS 变量完全未覆盖，
+         回退到 Element Plus 浅色主题默认值（深色文字）
+   修复：在 :root:root 中新增：
+     --el-text-color-primary: #e0e6ed
+     --el-text-color-regular: #c0c8d4
+     --el-text-color-secondary: #7a8fa3
+     --el-text-color-placeholder: #5a6f83
+     --el-text-color-disabled: #4a5f73
+
+4. 输入框边框统一：
+   dark-date-picker / dark-select 的 .el-input__wrapper 统一使用
+   border: 1px solid rgba(50, 150, 255, 0.25)
+
+5. 基础配置页面取消逻辑修复（BasicConfigView）：
+   confirmCancel 中移除 router.push 跳转，改为清除 schemeName 并停留当前页面
+
+6. 文档更新：
+   - CLAUDE.md 新增 §13「Element Plus 深色主题 CSS 变量规范」含完整变量清单、
+     常见问题速查表、开发检查清单
+   - docs/page-design/README.md 新增「Element Plus 深色主题 CSS 变量」小节
+   - docs/page-design/04-model-config/01-model-data.md 更新取消按钮交互
+   - docs/page-design/04-model-config/02-basic-config.md 更新取消按钮交互
+```
+
+---
+
+### 开发时间
+
+```text
+2026-06-14（第十三次）
+```
+
+### 本次完成内容
+
+```text
+场景配置页面（Step 4）调整：
+
+1. 步骤名称统一更改：
+   - ModelConfigStepBar.vue: title '场景约束' → '场景配置'
+   - modelConfig.ts Store: stepTitles '场景约束' → '场景配置'
+   - 全站步骤条统一显示"场景配置"
+
+2. 取消关联选择效果：
+   - objectiveRelevantParams 中移除 sedimentFlow 和 backboneStatus 的关联映射
+   - 调沙流量和骨干工程运行状态不再显示蓝色关联边框和"关联"标签
+   - 当前仅"生态保护"目标会高亮 ecologicalFlow 和 sedimentRequirement
+
+3. 删除调度目标联动提示横幅：
+   - ScenarioConstraintView.vue 中移除 linkage-context 提示区域
+   - 页面不再显示"调度目标「××」关联的约束参数已高亮"
+
+4. 文档更新：
+   - docs/page-design/04-model-config/04-scenario-constraint.md 全面更新：
+     标题改为"场景配置"、步骤联动说明更新、新增设计变更记录
+
+修改文件：
+  src/components/model-config/ModelConfigStepBar.vue  — title 更改
+  src/stores/modelConfig.ts                             — stepTitles 更改
+  src/mock/modelConfig.ts                               — objectiveRelevantParams 移除两项
+  src/views/model-config/scenario-constraint/ScenarioConstraintView.vue — 删除 linkage-context
+  docs/page-design/04-model-config/04-scenario-constraint.md — 文档全量更新
+  docs/development/AI-WORKLOG.md — 本记录
+```
+
+修改文件：
+  src/styles/index.css          — 全局 CSS 变量修复（2 处）
+  src/main.ts                   — 新增 message CSS 导入
+  src/mock/modelConfig.ts       — ConstraintDetail 接口+数据
+  BasicConfigView.vue           — 约束编辑/取消逻辑/样式修复
+  CLAUDE.md                     — 新增 §13 CSS 变量规范
+  docs/page-design/README.md    — 新增 CSS 变量节
+  docs/page-design/04-model-config/01-model-data.md  — 更新交互描述
+  docs/page-design/04-model-config/02-basic-config.md — 更新交互描述
+  docs/development/AI-WORKLOG.md — 本记录
+```
+
+---
+
 ## 3. 下一步开发任务
 
 下一步优先做：
