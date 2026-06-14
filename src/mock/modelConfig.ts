@@ -349,10 +349,17 @@ export interface BasicConfigState {
   constraintCount: number
 }
 
+export interface ConstraintDetail {
+  name: string
+  min: number
+  max: number
+  unit: string
+}
+
 export interface ConstraintSummaryData {
   count: number
   description: string
-  constraints: string[]
+  constraints: ConstraintDetail[]
 }
 
 export const basicConfigState = {
@@ -436,18 +443,18 @@ export const constraintSummary = {
     count: 12,
     description: '约束条件将影响调度方案的可行性与优化结果',
     constraints: [
-      '水位上限约束',
-      '水位下限约束',
-      '汛限水位约束',
-      '最小生态流量约束',
-      '最大发电出力约束',
-      '最小下泄流量约束',
-      '冲沙流量约束',
-      '库容边界约束',
-      '入库流量边界约束',
-      '出库流量边界约束',
-      '水量平衡约束',
-      '梯级协同约束',
+      { name: '水位上限约束', min: 2450, max: 2600, unit: 'm' },
+      { name: '水位下限约束', min: 2420, max: 2580, unit: 'm' },
+      { name: '汛限水位约束', min: 2450, max: 2590, unit: 'm' },
+      { name: '最小生态流量约束', min: 200, max: 500, unit: 'm³/s' },
+      { name: '最大发电出力约束', min: 800, max: 3200, unit: 'MW' },
+      { name: '最小下泄流量约束', min: 300, max: 1200, unit: 'm³/s' },
+      { name: '冲沙流量约束', min: 800, max: 3000, unit: 'm³/s' },
+      { name: '库容边界约束', min: 50, max: 580, unit: '亿m³' },
+      { name: '入库流量边界约束', min: 500, max: 4000, unit: 'm³/s' },
+      { name: '出库流量边界约束', min: 300, max: 3500, unit: 'm³/s' },
+      { name: '水量平衡约束', min: 0, max: 100, unit: '%' },
+      { name: '梯级协同约束', min: 0, max: 24, unit: 'h' },
     ],
   } as ConstraintSummaryData,
 }
@@ -826,8 +833,8 @@ export const timeStepParamSuggestions: Record<string, Partial<Record<string, num
 
 /** 调度目标 → 关联的场景参数ID */
 export const objectiveRelevantParams: Record<string, string[]> = {
-  'flood-control': ['backboneStatus', 'sedimentFlow'],
-  'power-generation': ['backboneStatus'],
+  'flood-control': [],
+  'power-generation': [],
   'ecology': ['ecologicalFlow', 'sedimentRequirement'],
 }
 

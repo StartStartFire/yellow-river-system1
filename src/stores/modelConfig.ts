@@ -77,7 +77,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   const allCompleted = computed(() => stepCompleted.value.every(Boolean))
 
   /** 当前步骤标题 */
-  const stepTitles = ['模型数据', '基础配置', '模型算法', '场景约束', '配置汇总']
+  const stepTitles = ['模型数据', '基础配置', '模型算法', '场景配置', '配置汇总']
 
   const currentStepTitle = computed(() => stepTitles[currentStep.value - 1] || '')
 

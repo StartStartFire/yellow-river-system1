@@ -128,16 +128,6 @@ const paramIcons: Record<string, string> = {
           </div>
         </div>
 
-        <!-- 联动上下文提示：来自 Step 2 调度目标 -->
-        <div class="linkage-context" v-if="store.basicConfig.selectedObjectives.length > 0">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="linkage-icon">
-            <path d="M4 8h8M8 4v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
-          <span class="linkage-text">
-            调度目标「{{ store.basicConfig.selectedObjectives.map(o => objectives.find(d => d.id === o)?.name || o).join('、') }}」关联的约束参数已高亮
-          </span>
-        </div>
-
         <!-- 场景类型切换 -->
         <div class="switch-row">
           <div

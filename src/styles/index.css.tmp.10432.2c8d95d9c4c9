@@ -6,11 +6,6 @@
 :root:root {
   --el-bg-color: #112536;
   --el-bg-color-overlay: #0f1f33;
-  --el-text-color-primary: #e0e6ed;
-  --el-text-color-regular: #c0c8d4;
-  --el-text-color-secondary: #7a8fa3;
-  --el-text-color-placeholder: #5a6f83;
-  --el-text-color-disabled: #4a5f73;
   --el-fill-color-blank: transparent;
   --el-fill-color: #0d1f36;
   --el-fill-color-light: #0f2340;
@@ -73,7 +68,7 @@
 
   .el-input__inner,
   .el-input__wrapper {
-    @apply bg-transparent border-tech-border text-tech-text;
+    @apply bg-tech-card border-tech-border text-tech-text;
   }
 
   .el-dialog {

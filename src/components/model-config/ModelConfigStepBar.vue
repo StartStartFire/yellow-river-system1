@@ -26,7 +26,7 @@ const steps: StepItem[] = [
   { step: 1, title: '模型数据', desc: '选择与管理模型输入数据' },
   { step: 2, title: '基础配置', desc: '设置调度规则与工程目标' },
   { step: 3, title: '模型算法', desc: '选择模型与优化算法' },
-  { step: 4, title: '场景约束', desc: '布置调度场景与约束条件' },
+  { step: 4, title: '场景配置', desc: '布置调度场景与约束条件' },
   { step: 5, title: '配置汇总', desc: '确认配置并开始计算' },
 ]
 </script>
