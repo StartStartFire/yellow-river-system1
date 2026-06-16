@@ -102,8 +102,8 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
     </div>
 
     <!-- 页面主体内容区 -->
-    <main class="flex-1 overflow-hidden h-0">
-      <router-view />
+    <main class="flex-1 overflow-hidden h-0 flex flex-col">
+      <router-view class="flex-1 min-h-0" />
     </main>
   </div>
 </template>
