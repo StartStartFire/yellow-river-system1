@@ -17,7 +17,7 @@
 | 6    | 水调水情   | 未开始          | 骨架页面 |
 | 7    | 模型配置   | Step 1~5 已完成 | 模型配置 5 步流程全部完成，支持完整闭环 |
 | 8    | 过程透明   | 已完成          | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区。2026-06-15 按 05-process.md 重写中部图表区：左40%优化过程分析 + 右60%水库运行响应（Tab切换龙羊峡/刘家峡）|
-| 9    | 评价决策   | 未开始          | 骨架页面 |
+| 9    | 评价决策   | 已完成          | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析（目标满足情况+过程曲线+水量使用流向图）|
 | 10   | 案例库     | 未开始          | 骨架页面 |
 | 11   | 报表统计   | 未开始          | 骨架页面 |
 
@@ -347,6 +347,33 @@
 修改文件：
   src/views/process-transparent/ProcessTransparentView.vue — .monitor-panel 样式区新增两行 :deep() 覆盖
   docs/development/AI-WORKLOG.md                        — 本记录
+```
+
+### 开发时间
+
+```text
+2026-06-18（第十六次）
+```
+
+### 本次完成内容
+
+```text
+评价决策页面决策分析卡片高度铺满（EvaluationDecisionView.vue）：
+
+1. 决策分析卡片展开时自动撑满页面剩余高度（添加 .card-expanded 动态 class）：
+   - .card-expanded { flex: 1; min-height: 0; }
+   - .card-body / .decision-body / .sub-chart-box / .chart-container 逐层 flex: 1 传递
+   - 覆盖 chart-container 原有 min-height 限制，允许自适应高度
+
+2. 目标满足情况列表垂直均匀分布：
+   - .target-list { flex: 1; justify-content: space-evenly; }
+   - 6 项目标在列高度内均匀间隔，底部不留空白
+
+3. 三列布局（目标满足情况 / 过程曲线 / 水量使用流向图）同步撑满全高
+
+修改文件：
+  src/views/evaluation-decision/EvaluationDecisionView.vue — 添加动态 class + 自适应 CSS 规则
+  docs/development/AI-WORKLOG.md                           — 本记录
 ```
 
 ---
