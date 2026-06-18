@@ -29,8 +29,8 @@ const elevMax = computed(() => {
 
 const ELEV_RANGE = computed(() => elevMax.value - elevMin.value)
 
-/** 高程 → SVG Y 坐标 (image 坐标系 0~940) */
-const toY = (e: number) => ((elevMax.value - e) / ELEV_RANGE.value) * 940
+/** 高程 → SVG Y 坐标 (image 坐标系 0~654) */
+const toY = (e: number) => ((elevMax.value - e) / ELEV_RANGE.value) * 654
 
 /** 当前水位 Y 坐标 */
 const waterY = computed(() => toY(props.section.currentLevel))
@@ -75,7 +75,7 @@ const levelLines = computed<LevelLine[]>(() => {
 // ========== 库区水体裁剪路径 (clipPath) ==========
 // 水体仅在坝体上游侧（左侧）显示，坝面右侧为绝对边界。
 const DAM_FACE_X = 1340
-const TERRAIN_BOTTOM = 875
+const TERRAIN_BOTTOM = 609
 const reservoirClipPath = computed(() => {
   const crestY = toY(props.section.dam.crestElevation)
   const midLowY = toY(elevMin.value + 40)
@@ -100,12 +100,12 @@ const reservoirClipPath = computed(() => {
 // ========== 水面波动纹理 ==========
 const wavePath1 = computed(() => {
   const wy = waterY.value
-  const baseY = Math.min(wy + 6, 930)
+  const baseY = Math.min(wy + 6, 647)
   return `M 200 ${baseY} Q 260 ${baseY - 4} 320 ${baseY} T 440 ${baseY} T 560 ${baseY}`
 })
 const wavePath2 = computed(() => {
   const wy = waterY.value
-  const baseY = Math.min(wy + 14, 930)
+  const baseY = Math.min(wy + 14, 647)
   return `M 250 ${baseY} Q 310 ${baseY - 3} 370 ${baseY} T 490 ${baseY}`
 })
 </script>
@@ -119,7 +119,7 @@ const wavePath2 = computed(() => {
           <!-- 水体层 (z-index: 1) -->
           <svg
             class="layer water-layer"
-            :viewBox="`0 0 1672 940`"
+            :viewBox="`0 0 1672 654`"
             preserveAspectRatio="none"
           >
             <defs>
@@ -182,7 +182,7 @@ const wavePath2 = computed(() => {
           <!-- 标注层 (z-index: 3, 与水体/背景共享坐标空间) -->
           <svg
             class="layer label-layer"
-            :viewBox="`0 0 1672 940`"
+            :viewBox="`0 0 1672 654`"
             preserveAspectRatio="none"
           >
           <defs>
@@ -199,7 +199,7 @@ const wavePath2 = computed(() => {
           <!-- ---- 高程坐标轴 ---- -->
           <g class="axis-group">
             <line
-              x1="0" y1="20" x2="0" y2="920"
+              x1="0" y1="14" x2="0" y2="640"
               stroke="rgba(50,150,255,0.45)" stroke-width="4"
             />
             <template v-for="tk in elevationTicks" :key="'tk-' + tk.elev">
@@ -209,7 +209,7 @@ const wavePath2 = computed(() => {
                 stroke-dasharray="6,5"
               />
               <text
-                :x="50" :y="tk.y + 7"
+                :x="50" :y="tk.y + 5"
                 fill="#5a7a9a" font-size="20" text-anchor="end"
                 font-family="'DIN Alternate', 'Roboto Mono', monospace"
               >{{ tk.elev }}</text>
@@ -219,9 +219,9 @@ const wavePath2 = computed(() => {
           <!-- ---- 当前水位高亮带 ---- -->
           <rect
             :x="55"
-            :y="waterY - 4"
+            :y="waterY - 3"
             width="1280"
-            height="8"
+            height="6"
             fill="url(#currentGlowGrad)"
             rx="2"
             opacity="0.9"
@@ -251,12 +251,12 @@ const wavePath2 = computed(() => {
               opacity="1"
             />
             <text
-              :x="60" :y="lv.y - 12"
+              :x="60" :y="lv.y - 8"
               :fill="lv.color"
               font-size="15" font-weight="550" opacity="0.95"
             >{{ lv.name }}</text>
             <text
-              :x="1555" :y="lv.y - 12"
+              :x="1555" :y="lv.y - 8"
               :fill="lv.color"
               font-size="20" text-anchor="end"
               :font-weight="lv.isCurrent ? 700 : 500"
@@ -267,11 +267,11 @@ const wavePath2 = computed(() => {
           <!-- ---- 坝顶标注（固定坐标，所有水库共用同一张 PNG，坝顶位置不变） ---- -->
           <g class="dam-label">
             <line
-              x1="1295" y1="204" x2="1360" y2="204"
+              x1="1295" y1="142" x2="1360" y2="142"
               stroke="rgba(150,180,210,0.50)" stroke-width="2"
             />
             <text
-              x="1350" y="194"
+              x="1350" y="135"
               fill="#94A3B8" font-size="17" text-anchor="end" font-weight="600"
             >坝顶 {{ section.dam.crestElevation.toFixed(2) }}m</text>
           </g>
@@ -279,18 +279,18 @@ const wavePath2 = computed(() => {
           <!-- ---- 入库流量 ---- -->
           <g class="flow-indicator inflow">
             <rect
-              :x="110" :y="52"
+              :x="110" :y="36"
               width="120" height="36" rx="6"
               fill="rgba(6,30,70,0.85)"
               stroke="rgba(0,229,255,0.30)" stroke-width="1"
             />
             <text
-              :x="170" :y="76"
+              :x="170" :y="53"
               fill="#00E5FF" font-size="20" text-anchor="middle" font-weight="600"
               font-family="'DIN Alternate', 'Roboto Mono', monospace"
             >{{ section.inflow }} m³/s</text>
             <text
-              :x="170" :y="43"
+              :x="170" :y="30"
               fill="#5a8aaa" font-size="17" text-anchor="middle"
             >入库流量</text>
           </g>
@@ -298,18 +298,18 @@ const wavePath2 = computed(() => {
           <!-- ---- 出库流量 ---- -->
           <g class="flow-indicator outflow">
             <rect
-              :x="1470" :y="52"
+              :x="1470" :y="36"
               width="120" height="36" rx="6"
               fill="rgba(6,30,70,0.85)"
               stroke="rgba(0,212,255,0.30)" stroke-width="1"
             />
             <text
-              :x="1530" :y="76"
+              :x="1530" :y="53"
               fill="#00d4ff" font-size="20" text-anchor="middle" font-weight="600"
               font-family="'DIN Alternate', 'Roboto Mono', monospace"
             >{{ section.outflow }} m³/s</text>
             <text
-              :x="1530" :y="43"
+              :x="1530" :y="30"
               fill="#5a8aaa" font-size="17" text-anchor="middle"
             >出库流量</text>
           </g>
@@ -362,7 +362,7 @@ const wavePath2 = computed(() => {
   position: relative;
   width: 100%;
   max-width: 2200px;
-  aspect-ratio: 1672 / 940;
+  aspect-ratio: 1672 / 654;
   background: #061a3a;
   overflow: hidden;
   border-radius: 6px;
