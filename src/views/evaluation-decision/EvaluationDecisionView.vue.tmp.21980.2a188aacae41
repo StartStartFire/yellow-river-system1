@@ -69,26 +69,12 @@ const planColors: Record<string, string> = {
   '方案四': '#b37feb',
 }
 
-// 桑基图节点色板（不同色相，每个节点不同颜色）
-const nodeColors = [
-  '#4a90d9', '#50b8a0', '#e88a3a', '#7a5cc0', '#d45a7a',
-  '#3aa0c0', '#8ab84a', '#c07040', '#5a8ab8', '#b070a0',
-  '#c05040', '#40a080', '#8a6ab0', '#d0a040', '#5090b0',
-  '#b08060', '#60a0a0', '#a06080',
-]
-
 // ========== 雷达图 ==========
 const buildRadarOption = () => {
   const data = radarData.data
   const filteredPlans = data.plans.filter(p => selectedPlanLabels.value.includes(p.plan))
 
   return {
-    title: {
-      text: '多方案评价雷达图',
-      right: 12,
-      top: 4,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-    },
     tooltip: {
       trigger: 'item' as const,
       backgroundColor: 'rgba(6, 30, 70, 0.9)',
@@ -98,15 +84,15 @@ const buildRadarOption = () => {
     legend: {
       data: filteredPlans.map(p => p.plan),
       textStyle: { color: '#7a8fa3', fontSize: 11 },
-      bottom: 2,
+      bottom: 0,
     },
     radar: {
       indicator: data.indicators.map(ind => ({
         name: ind.name,
         max: ind.max,
       })),
-      center: ['50%', '52%'],
-      radius: '56%',
+      center: ['50%', '48%'],
+      radius: '62%',
       axisName: {
         color: '#c0c8d4',
         fontSize: 11,
@@ -150,12 +136,6 @@ const buildSankeyOption = () => {
   const data = evaluationSankeyData.data
 
   return {
-    title: {
-      text: '多方案评价指标',
-      right: 12,
-      top: 6,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-    },
     tooltip: {
       trigger: 'item' as const,
       triggerOn: 'mousemove' as const,
@@ -169,18 +149,20 @@ const buildSankeyOption = () => {
         focus: 'adjacency' as const,
       },
       nodeAlign: 'left' as const,
-      nodeGap: 4,
-      nodeWidth: 28,
-      left: 50,
-      right: 36,
-      top: 36,
-      bottom: 20,
-      data: data.nodes.map((n, i) => ({
+      nodeGap: 8,
+      nodeWidth: 16,
+      left: 10,
+      right: 10,
+      top: 15,
+      bottom: 15,
+      data: data.nodes.map(n => ({
         ...n,
         itemStyle: {
-          color: nodeColors[i % nodeColors.length],
-          borderColor: 'rgba(255,255,255,0.15)',
-          borderWidth: 1,
+          color: n.category === 0
+            ? '#0088cc'
+            : n.category === 1
+              ? '#00afff'
+              : '#00e5a0',
         },
         label: {
           show: true,
@@ -216,12 +198,6 @@ const buildParetoOption = () => {
   const filteredData = data.filter(d => selectedPlanLabels.value.includes(d.plan))
 
   return {
-    title: {
-      text: '帕累托曲线',
-      right: 12,
-      top: 4,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-    },
     tooltip: {
       trigger: 'axis' as const,
       backgroundColor: 'rgba(6, 30, 70, 0.9)',
@@ -231,9 +207,9 @@ const buildParetoOption = () => {
     legend: {
       data: filteredData.map(d => d.plan),
       textStyle: { color: '#7a8fa3', fontSize: 11 },
-      top: 22,
+      top: 0,
     },
-    grid: { left: 50, right: 16, top: 48, bottom: 22 },
+    grid: { left: 50, right: 16, top: 32, bottom: 24 },
     xAxis: {
       type: 'value',
       name: '最优投影值',
@@ -277,12 +253,6 @@ const buildProcessOption = () => {
   if (tab === 'water') {
     const d = decisionPlanData.value.waterLevel
     return {
-      title: {
-        text: '水位变化过程线',
-        right: 12,
-        top: 2,
-        textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-      },
       tooltip: {
         trigger: 'axis' as const,
         backgroundColor: 'rgba(6, 30, 70, 0.9)',
@@ -292,9 +262,9 @@ const buildProcessOption = () => {
       legend: {
         data: ['龙羊峡水库', '刘家峡水库', '汛限水位', '正常蓄水位'],
         textStyle: { color: '#7a8fa3', fontSize: 10 },
-        top: 18,
+        top: 0,
       },
-      grid: { left: 42, right: 8, top: 46, bottom: 16 },
+      grid: { left: 46, right: 12, top: 34, bottom: 20 },
       xAxis: {
         type: 'category',
         data: d.dates,
@@ -360,12 +330,6 @@ const buildProcessOption = () => {
   } else if (tab === 'flow') {
     const d = decisionPlanData.value.flow
     return {
-      title: {
-        text: '流量变化过程线',
-        right: 12,
-        top: 2,
-        textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-      },
       tooltip: {
         trigger: 'axis' as const,
         backgroundColor: 'rgba(6, 30, 70, 0.9)',
@@ -375,9 +339,9 @@ const buildProcessOption = () => {
       legend: {
         data: ['龙羊峡水库', '刘家峡水库'],
         textStyle: { color: '#7a8fa3', fontSize: 10 },
-        top: 18,
+        top: 0,
       },
-      grid: { left: 42, right: 8, top: 46, bottom: 16 },
+      grid: { left: 46, right: 12, top: 34, bottom: 20 },
       xAxis: {
         type: 'category',
         data: d.dates,
@@ -415,12 +379,6 @@ const buildProcessOption = () => {
   } else {
     const d = decisionPlanData.value.power
     return {
-      title: {
-        text: '出力变化过程线',
-        right: 12,
-        top: 2,
-        textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-      },
       tooltip: {
         trigger: 'axis' as const,
         backgroundColor: 'rgba(6, 30, 70, 0.9)',
@@ -430,9 +388,9 @@ const buildProcessOption = () => {
       legend: {
         data: ['龙羊峡水库', '刘家峡水库', '龙羊峡装机容量', '刘家峡装机容量'],
         textStyle: { color: '#7a8fa3', fontSize: 10 },
-        top: 18,
+        top: 0,
       },
-      grid: { left: 42, right: 8, top: 46, bottom: 16 },
+      grid: { left: 46, right: 12, top: 34, bottom: 20 },
       xAxis: {
         type: 'category',
         data: d.dates,
@@ -509,12 +467,6 @@ const buildWaterFlowOption = () => {
   }))
 
   return {
-    title: {
-      text: '水量使用流向图',
-      right: 12,
-      top: 6,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
-    },
     tooltip: {
       trigger: 'item' as const,
       triggerOn: 'mousemove' as const,
@@ -540,7 +492,7 @@ const buildWaterFlowOption = () => {
       nodeWidth: 18,
       left: 20,
       right: 40,
-      top: 36,
+      top: 20,
       bottom: 20,
       data: nodes,
       links: links,
@@ -610,22 +562,6 @@ const initResizeObserver = () => {
 
 // ========== 交互事件 ==========
 
-// 切换决策分析：展开时自动收起评价分析
-const handleToggleDecision = () => {
-  decisionExpanded.value = !decisionExpanded.value
-  if (decisionExpanded.value) {
-    evaluationExpanded.value = false
-  }
-}
-
-// 切换评价分析：展开时自动收起决策分析
-const handleToggleEvaluation = () => {
-  evaluationExpanded.value = !evaluationExpanded.value
-  if (evaluationExpanded.value) {
-    decisionExpanded.value = false
-  }
-}
-
 // 导出方案
 const handleExportPlan = () => {
   ElMessage.info('当前为前端原型，暂不支持真实导出')
@@ -674,7 +610,7 @@ onUnmounted(() => {
     <!-- ===== 评价分析卡片 ===== -->
     <div class="analysis-card">
       <!-- 标题栏（可点击折叠） -->
-      <div class="card-header" @click="handleToggleEvaluation">
+      <div class="card-header" @click="evaluationExpanded = !evaluationExpanded">
         <div class="card-header-left">
           <span class="card-title">评价分析</span>
         </div>
@@ -702,31 +638,36 @@ onUnmounted(() => {
         <!-- 第一行图表：雷达图 + 评价指标桑基图 -->
         <div class="charts-row">
           <div class="chart-box chart-box-left">
-            <div ref="radarChartRef" class="chart-container chart-container-eva"></div>
+            <div class="chart-box-header">多方案评价雷达图</div>
+            <div ref="radarChartRef" class="chart-container"></div>
           </div>
           <div class="chart-box chart-box-right">
-            <div ref="sankeyChartRef" class="chart-container chart-container-eva"></div>
+            <div class="chart-box-header">多方案评价指标</div>
+            <div ref="sankeyChartRef" class="chart-container"></div>
           </div>
         </div>
 
         <!-- 第二行图表：帕累托曲线 + 评价算法排名分析 -->
         <div class="charts-row">
           <div class="chart-box chart-box-left">
-            <div ref="paretoChartRef" class="chart-container chart-container-eva-sm"></div>
+            <div class="chart-box-header">帕累托曲线</div>
+            <div ref="paretoChartRef" class="chart-container"></div>
           </div>
           <div class="chart-box chart-box-right">
-            <div class="ranking-table-wrap eva-ranking-table">
+            <div class="chart-box-header">评价算法排名（综合优选指数）</div>
+            <div class="ranking-table-wrap">
               <el-table
                 :data="rankingData.data"
                 stripe
                 size="small"
                 style="width: 100%"
                 :header-cell-style="{
-                  color: '#e0e6ed',
+                  background: '#0a1a2e',
+                  color: '#7a8fa3',
                   borderBottom: '1px solid rgba(50, 150, 255, 0.15)',
                   fontSize: '11px',
                   fontWeight: 600,
-                  padding: '2px 8px',
+                  padding: '6px 8px',
                 }"
                 :cell-style="{
                   background: 'transparent',
@@ -761,7 +702,7 @@ onUnmounted(() => {
     <!-- ===== 决策分析卡片 ===== -->
     <div class="analysis-card">
       <!-- 标题栏（可点击折叠） -->
-      <div class="card-header" @click="handleToggleDecision">
+      <div class="card-header" @click="decisionExpanded = !decisionExpanded">
         <div class="card-header-left">
           <span class="card-title">决策分析</span>
         </div>
@@ -844,6 +785,7 @@ onUnmounted(() => {
           <!-- 中列：过程曲线 -->
           <div class="decision-col decision-col-center">
             <div class="sub-chart-box">
+              <div class="sub-chart-title">过程曲线</div>
               <!-- 内部页签 -->
               <div class="process-tabs">
                 <button
@@ -861,6 +803,7 @@ onUnmounted(() => {
           <!-- 右列：水量使用流向图 -->
           <div class="decision-col decision-col-right">
             <div class="sub-chart-box">
+              <div class="sub-chart-title">水量使用流向图</div>
               <div ref="waterFlowChartRef" class="chart-container"></div>
             </div>
           </div>
@@ -898,7 +841,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 16px;
+  padding: 10px 16px;
   cursor: pointer;
   user-select: none;
   transition: background 0.2s;
@@ -938,7 +881,7 @@ onUnmounted(() => {
 }
 
 .card-body {
-  padding: 6px 12px 10px;
+  padding: 8px 16px 16px;
   border-top: 1px solid rgba(50, 150, 255, 0.15);
 }
 
@@ -946,27 +889,25 @@ onUnmounted(() => {
 .selector-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
-  margin-bottom: 4px;
-  min-height: 24px;
+  margin-bottom: 10px;
 }
 .selector-label {
-  font-size: 12px;
+  font-size: 13px;
   color: #7a8fa3;
   white-space: nowrap;
 }
 .plan-checkboxes {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 /* 自定义复选框样式覆盖 */
 :deep(.el-checkbox) {
   margin-right: 0;
-  height: 20px;
 }
 :deep(.el-checkbox__label) {
-  font-size: 11px;
+  font-size: 12px;
   color: #c0c8d4;
 }
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
@@ -976,19 +917,15 @@ onUnmounted(() => {
 :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
   color: #00afff;
 }
-:deep(.el-checkbox__inner) {
-  width: 12px;
-  height: 12px;
-}
 .checkbox-label-text {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* ===== 图表行 ===== */
 .charts-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 .charts-row:last-child {
   margin-bottom: 0;
@@ -1010,19 +947,22 @@ onUnmounted(() => {
   flex: 6;
   min-width: 0;
 }
+.chart-box-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7a8fa3;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.1);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
 .chart-container {
   flex: 1;
   width: 100%;
-  min-height: 250px;
+  min-height: 220px;
 }
 .chart-container-process {
-  min-height: 160px;
-}
-.chart-container-eva {
-  min-height: 320px;
-}
-.chart-container-eva-sm {
-  min-height: 200px;
+  min-height: 180px;
 }
 
 /* ===== 排名表格 ===== */
@@ -1034,16 +974,16 @@ onUnmounted(() => {
 :deep(.el-table) {
   --el-table-border-color: transparent;
   background: transparent;
-  border: none;
 }
-:deep(.el-table thead tr) {
-  height: 28px;
+:deep(.el-table__body tr.el-table__row--striped td) {
+  background: rgba(0, 175, 255, 0.03);
 }
-:deep(.el-table thead th) {
-  padding: 0 8px;
+:deep(.el-table__body tr:hover > td) {
+  background: rgba(0, 175, 255, 0.06);
 }
 
 .score-cell {
+  display: flex;
   align-items: center;
   gap: 6px;
   width: 100%;
@@ -1074,7 +1014,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   flex-shrink: 0;
 }
 .decision-selector {
@@ -1302,15 +1242,5 @@ onUnmounted(() => {
 .evaluation-decision-view::-webkit-scrollbar-thumb {
   background: rgba(50, 150, 255, 0.2);
   border-radius: 2px;
-}
-</style>
-
-<!-- 非 scoped 样式：确保表头背景透明，透出 tr 背景色 -->
-<style>
-.eva-ranking-table .el-table {
-  --el-table-header-bg-color: transparent !important;
-}
-.eva-ranking-table .el-table thead th.el-table__cell {
-  background-color: transparent !important;
 }
 </style>
