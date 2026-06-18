@@ -759,7 +759,7 @@ onUnmounted(() => {
     </div>
 
     <!-- ===== 决策分析卡片 ===== -->
-    <div class="analysis-card">
+    <div class="analysis-card" :class="{ 'card-expanded': decisionExpanded }">
       <!-- 标题栏（可点击折叠） -->
       <div class="card-header" @click="handleToggleDecision">
         <div class="card-header-left">
@@ -1293,6 +1293,37 @@ onUnmounted(() => {
 }
 
 /* ===== 滚动条 ===== */
+/* ===== 展开卡片自适应填充 ===== */
+.analysis-card.card-expanded {
+  flex: 1;
+  min-height: 0;
+}
+.analysis-card.card-expanded > .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.analysis-card.card-expanded .decision-body {
+  flex: 1;
+  min-height: 0;
+}
+.analysis-card.card-expanded .decision-col {
+  min-height: 0;
+}
+.analysis-card.card-expanded .sub-chart-box {
+  flex: 1;
+  min-height: 0;
+}
+.analysis-card.card-expanded .target-list {
+  flex: 1;
+  justify-content: space-evenly;
+}
+.analysis-card.card-expanded .chart-container {
+  flex: 1;
+  min-height: 0;
+}
+
 .evaluation-decision-view::-webkit-scrollbar {
   width: 4px;
 }
