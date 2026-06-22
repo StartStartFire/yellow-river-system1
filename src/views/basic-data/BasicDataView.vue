@@ -1,36 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import ReservoirSidebar from '@/components/basic-data/ReservoirSidebar.vue'
-import MetricCards from '@/components/basic-data/MetricCards.vue'
 import SectionChart from '@/components/chart/ReservoirSectionGraph.vue'
 import BaseInfoPanel from '@/components/basic-data/BaseInfoPanel.vue'
 import ProcessChart from '@/components/basic-data/ProcessChart.vue'
 import EngineeringInfo from '@/components/basic-data/EngineeringInfo.vue'
 
 import {
-  reservoirList,
-  getMetrics,
   getSection,
   getBaseInfo,
   getProcessData,
   getEngineeringInfo,
 } from '@/mock/basicData'
 
-const reservoirData = reservoirList.data
-
 // 当前选中的水库（默认龙羊峡）
 const selectedId = ref('longyangxia')
 
 // 左侧列表折叠状态
 const sidebarCollapsed = ref(false)
-
-// 当前水库名称
-const currentName = computed(() => {
-  return reservoirData.find(r => r.id === selectedId.value)?.name || '龙羊峡'
-})
-
-// 核心指标卡片数据
-const metricCards = computed(() => getMetrics(selectedId.value).data)
 
 // 断面图数据
 const section = computed(() => getSection(selectedId.value).data)
@@ -90,14 +77,6 @@ const handleToggleSidebar = () => {
 
     <!-- 右侧详情区 -->
     <div class="detail-panel">
-      <!-- 顶部：水库名称 -->
-      <div class="detail-header">
-        <span class="detail-name">{{ currentName }}水库</span>
-      </div>
-
-      <!-- 核心指标卡片 -->
-      <MetricCards :cards="metricCards" />
-
       <!-- 二级标签页 -->
       <div class="tabs-bar">
         <button
@@ -159,18 +138,6 @@ const handleToggleSidebar = () => {
   flex-direction: column;
   min-width: 0;
   gap: 12px;
-}
-
-.detail-header {
-  padding: 4px 4px 0;
-  flex-shrink: 0;
-}
-
-.detail-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: #e0e6ed;
-  letter-spacing: 0.5px;
 }
 
 .tabs-bar {

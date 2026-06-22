@@ -122,18 +122,18 @@ const displayName = computed(() => {
 .sidebar-list {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 6px;
+  padding: 10px 8px 330px;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 10px;
+  padding: 14px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .sidebar-item:hover {
