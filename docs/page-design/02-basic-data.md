@@ -248,11 +248,11 @@ src/mock/basicData.ts
 
 ```text
 1. 顶部页签：水库信息
-2. 当前水库名称
-3. 核心指标卡片
-4. 二级标签页
-5. 当前标签内容区
+2. 二级标签页
+3. 当前标签内容区
 ```
+
+**变更说明**（2026-06-22）：当前水库名称和核心指标卡片已删除，下方的二级标签页和内容区上移，布局更简洁。
 
 ------
 
@@ -269,94 +269,8 @@ src/mock/basicData.ts
 ```text
 1. 作为当前详情区的一级页签。
 2. 使用蓝色高亮边框。
-3. 当前阶段只保留“水库信息”页签。
-4. 不在基础数据页面中展示“模型数据”页签。
-```
-
-------
-
-# 7.2 当前水库名称
-
-页签下方显示当前水库名称。
-
-默认：
-
-```text
-龙羊峡
-```
-
-切换水库后：
-
-```text
-刘家峡
-```
-
-要求：
-
-```text
-1. 字体较大。
-2. 使用白色或浅蓝色。
-3. 与下方核心指标卡片形成层级关系。
-```
-
-------
-
-# 7.3 核心指标卡片
-
-## 7.3.1 指标数量
-
-顶部展示 4 个核心指标卡片：
-
-```text
-1. 当前水位
-2. 入库流量
-3. 出库流量
-4. 蓄水量
-```
-
-## 7.3.2 指标字段
-
-### 当前水位
-
-```text
-当前水位：2467.35 m
-较昨日：-0.12 m
-```
-
-### 入库流量
-
-```text
-入库流量：487.6 m³/s
-较昨日：+23.4 m³/s
-```
-
-### 出库流量
-
-```text
-出库流量：612.3 m³/s
-较昨日：+15.7 m³/s
-```
-
-### 蓄水量
-
-```text
-蓄水量：24.58 亿m³
-较昨日：-0.18 亿m³
-```
-
-## 7.3.3 卡片样式
-
-```text
-1. 四个指标卡横向排列。
-2. 每个卡片左侧有指标图标。
-3. 指标名称置于上方。
-4. 指标数值突出显示。
-5. 单位紧跟数值。
-6. 较昨日变化值显示在下方。
-7. 上升使用橙色或红橙色箭头。
-8. 下降使用绿色箭头。
-9. 卡片背景使用深色半透明。
-10. 卡片边框使用蓝青色细线。
+3. 当前阶段只保留”水库信息”页签。
+4. 不在基础数据页面中展示”模型数据”页签。
 ```
 
 ------
@@ -823,23 +737,25 @@ export const reservoirSection: ApiResponse<Record<string, ReservoirSection>> = {
 src/views/basic-data/BasicDataView.vue
 
 src/components/basic-data/ReservoirSidebar.vue
-src/components/basic-data/ReservoirMetricCards.vue
 src/components/basic-data/ReservoirTabs.vue
-src/components/basic-data/ReservoirBaseInfo.vue
-src/components/basic-data/ReservoirSectionView.vue
-src/components/basic-data/ReservoirProcessChart.vue
-src/components/basic-data/ReservoirEngineeringInfo.vue
+src/components/basic-data/BaseInfoPanel.vue
+src/components/basic-data/ProcessChart.vue
+src/components/basic-data/EngineeringInfo.vue
 ```
 
 公共组件建议复用：
 
 ```text
-src/components/panel/PanelCard.vue
+src/components/chart/ReservoirSectionGraph.vue
 src/components/common/StatusTag.vue
-src/components/chart/BaseChart.vue
 ```
 
 说明：
+
+```text
+1. 指标卡片组件（ReservoirMetricCards.vue）已于 2026-06-22 删除。
+2. 当前页面直接使用 SectionChart / BaseInfoPanel / ProcessChart / EngineeringInfo 组件。
+```
 
 ```text
 1. 如果当前项目还没有公共组件，可以先在 BasicDataView.vue 中完成页面。
@@ -856,26 +772,26 @@ src/components/chart/BaseChart.vue
 ```text
 1. 页面可以通过 /basic-data 正常访问。
 2. 顶部导航完整显示。
-3. 当前导航“基础数据”高亮。
+3. 当前导航”基础数据”高亮。
 4. 页面整体风格与首页一致。
 5. 左侧水库列表正常展示龙羊峡、刘家峡。
 6. 默认选中龙羊峡。
 7. 点击刘家峡后，右侧数据可以切换。
-8. 右侧顶部显示“水库信息”页签。
-9. 当前水库名称正确显示。
-10. 四个核心指标卡片正常展示。
-11. 二级标签页正常显示。
-12. 默认展示“水库断面”标签页。
-13. 水库断面示意图结构完整。
-14. 断面图中能够看到水位线、当前水位、水体、大坝、入库流量和出库流量。
-15. 基础信息标签页可以展示静态信息。
-16. 水情过程标签页可以展示 mock 图表。
-17. 工情信息标签页可以展示 mock 表格或卡片。
-18. 页面数据全部来自 src/mock/basicData.ts。
-19. 不调用任何后端接口。
-20. 不连接数据库。
-21. 不实现真实数据上传、修改或删除。
+8. 右侧顶部显示”水库信息”页签。
+9. 二级标签页正常显示。
+10. 默认展示”水库断面”标签页。
+11. 水库断面示意图结构完整。
+12. 断面图中能够看到水位线、当前水位、水体、大坝、入库流量和出库流量。
+13. 基础信息标签页可以展示静态信息。
+14. 水情过程标签页可以展示 mock 图表。
+15. 工情信息标签页可以展示 mock 表格或卡片。
+16. 页面数据全部来自 src/mock/basicData.ts。
+17. 不调用任何后端接口。
+18. 不连接数据库。
+19. 不实现真实数据上传、修改或删除。
 ```
+
+> **2026-06-22 变更**：原验收标准第 9 条（当前水库名称显示）和第 10 条（核心指标卡片展示）已删除，对应组件已从页面中移除。
 
 ------
 

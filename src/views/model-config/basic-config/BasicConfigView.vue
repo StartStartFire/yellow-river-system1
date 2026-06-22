@@ -66,6 +66,8 @@ const objectiveNameMap: Record<string, string> = {
   'flood-control': '防洪',
   'power-generation': '兴利',
   'ecology': '生态',
+  'sediment': '输沙',
+  'multi-energy': '多能互补',
 }
 
 /** 根据当前表单自动生成方案名称（未填写时使用） */
@@ -194,6 +196,8 @@ const objectiveIcons: Record<string, string> = {
   shield: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3L4 6v5c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V6l-8-3z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M10 12l1.5 1.5L14 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   flash: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
   leaf: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 7C13 8 7 11 4 16c2-3 5-5 8-6l-1 4c3-2 6-5 7-9l-1 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 14c-2 2-4 5-4 7" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  sand: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7l3-4h10l3 4-8 14L4 7z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 7l4 6 4-6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 4h10" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  sync: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 8A8 8 0 004 8M4 16a8 8 0 0016 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M16 4l4 4-4 4M8 20l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 }
 
 const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcons.shield
@@ -206,163 +210,124 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 
     <!-- 主体内容区 -->
     <div class="main-content">
-      <!-- Row 1: 调度周期设置 + 方案名称 -->
-      <div class="content-row row-2col">
-        <!-- 调度周期设置 -->
-        <div class="card schedule-card">
-          <div class="card-header">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
-            </svg>
-            <span class="card-title">1. 调度周期设置</span>
-          </div>
-          <div class="card-body">
-            <div class="form-grid">
-              <div class="form-item">
-                <label class="form-label">开始时间</label>
-                <el-date-picker
-                  v-model="startTime"
-                  type="date"
-                  placeholder="选择开始日期"
-                  size="small"
-                  class="dark-date-picker"
-                  value-format="YYYY-MM-DD"
-                />
-              </div>
-              <div class="form-item">
-                <label class="form-label">结束时间</label>
-                <el-date-picker
-                  v-model="endTime"
-                  type="date"
-                  placeholder="选择结束日期"
-                  size="small"
-                  class="dark-date-picker"
-                  value-format="YYYY-MM-DD"
-                />
-              </div>
-              <div class="form-item">
-                <label class="form-label">时间步长</label>
-                <el-select v-model="timeStep" size="small" class="dark-select">
-                  <el-option
-                    v-for="opt in timeStepOptions"
-                    :key="opt.value"
-                    :label="opt.label"
-                    :value="opt.value"
-                  />
-                </el-select>
-              </div>
-              <div class="form-item">
-                <label class="form-label">调度频率</label>
-                <el-select v-model="scheduleFrequency" size="small" class="dark-select">
-                  <el-option
-                    v-for="opt in frequencyOptions"
-                    :key="opt.value"
-                    :label="opt.label"
-                    :value="opt.value"
-                  />
-                </el-select>
-              </div>
-            </div>
-            <div class="total-periods">
-              总时段数：<span class="period-value">{{ totalPeriods }}</span> 个时段
-            </div>
-          </div>
-        </div>
-
-        <!-- 方案名称 -->
-        <div class="card scheme-card">
-          <div class="card-header">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              <rect x="10" y="10" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/>
-            </svg>
-            <span class="card-title">1a. 方案名称</span>
-          </div>
-          <div class="card-body">
-            <label class="form-label">方案名称</label>
-            <el-input
-              v-model="schemeName"
-              placeholder="请输入方案名称（建议包含调度目标与时间范围）"
-              maxlength="50"
-              size="small"
-              class="dark-input"
-            />
-            <div class="char-count">{{ schemeNameLength }} / 50</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Row 2: 水库组合选择 -->
-      <div class="card reservoir-card">
+      <!-- Row 1: 调度周期设置 -->
+      <div class="card schedule-card">
         <div class="card-header">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-            <rect x="2" y="4" width="5" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/>
-            <rect x="9" y="4" width="5" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/>
-            <path d="M2 4l2.5-2h7L14 4" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
           </svg>
-          <span class="card-title">2. 水库组合选择</span>
+          <span class="card-title">1. 调度周期设置</span>
+          <span class="total-periods-in-header">
+            总时段数：<span class="period-value">{{ totalPeriods }}</span> 个时段
+          </span>
         </div>
         <div class="card-body">
-          <div class="group-list">
-            <div
-              v-for="group in groups"
-              :key="group.id"
-              class="group-card"
-              :class="{ 'group-active': selectedGroup === group.id }"
-              @click="handleSelectGroup(group.id)"
-            >
-              <div class="group-radio">
-                <div class="radio-circle" :class="{ 'radio-checked': selectedGroup === group.id }">
-                  <div v-if="selectedGroup === group.id" class="radio-dot"></div>
-                </div>
-              </div>
-              <div class="group-info">
-                <div class="group-name">{{ group.name }}</div>
-                <div class="group-reservoirs">
-                  <span v-for="(r, rIdx) in group.reservoirs" :key="rIdx" class="reservoir-tag">
-                    {{ r }}
-                  </span>
-                </div>
-              </div>
-              <div v-if="selectedGroup === group.id" class="group-badge">已选</div>
+          <div class="form-grid">
+            <div class="form-item">
+              <label class="form-label">开始时间</label>
+              <el-date-picker
+                v-model="startTime"
+                type="date"
+                placeholder="选择开始日期"
+                size="small"
+                class="dark-date-picker"
+                value-format="YYYY-MM-DD"
+              />
+            </div>
+            <div class="form-item">
+              <label class="form-label">结束时间</label>
+              <el-date-picker
+                v-model="endTime"
+                type="date"
+                placeholder="选择结束日期"
+                size="small"
+                class="dark-date-picker"
+                value-format="YYYY-MM-DD"
+              />
+            </div>
+            <div class="form-item">
+              <label class="form-label">时间步长</label>
+              <el-select v-model="timeStep" size="small" class="dark-select">
+                <el-option
+                  v-for="opt in timeStepOptions"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </el-select>
+            </div>
+            <div class="form-item">
+              <label class="form-label">调度频率</label>
+              <el-select v-model="scheduleFrequency" size="small" class="dark-select">
+                <el-option
+                  v-for="opt in frequencyOptions"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </el-select>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Row 3: 调度目标设置 + 约束条件设置 -->
+      <!-- Row 2: 方案名称 -->
+      <div class="card scheme-card">
+        <div class="card-header">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
+            <path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <rect x="10" y="10" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <span class="card-title">2. 方案名称</span>
+        </div>
+        <div class="scheme-card-body">
+          <el-input
+            v-model="schemeName"
+            placeholder="请输入方案名称（建议包含调度目标与时间范围）"
+            maxlength="50"
+            size="small"
+            class="dark-input"
+          />
+          <span class="char-count">{{ schemeNameLength }} / 50</span>
+        </div>
+      </div>
+
+      <!-- Row 3: 水库组合选择 + 约束条件设置 -->
       <div class="content-row row-2col">
-        <!-- 调度目标设置 -->
-        <div class="card objective-card">
+        <!-- 水库组合选择 -->
+        <div class="card reservoir-card">
           <div class="card-header">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
-              <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-              <circle cx="8" cy="8" r="1" fill="currentColor"/>
+              <rect x="2" y="4" width="5" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/>
+              <rect x="9" y="4" width="5" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M2 4l2.5-2h7L14 4" stroke="currentColor" stroke-width="1.3"/>
             </svg>
-            <span class="card-title">3. 调度目标设置</span>
+            <span class="card-title">3. 水库组合选择</span>
           </div>
           <div class="card-body">
-            <div class="objective-list">
+            <div class="group-list">
               <div
-                v-for="obj in objectives"
-                :key="obj.id"
-                class="objective-card-item"
-                :class="{ 'objective-active': selectedObjectives.includes(obj.id) }"
-                @click="handleToggleObjective(obj.id)"
+                v-for="group in groups"
+                :key="group.id"
+                class="group-card"
+                :class="{ 'group-active': selectedGroup === group.id }"
+                @click="handleSelectGroup(group.id)"
               >
-                <div class="objective-icon" v-html="getObjectiveIcon(obj.icon)"></div>
-                <div class="objective-info">
-                  <div class="objective-name">{{ obj.name }}</div>
-                  <div class="objective-desc">{{ obj.description }}</div>
+                <div class="group-radio">
+                  <div class="radio-circle" :class="{ 'radio-checked': selectedGroup === group.id }">
+                    <div v-if="selectedGroup === group.id" class="radio-dot"></div>
+                  </div>
                 </div>
-                <div v-if="selectedObjectives.includes(obj.id)" class="objective-check">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="7" fill="rgba(0,175,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
-                    <path d="M6 9l2 2 4-4" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                <div class="group-info">
+                  <div class="group-name">{{ group.name }}</div>
+                  <div class="group-reservoirs">
+                    <span v-for="(r, rIdx) in group.reservoirs" :key="rIdx" class="reservoir-tag">
+                      {{ r }}
+                    </span>
+                  </div>
                 </div>
+                <div v-if="selectedGroup === group.id" class="group-badge">已选</div>
               </div>
             </div>
           </div>
@@ -394,6 +359,41 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
               <el-button type="primary" size="small" class="constraint-btn" @click="constraintDialogVisible = true">
                 查看详情
               </el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: 调度目标设置（独占一行，内部网格） -->
+      <div class="card objective-card">
+        <div class="card-header">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
+            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="1" fill="currentColor"/>
+          </svg>
+          <span class="card-title">5. 调度目标设置</span>
+        </div>
+        <div class="card-body">
+          <div class="objective-grid">
+            <div
+              v-for="obj in objectives"
+              :key="obj.id"
+              class="objective-card-item"
+              :class="{ 'objective-active': selectedObjectives.includes(obj.id) }"
+              @click="handleToggleObjective(obj.id)"
+            >
+              <div class="objective-icon" v-html="getObjectiveIcon(obj.icon)"></div>
+              <div class="objective-info">
+                <div class="objective-name">{{ obj.name }}</div>
+                <div class="objective-desc">{{ obj.description }}</div>
+              </div>
+              <div v-if="selectedObjectives.includes(obj.id)" class="objective-check">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="9" cy="9" r="7" fill="rgba(0,175,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
+                  <path d="M6 9l2 2 4-4" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -628,13 +628,12 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
   font-weight: 500;
 }
 
-.total-periods {
-  font-size: 12px;
+.total-periods-in-header {
+  font-size: 11px;
   color: #7a8fa3;
-  text-align: right;
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(50, 150, 255, 0.12);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .period-value {
@@ -644,17 +643,23 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 }
 
 /* ===== 方案名称 ===== */
-.scheme-card .card-body {
+.scheme-card-body {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+}
+
+.scheme-card-body .dark-input {
+  flex: 1;
+  max-width: 500px;
 }
 
 .char-count {
   font-size: 11px;
   color: #5a6f83;
-  text-align: right;
-  margin-top: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ===== 水库组合选择 ===== */
@@ -760,8 +765,9 @@ const getObjectiveIcon = (icon: string) => objectiveIcons[icon] || objectiveIcon
 }
 
 /* ===== 调度目标 ===== */
-.objective-list {
-  display: flex;
+.objective-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
 }
 
