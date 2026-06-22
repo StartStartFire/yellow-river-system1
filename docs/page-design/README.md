@@ -141,14 +141,18 @@
 参数：
 
 ```css
-background: rgba(6,30,70,.85);
+background: rgba(6,30,70,.45);
 
 border:
-1px solid rgba(50,150,255,.35);
+1px solid rgba(50,150,255,.10);
 
 backdrop-filter:
-blur(6px);
+blur(14px);
+
+box-shadow: 0 4px 30px rgba(0,0,0,.3);
 ```
+
+**说明**：当前首页面板已升级为全屏地图背景 + 半透明玻璃浮层方案，卡片透明度更低（0.45）、模糊更强（14px）、边框更弱（0.10），以达到地图穿透效果。其他页面如暂未使用地图背景，可沿用传统参数（background: rgba(6,30,70,.85)，border: 1px solid rgba(50,150,255,.35)）。
 
 ------
 

@@ -12,10 +12,10 @@
 | 1    | 项目初始化 | 已完成          | Vue3 + Vite + TS + Element Plus + Tailwind CSS + ECharts + Leaflet + Pinia |
 | 2    | 路由配置   | 已完成          | 8 个路由：home, basic-data, water-condition, model-config, process-transparent, evaluation-decision, case-library, report-statistics |
 | 3    | 顶部导航栏 | 已完成          | 深色科技风，蓝青色高亮，支持路由跳转 |
-| 4    | 首页       | 已完成          | 地图展示 + 水库点位 + 概览指标卡片 + 水情简报 |
-| 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息 + 过程数据表格 + 机组工况 |
+| 4    | 首页       | 已完成          | 地图全屏背景 + 水库点位 + 左右浮层面板（可收起/展开）+ 水情监控 + 发电统计 + 水位/负荷过程线 + 预警信息 |
+| 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息 + 水情过程图表 + 工情信息 |
 | 6    | 水调水情   | 未开始          | 骨架页面 |
-| 7    | 模型配置   | Step 1~5 已完成 | 模型配置 5 步流程全部完成，支持完整闭环 |
+| 7    | 模型配置   | Step 1~5 已完成 | 5 步流程完整闭环，支持步骤间数据联动（水库组合→模型筛选、时间步长→算法参数、调度目标→场景参数关联）。水库组合精简为龙刘/龙刘黑 2 项，调度目标新增输沙/多能互补。 |
 | 8    | 过程透明   | 已完成          | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区。2026-06-15 按 05-process.md 重写中部图表区：左40%优化过程分析 + 右60%水库运行响应（Tab切换龙羊峡/刘家峡）|
 | 9    | 评价决策   | 已完成          | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析（目标满足情况+过程曲线+水量使用流向图）|
 | 10   | 案例库     | 未开始          | 骨架页面 |
@@ -23,7 +23,12 @@
 
 ### 已完成模块详细说明
 
-**首页（HomeView）**：全功能完成。包含流域地图（Leaflet）、水库水位卡片、水情简报表格、实时指标展示。
+**首页（HomeView）**：全功能完成。包含：
+- 黄河上游流域地图（Leaflet + Esri 卫星影像 + PMTiles 河网），作为页面全屏背景
+- 左右浮层面板（半透明玻璃态），默认收起，点击右侧竖条按钮展开/收起
+- 左侧：水情监控（龙羊峡/刘家峡水库指标）+ 发电统计（5 水库日/月/年发电量表格）
+- 右侧：水位过程线（ECharts 折线图）+ 负荷过程线（有功/无功切换）+ 预警信息列表
+- 水库点位脉冲标记 + 点击弹出信息窗 + 地图工具（全域/缩放/图层控制）
 
 **基础数据（BasicDataView）**：核心功能完成。包含：
 - 水库选择切换（5 个水库：龙羊峡、刘家峡、公伯峡、积石峡、青铜峡）
@@ -378,7 +383,60 @@
 
 ---
 
-## 3. 下一步开发任务
+### 开发时间
+
+```text
+2026-06-22（第十七次）
+```
+
+### 本次完成内容
+
+```text
+1. 基础数据页面简化：
+   - 删除顶部四个核心指标卡片和水库名称组件，下方组件上移
+   - 左侧水库列表组件高度增加（条目内边距 10px→14px，列表内边距增大）
+
+2. 首页地图全屏背景改造：
+   - 地图由中部区域改为 absolute 全屏铺底，左右面板浮在地图上
+   - 所有卡片（PanelCard）背景透明度 0.85→0.45，边框 0.35→0.10，模糊 6px→14px
+   - BasinMapPanel 去除所有硬边框，标题/图层/工具栏改为半透明浮动标签
+   - 水情监控内水库卡片背景改为 transparent
+   - 删除底部状态栏（HomeFooterBar）
+
+3. 首页面板展开/收起交互：
+   - 左右面板默认收起隐藏在屏幕外（left/right: calc(-24% - 12px)）
+   - 右侧边缘竖条按钮点击后面板滑入/滑出，带 cubic-bezier 动画
+   - panelsVisible 状态控制，进入首页默认收起
+
+4. 模型配置水库组合精简：
+   - reservoirGroups 从 5 项减为 2 项（仅保留龙刘组合、龙刘黑组合）
+   - 同步删除 reservoirGroupModelMap 中对应的模型兼容映射
+
+5. 调度目标新增：
+   - 新增「输沙调度」「多能互补」两个目标及对应图标（sand/sync）
+   - 同步更新 objectiveNameMap 和 objectiveRelevantParams
+
+6. 基础配置页面布局重构（方案 A）：
+   - Row 1: 调度周期设置（独占一行）
+   - Row 2: 方案名称（独占一行，高度缩减，去掉重复 label）
+   - Row 3: 水库组合 + 约束条件（并排两列）
+   - Row 4: 调度目标设置（独占一行，5 列网格 grid-template-columns: repeat(5, 1fr)）
+   - 编号统一：1.调度周期 → 2.方案名称 → 3.水库组合 → 4.约束条件 → 5.调度目标
+   - 总时段数移到调度周期卡片标题栏最右侧（margin-left: auto）
+   - 方案名称卡片体 padding 减小，label 去除，输入框和字数统计水平排列
+
+修改文件：
+```text
+src/views/basic-data/BasicDataView.vue                    — 删除指标卡片/水库名称，组件上移
+src/components/basic-data/ReservoirSidebar.vue            — 列表项高度增加
+src/views/home/HomeView.vue                               — 地图全屏背景+左右滑入面板+移除底部栏
+src/components/home/BasinMapPanel.vue                     — 去除边框，半透明浮动标签
+src/components/common/PanelCard.vue                       — 背景/边框/模糊优化
+src/components/home/ReservoirMonitorPanel.vue              — 内部块透明背景
+src/mock/modelConfig.ts                                   — 水库组合精简、调度目标新增、映射同步
+src/views/model-config/basic-config/BasicConfigView.vue   — 布局重构（方案 A）
+docs/development/AI-WORKLOG.md                            — 本记录
+```
 
 下一步优先做：
 
@@ -402,6 +460,13 @@
 3. 不修改无关页面
 4. 不接真实接口
 ```
+
+**当前已完成的基础配置相关上下文（新会话参考）：**
+- 基础配置页面布局已重构为4行方案（调度周期→方案名称→水库组合+约束条件→调度目标5列网格）
+- 首页地图全屏背景 + 左右面板可收起/展开（右侧竖条按钮），默认收起
+- 模型配置水库组合只保留「龙刘组合」「龙刘黑组合」2项
+- 调度目标新增「输沙调度」「多能互补」，共5项目标
+- 总时段数显示在调度周期卡片标题栏最右侧
 
 ------
 
@@ -456,7 +521,9 @@ src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型�
 src/views/model-config/config-summary/ConfigSummaryView.vue         -- 模型配置 Step 5（含当前配置方案同步）
 src/components/model-config/ModelConfigFooter.vue                   -- 模型配置底部公用操作栏
 src/components/model-config/ModelConfigStepBar.vue                  -- 模型配置步骤条组件
-src/components/chart/ReservoirSectionGraph.vue                      -- 断面示意图组件
+src/components/common/PanelCard.vue                      -- 通用半透明玻璃卡片组件
+src/components/home/BasinMapPanel.vue                     -- 首页地图组件
+src/components/home/ReservoirMonitorPanel.vue             -- 首页水情监控卡片
 src/components/basic-data/BaseInfoPanel.vue                         -- 基础信息卡片组件
 src/views/basic-data/BasicDataView.vue                              -- 基础数据页面
 src/styles/index.css                                                -- 全局样式（:root:root CSS 变量覆盖）

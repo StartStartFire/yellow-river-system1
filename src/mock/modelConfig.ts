@@ -393,21 +393,6 @@ export const reservoirGroups = {
       name: '龙刘黑组合',
       reservoirs: ['龙羊峡水库', '刘家峡水库', '黑山峡水库'],
     },
-    {
-      id: 'long-liu-qing',
-      name: '龙刘青组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库', '青铜峡水库'],
-    },
-    {
-      id: 'long-liu-gong',
-      name: '龙刘公组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库', '公伯峡水库'],
-    },
-    {
-      id: 'all',
-      name: '全部水库组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库', '公伯峡水库', '积石峡水库', '青铜峡水库'],
-    },
   ] as ReservoirGroup[],
 }
 
@@ -432,6 +417,18 @@ export const dispatchObjectives = {
       name: '生态保护',
       description: '保障生态流量，维护下游生态环境',
       icon: 'leaf',
+    },
+    {
+      id: 'sediment',
+      name: '输沙调度',
+      description: '优化水沙过程，减少库区淤积，保障冲沙效果',
+      icon: 'sand',
+    },
+    {
+      id: 'multi-energy',
+      name: '多能互补',
+      description: '协调水电与风光等新能源，提高多能互补综合效益',
+      icon: 'sync',
     },
   ] as DispatchObjective[],
 }
@@ -819,9 +816,6 @@ export interface DistributionItem {
 export const reservoirGroupModelMap: Record<string, string[]> = {
   'long-liu': ['lro', 'multi_objective_stress'],
   'long-liu-hei': ['lro', 'multi_objective_dispatch', 'water_sediment_realtime'],
-  'long-liu-qing': ['lro', 'multi_objective_dispatch'],
-  'long-liu-gong': ['lro', 'multi_objective_dispatch'],
-  'all': ['multi_objective_dispatch', 'water_sediment_realtime', 'lro'],
 }
 
 /** 时间步长 → 建议的算法参数 */
@@ -836,6 +830,8 @@ export const objectiveRelevantParams: Record<string, string[]> = {
   'flood-control': [],
   'power-generation': [],
   'ecology': ['ecologicalFlow', 'sedimentRequirement'],
+  'sediment': ['sedimentFlow', 'sedimentRequirement'],
+  'multi-energy': [],
 }
 
 /** 模型ID → 中文显示名称 */
