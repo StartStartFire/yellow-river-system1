@@ -240,98 +240,73 @@ onUnmounted(() => {
 
 <template>
   <div class="map-panel">
-    <div
-      class="map-header"
-      style="background: rgba(6, 30, 70, 0.85); border: 1px solid rgba(50, 150, 255, 0.35); border-radius: 12px 12px 0 0; border-bottom: 1px solid rgba(50, 150, 255, 0.2);"
-    >
-      <div class="map-header-inner">
-        <span class="map-title">黄河上游流域地图</span>
+    <!-- 浮动标题 -->
+    <div class="map-header">
+      <span class="map-title">黄河上游流域地图</span>
+    </div>
+    <div ref="mapContainer" class="map-container"></div>
+
+    <!-- 图层控制 -->
+    <div class="layer-control">
+      <div
+        class="layer-control-header"
+        @click="layerControlOpen = !layerControlOpen"
+      >
+        <span class="text-xs font-medium text-tech-text">图层控制</span>
+        <span class="layer-toggle-icon" :class="{ rotated: layerControlOpen }">▶</span>
+      </div>
+      <div v-show="layerControlOpen" class="layer-control-body">
+        <div v-for="layer in layersData" :key="layer.id" class="flex items-center justify-between py-0.5">
+          <span class="text-xs text-tech-muted">{{ layer.name }}</span>
+          <input
+            type="checkbox"
+            :checked="activeLayers[layer.id]"
+            @change="toggleLayer(layer.id)"
+            class="layer-toggle"
+          />
+        </div>
       </div>
     </div>
-    <div class="map-body">
-      <div ref="mapContainer" class="map-container"></div>
 
-      <!-- 图层控制 -->
-      <div
-        class="layer-control"
-        style="background: rgba(6, 30, 70, 0.9); border: 1px solid rgba(50, 150, 255, 0.3); border-radius: 8px;"
-      >
-        <div
-          class="layer-control-header"
-          @click="layerControlOpen = !layerControlOpen"
-        >
-          <span class="text-xs font-medium text-tech-text">图层控制</span>
-          <span class="layer-toggle-icon" :class="{ rotated: layerControlOpen }">▶</span>
-        </div>
-        <div v-show="layerControlOpen" class="layer-control-body">
-          <div v-for="layer in layersData" :key="layer.id" class="flex items-center justify-between py-0.5">
-            <span class="text-xs text-tech-muted">{{ layer.name }}</span>
-            <input
-              type="checkbox"
-              :checked="activeLayers[layer.id]"
-              @change="toggleLayer(layer.id)"
-              class="layer-toggle"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- 工具栏 -->
-      <div
-        class="map-toolbar"
-        style="background: rgba(6, 30, 70, 0.9); border: 1px solid rgba(50, 150, 255, 0.3); border-radius: 8px;"
-      >
-        <button @click="handleReset" class="toolbar-btn">全域</button>
-        <button class="toolbar-btn">上游</button>
-        <button class="toolbar-btn">中游</button>
-        <button class="toolbar-btn">下游</button>
-        <span class="toolbar-divider"></span>
-        <button @click="handleZoomIn" class="toolbar-btn">缩放+</button>
-        <button @click="handleZoomOut" class="toolbar-btn">缩放-</button>
-      </div>
+    <!-- 工具栏 -->
+    <div class="map-toolbar">
+      <button @click="handleReset" class="toolbar-btn">全域</button>
+      <button class="toolbar-btn">上游</button>
+      <button class="toolbar-btn">中游</button>
+      <button class="toolbar-btn">下游</button>
+      <span class="toolbar-divider"></span>
+      <button @click="handleZoomIn" class="toolbar-btn">缩放+</button>
+      <button @click="handleZoomOut" class="toolbar-btn">缩放-</button>
     </div>
   </div>
 </template>
 
 <style scoped>
 .map-panel {
-  display: flex;
-  flex-direction: column;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  min-height: 0;
+  overflow: hidden;
 }
 
 .map-header {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  flex-shrink: 0;
-}
-
-.map-header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: rgba(6, 30, 70, 0.45);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(50, 150, 255, 0.15);
+  border-radius: 8px;
+  padding: 6px 14px;
 }
 
 .map-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #e0e6ed;
   letter-spacing: 0.5px;
-}
-
-.map-body {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  border-left: 1px solid rgba(50, 150, 255, 0.35);
-  border-right: 1px solid rgba(50, 150, 255, 0.35);
-  border-bottom: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 0 0 12px 12px;
-  overflow: hidden;
 }
 
 .map-container {
@@ -348,6 +323,10 @@ onUnmounted(() => {
   z-index: 1000;
   padding: 12px;
   min-width: 100px;
+  background: rgba(6, 30, 70, 0.55);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(50, 150, 255, 0.15);
+  border-radius: 8px;
 }
 
 .layer-toggle {
@@ -392,6 +371,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
+  background: rgba(6, 30, 70, 0.55);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(50, 150, 255, 0.15);
+  border-radius: 8px;
 }
 
 .toolbar-btn {
