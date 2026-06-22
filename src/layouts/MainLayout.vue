@@ -9,8 +9,8 @@ const appStore = useAppStore()
 
 const navItems = [
   { name: '首页', path: '/home', key: 'home' },
-  { name: '水调水情', path: '/water-condition', key: 'water-condition' },
   { name: '基础数据', path: '/basic-data', key: 'basic-data' },
+  { name: '水调水情', path: '/water-condition', key: 'water-condition' },
   { name: '模型配置', path: '/model-config', key: 'model-config' },
   { name: '过程透明', path: '/process-transparent', key: 'process-transparent' },
   { name: '评价决策', path: '/evaluation-decision', key: 'evaluation-decision' },
