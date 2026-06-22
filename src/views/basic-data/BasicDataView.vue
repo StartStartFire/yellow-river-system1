@@ -50,8 +50,8 @@ watch(selectedId, () => {
 })
 
 const tabList = [
-  { key: 'baseinfo', label: '基础信息' },
   { key: 'section', label: '水库断面' },
+  { key: 'baseinfo', label: '基础信息' },
   { key: 'process', label: '水情过程' },
   { key: 'engineering', label: '工情信息' },
 ]
