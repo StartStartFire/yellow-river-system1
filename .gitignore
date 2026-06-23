@@ -3,6 +3,7 @@ node_modules/
 .pnp
 .pnp.js
 
+public/static/river_network.pmtiles
 # Build output
 dist/
 dist-ssr/
