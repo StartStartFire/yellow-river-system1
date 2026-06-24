@@ -611,7 +611,7 @@ function getCoverGradient(type: string): string {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 8px 14px;
   background: rgba(6, 30, 70, 0.45);
   border: 1px solid rgba(50, 150, 255, 0.10);
   backdrop-filter: blur(14px);
@@ -622,7 +622,7 @@ function getCoverGradient(type: string): string {
 .filter-items {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -662,7 +662,6 @@ function getCoverGradient(type: string): string {
 
 .btn-primary:hover {
   background: linear-gradient(135deg, #00d4ff 0%, #00e5ff 100%);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 }
 
 .btn-secondary {

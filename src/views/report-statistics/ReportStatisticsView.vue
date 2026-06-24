@@ -429,10 +429,6 @@ const getAssessmentColor = (result: string) => {
         </div>
       </template>
 
-      <!-- 底部说明 -->
-      <div class="report-footer">
-        <p>注：以上数据为初步统计结果，最终数据以水利部门审核为准。</p>
-      </div>
     </div>
   </div>
 </template>
@@ -530,7 +526,6 @@ const getAssessmentColor = (result: string) => {
 
 .btn-primary:hover {
   background: linear-gradient(135deg, #00d4ff 0%, #00e5ff 100%);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 }
 
 .btn-secondary {
@@ -569,7 +564,6 @@ const getAssessmentColor = (result: string) => {
 
 .btn-export:hover {
   background: linear-gradient(135deg, #00d48a 0%, #00f0a0 100%);
-  box-shadow: 0 0 20px rgba(0, 212, 138, 0.4);
 }
 
 /* 报表内容区 */
@@ -647,9 +641,9 @@ const getAssessmentColor = (result: string) => {
 }
 
 .report-table thead th {
-  background: rgba(0, 175, 255, 0.08);
-  color: #00d4ff;
-  font-weight: 600;
+  background: rgba(10, 25, 41, 0.6);
+  color: #c0c8d4;
+  font-weight: 500;
   font-size: 11px;
 }
 
@@ -694,18 +688,6 @@ const getAssessmentColor = (result: string) => {
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
-}
-
-/* 底部说明 */
-.report-footer {
-  padding: 12px 16px;
-  text-align: center;
-}
-
-.report-footer p {
-  margin: 0;
-  font-size: 11px;
-  color: #5a6f83;
 }
 
 /* Element Plus 深色主题覆盖 */
