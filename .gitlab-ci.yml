@@ -1,0 +1,89 @@
+variables:
+  GIT_LFS_SKIP_SMUDGE: "0"
+
+stages:
+  - check
+  - package
+  - deploy
+  - stop
+
+audit:
+  stage: check
+  image: docker.io/node:20-slim
+  before_script:
+    - npm ci --registry=https://mirrors.prod.eslab.org.cn/npm
+  script:
+    - echo ${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}
+    - npm run build
+
+build:testing:
+  stage: package
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  script:
+    - echo "{\"auths\":{\"$CICD_REGISTRY_URL\":{\"auth\":\"$(echo -n ${CICD_REGISTRY_USERNAME}:${CICD_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context="${CI_PROJECT_DIR}"
+      --destination="$CICD_REGISTRY_TESTING_TAG/$CI_PROJECT_PATH_SLUG:$CI_COMMIT_SHA"
+      --registry-mirror="$CICD_REGISTRY_MIRRORS_TAG/docker.io"
+      --skip-default-registry-fallback
+      --cache=true
+
+build:release:
+  stage: package
+  rules:
+    - if: $CI_COMMIT_TAG
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  script:
+    - echo "{\"auths\":{\"$CICD_REGISTRY_URL\":{\"auth\":\"$(echo -n ${CICD_REGISTRY_USERNAME}:${CICD_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context="${CI_PROJECT_DIR}"
+      --destination="$CICD_REGISTRY_RELEASE_TAG/$CI_PROJECT_PATH_SLUG:$CI_COMMIT_TAG"
+      --registry-mirror="$CICD_REGISTRY_MIRRORS_TAG/docker.io"
+      --skip-default-registry-fallback
+      --cache=true
+
+deploy:test:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  variables:
+    KUBE_CONTEXT: eslab/operation/manifests:testing
+  environment:
+    name: test
+    on_stop: stop:test
+  image:
+    name: docker.io/alpine/k8s:1.30.4
+    entrypoint: ['']
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context "$KUBE_CONTEXT"
+    - echo ${CICD_REGISTRY_PASSWORD} | helm registry login registry.prod.eslab.org.cn --username ${CICD_REGISTRY_USERNAME} --password-stdin
+    - helm upgrade --install $CI_PROJECT_PATH_SLUG oci://registry.prod.eslab.org.cn/charts/nextjs
+      --values test.values.yaml
+      --namespace testing
+      --set image.repository=$CICD_REGISTRY_TESTING_TAG/$CI_PROJECT_PATH_SLUG
+      --set image.tag=$CI_COMMIT_SHA
+
+stop:test:
+  stage: stop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  variables:
+    KUBE_CONTEXT: eslab/operation/manifests:testing
+  environment:
+    name: test
+    action: stop
+  image:
+    name: docker.io/alpine/k8s:1.30.4
+    entrypoint: ['']
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context "$KUBE_CONTEXT"
+    - helm list --namespace testing -q | grep -x $CI_PROJECT_PATH_SLUG && helm uninstall $CI_PROJECT_PATH_SLUG --namespace testing || echo "Release not found, skipping"
+  when: manual

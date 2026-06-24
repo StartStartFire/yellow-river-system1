@@ -1,0 +1,29 @@
+environments:
+  # Add env vars your Vue app reads via import.meta.env
+  VITE_API_BASE: ""
+
+ingress:
+  enabled: true
+  className: 'traefik'
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  hosts:
+    - yellow-river.test.eslab.org.cn
+  tlsHosts:
+    - yellow-river.test.eslab.org.cn
+  existingSecret: yellow-river.test.eslab.org.cn-tls
+
+resources:
+  limits:
+    cpu: 0.5
+    memory: 512Mi
+  requests:
+    cpu: 0.1
+    memory: 64Mi
+
+networkPolicy:
+  egress:
+    enabled: false
+
+migrations:
+  enabled: false
