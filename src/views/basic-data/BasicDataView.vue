@@ -3,14 +3,12 @@ import { ref, computed, watch } from 'vue'
 import ReservoirSidebar from '@/components/basic-data/ReservoirSidebar.vue'
 import SectionChart from '@/components/chart/ReservoirSectionGraph.vue'
 import BaseInfoPanel from '@/components/basic-data/BaseInfoPanel.vue'
-import ProcessChart from '@/components/basic-data/ProcessChart.vue'
 import EngineeringInfo from '@/components/basic-data/EngineeringInfo.vue'
 import KeyCurvesPanel from '@/components/basic-data/KeyCurvesPanel.vue'
 
 import {
   getSection,
   getBaseInfo,
-  getProcessData,
   getEngineeringInfo,
   getKeyCurves,
 } from '@/mock/basicData'
@@ -20,18 +18,6 @@ const sidebarCollapsed = ref(false)
 
 const section = computed(() => getSection(selectedId.value).data)
 const baseInfoGroups = computed(() => getBaseInfo(selectedId.value).data)
-
-const processData = computed(() => {
-  const data = getProcessData(selectedId.value).data
-  return {
-    xAxis: data.dates,
-    series: [
-      { name: '水位', data: data.levels },
-      { name: '入库流量', data: data.inflows },
-      { name: '出库流量', data: data.outflows },
-    ],
-  }
-})
 
 const engineeringInfo = computed(() => getEngineeringInfo(selectedId.value).data)
 const keyCurves = computed(() => getKeyCurves(selectedId.value).data)
@@ -45,7 +31,6 @@ watch(selectedId, () => {
 const tabList = [
   { key: 'section', label: '水库断面' },
   { key: 'baseinfo', label: '基础信息' },
-  { key: 'process', label: '水情过程' },
   { key: 'engineering', label: '工情信息' },
   { key: 'keycurves', label: '关键曲线' },
 ]
@@ -90,13 +75,6 @@ const handleToggleSidebar = () => {
           <SectionChart :section="section" />
         </div>
 
-        <div v-if="activeTab === 'process'" class="tab-page">
-          <ProcessChart
-            :x-axis="processData.xAxis"
-            :series="processData.series"
-          />
-        </div>
-
         <div v-if="activeTab === 'keycurves'" class="tab-page">
           <KeyCurvesPanel :curves="keyCurves" />
         </div>
@@ -127,7 +105,7 @@ const handleToggleSidebar = () => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 12px;
+  gap: 6px;
 }
 
 .tabs-bar {

@@ -31,19 +31,45 @@ const selectedAlgorithmId = ref(store.modelAlgorithm.selectedAlgorithm)
 
 // 参数值 - 以 id 为 key 存储当前值
 const paramValues = ref<Record<string, number>>({...store.modelAlgorithm.parameters})
-// 如果 Store 参数为空才用 mock 默认值初始化
-if (Object.keys(paramValues.value).length === 0) {
-  paramDefs.forEach(p => {
+// 初始化所有参数默认值
+paramDefs.forEach(p => {
+  if (!(p.id in paramValues.value)) {
     paramValues.value[p.id] = p.value
-  })
-} else {
-  // 确保所有参数定义都有值
-  paramDefs.forEach(p => {
-    if (!(p.id in paramValues.value)) {
-      paramValues.value[p.id] = p.value
+  }
+})
+
+// 当前算法对应的可见参数列表
+const visibleParams = computed(() => {
+  if (!currentAlgorithm.value) return paramDefs
+  return paramDefs.filter(p => currentAlgorithm.value!.paramIds.includes(p.id))
+})
+
+// 当前选中的参数 ID（左侧列表选中项）
+const selectedParamId = ref<string>('')
+
+// 当前选中的参数详情
+const currentParam = computed(() => {
+  return paramDefs.find(p => p.id === selectedParamId.value) || null
+})
+
+// 监听算法切换，更新参数值，并自动选中第一个参数
+watch(selectedAlgorithmId, (newAlgoId) => {
+  const algo = allAlgorithms.find(a => a.id === newAlgoId)
+  if (!algo) return
+  // 保留当前算法支持的参数值，移除不支持的参数，添加新参数默认值
+  const newValues: Record<string, number> = {}
+  algo.paramIds.forEach(pid => {
+    const def = paramDefs.find(p => p.id === pid)
+    if (def) {
+      newValues[pid] = pid in paramValues.value ? paramValues.value[pid] : def.value
     }
   })
-}
+  paramValues.value = newValues
+  // 自动选中第一个参数
+  if (algo.paramIds.length > 0) {
+    selectedParamId.value = algo.paramIds[0]
+  }
+})
 
 // 弹窗状态
 const saveDialogVisible = ref(false)
@@ -78,10 +104,8 @@ const currentAlgorithm = computed(() => {
 })
 
 // ==================== 模型/算法切换 ====================
-
-// 监听模型切换，自动更新算法
 watch(selectedModelId, (newModelId) => {
-  const model = models.find(m => m.id === newModelId)
+  const model = allModels.find(m => m.id === newModelId)
   if (model && !model.supportedAlgorithms.includes(selectedAlgorithmId.value)) {
     // 当前算法不被新模型支持，切换到第一个可用算法
     if (model.supportedAlgorithms.length > 0) {
@@ -106,8 +130,23 @@ const handleParamInput = (paramId: string, rawValue: string | number, param: Alg
   paramValues.value[paramId] = clamped
 }
 
+// 恢复当前参数为默认值
+const handleResetDefault = () => {
+  if (!currentParam.value) return
+  const def = paramDefs.find(p => p.id === currentParam.value!.id)
+  if (def) {
+    paramValues.value[def.id] = def.value
+  }
+}
+
 // 获取参数定义
 const getParamDef = (id: string) => paramDefs.find(p => p.id === id)
+
+// 初始化选中第一个参数
+const algo = allAlgorithms.find(a => a.id === selectedAlgorithmId.value)
+if (algo && algo.paramIds.length > 0) {
+  selectedParamId.value = algo.paramIds[0]
+}
 
 // ==================== 步骤条点击 ====================
 const handleStepClick = (step: number) => {
@@ -239,7 +278,7 @@ const formatParamValue = (param: AlgorithmParameter) => {
         </div>
       </div>
 
-      <!-- 第二行：算法参数设置 -->
+      <!-- 第二行：算法参数设置（左列表 + 右详情） -->
       <div class="card params-card">
         <div class="card-header">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
@@ -248,55 +287,97 @@ const formatParamValue = (param: AlgorithmParameter) => {
             <path d="M5 6v6M11 4v2" stroke="currentColor" stroke-width="1.3"/>
           </svg>
           <span class="card-title">算法参数设置</span>
+          <span class="algo-name-tag" v-if="currentAlgorithm">{{ currentAlgorithm.name }}</span>
         </div>
-        <div class="card-body">
-          <div class="param-grid">
+        <div class="card-body params-body">
+          <!-- 左侧：参数列表 -->
+          <div class="param-list">
             <div
-              v-for="param in paramDefs"
+              v-for="param in visibleParams"
               :key="param.id"
-              class="param-card"
+              class="param-list-item"
+              :class="{ active: selectedParamId === param.id }"
+              @click="selectedParamId = param.id"
             >
-              <!-- 参数头部：名称 + 说明图标 -->
-              <div class="param-header">
-                <span class="param-name">{{ param.name }}</span>
-                <el-tooltip
-                  :content="param.description"
-                  placement="top"
-                  effect="dark"
-                  :show-after="300"
-                  popper-class="param-tooltip"
-                >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-info-icon">
-                    <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/>
-                    <path d="M8 5.5v4M8 5.5v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                  </svg>
-                </el-tooltip>
-              </div>
-
-              <!-- 滑块 -->
-              <div class="param-slider-row">
-                <span class="slider-min">{{ param.min }}</span>
-                <el-slider
-                  v-model="paramValues[param.id]"
-                  :min="param.min"
-                  :max="param.max"
-                  :step="param.step"
-                  size="small"
-                  class="dark-slider"
-                />
-                <span class="slider-max">{{ param.max }}</span>
-              </div>
-
-              <!-- 数值输入框 -->
-              <div class="param-value-row">
-                <el-input
-                  :model-value="formatParamValue(param)"
-                  size="small"
-                  class="dark-input param-input"
-                  @update:model-value="(val: string | number) => handleParamInput(param.id, val, param)"
-                />
-              </div>
+              <div class="param-list-name">{{ param.name }}</div>
+              <div class="param-list-value">{{ formatParamValue(param) }}</div>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="param-list-arrow">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </div>
+          </div>
+
+          <!-- 右侧：参数详情 -->
+          <div class="param-detail" v-if="currentParam">
+            <div class="detail-header">
+              <div class="detail-name">{{ currentParam.name }}</div>
+              <el-tooltip
+                :content="currentParam.description"
+                placement="top"
+                effect="dark"
+                :show-after="300"
+                popper-class="param-tooltip"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="detail-info-icon">
+                  <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M8 5.5v4M8 5.5v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </el-tooltip>
+            </div>
+
+            <!-- 数值输入 -->
+            <div class="detail-value-row">
+              <el-input
+                :model-value="formatParamValue(currentParam)"
+                size="small"
+                class="dark-input detail-input"
+                @update:model-value="(val: string | number) => handleParamInput(currentParam.id, val, currentParam)"
+              />
+            </div>
+
+            <!-- 滑块 -->
+            <div class="detail-slider-row">
+              <span class="slider-label">{{ currentParam.min }}</span>
+              <el-slider
+                v-model="paramValues[currentParam.id]"
+                :min="currentParam.min"
+                :max="currentParam.max"
+                :step="currentParam.step"
+                size="small"
+                class="dark-slider"
+              />
+              <span class="slider-label">{{ currentParam.max }}</span>
+            </div>
+
+            <!-- 范围提示 -->
+            <div class="detail-range">
+              取值范围：<span class="range-val">{{ currentParam.min }} ~ {{ currentParam.max }}</span>
+              <button class="reset-btn" @click="handleResetDefault" title="恢复为默认值">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 7a4 4 0 016.5-3.1M11 7a4 4 0 01-6.5 3.1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <path d="M9.5 2.5L12 4l-2.5 1.5M4.5 11.5L2 10l2.5-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                恢复默认值
+              </button>
+            </div>
+
+            <!-- 分隔线 -->
+            <div class="detail-divider"></div>
+
+            <!-- 参数说明 -->
+            <div class="detail-desc">
+              <div class="desc-label">参数说明</div>
+              <p class="desc-text">{{ currentParam.description }}</p>
+            </div>
+          </div>
+
+          <!-- 右侧空状态 -->
+          <div class="param-detail param-detail-empty" v-else>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="empty-icon">
+              <circle cx="24" cy="24" r="20" stroke="rgba(50,150,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <path d="M18 24l4 4 8-8" stroke="rgba(50,150,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="empty-text">请在左侧选择参数</span>
           </div>
         </div>
       </div>
@@ -420,6 +501,11 @@ const formatParamValue = (param: AlgorithmParameter) => {
   overflow: hidden;
 }
 
+/* 选择卡片需要可见溢出以支持下拉框交互 */
+.select-card {
+  overflow: visible;
+}
+
 .card-header {
   display: flex;
   align-items: center;
@@ -497,96 +583,248 @@ const formatParamValue = (param: AlgorithmParameter) => {
 }
 
 .params-card .card-body {
-  padding: 12px 16px;
+  padding: 0;
 }
 
-/* 参数网格 */
-.param-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  height: 100%;
+/* 算法名称标签（标题右侧） */
+.algo-name-tag {
+  margin-left: auto;
+  font-size: 11px;
+  color: #00d4ff;
+  background: rgba(0, 175, 255, 0.12);
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
-.param-card {
-  background: rgba(2, 27, 63, 0.6);
-  border: 1px solid rgba(50, 150, 255, 0.2);
-  border-radius: 10px;
-  padding: 14px;
+/* ===== 参数左右布局 ===== */
+.params-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* 左侧参数列表 */
+.param-list {
+  width: 200px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-right: 1px solid rgba(50, 150, 255, 0.1);
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  transition: border-color 0.25s;
+  gap: 4px;
 }
 
-.param-card:hover {
-  border-color: rgba(50, 150, 255, 0.45);
+.param-list::-webkit-scrollbar {
+  width: 3px;
+}
+.param-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.param-list::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.2);
+  border-radius: 2px;
 }
 
-/* 参数头部 */
-.param-header {
+.param-list-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
 }
 
-.param-name {
+.param-list-item:hover {
+  background: rgba(0, 175, 255, 0.06);
+  border-color: rgba(50, 150, 255, 0.15);
+}
+
+.param-list-item.active {
+  background: rgba(0, 175, 255, 0.1);
+  border-color: rgba(0, 175, 255, 0.3);
+}
+
+.param-list-name {
+  flex: 1;
+  font-size: 12px;
+  color: #c0c8d4;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.param-list-item.active .param-list-name {
+  color: #00d4ff;
+}
+
+.param-list-value {
+  font-size: 12px;
+  color: #7a8fa3;
+  font-weight: 500;
+  min-width: 32px;
+  text-align: right;
+}
+
+.param-list-item.active .param-list-value {
+  color: #e0e6ed;
+}
+
+.param-list-arrow {
+  color: rgba(50, 150, 255, 0.3);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.param-list-item.active .param-list-arrow {
+  opacity: 1;
+  color: #00d4ff;
+}
+
+/* 右侧参数详情 */
+.param-detail {
+  flex: 1;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.param-detail-empty {
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.empty-icon {
+  flex-shrink: 0;
+}
+
+.empty-text {
   font-size: 13px;
+  color: #5a6f83;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-name {
+  font-size: 18px;
   font-weight: 600;
   color: #e0e6ed;
 }
 
-.param-info-icon {
+.detail-info-icon {
   color: #5a6f83;
   cursor: pointer;
   transition: color 0.2s;
   flex-shrink: 0;
 }
 
-.param-info-icon:hover {
+.detail-info-icon:hover {
   color: #00d4ff;
 }
 
-/* 滑块行 */
-.param-slider-row {
+.detail-value-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.slider-min,
-.slider-max {
-  font-size: 10px;
-  color: #5a6f83;
-  flex-shrink: 0;
-  min-width: 28px;
-  text-align: center;
+.detail-input {
+  width: 160px;
 }
 
-.dark-slider {
-  flex: 1;
-}
-
-/* 数值框行 */
-.param-value-row {
-  display: flex;
-  justify-content: center;
-}
-
-.param-input {
-  width: 100px;
-}
-
-.param-input :deep(.el-input__wrapper) {
+.detail-input :deep(.el-input__wrapper) {
   background: rgba(2, 27, 63, 0.8) !important;
   box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
 }
 
-.param-input :deep(.el-input__inner) {
+.detail-input :deep(.el-input__inner) {
   color: #00d4ff !important;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   text-align: center;
+}
+
+.detail-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider-label {
+  font-size: 11px;
+  color: #5a6f83;
+  flex-shrink: 0;
+  min-width: 36px;
+  text-align: center;
+}
+
+.detail-range {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #5a6f83;
+}
+
+.range-val {
+  color: #7a8fa3;
+  font-weight: 500;
+}
+
+.reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px 10px;
+  background: rgba(50, 150, 255, 0.08);
+  border: 1px solid rgba(50, 150, 255, 0.2);
+  border-radius: 4px;
+  color: #7a8fa3;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: rgba(0, 175, 255, 0.15);
+  border-color: rgba(0, 175, 255, 0.4);
+  color: #00d4ff;
+}
+
+.detail-divider {
+  height: 1px;
+  background: rgba(50, 150, 255, 0.1);
+}
+
+.detail-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.desc-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7a8fa3;
+}
+
+.desc-text {
+  margin: 0;
+  font-size: 13px;
+  color: #c0c8d4;
+  line-height: 1.8;
 }
 
 /* ===== Element Plus 深色覆盖 ===== */

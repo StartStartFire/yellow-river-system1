@@ -467,6 +467,7 @@ export interface DispatchModel {
 export interface OptimizationAlgorithm {
   id: string
   name: string
+  paramIds: string[]
 }
 
 export interface AlgorithmParameter {
@@ -538,18 +539,22 @@ export const optimizationAlgorithms = {
     {
       id: 'nsga2',
       name: 'NSGA-II 多目标遗传算法',
+      paramIds: ['populationSize', 'iterationCount', 'crossoverRate', 'mutationRate', 'eliteRate', 'crowdingFactor'],
     },
     {
       id: 'pso',
       name: 'PSO 粒子群优化算法',
+      paramIds: ['populationSize', 'iterationCount', 'inertiaWeight', 'cognitiveFactor', 'socialFactor'],
     },
     {
       id: 'paem',
       name: 'PAEM 逐步逼近评价方法',
+      paramIds: ['iterationCount', 'convergenceThreshold', 'approximationStep'],
     },
     {
       id: 'nsga3',
       name: 'NSGA-III 多目标遗传算法',
+      paramIds: ['populationSize', 'iterationCount', 'crossoverRate', 'mutationRate', 'eliteRate', 'divisionNumber'],
     },
   ] as OptimizationAlgorithm[],
 }
@@ -612,6 +617,60 @@ export const algorithmParameters = {
       step: 0.1,
       description: '拥挤度因子用于控制解集分布的均匀性，数值越大越强调解集分散性，数值越小越强调局部收敛效果。',
     },
+    {
+      id: 'inertiaWeight',
+      name: '惯性权重 w',
+      value: 0.8,
+      min: 0.2,
+      max: 1.2,
+      step: 0.05,
+      description: '惯性权重控制粒子保持当前速度的程度，越大越利于全局搜索，越小越利于局部精细搜索。',
+    },
+    {
+      id: 'cognitiveFactor',
+      name: '个体学习因子 c₁',
+      value: 1.5,
+      min: 0.5,
+      max: 3.0,
+      step: 0.1,
+      description: '个体学习因子控制粒子向自身历史最优位置学习的程度，越大越强调个体经验。',
+    },
+    {
+      id: 'socialFactor',
+      name: '社会学习因子 c₂',
+      value: 1.5,
+      min: 0.5,
+      max: 3.0,
+      step: 0.1,
+      description: '社会学习因子控制粒子向群体全局最优位置学习的程度，越大越强调群体经验。',
+    },
+    {
+      id: 'convergenceThreshold',
+      name: '收敛阈值 ε',
+      value: 0.001,
+      min: 0.0001,
+      max: 0.01,
+      step: 0.0001,
+      description: '收敛阈值决定算法何时停止迭代，阈值越小精度越高但耗时越长，阈值越大收敛越快但精度降低。',
+    },
+    {
+      id: 'approximationStep',
+      name: '逼近步长 Δ',
+      value: 0.01,
+      min: 0.001,
+      max: 0.1,
+      step: 0.001,
+      description: '逼近步长控制每次迭代的逼近幅度，步长越小精度越高但收敛慢，步长越大收敛快但可能跳过最优解。',
+    },
+    {
+      id: 'divisionNumber',
+      name: '参考点划分数 H',
+      value: 10,
+      min: 4,
+      max: 30,
+      step: 1,
+      description: '参考点划分数决定目标空间切分粒度，划分越多解集分布越均匀，但计算量显著增大。',
+    },
   ] as AlgorithmParameter[],
 }
 
@@ -649,9 +708,9 @@ export const scenarioConstraintState = {
     params: {
       westRoute: 'all',
       sedimentFlow: '1800',
-      backboneStatus: 'normal',
       sedimentRequirement: 'min',
-      ecologicalFlow: 'plan',
+      ecologicalFlow: '200',
+      icePreventionFlow: '200',
     },
   } as ScenarioConstraintState,
 }
@@ -685,7 +744,6 @@ export const scenarioParams = {
         { label: '无', value: 'none' },
         { label: '上线', value: 'upper' },
         { label: '下线', value: 'lower' },
-        { label: '上下线同引', value: 'both' },
         { label: '全有', value: 'all' },
       ],
     },
@@ -698,17 +756,6 @@ export const scenarioParams = {
         { label: '1800 m³/s', value: '1800' },
         { label: '2000 m³/s', value: '2000' },
         { label: '自定义', value: 'custom' },
-      ],
-    },
-    {
-      id: 'backboneStatus',
-      name: '骨干工程运行状态',
-      value: 'normal',
-      options: [
-        { label: '正常运行', value: 'normal' },
-        { label: '限制运行', value: 'limited' },
-        { label: '检修停运', value: 'maintenance' },
-        { label: '应急运行', value: 'emergency' },
       ],
     },
     {
@@ -725,13 +772,26 @@ export const scenarioParams = {
     {
       id: 'ecologicalFlow',
       name: '下游生态流量',
-      value: 'plan',
+      value: '200',
       options: [
-        { label: '不考虑', value: 'none' },
-        { label: '按方案执行', value: 'plan' },
-        { label: '最低生态需水', value: 'minimum' },
-        { label: '强化生态保障', value: 'enhanced' },
-        { label: '自定义', value: 'custom' },
+        { label: '80 m³/s', value: '80' },
+        { label: '100 m³/s', value: '100' },
+        { label: '150 m³/s', value: '150' },
+        { label: '200 m³/s', value: '200' },
+        { label: '250 m³/s', value: '250' },
+        { label: '300 m³/s', value: '300' },
+      ],
+    },
+    {
+      id: 'icePreventionFlow',
+      name: '防凌流量',
+      value: '200',
+      options: [
+        { label: '100 m³/s', value: '100' },
+        { label: '150 m³/s', value: '150' },
+        { label: '200 m³/s', value: '200' },
+        { label: '250 m³/s', value: '250' },
+        { label: '300 m³/s', value: '300' },
       ],
     },
   ] as ScenarioParam[],

@@ -59,9 +59,9 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     params: {
       westRoute: 'all',
       sedimentFlow: '1800',
-      backboneStatus: 'normal',
       sedimentRequirement: 'min',
-      ecologicalFlow: 'plan',
+      ecologicalFlow: '200',
+      icePreventionFlow: '200',
     } as Record<string, string>,
   })
 
@@ -284,9 +284,9 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       params: {
         westRoute: 'all',
         sedimentFlow: '1800',
-        backboneStatus: 'normal',
         sedimentRequirement: 'min',
-        ecologicalFlow: 'plan',
+        ecologicalFlow: '200',
+        icePreventionFlow: '200',
       },
     }
     resetSteps()
