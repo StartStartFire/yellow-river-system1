@@ -28,6 +28,9 @@ Thumbs.db
 # Claude Code personal config
 .claude/
 
+# OpenCode internal files
+.omo/
+
 # Logs
 logs/
 *.log
