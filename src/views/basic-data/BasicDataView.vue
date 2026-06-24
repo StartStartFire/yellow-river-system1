@@ -5,27 +5,22 @@ import SectionChart from '@/components/chart/ReservoirSectionGraph.vue'
 import BaseInfoPanel from '@/components/basic-data/BaseInfoPanel.vue'
 import ProcessChart from '@/components/basic-data/ProcessChart.vue'
 import EngineeringInfo from '@/components/basic-data/EngineeringInfo.vue'
+import KeyCurvesPanel from '@/components/basic-data/KeyCurvesPanel.vue'
 
 import {
   getSection,
   getBaseInfo,
   getProcessData,
   getEngineeringInfo,
+  getKeyCurves,
 } from '@/mock/basicData'
 
-// 当前选中的水库（默认龙羊峡）
 const selectedId = ref('longyangxia')
-
-// 左侧列表折叠状态
 const sidebarCollapsed = ref(false)
 
-// 断面图数据
 const section = computed(() => getSection(selectedId.value).data)
-
-// 基础信息数据
 const baseInfoGroups = computed(() => getBaseInfo(selectedId.value).data)
 
-// 水情过程数据
 const processData = computed(() => {
   const data = getProcessData(selectedId.value).data
   return {
@@ -38,13 +33,11 @@ const processData = computed(() => {
   }
 })
 
-// 工情信息数据
 const engineeringInfo = computed(() => getEngineeringInfo(selectedId.value).data)
+const keyCurves = computed(() => getKeyCurves(selectedId.value).data)
 
-// 二级标签页
-const activeTab = ref('section') // section | baseinfo | process | engineering
+const activeTab = ref('section')
 
-// 切换水库时重置到断面标签
 watch(selectedId, () => {
   activeTab.value = 'section'
 })
@@ -54,6 +47,7 @@ const tabList = [
   { key: 'baseinfo', label: '基础信息' },
   { key: 'process', label: '水情过程' },
   { key: 'engineering', label: '工情信息' },
+  { key: 'keycurves', label: '关键曲线' },
 ]
 
 const handleSelectReservoir = (id: string) => {
@@ -67,7 +61,6 @@ const handleToggleSidebar = () => {
 
 <template>
   <div class="basic-data-view">
-    <!-- 左侧水库列表 -->
     <ReservoirSidebar
       :selected-id="selectedId"
       :collapsed="sidebarCollapsed"
@@ -75,9 +68,7 @@ const handleToggleSidebar = () => {
       @toggle="handleToggleSidebar"
     />
 
-    <!-- 右侧详情区 -->
     <div class="detail-panel">
-      <!-- 二级标签页 -->
       <div class="tabs-bar">
         <button
           v-for="tab in tabList"
@@ -90,19 +81,15 @@ const handleToggleSidebar = () => {
         </button>
       </div>
 
-      <!-- 标签页内容 -->
       <div class="tab-content">
-        <!-- 基础信息 -->
         <div v-if="activeTab === 'baseinfo'" class="tab-page">
           <BaseInfoPanel :groups="baseInfoGroups" />
         </div>
 
-        <!-- 水库断面 -->
         <div v-if="activeTab === 'section'" class="tab-page">
           <SectionChart :section="section" />
         </div>
 
-        <!-- 水情过程 -->
         <div v-if="activeTab === 'process'" class="tab-page">
           <ProcessChart
             :x-axis="processData.xAxis"
@@ -110,7 +97,10 @@ const handleToggleSidebar = () => {
           />
         </div>
 
-        <!-- 工情信息 -->
+        <div v-if="activeTab === 'keycurves'" class="tab-page">
+          <KeyCurvesPanel :curves="keyCurves" />
+        </div>
+
         <div v-if="activeTab === 'engineering'" class="tab-page">
           <EngineeringInfo
             :summary="engineeringInfo.summary"

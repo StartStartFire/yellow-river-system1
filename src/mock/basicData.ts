@@ -247,21 +247,13 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
     {
-      title: '特征水位',
-      items: [
-        { key: '正常蓄水位', value: '2480.00 m' },
-        { key: '汛限水位', value: '2470.00 m' },
-        { key: '死水位', value: '2410.00 m' },
-        { key: '设计洪水位（P=2%）', value: '2497.00 m' },
-        { key: '校核洪水位（P=0.2%）', value: '2505.00 m' },
-      ],
-    },
-    {
       title: '调度规则',
       items: [
-        { key: '调度目标', value: '发电为主，兼顾防洪、灌溉' },
-        { key: '汛期时段', value: '6月1日 — 10月31日' },
-        { key: '生态下泄流量', value: '≥ 80 m³/s' },
+        { key: '防洪调度', value: '当入库流量Q≥2000m³/s时，启用防洪调度；汛限水位2470m，超限加大泄量' },
+        { key: '发电调度', value: '当库水位≥2460m且电网需求≥800MW时，优先满发；水位＜2430m时减负荷运行' },
+        { key: '生态调度', value: '非汛期下泄流量≥80m³/s；鱼类产卵期（4-6月）维持日变幅≤15%' },
+        { key: '供水调度', value: '下游灌溉需水时，在保证生态基流前提下加大下泄；优先保障生活用水' },
+        { key: '凌汛调度', value: '11月下旬至次年3月，控制下泄流量平稳过渡，防止冰塞冰坝' },
       ],
     },
   ],
@@ -283,21 +275,13 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
     {
-      title: '特征水位',
-      items: [
-        { key: '正常蓄水位', value: '1738.00 m' },
-        { key: '汛限水位', value: '1735.00 m' },
-        { key: '死水位', value: '1685.00 m' },
-        { key: '设计洪水位（P=2%）', value: '1742.00 m' },
-        { key: '校核洪水位（P=0.2%）', value: '1750.00 m' },
-      ],
-    },
-    {
       title: '调度规则',
       items: [
-        { key: '调度目标', value: '发电、防洪、防凌综合调度' },
-        { key: '汛期时段', value: '6月1日 — 9月30日' },
-        { key: '生态下泄流量', value: '≥ 60 m³/s' },
+        { key: '防洪调度', value: '入库流量Q≥1500m³/s时启动预泄；汛限水位1735m，超限按调度令执行' },
+        { key: '发电调度', value: '来水偏丰年优先发电，水位≥1730m时满发；枯水年保电出力≥600MW' },
+        { key: '生态调度', value: '全年下泄≥60m³/s；5-6月鱼类繁殖期加大至100m³/s并控制日变幅' },
+        { key: '防凌调度', value: '12月至次年2月控制刘家峡至包头河段平稳封河，下泄流量波动≤5%' },
+        { key: '供水调度', value: '兰州市生活取水口上游维持水位≥1728m，保障城市供水安全' },
       ],
     },
   ],
@@ -319,21 +303,12 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
     {
-      title: '特征水位',
-      items: [
-        { key: '正常蓄水位', value: '1988.00 m' },
-        { key: '汛限水位', value: '1985.00 m' },
-        { key: '死水位', value: '1950.00 m' },
-        { key: '设计洪水位（P=2%）', value: '1997.00 m' },
-        { key: '校核洪水位（P=0.2%）', value: '2005.00 m' },
-      ],
-    },
-    {
       title: '调度规则',
       items: [
-        { key: '调度目标', value: '发电为主，兼顾防洪' },
-        { key: '汛期时段', value: '6月1日 — 9月30日' },
-        { key: '生态下泄流量', value: '≥ 50 m³/s' },
+        { key: '防洪调度', value: '入库Q≥1200m³/s时加大泄量预泄；汛限水位1985m，超限按防汛指令执行' },
+        { key: '发电调度', value: '水位≥1975m且电网需求≥500MW时满发；水位＜1960m时限负荷运行' },
+        { key: '生态调度', value: '非汛期下泄≥50m³/s；春季融冰期维持流量平稳，日变幅≤10%' },
+        { key: '联合调度', value: '服从龙羊峡、刘家峡水库统一调度指令，做好梯级衔接' },
       ],
     },
   ],
@@ -355,21 +330,12 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
     {
-      title: '特征水位',
-      items: [
-        { key: '正常蓄水位', value: '1858.00 m' },
-        { key: '汛限水位', value: '1855.00 m' },
-        { key: '死水位', value: '1820.00 m' },
-        { key: '设计洪水位（P=2%）', value: '1862.00 m' },
-        { key: '校核洪水位（P=0.2%）', value: '1870.00 m' },
-      ],
-    },
-    {
       title: '调度规则',
       items: [
-        { key: '调度目标', value: '发电为主，兼顾防洪、防凌' },
-        { key: '汛期时段', value: '6月1日 — 9月30日' },
-        { key: '生态下泄流量', value: '≥ 45 m³/s' },
+        { key: '防洪调度', value: '入库Q≥1000m³/s时启动防洪预案；汛限水位1855m，超限逐步加大泄量' },
+        { key: '发电调度', value: '水位≥1845m时优先发电；水位＜1830m时减机运行保库容' },
+        { key: '生态调度', value: '全年下泄≥45m³/s；关注下游河段生态敏感期用水需求' },
+        { key: '防凌调度', value: '冬季控制下泄平稳，配合上游水库防凌调度，防止冰情发展' },
       ],
     },
   ],
@@ -391,21 +357,12 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
     {
-      title: '特征水位',
-      items: [
-        { key: '正常蓄水位', value: '1157.00 m' },
-        { key: '汛限水位', value: '1155.00 m' },
-        { key: '死水位', value: '1130.00 m' },
-        { key: '设计洪水位（P=2%）', value: '1160.00 m' },
-        { key: '校核洪水位（P=0.2%）', value: '1168.00 m' },
-      ],
-    },
-    {
       title: '调度规则',
       items: [
-        { key: '调度目标', value: '灌溉为主，兼顾发电、防洪' },
-        { key: '汛期时段', value: '6月15日 — 9月15日' },
-        { key: '生态下泄流量', value: '≥ 35 m³/s' },
+        { key: '防洪调度', value: '入库Q≥2500m³/s时启用泄洪闸；汛限水位1155m，超限敞泄' },
+        { key: '灌溉调度', value: '灌溉期（4-10月）优先保障下游灌区引水，引水量按灌溉计划执行' },
+        { key: '发电调度', value: '利用灌溉尾水发电，来水不足时按灌溉优先、发电次之原则安排' },
+        { key: '生态调度', value: '非灌溉期下泄≥35m³/s；宁蒙河段生态用水由上游水库统一调配' },
       ],
     },
   ],
@@ -525,5 +482,93 @@ export function getEngineeringInfo(reservoirId: string): ApiResponse<{ summary: 
     code: 200,
     message: 'success',
     data: engineeringMap[reservoirId] || engineeringMap.longyangxia,
+  }
+}
+
+// 关键曲线数据
+export interface KeyCurvesData {
+  storageCurve: { levels: number[]; storage: number[] }
+  turbineCurve: { head: number[]; power: number[] }
+  gateCurve: { opening: number[]; flow: number[] }
+}
+
+const keyCurvesMap: Record<string, KeyCurvesData> = {
+  longyangxia: {
+    storageCurve: {
+      levels: [2410, 2420, 2430, 2440, 2450, 2460, 2470, 2480, 2490, 2500],
+      storage: [50.2, 68.5, 92.3, 121.8, 156.2, 195.8, 241.5, 293.2, 351.6, 416.8],
+    },
+    turbineCurve: {
+      head: [100, 120, 140, 160, 180, 200, 220, 240, 260, 280],
+      power: [180, 225, 275, 328, 382, 435, 488, 540, 590, 635],
+    },
+    gateCurve: {
+      opening: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      flow: [0, 85, 180, 290, 415, 555, 710, 880, 1065, 1265, 1480],
+    },
+  },
+  liujiaxia: {
+    storageCurve: {
+      levels: [1685, 1695, 1705, 1715, 1725, 1730, 1735, 1738, 1742, 1750],
+      storage: [5.8, 12.5, 21.8, 33.2, 46.5, 53.8, 61.5, 66.2, 73.5, 88.6],
+    },
+    turbineCurve: {
+      head: [60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
+      power: [95, 115, 138, 162, 188, 215, 242, 268, 292, 312],
+    },
+    gateCurve: {
+      opening: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      flow: [0, 72, 155, 250, 358, 478, 612, 760, 922, 1098, 1288],
+    },
+  },
+  gongboxia: {
+    storageCurve: {
+      levels: [1950, 1960, 1970, 1975, 1980, 1985, 1988, 1992, 1997, 2005],
+      storage: [2.1, 4.8, 8.5, 10.8, 13.5, 16.5, 18.6, 21.8, 26.2, 34.5],
+    },
+    turbineCurve: {
+      head: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140],
+      power: [82, 102, 124, 148, 172, 198, 224, 250, 274, 295],
+    },
+    gateCurve: {
+      opening: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      flow: [0, 68, 148, 240, 345, 462, 595, 742, 905, 1082, 1275],
+    },
+  },
+  jishixia: {
+    storageCurve: {
+      levels: [1820, 1830, 1840, 1845, 1850, 1855, 1858, 1862, 1870, 1878],
+      storage: [1.8, 4.2, 7.8, 9.8, 12.2, 15.0, 16.8, 19.5, 24.2, 30.5],
+    },
+    turbineCurve: {
+      head: [55, 65, 75, 85, 95, 105, 115, 125, 135, 145],
+      power: [88, 108, 132, 158, 185, 212, 240, 268, 294, 318],
+    },
+    gateCurve: {
+      opening: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      flow: [0, 65, 142, 232, 335, 452, 582, 728, 890, 1068, 1260],
+    },
+  },
+  qingtongxia: {
+    storageCurve: {
+      levels: [1130, 1135, 1140, 1145, 1150, 1155, 1157, 1160, 1168, 1175],
+      storage: [0.08, 0.12, 0.17, 0.22, 0.28, 0.33, 0.36, 0.40, 0.52, 0.65],
+    },
+    turbineCurve: {
+      head: [20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
+      power: [32, 42, 54, 68, 82, 98, 115, 132, 148, 162],
+    },
+    gateCurve: {
+      opening: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      flow: [0, 58, 128, 212, 308, 418, 542, 680, 832, 998, 1180],
+    },
+  },
+}
+
+export function getKeyCurves(reservoirId: string): ApiResponse<KeyCurvesData> {
+  return {
+    code: 200,
+    message: 'success',
+    data: keyCurvesMap[reservoirId] || keyCurvesMap.longyangxia,
   }
 }

@@ -13,13 +13,13 @@
 | 2    | 路由配置   | 已完成          | 8 个路由：home, basic-data, water-condition, model-config, process-transparent, evaluation-decision, case-library, report-statistics |
 | 3    | 顶部导航栏 | 已完成          | 深色科技风，蓝青色高亮，支持路由跳转 |
 | 4    | 首页       | 已完成          | 地图全屏背景 + 水库点位 + 左右浮层面板（可收起/展开）+ 水情监控 + 发电统计 + 水位/负荷过程线 + 预警信息 |
-| 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息 + 水情过程图表 + 工情信息 |
+| 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息（工程属性+调度规则）+ 水情过程图表 + 工情信息 + 关键曲线（库容/机组出力/泄洪闸过流） |
 | 6    | 水调水情   | 未开始          | 骨架页面 |
-| 7    | 模型配置   | Step 1~5 已完成 | 5 步流程完整闭环，支持步骤间数据联动（水库组合→模型筛选、时间步长→算法参数、调度目标→场景参数关联）。水库组合精简为龙刘/龙刘黑 2 项，调度目标新增输沙/多能互补。 |
-| 8    | 过程透明   | 已完成          | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区。2026-06-15 按 05-process.md 重写中部图表区：左40%优化过程分析 + 右60%水库运行响应（Tab切换龙羊峡/刘家峡）|
-| 9    | 评价决策   | 已完成          | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析（目标满足情况+过程曲线+水量使用流向图）|
-| 10   | 案例库     | 已完成          | 全功能完成，含筛选区+案例列表+详情页签+关键指标+过程曲线+评价结论+底部操作 |
-| 11   | 报表统计   | 已完成          | 全功能完成，含逐月/逐年报表切换、多级表头、5水库完整数据、筛选联动 |
+| 7    | 模型配置   | Step 1~5 已完成 | 5 步流程完整闭环，支持步骤间数据联动 |
+| 8    | 过程透明   | 已完成          | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区 |
+| 9    | 评价决策   | 已完成          | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析 |
+| 10   | 案例库     | 已完成          | 7个案例（7种唯一图标）+ 筛选 + 详情页签 + 关键指标 + 过程预览 + 评价结论 |
+| 11   | 报表统计   | 已完成          | 逐月/逐年报表切换、多级表头、5水库完整数据、考核结果状态标签 |
 
 ### 已完成模块详细说明
 
@@ -513,24 +513,27 @@ npm run dev
 ```text
 src/stores/modelConfig.ts                                           -- 模型配置 Pinia Store（步骤间联动核心）
 src/mock/modelConfig.ts                                             -- 模型配置 mock 数据（含联动映射表）
-src/mock/basicData.ts                                               -- 基础数据 mock（含 5 个水库全量数据）
+src/mock/basicData.ts                                               -- 基础数据 mock（含 5 个水库全量数据+关键曲线）
+src/mock/caseLibrary.ts                                             -- 案例库 mock 数据（7个案例+7种图标）
+src/mock/reportStatistics.ts                                        -- 报表统计 mock 数据（5水库+逐月/逐年）
 src/views/model-config/model-data/ModelDataView.vue                 -- 模型配置 Step 1
-src/views/model-config/basic-config/BasicConfigView.vue             -- 模型配置 Step 2（联动模型筛选/参数建议）
-src/views/model-config/model-algorithm/ModelAlgorithmView.vue       -- 模型配置 Step 3（受水库组合过滤）
-src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型配置 Step 4（关联参数高亮）
-src/views/model-config/config-summary/ConfigSummaryView.vue         -- 模型配置 Step 5（含当前配置方案同步）
+src/views/model-config/basic-config/BasicConfigView.vue             -- 模型配置 Step 2
+src/views/model-config/model-algorithm/ModelAlgorithmView.vue       -- 模型配置 Step 3
+src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型配置 Step 4
+src/views/model-config/config-summary/ConfigSummaryView.vue         -- 模型配置 Step 5
 src/components/model-config/ModelConfigFooter.vue                   -- 模型配置底部公用操作栏
 src/components/model-config/ModelConfigStepBar.vue                  -- 模型配置步骤条组件
-src/components/common/PanelCard.vue                      -- 通用半透明玻璃卡片组件
-src/components/home/BasinMapPanel.vue                     -- 首页地图组件
-src/components/home/ReservoirMonitorPanel.vue             -- 首页水情监控卡片
-src/components/basic-data/BaseInfoPanel.vue                         -- 基础信息卡片组件
+src/components/common/PanelCard.vue                                 -- 通用半透明玻璃卡片组件
+src/components/home/BasinMapPanel.vue                               -- 首页地图组件
+src/components/home/ReservoirMonitorPanel.vue                       -- 首页水情监控卡片
+src/components/basic-data/BaseInfoPanel.vue                         -- 基础信息卡片组件（工程属性+调度规则）
+src/components/basic-data/KeyCurvesPanel.vue                        -- 关键曲线组件（库容/出力/过流）
 src/views/basic-data/BasicDataView.vue                              -- 基础数据页面
-src/styles/index.css                                                -- 全局样式（:root:root CSS 变量覆盖）
-docs/page-design/04-model-config/README.md                          -- 模型配置模块总设计文档（含联动说明）
-docs/development/AI-WORKLOG.md                                      -- 本文件
-src/mock/caseLibrary.ts                                             -- 案例库 mock 数据
 src/views/case-library/CaseLibraryView.vue                          -- 案例库页面
+src/views/report-statistics/ReportStatisticsView.vue                -- 报表统计页面
+src/styles/index.css                                                -- 全局样式（:root:root CSS 变量覆盖）
+docs/page-design/04-model-config/README.md                          -- 模型配置模块总设计文档
+docs/development/AI-WORKLOG.md                                      -- 本文件
 ```
 
 ---
@@ -685,4 +688,78 @@ src/views/case-library/CaseLibraryView.vue                          -- 案例库
   src/mock/reportStatistics.ts                    — 新建 mock 数据文件
   src/views/report-statistics/ReportStatisticsView.vue  — 全功能重写
   docs/development/AI-WORKLOG.md                   — 本记录
+```
+
+---
+
+### 开发时间
+
+```text
+2026-06-24（第二十一次）
+```
+
+### 本次完成内容
+
+```text
+1. 案例库页面优化：
+
+   1.1 案例标签统一修正：
+   - 第2个案例 tag: '连枯' → '保供水'
+   - 第3个案例 tag: '防洪调度' → '实时'
+   - 第6个案例 tag: '兴利' → '兴利调度'
+
+   1.2 新增第7个案例（连枯类型）：
+   - id: 'case-2023-drought-001'
+   - tag: '连枯'
+   - iconType: 'drought'（温度计图标）
+
+   1.3 案例图标唯一化（7种不同图标）：
+   - benefit: 闪电图标（连丰）
+   - supply: 水滴图标（保供水）
+   - realtime: 时钟图标（实时）
+   - hybrid: 太阳图标（多能互补）
+   - flood: 云雨图标（防洪调度）
+   - eco: 树叶图标（兴利调度）
+   - drought: 温度计图标（连枯）
+
+   1.4 新增图标类型：
+   - CaseLibraryView.vue 新增 realtime（时钟）和 drought（温度计）图标
+
+2. 报表统计页面开发：
+
+   2.1 创建 mock 数据文件（src/mock/reportStatistics.ts）：
+   - 5个水库完整数据（龙羊峡、刘家峡、青铜峡、玛尔挡、拉西瓦）
+   - 逐月报表：水库调度运行情况、经济指标、发电考核
+   - 逐年报表：年度汇总统计
+
+   2.2 页面功能：
+   - 顶部筛选区（报表类型/年份/月份/水库/查询/重置/导出）
+   - 逐月报表三个表块（三级表头、多级表头）
+   - 逐年报表年度汇总表
+   - 考核结果状态标签
+
+3. 基础数据页面优化：
+
+   3.1 新增「关键曲线」tab（位于工情信息右侧）：
+   - 创建 KeyCurvesPanel.vue 组件
+   - 3个ECharts图表：库容曲线/机组出力曲线/泄洪闸过流曲线
+   - 5个水库各有独立mock数据
+   - 图表样式优化：阴影发光、自定义Tooltip、渐变面积
+
+   3.2 基础信息页面重构：
+   - 删除「特征水位」卡片
+   - 重写「调度规则」内容（防洪/发电/生态/供水/凌汛调度规则）
+   - 调度规则改为基于判断条件的真实描述
+   - 布局改为2列（工程属性+调度规则）
+   - 卡片头部添加图标（建筑/清单图标）
+   - 移除所有渐变边框和hover效果
+
+修改文件：
+  src/mock/caseLibrary.ts                              — 新增连枯案例，7种图标类型
+  src/mock/basicData.ts                                — 重写调度规则，新增关键曲线数据
+  src/views/case-library/CaseLibraryView.vue           — 新增realtime/drought图标
+  src/views/basic-data/BasicDataView.vue               — 添加关键曲线tab
+  src/components/basic-data/KeyCurvesPanel.vue         — 新建关键曲线组件
+  src/components/basic-data/BaseInfoPanel.vue          — 重构基础信息布局
+  docs/development/AI-WORKLOG.md                       — 本记录
 ```
