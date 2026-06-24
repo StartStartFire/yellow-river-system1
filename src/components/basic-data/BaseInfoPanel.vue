@@ -1,139 +1,186 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { BaseInfoGroup } from '@/mock/basicData'
 
 interface Props {
   groups: BaseInfoGroup[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const engineeringItems = computed(() => {
+  const group = props.groups.find(g => g.title === '工程属性')
+  return group?.items ?? []
+})
+
+const ruleItems = computed(() => {
+  const group = props.groups.find(g => g.title === '调度规则')
+  return group?.items ?? []
+})
 </script>
 
 <template>
   <div class="base-info-panel">
-    <div v-for="group in groups" :key="group.title" class="info-card">
-      <div class="card-header">
-        <div class="header-icon" :class="group.title === '工程属性' ? 'icon-engineering' : 'icon-rule'">
-          <svg v-if="group.title === '工程属性'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3 class="card-title">{{ group.title }}</h3>
+    <!-- ====== 工程属性区 ====== -->
+    <section class="section">
+      <div class="section-header">
+        <h3 class="section-title">工程属性</h3>
       </div>
-      <div class="card-body">
-        <div v-for="(item, index) in group.items" :key="item.key" class="info-item" :class="{ 'item-highlight': index === 0 }">
-          <div class="item-label">{{ item.key }}</div>
-          <div class="item-value">{{ item.value }}</div>
+      <div class="engineering-grid">
+        <div
+          v-for="item in engineeringItems"
+          :key="item.key"
+          class="eng-card"
+        >
+          <div class="eng-label">{{ item.key }}</div>
+          <div class="eng-value">{{ item.value }}</div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- ====== 调度规则区 ====== -->
+    <section class="section">
+      <div class="section-header">
+        <h3 class="section-title">调度规则</h3>
+      </div>
+      <div class="rules-list">
+        <div
+          v-for="item in ruleItems"
+          :key="item.key"
+          class="rule-card"
+        >
+          <div class="rule-name">
+            <span class="rule-dot"></span>
+            {{ item.key }}
+          </div>
+          <div class="rule-desc">{{ item.value }}</div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
 .base-info-panel {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-.info-card {
+.base-info-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.base-info-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.base-info-panel::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* ====== 公共分区 ====== */
+.section {
   background: rgba(6, 30, 70, 0.5);
   border: 1px solid rgba(50, 150, 255, 0.12);
   backdrop-filter: blur(16px);
   border-radius: 14px;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
 }
 
-.card-header {
+.section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 16px 20px;
+  padding: 8px 16px;
   background: rgba(10, 25, 41, 0.4);
+  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
 }
 
-.header-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.icon-engineering {
-  background: rgba(0, 212, 255, 0.15);
-  color: #00d4ff;
-}
-
-.icon-rule {
-  background: rgba(0, 255, 136, 0.15);
-  color: #00ff88;
-}
-
-.card-title {
+.section-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: #e0e6ed;
+  letter-spacing: 1px;
 }
 
-.card-body {
-  padding: 16px 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-}
-
-.card-body::-webkit-scrollbar {
-  width: 4px;
-}
-
-.card-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.card-body::-webkit-scrollbar-thumb {
-  background: rgba(50, 150, 255, 0.2);
-  border-radius: 2px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
+/* ====== 工程属性 4 列简约布局 ====== */
+.engineering-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 4px;
-  padding: 12px;
+  padding: 10px 16px;
+}
+
+.eng-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 4px;
+}
+
+.eng-label {
+  font-size: 11px;
+  color: #5a7a9a;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.eng-value {
+  font-size: 13px;
+  color: #e0e6ed;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ====== 调度规则条目 ====== */
+.rules-list {
+  padding: 8px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rule-card {
   background: rgba(17, 37, 54, 0.4);
   border: 1px solid rgba(50, 150, 255, 0.06);
   border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s;
 }
 
-.item-highlight {
-  background: rgba(0, 212, 255, 0.08);
+.rule-card:hover {
+  border-color: rgba(0, 255, 136, 0.2);
 }
 
-.item-label {
+.rule-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
-  color: #00d4ff;
-  font-weight: 500;
+  font-weight: 600;
+  color: #00ff88;
 }
 
-.item-value {
+.rule-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00ff88;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.rule-desc {
   font-size: 12px;
   color: #c0c8d4;
   line-height: 1.6;
+  padding-left: 11px;
 }
 </style>

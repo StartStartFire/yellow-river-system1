@@ -127,7 +127,7 @@ const handleToggleSidebar = () => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 12px;
+  gap: 6px;
 }
 
 .tabs-bar {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick, computed } from 'vue'
 import * as echarts from 'echarts'
 import type { KeyCurvesData } from '@/mock/basicData'
 
@@ -7,13 +7,57 @@ const props = defineProps<{
   curves: KeyCurvesData
 }>()
 
-const storageChartRef = ref<HTMLElement>()
-const turbineChartRef = ref<HTMLElement>()
-const gateChartRef = ref<HTMLElement>()
+const chartRef = ref<HTMLElement>()
+let chartInstance: echarts.ECharts | null = null
 
-let storageChart: echarts.ECharts | null = null
-let turbineChart: echarts.ECharts | null = null
-let gateChart: echarts.ECharts | null = null
+const activeTab = ref('storage')
+
+const tabList = [
+  { key: 'storage', label: '库容曲线' },
+  { key: 'turbine', label: '机组出力曲线' },
+  { key: 'gate', label: '泄洪闸过流曲线' },
+]
+
+const currentCurve = computed(() => {
+  switch (activeTab.value) {
+    case 'storage':
+      return {
+        title: '库容曲线',
+        subtitle: '水位 — 库容关系',
+        xName: '水位 (m)',
+        yName: '库容 (亿m³)',
+        xData: props.curves.storageCurve.levels.map(v => v.toString()),
+        yData: props.curves.storageCurve.storage,
+        color: '#00d4ff',
+        gradientStart: 'rgba(0, 212, 255, 0.4)',
+        gradientEnd: 'rgba(0, 212, 255, 0.08)',
+      }
+    case 'turbine':
+      return {
+        title: '机组出力曲线',
+        subtitle: '水头 — 出力关系',
+        xName: '水头 (m)',
+        yName: '出力 (MW)',
+        xData: props.curves.turbineCurve.head.map(v => v.toString()),
+        yData: props.curves.turbineCurve.power,
+        color: '#00ff88',
+        gradientStart: 'rgba(0, 255, 136, 0.4)',
+        gradientEnd: 'rgba(0, 255, 136, 0.08)',
+      }
+    case 'gate':
+      return {
+        title: '泄洪闸过流曲线',
+        subtitle: '开度 — 流量关系',
+        xName: '开度 (%)',
+        yName: '流量 (m³/s)',
+        xData: props.curves.gateCurve.opening.map(v => v.toString()),
+        yData: props.curves.gateCurve.flow,
+        color: '#b37feb',
+        gradientStart: 'rgba(179, 127, 235, 0.4)',
+        gradientEnd: 'rgba(179, 127, 235, 0.08)',
+      }
+  }
+})
 
 const getChartOption = (config: {
   title: string
@@ -32,23 +76,23 @@ const getChartOption = (config: {
     subtext: config.subtitle,
     textStyle: {
       color: '#e0e6ed',
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: 600,
       fontFamily: 'Microsoft YaHei',
     },
     subtextStyle: {
       color: '#7a8fa3',
-      fontSize: 11,
-      lineHeight: 16,
+      fontSize: 12,
+      lineHeight: 18,
     },
-    left: 16,
-    top: 8,
+    left: 24,
+    top: 12,
   },
   grid: {
-    top: 65,
-    right: 24,
-    bottom: 40,
-    left: 60,
+    top: 80,
+    right: 32,
+    bottom: 50,
+    left: 72,
     containLabel: false,
   },
   tooltip: {
@@ -86,10 +130,10 @@ const getChartOption = (config: {
     type: 'category',
     name: config.xName,
     nameLocation: 'center',
-    nameGap: 25,
+    nameGap: 28,
     nameTextStyle: {
       color: '#7a8fa3',
-      fontSize: 11,
+      fontSize: 12,
       fontFamily: 'Microsoft YaHei',
     },
     data: config.xData,
@@ -101,7 +145,7 @@ const getChartOption = (config: {
     axisTick: { show: false },
     axisLabel: {
       color: '#7a8fa3',
-      fontSize: 10,
+      fontSize: 11,
       interval: Math.floor(config.xData.length / 6),
     },
     splitLine: { show: false },
@@ -110,17 +154,17 @@ const getChartOption = (config: {
     type: 'value',
     name: config.yName,
     nameLocation: 'center',
-    nameGap: 45,
+    nameGap: 50,
     nameTextStyle: {
       color: '#7a8fa3',
-      fontSize: 11,
+      fontSize: 12,
       fontFamily: 'Microsoft YaHei',
     },
     axisLine: { show: false },
     axisTick: { show: false },
     axisLabel: {
       color: '#7a8fa3',
-      fontSize: 10,
+      fontSize: 11,
     },
     splitLine: {
       lineStyle: {
@@ -169,87 +213,46 @@ const getChartOption = (config: {
   }],
 })
 
-const initCharts = async () => {
+const renderChart = async () => {
   await nextTick()
+  if (!chartRef.value) return
 
-  // 库容曲线
-  if (storageChartRef.value) {
-    if (storageChart) storageChart.dispose()
-    storageChart = echarts.init(storageChartRef.value)
-    storageChart.setOption(getChartOption({
-      title: '库容曲线',
-      subtitle: '水位 — 库容关系',
-      xName: '水位 (m)',
-      yName: '库容 (亿m³)',
-      xData: props.curves.storageCurve.levels.map(v => v.toString()),
-      yData: props.curves.storageCurve.storage,
-      color: '#00d4ff',
-      gradientStart: 'rgba(0, 212, 255, 0.4)',
-      gradientEnd: 'rgba(0, 212, 255, 0.08)',
-    }))
-  }
-
-  // 机组出力曲线
-  if (turbineChartRef.value) {
-    if (turbineChart) turbineChart.dispose()
-    turbineChart = echarts.init(turbineChartRef.value)
-    turbineChart.setOption(getChartOption({
-      title: '机组出力曲线',
-      subtitle: '水头 — 出力关系',
-      xName: '水头 (m)',
-      yName: '出力 (MW)',
-      xData: props.curves.turbineCurve.head.map(v => v.toString()),
-      yData: props.curves.turbineCurve.power,
-      color: '#00ff88',
-      gradientStart: 'rgba(0, 255, 136, 0.4)',
-      gradientEnd: 'rgba(0, 255, 136, 0.08)',
-    }))
-  }
-
-  // 泄洪闸过流曲线
-  if (gateChartRef.value) {
-    if (gateChart) gateChart.dispose()
-    gateChart = echarts.init(gateChartRef.value)
-    gateChart.setOption(getChartOption({
-      title: '泄洪闸过流曲线',
-      subtitle: '开度 — 流量关系',
-      xName: '开度 (%)',
-      yName: '流量 (m³/s)',
-      xData: props.curves.gateCurve.opening.map(v => v.toString()),
-      yData: props.curves.gateCurve.flow,
-      color: '#b37feb',
-      gradientStart: 'rgba(179, 127, 235, 0.4)',
-      gradientEnd: 'rgba(179, 127, 235, 0.08)',
-    }))
-  }
+  if (chartInstance) chartInstance.dispose()
+  chartInstance = echarts.init(chartRef.value)
+  chartInstance.setOption(getChartOption(currentCurve.value))
 }
 
 watch(() => props.curves, () => {
-  initCharts()
+  renderChart()
 }, { deep: true })
 
+watch(activeTab, () => {
+  renderChart()
+})
+
 onMounted(() => {
-  initCharts()
+  renderChart()
   window.addEventListener('resize', () => {
-    storageChart?.resize()
-    turbineChart?.resize()
-    gateChart?.resize()
+    chartInstance?.resize()
   })
 })
 </script>
 
 <template>
   <div class="key-curves-panel">
-    <div class="curves-grid">
-      <div class="curve-card">
-        <div ref="storageChartRef" class="chart-container"></div>
-      </div>
-      <div class="curve-card">
-        <div ref="turbineChartRef" class="chart-container"></div>
-      </div>
-      <div class="curve-card">
-        <div ref="gateChartRef" class="chart-container"></div>
-      </div>
+    <div class="tabs-bar">
+      <button
+        v-for="tab in tabList"
+        :key="tab.key"
+        class="tab-btn"
+        :class="{ active: activeTab === tab.key }"
+        @click="activeTab = tab.key"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+    <div class="chart-area">
+      <div ref="chartRef" class="chart-container"></div>
     </div>
   </div>
 </template>
@@ -259,18 +262,53 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  gap: 8px;
+  padding: 4px 12px 12px;
 }
 
-.curves-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+.tabs-bar {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  background: none;
+  border: 1px solid rgba(50, 150, 255, 0.2);
+  color: #7a8fa3;
+  font-size: 13px;
+  padding: 6px 20px;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: #c0c8d4;
+  border-color: rgba(50, 150, 255, 0.35);
+}
+
+.tab-btn.active {
+  color: #00d4ff;
+  border-color: rgba(0, 175, 255, 0.5);
+  background: rgba(0, 175, 255, 0.08);
+  font-weight: 500;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 175, 255, 0.08);
+}
+
+.chart-area {
   flex: 1;
   min-height: 0;
-}
-
-.curve-card {
   background: rgba(6, 30, 70, 0.5);
   border: 1px solid rgba(50, 150, 255, 0.12);
   backdrop-filter: blur(16px);
@@ -279,11 +317,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.curve-card:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .chart-container {
