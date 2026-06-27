@@ -308,7 +308,7 @@ const subIconMap: Record<string, string> = {
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 14px;
   height: 100%;
 }
 
@@ -320,11 +320,12 @@ const subIconMap: Record<string, string> = {
   background: rgba(6, 30, 70, 0.5);
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 12px;
-  padding: 24px 20px 20px;
+  padding: 28px 22px 22px;
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  height: 100%;
 }
 
 .scenario-card:hover {
@@ -358,10 +359,10 @@ const subIconMap: Record<string, string> = {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 12px;
-  border-radius: 16px;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 14px;
+  border-radius: 18px;
   background: rgba(0, 175, 255, 0.06);
   border: 1px solid rgba(50, 150, 255, 0.2);
   transition: all 0.3s ease;
@@ -370,12 +371,12 @@ const subIconMap: Record<string, string> = {
 .card-icon-wrap.icon-selected {
   background: rgba(0, 175, 255, 0.15);
   border-color: rgba(0, 175, 255, 0.4);
-  box-shadow: 0 0 16px rgba(0, 175, 255, 0.12);
+  box-shadow: 0 0 20px rgba(0, 175, 255, 0.15);
 }
 
 .card-icon-svg {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   color: #5a8abf;
   transition: color 0.3s ease;
 }
@@ -387,10 +388,10 @@ const subIconMap: Record<string, string> = {
 /* ===== 标题 ===== */
 .card-title {
   text-align: center;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #7a8fa3;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   transition: color 0.3s ease;
   letter-spacing: 0.5px;
 }
@@ -402,11 +403,11 @@ const subIconMap: Record<string, string> = {
 /* ===== 描述 ===== */
 .card-desc {
   text-align: center;
-  font-size: 11px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.7;
   color: #5a6f83;
-  margin-bottom: 14px;
-  min-height: 36px;
+  margin-bottom: 16px;
+  min-height: 42px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -417,7 +418,7 @@ const subIconMap: Record<string, string> = {
 .card-divider {
   width: 40px;
   height: 2px;
-  margin: 0 auto 14px;
+  margin: 0 auto 16px;
   background: rgba(50, 150, 255, 0.2);
   border-radius: 1px;
   transition: all 0.3s ease;
@@ -432,7 +433,7 @@ const subIconMap: Record<string, string> = {
 .sub-options {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
 }
 
@@ -440,7 +441,7 @@ const subIconMap: Record<string, string> = {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;

@@ -40,11 +40,6 @@ const routes = [
     component: () => import('@/views/model-config/model-data/ModelDataView.vue')
   },
   {
-    path: '/model-config/basic-config',
-    name: 'BasicConfig',
-    component: () => import('@/views/model-config/basic-config/BasicConfigView.vue')
-  },
-  {
     path: '/model-config/model-algorithm',
     name: 'ModelAlgorithm',
     component: () => import('@/views/model-config/model-algorithm/ModelAlgorithmView.vue')

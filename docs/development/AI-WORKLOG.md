@@ -7,21 +7,42 @@
 
 ## 1. 当前已完成内容
 
-| 序号 | 模块       | 完成情况        | 说明 |
+| 序号 | 模块 | 完成情况 | 说明 |
 | ---- | ---------- | --------------- | ---- |
-| 1    | 项目初始化 | 已完成          | Vue3 + Vite + TS + Element Plus + Tailwind CSS + ECharts + Leaflet + Pinia |
-| 2    | 路由配置   | 已完成          | 8 个路由：home, basic-data, water-condition, model-config, process-transparent, evaluation-decision, case-library, report-statistics |
-| 3    | 顶部导航栏 | 已完成          | 深色科技风，蓝青色高亮，支持路由跳转 |
-| 4    | 首页       | 已完成          | 地图全屏背景 + 水库点位 + 左右浮层面板（可收起/展开）+ 水情监控 + 发电统计 + 水位/负荷过程线 + 预警信息 |
-| 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息（工程属性+调度规则）+ 水情过程图表 + 工情信息 + 关键曲线（库容/机组出力/泄洪闸过流） |
-| 6    | 水调水情   | 未开始          | 骨架页面 |
-| 7    | 模型配置   | Step 1~5 已完成 | 5 步流程完整闭环，支持步骤间数据联动 |
-| 8    | 过程透明   | 已完成          | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区 |
-| 9    | 评价决策   | 已完成          | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析 |
-| 10   | 案例库     | 已完成          | 7个案例（7种唯一图标）+ 筛选 + 详情页签 + 关键指标 + 过程预览 + 评价结论 |
-| 11   | 报表统计   | 已完成          | 逐月/逐年报表切换、多级表头、5水库完整数据、考核结果状态标签 |
+| 1 | 项目初始化 | 已完成 | Vue3 + Vite + TS + Element Plus + Tailwind CSS + ECharts + Leaflet + Pinia |
+| 2 | 路由配置 | 已完成 | 13 个路由（8 个主页面 + 6 个模型配置子页面） |
+| 3 | 顶部导航栏 | 已完成 | 深色科技风，蓝青色高亮，支持路由跳转 |
+| 4 | 首页 | 已完成 | 地图全屏背景 + 水库点位 + 左右浮层面板（可收起/展开）+ 水情监控 + 发电统计 + 水位/负荷过程线 + 预警信息 |
+| 5 | 基础数据 | 已完成 | 水库选择 + 断面示意图 + 基础信息（工程属性+调度规则）+ 水情过程图表 + 工情信息 + 关键曲线（库容/机组出力/泄洪闸过流） |
+| 6 | 水调水情 | 已完成 | 调令执行对比图（水位/流量/出力三页签），时间范围+水库筛选 |
+| 7 | 模型配置 | **6 步流程全部完成** | 调度场景 → 调度主体 → 模型数据 → 模型算法 → 场景配置 → 配置汇总，完整闭环 |
+| 8 | 过程透明 | 已完成 | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区 |
+| 9 | 评价决策 | 已完成 | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析 |
+| 10 | 案例库 | 已完成 | 7个案例（7种唯一图标）+ 筛选 + 详情页签 + 关键指标 + 过程预览 + 评价结论 |
+| 11 | 报表统计 | 已完成 | 逐月/逐年报表切换、多级表头、5水库完整数据、考核结果状态标签 |
 
 ### 已完成模块详细说明
+
+**模型配置（6 步流程，2026-06-27 重构完成）**：
+
+| 步骤 | 路由 | 页面 | 功能 |
+|:----:|------|------|------|
+| Step 1 | /model-config/dispatch-scenario | 调度场景 | 3 大场景卡片（中长期/关键期/实时）+ 9 个子选项 radio |
+| Step 2 | /model-config/dispatch-subject | 调度主体 | 时段+步长+频率+水库选择（预设组合+弹窗多选） |
+| Step 3 | /model-config/model-data | 模型数据 | 左侧数据目录+右侧图表/表格展示，上传/下载 UI |
+| Step 4 | /model-config/model-algorithm | 模型算法 | 左右分区：模型+算法+参数 + 调度目标+约束条件弹窗 |
+| Step 5 | /model-config/scenario-constraint | 场景配置 | 场景类型切换 + 场景参数设置 |
+| Step 6 | /model-config/config-summary | 配置汇总 | 方案列表表格 + 分布式图表 + 一键运行 |
+
+步骤间联动：
+- Step 1 → Step 2：场景自动预填时间范围、步长、水库
+- Step 1 → Step 4：场景自动联动调度目标
+- Step 2 → Step 4：水库组合过滤可选模型
+- 所有步骤数据通过 Pinia Store 串联
+
+关键文件：
+- `src/stores/modelConfig.ts` — 模型配置 Pinia Store（6 步联动核心，含 dispatchScenario/dispatchSubject/modelData/modelAlgorithm/basicConfig/scenarioConstraint）
+- `src/mock/modelConfig.ts` — 模型配置 mock 数据（含场景/联动/约束等全部映射表）
 
 **首页（HomeView）**：全功能完成。包含：
 - 黄河上游流域地图（Leaflet + Esri 卫星影像 + PMTiles 河网），作为页面全屏背景
@@ -33,9 +54,16 @@
 **基础数据（BasicDataView）**：核心功能完成。包含：
 - 水库选择切换（5 个水库：龙羊峡、刘家峡、公伯峡、积石峡、青铜峡）
 - 水库断面示意图（ReservoirSectionGraph.vue）— 深水科技风，含特征水位线、当前水位高亮、水流标注、工程参数栏
-- 基础信息（3 组卡片：工程属性、特征水位、调度规则），5 个水库各有独立数据
+- 基础信息（2 列：工程属性 + 调度规则），5 个水库各有独立数据
 - 过程数据表格（水位/入库/出库趋势）
 - 机组工况列表（运行/停机/检修状态）
+
+**水调水情（WaterConditionView）**：全功能完成。包含：
+- 顶部筛选区：时间范围、水库选择、查询/重置
+- 指标页签：水位/流量/出力
+- 核心图表：双折线过程对比图（目标值 vs 实际值）
+- 调度更新节点标记 + 末端数值标签
+- 图表右上角：单位下拉/下载/全屏按钮 UI
 
 ------
 
@@ -44,20 +72,27 @@
 ### 开发时间
 
 ```text
-2026-06-13（第八次）
+2026-06-27（第二十六次）
 ```
 
 ### 本次完成内容
 
 ```text
-1. 模型配置 Step 5「配置汇总」页面全功能开发完成（ConfigSummaryView.vue）：
-   - 步骤条联动：Step 1~4 均可点击返回，Step 5 高亮
-   - 左侧配置方案表格（El-Table）
-   - 右侧预计计算信息面板（时间预估、方案数量、模型/算法分布环形图）
-   - 底部操作栏：上一步 / 一键运行 / 导出配置
-2. 补充 Step 5 mock 数据（modelConfig.ts）：
-   - configSummaryState / configPlanList（24 条方案）/ modelDistribution / algorithmDistribution
-```
+清理旧页面、路由和无用文件：
+
+删除内容：
+1. src/views/model-config/basic-config/BasicConfigView.vue  — 旧 Step 2 页面
+2. src/views/model-config/basic-config/ 目录
+3. docs/page-design/04-model-config/02-basic-config.md     — 旧设计文档
+4. docs/page-design/04-model-config/03-model-algorithm.md  — 旧设计文档
+5. 路由 /model-config/basic-config
+6. mock 数据：ReservoirGroup、BasicConfigState、basicConfigState、reservoirGroups
+
+更新内容：
+1. docs/page-design/04-model-config/README.md  — 全面更新为 6 步流程说明
+2. 本文档顶部概览 — 更新为 6 步流程状态
+
+详见 §3 第 22~26 次开发记录。
 
 ------
 
@@ -438,35 +473,17 @@ src/views/model-config/basic-config/BasicConfigView.vue   — 布局重构（方
 docs/development/AI-WORKLOG.md                            — 本记录
 ```
 
-下一步优先做：
-
-```text
-任务名称：开发水调水情页面
-```
-
-任务目标：
-
-```text
-1. 参考 docs/page-design/03-water-condition.md 开发水调水情页面
-2. 在 src/mock/waterCondition.ts 中补充 mock 数据
-3. 保持深色科技风统一风格
-```
-
-不允许修改：
-
-```text
-1. 不修改技术栈
-2. 不修改全局导航顺序
-3. 不修改无关页面
-4. 不接真实接口
-```
-
-**当前已完成的基础配置相关上下文（新会话参考）：**
-- 基础配置页面布局已重构为4行方案（调度周期→方案名称→水库组合+约束条件→调度目标5列网格）
-- 首页地图全屏背景 + 左右面板可收起/展开（右侧竖条按钮），默认收起
-- 模型配置水库组合只保留「龙刘组合」「龙刘黑组合」2项
-- 调度目标新增「输沙调度」「多能互补」，共5项目标
-- 总时段数显示在调度周期卡片标题栏最右侧
+**当前模型配置 6 步流程相关上下文（新会话参考）：**
+- 模型配置已重构为 6 步流程，步骤条通过 `version="old"|"new"` 属性兼容
+- Step 1 调度场景：3 大类卡片（中长期/关键期/实时）+ 9 个子选项，选中联动调度目标
+- Step 2 调度主体：上半区时段参数（联动场景预填），下半区水库选择（预设组合 + 弹窗多选）
+- 场景约束：中长期(≥1年≤5年/步长每旬每月)、关键期(≤1年/步长每旬每月)、实时(≤31天/步长每日锁定)
+- Step 3 模型数据：原页面已迁移，步骤条使用 version="new" current-step="3"
+- Step 4 模型算法：左右分区（左模型+算法+参数，右调度目标+约束条件弹窗），目标从 Step 1 联动预填
+- Step 5 场景配置：原页面已迁移
+- Step 6 配置汇总：原页面已迁移，使用独立底部（上一步/一键运行/导出配置）
+- Store 中 dispatchSubject 替代了 basicConfig 的大部分字段（basicConfig 保留兼容）
+- 旧页面 basic-config/BasicConfigView.vue 已删除
 
 ---
 
@@ -689,6 +706,48 @@ docs/development/AI-WORKLOG.md
 
 ---
 
+### 开发时间
+
+```text
+2026-06-27（第二十六次）
+```
+
+### 本次完成内容
+
+```text
+清理旧页面、路由和无用文件：
+
+删除内容：
+1. src/views/model-config/basic-config/BasicConfigView.vue  — 旧 Step 2 页面（功能已分散到新 Step 2+Step 4）
+2. src/views/model-config/basic-config/ 目录（已空）
+3. docs/page-design/04-model-config/02-basic-config.md     — 旧设计文档
+4. docs/page-design/04-model-config/03-model-algorithm.md  — 旧设计文档
+5. 路由 /model-config/basic-config                         — 已移除
+6. mock 数据：ReservoirGroup、BasicConfigState、basicConfigState、reservoirGroups
+
+更新内容：
+1. docs/page-design/04-model-config/README.md  — 全面更新为 6 步流程说明
+2. 删除的设计变更记录写入 README 第 10 节
+```
+
+### 修改文件
+
+```text
+删除：
+  src/views/model-config/basic-config/BasicConfigView.vue
+  src/views/model-config/basic-config/（空目录）
+  docs/page-design/04-model-config/02-basic-config.md
+  docs/page-design/04-model-config/03-model-algorithm.md
+
+修改：
+  src/router/index.ts                   — 移除 basic-config 路由
+  src/mock/modelConfig.ts               — 移除旧类型和数据
+  docs/page-design/04-model-config/README.md  — 全面更新
+  docs/development/AI-WORKLOG.md         — 本记录
+```
+
+---
+
 开发必须参考：
 
 ```text
@@ -728,29 +787,39 @@ npm run dev
 ### 关键文件
 
 ```text
-src/stores/modelConfig.ts                                           -- 模型配置 Pinia Store（步骤间联动核心）
-src/mock/modelConfig.ts                                             -- 模型配置 mock 数据（含联动映射表）
-src/mock/basicData.ts                                               -- 基础数据 mock（含 5 个水库全量数据+关键曲线）
-src/mock/caseLibrary.ts                                             -- 案例库 mock 数据（7个案例+7种图标）
-src/mock/reportStatistics.ts                                        -- 报表统计 mock 数据（5水库+逐月/逐年）
-src/views/model-config/model-data/ModelDataView.vue                 -- 模型配置 Step 1
-src/views/model-config/basic-config/BasicConfigView.vue             -- 模型配置 Step 2
-src/views/model-config/model-algorithm/ModelAlgorithmView.vue       -- 模型配置 Step 3
-src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- 模型配置 Step 4
-src/views/model-config/config-summary/ConfigSummaryView.vue         -- 模型配置 Step 5
-src/components/model-config/ModelConfigFooter.vue                   -- 模型配置底部公用操作栏
-src/components/model-config/ModelConfigStepBar.vue                  -- 模型配置步骤条组件
-src/components/common/PanelCard.vue                                 -- 通用半透明玻璃卡片组件
-src/components/home/BasinMapPanel.vue                               -- 首页地图组件
-src/components/home/ReservoirMonitorPanel.vue                       -- 首页水情监控卡片
-src/components/basic-data/BaseInfoPanel.vue                         -- 基础信息卡片组件（工程属性+调度规则）
-src/components/basic-data/KeyCurvesPanel.vue                        -- 关键曲线组件（库容/出力/过流）
-src/views/basic-data/BasicDataView.vue                              -- 基础数据页面
-src/views/case-library/CaseLibraryView.vue                          -- 案例库页面
-src/views/report-statistics/ReportStatisticsView.vue                -- 报表统计页面
-src/styles/index.css                                                -- 全局样式（:root:root CSS 变量覆盖）
-docs/page-design/04-model-config/README.md                          -- 模型配置模块总设计文档
-docs/development/AI-WORKLOG.md                                      -- 本文件
+## ===== 模型配置（6 步流程） =====
+src/stores/modelConfig.ts                                             -- 模型配置 Pinia Store（6 步联动核心）
+src/mock/modelConfig.ts                                               -- 模型配置 mock 数据（场景/联动/约束等全部映射）
+src/components/model-config/ModelConfigFooter.vue                     -- 模型配置底部公用操作栏
+src/components/model-config/ModelConfigStepBar.vue                    -- 模型配置步骤条组件（支持 5 步/6 步切换）
+src/views/model-config/dispatch-scenario/DispatchScenarioView.vue     -- Step 1 调度场景
+src/views/model-config/dispatch-subject/DispatchSubjectView.vue       -- Step 2 调度主体
+src/views/model-config/model-data/ModelDataView.vue                   -- Step 3 模型数据
+src/views/model-config/model-algorithm/ModelAlgorithmView.vue         -- Step 4 模型算法
+src/views/model-config/scenario-constraint/ScenarioConstraintView.vue -- Step 5 场景配置
+src/views/model-config/config-summary/ConfigSummaryView.vue           -- Step 6 配置汇总
+
+## ===== 首页 =====
+src/components/home/BasinMapPanel.vue                                 -- 首页地图组件
+src/components/home/ReservoirMonitorPanel.vue                         -- 首页水情监控卡片
+src/components/common/PanelCard.vue                                   -- 通用半透明玻璃卡片组件
+
+## ===== 基础数据 =====
+src/components/basic-data/BaseInfoPanel.vue                           -- 基础信息卡片组件（工程属性+调度规则）
+src/components/basic-data/KeyCurvesPanel.vue                          -- 关键曲线组件（库容/出力/过流）
+src/mock/basicData.ts                                                 -- 基础数据 mock（含 5 个水库全量数据+关键曲线）
+
+## ===== 其他页面 =====
+src/views/case-library/CaseLibraryView.vue                            -- 案例库页面
+src/views/report-statistics/ReportStatisticsView.vue                  -- 报表统计页面
+src/views/process-transparent/ProcessTransparentView.vue              -- 过程透明页面
+src/views/evaluation-decision/EvaluationDecisionView.vue              -- 评价决策页面
+src/views/water-condition/WaterConditionView.vue                      -- 水调水情页面
+
+## ===== 通用 =====
+src/styles/index.css                                                  -- 全局样式（:root:root CSS 变量覆盖）
+docs/page-design/04-model-config/README.md                            -- 模型配置模块总设计文档
+docs/development/AI-WORKLOG.md                                        -- 本文件
 ```
 
 ---

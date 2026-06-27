@@ -420,32 +420,13 @@ export const dispatchScenarioCategories: DispatchScenarioCategory[] = [
   },
 ]
 
-// ==================== Step 2: 基础配置 Mock 数据 ====================
-
-export interface ReservoirGroup {
-  id: string
-  name: string
-  reservoirs: string[]
-}
+// ==================== 旧 Step 2 基础配置 Mock 数据 ====================
 
 export interface DispatchObjective {
   id: string
   name: string
   description: string
   icon: string
-}
-
-export interface BasicConfigState {
-  currentStep: number
-  startTime: string
-  endTime: string
-  timeStep: string
-  scheduleFrequency: string
-  totalPeriods: number
-  schemeName: string
-  selectedReservoirGroup: string
-  selectedObjectives: string[]
-  constraintCount: number
 }
 
 export interface ConstraintDetail {
@@ -459,40 +440,6 @@ export interface ConstraintSummaryData {
   count: number
   description: string
   constraints: ConstraintDetail[]
-}
-
-export const basicConfigState = {
-  code: 200,
-  message: 'success',
-  data: {
-    currentStep: 2,
-    startTime: '2025-05-16',
-    endTime: '2025-05-26',
-    timeStep: '每日',
-    scheduleFrequency: '每月一次',
-    totalPeriods: 11,
-    schemeName: '',
-    selectedReservoirGroup: 'long-liu',
-    selectedObjectives: ['flood-control'],
-    constraintCount: 12,
-  } as BasicConfigState,
-}
-
-export const reservoirGroups = {
-  code: 200,
-  message: 'success',
-  data: [
-    {
-      id: 'long-liu',
-      name: '龙刘组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库'],
-    },
-    {
-      id: 'long-liu-hei',
-      name: '龙刘黑组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库', '黑山峡水库'],
-    },
-  ] as ReservoirGroup[],
 }
 
 export const dispatchObjectives = {

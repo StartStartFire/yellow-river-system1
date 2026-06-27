@@ -400,7 +400,7 @@ onMounted(() => {
       </div>
 
       <!-- 下半区：水库选择 -->
-      <div class="section-title-row" style="margin-top: 10px;">
+      <div class="section-title-row">
         <div class="section-accent"></div>
         <span class="section-title">参与调度水库</span>
         <span class="section-hint">选择参与本次调度的水库</span>
@@ -584,11 +584,11 @@ onMounted(() => {
 .main-content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding-right: 4px;
+  gap: 8px;
+  overflow: hidden;
+  padding-right: 2px;
 }
 
 .main-content::-webkit-scrollbar {
@@ -608,24 +608,25 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  padding-top: 2px;
 }
 
 .section-accent {
   width: 3px;
-  height: 16px;
+  height: 18px;
   background: linear-gradient(180deg, #00d4ff, rgba(0, 212, 255, 0.3));
   border-radius: 2px;
   flex-shrink: 0;
 }
 
 .section-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #e0e6ed;
 }
 
 .section-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: #5a6f83;
   margin-left: 4px;
 }
@@ -634,7 +635,7 @@ onMounted(() => {
 .period-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -642,7 +643,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   background: rgba(6, 30, 70, 0.5);
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 10px;
@@ -729,7 +730,7 @@ onMounted(() => {
 .reservoir-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
   min-height: 0;
 }
@@ -738,7 +739,7 @@ onMounted(() => {
 .group-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 
 .group-card {
@@ -746,14 +747,16 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 14px 12px;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 12px;
   background: rgba(6, 30, 70, 0.5);
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: center;
+  min-height: 100px;
 }
 
 .group-card:hover {
@@ -781,7 +784,7 @@ onMounted(() => {
 }
 
 .group-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #c0c8d4;
   transition: color 0.2s;
@@ -792,14 +795,15 @@ onMounted(() => {
 }
 
 .group-desc {
-  font-size: 10px;
+  font-size: 12px;
   color: #5a6f83;
 }
 
 .group-count {
-  font-size: 11px;
+  font-size: 13px;
   color: #5a8abf;
-  margin-top: 2px;
+  margin-top: 4px;
+  font-weight: 500;
 }
 
 /* 更多组合卡片 */
@@ -824,7 +828,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 14px 18px;
   background: rgba(6, 30, 70, 0.4);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-radius: 8px;
@@ -843,13 +847,13 @@ onMounted(() => {
 }
 
 .summary-label {
-  font-size: 12px;
+  font-size: 13px;
   color: #7a8fa3;
   white-space: nowrap;
 }
 
 .summary-reservoirs {
-  font-size: 12px;
+  font-size: 13px;
   color: #00d4ff;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -861,7 +865,7 @@ onMounted(() => {
 }
 
 .summary-count {
-  font-size: 12px;
+  font-size: 13px;
   color: #5a6f83;
 }
 
