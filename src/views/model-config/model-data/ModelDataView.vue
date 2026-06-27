@@ -279,7 +279,7 @@ const iconMap: Record<string, string> = {
 <template>
   <div class="model-data-view">
     <!-- 步骤条 -->
-    <ModelConfigStepBar :current-step="1" />
+    <ModelConfigStepBar :current-step="3" version="new" />
 
     <!-- 主体：左侧目录 + 右侧内容区 -->
     <div class="main-content">
@@ -392,9 +392,10 @@ const iconMap: Record<string, string> = {
 
     <!-- 底部操作栏 -->
     <ModelConfigFooter
-      :step="1"
+      :step="3"
       @cancel="handleCancel"
       @save="handleSave"
+      @prev="handlePrev"
       @next="handleNext"
     />
   </div>

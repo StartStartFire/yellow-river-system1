@@ -215,10 +215,11 @@ watch(searchQuery, () => {
 // ==================== 步骤条点击 ====================
 const handleStepClick = (step: number) => {
   const paths: Record<number, string> = {
-    1: '/model-config/model-data',
-    2: '/model-config/basic-config',
-    3: '/model-config/model-algorithm',
-    4: '/model-config/scenario-constraint',
+    1: '/model-config/dispatch-scenario',
+    2: '/model-config/dispatch-subject',
+    3: '/model-config/model-data',
+    4: '/model-config/model-algorithm',
+    5: '/model-config/scenario-constraint',
   }
   if (paths[step]) router.push(paths[step])
 }
@@ -381,7 +382,7 @@ const pageNumbers = computed(() => {
 <template>
   <div class="config-summary-view">
     <!-- 步骤条 -->
-    <ModelConfigStepBar :current-step="5" @step-click="handleStepClick" />
+    <ModelConfigStepBar :current-step="6" version="new" @step-click="handleStepClick" />
 
     <!-- 主体内容 -->
     <div class="main-content">

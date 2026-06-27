@@ -611,7 +611,83 @@ docs/development/AI-WORKLOG.md                            — 本记录
 
 ---
 
-## 4. 当前重要约束
+### 开发时间
+
+```text
+2026-06-27（第二十四次）
+```
+
+### 本次完成内容
+
+```text
+原 Step 1「模型数据」→ 新 Step 3 迁移完成（ModelDataView.vue）：
+
+1. 步骤条更换：ModelConfigStepBar :current-step="1" → :current-step="3" version="new"
+2. 底部操作栏：step="1" → step="3"，新增 @prev="handlePrev"
+3. 新增 handlePrev 方法：上一步 → /model-config/dispatch-subject
+4. 修改 handleNext：跳转 /model-config/basic-config → /model-config/model-algorithm
+5. 新增 markStepCompleted(3) 调用
+```
+
+### 修改文件
+
+```text
+src/views/model-config/model-data/ModelDataView.vue  — StepBar/Footer/导航更新
+docs/development/AI-WORKLOG.md                       — 本记录
+```
+
+---
+
+### 开发时间
+
+```text
+2026-06-27（第二十五次）
+```
+
+### 本次完成内容
+
+```text
+模型配置 Step 4「模型算法」页面全功能重构完成（合并调度目标+约束条件）：
+
+1. 新建设计文档（docs/page-design/04-model-config/04-model-algorithm.md）：
+   - 左右分区布局：左侧模型+算法+参数，右侧调度目标+约束条件
+   - 调度目标可编辑（从 Step 1 联动预填，可增删）
+   - 约束条件弹窗编辑（延续原有弹窗+开关+数值编辑设计）
+
+2. 重写 ModelAlgorithmView.vue：
+   - 左侧保留原模型选择+算法选择+参数设置的完整功能
+   - 新增右侧调度目标选择（5 项目标卡片多选，带图标+描述）
+   - 新增右侧约束条件摘要卡片+"查看详情"弹窗编辑
+   - 调度目标从 Step 1 联动预填（store.basicConfig.selectedObjectives）
+   - 写入 Store：modelAlgorithm + basicConfig.selectedObjectives + constraintEnabled
+   - markStepCompleted(4)，下一步 → /model-config/scenario-constraint
+
+3. 全流程 6 步路由迁移完成：
+   - ScenarioConstraintView（旧 Step 4 → 新 Step 5）
+   - ConfigSummaryView（旧 Step 5 → 新 Step 6）
+
+### 当前 6 步流程完整状态
+
+| 步骤 | 路由 | 页面 | 状态 |
+|:----:|------|------|:----:|
+| Step 1 | /model-config/dispatch-scenario | 调度场景 | ✅ |
+| Step 2 | /model-config/dispatch-subject | 调度主体 | ✅ |
+| Step 3 | /model-config/model-data | 模型数据 | ✅ |
+| Step 4 | /model-config/model-algorithm | 模型算法 | ✅ |
+| Step 5 | /model-config/scenario-constraint | 场景配置 | ✅ |
+| Step 6 | /model-config/config-summary | 配置汇总 | ✅ |
+
+### 修改文件
+
+```text
+docs/page-design/04-model-config/04-model-algorithm.md  — 新建设计文档
+src/views/model-config/model-algorithm/ModelAlgorithmView.vue  — 重写
+src/views/model-config/scenario-constraint/ScenarioConstraintView.vue  — Step 5 迁移
+src/views/model-config/config-summary/ConfigSummaryView.vue  — Step 6 迁移
+docs/development/AI-WORKLOG.md
+```
+
+---
 
 开发必须参考：
 
