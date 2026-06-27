@@ -14,7 +14,7 @@
 | 3    | 顶部导航栏 | 已完成          | 深色科技风，蓝青色高亮，支持路由跳转 |
 | 4    | 首页       | 已完成          | 地图全屏背景 + 水库点位 + 左右浮层面板（可收起/展开）+ 水情监控 + 发电统计 + 水位/负荷过程线 + 预警信息 |
 | 5    | 基础数据   | 已完成          | 水库选择 + 断面示意图 + 基础信息（工程属性+调度规则）+ 水情过程图表 + 工情信息 + 关键曲线（库容/机组出力/泄洪闸过流） |
-| 6    | 水调水情   | 未开始          | 骨架页面 |
+| 6    | 水调水情   | 已完成          | 入流/水位/出力/出流四页签，历史+预报/调令+实际/未来调令对比，5个水库 |
 | 7    | 模型配置   | Step 1~5 已完成 | 5 步流程完整闭环，支持步骤间数据联动 |
 | 8    | 过程透明   | 已完成          | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区 |
 | 9    | 评价决策   | 已完成          | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析 |
@@ -516,6 +516,7 @@ src/mock/modelConfig.ts                                             -- 模型配
 src/mock/basicData.ts                                               -- 基础数据 mock（含 5 个水库全量数据+关键曲线）
 src/mock/caseLibrary.ts                                             -- 案例库 mock 数据（7个案例+7种图标）
 src/mock/reportStatistics.ts                                        -- 报表统计 mock 数据（5水库+逐月/逐年）
+src/mock/waterCondition.ts                                          -- 水调水情 mock 数据（入流/水位/出力/出流）
 src/views/model-config/model-data/ModelDataView.vue                 -- 模型配置 Step 1
 src/views/model-config/basic-config/BasicConfigView.vue             -- 模型配置 Step 2
 src/views/model-config/model-algorithm/ModelAlgorithmView.vue       -- 模型配置 Step 3
@@ -531,6 +532,7 @@ src/components/basic-data/KeyCurvesPanel.vue                        -- 关键曲
 src/views/basic-data/BasicDataView.vue                              -- 基础数据页面
 src/views/case-library/CaseLibraryView.vue                          -- 案例库页面
 src/views/report-statistics/ReportStatisticsView.vue                -- 报表统计页面
+src/views/water-condition/WaterConditionView.vue                    -- 水调水情页面
 src/styles/index.css                                                -- 全局样式（:root:root CSS 变量覆盖）
 docs/page-design/04-model-config/README.md                          -- 模型配置模块总设计文档
 docs/development/AI-WORKLOG.md                                      -- 本文件
@@ -761,5 +763,57 @@ docs/development/AI-WORKLOG.md                                      -- 本文件
   src/views/basic-data/BasicDataView.vue               — 添加关键曲线tab
   src/components/basic-data/KeyCurvesPanel.vue         — 新建关键曲线组件
   src/components/basic-data/BaseInfoPanel.vue          — 重构基础信息布局
+  docs/development/AI-WORKLOG.md                       — 本记录
+```
+
+---
+
+### 开发时间
+
+```text
+2026-06-24（第二十二次）
+```
+
+### 本次完成内容
+
+```text
+水调水情页面全功能开发完成（WaterConditionView.vue）：
+
+1. 重新设计页面结构（入流/水位/出力/出流）：
+   - 删除原来的「水情过程」tab
+   - 新增「入流」和「出流」tab
+   - 按照入流→水位→出力→出流顺序排列
+
+2. 入流（入库流量）图表：
+   - 历史入库流量（实线，蓝青色）
+   - 预报入库流量（虚线，橙色）
+   - 预报起点标记线
+
+3. 水位图表：
+   - 调令目标水位（虚线）
+   - 实际水位（实线）
+   - 调度更新节点标记
+
+4. 出力图表：
+   - 调令目标出力（虚线）
+   - 实际出力（实线）
+   - 调度更新节点标记
+
+5. 出流（出库流量）图表：
+   - 历史调令（虚线，蓝色）
+   - 实际出流（实线，绿色）
+   - 未来调令（点线，紫色）
+   - 当前时刻标记线
+
+6. 功能特性：
+   - 5个水库可选（龙羊峡/刘家峡/青铜峡/公伯峡/积石峡）
+   - 时间范围筛选
+   - 图表右上角单位显示、下载按钮、全屏按钮
+   - 末端标签显示最新数值
+   - 页签切换带动画图标
+
+修改文件：
+  src/mock/waterCondition.ts                           — 重写mock数据（入流/水位/出力/出流）
+  src/views/water-condition/WaterConditionView.vue     — 全功能重写
   docs/development/AI-WORKLOG.md                       — 本记录
 ```

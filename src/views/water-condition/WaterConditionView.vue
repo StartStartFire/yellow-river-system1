@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
+import { ElMessage } from 'element-plus'
 import {
   reservoirOptions,
   waterConditionTabs,
   getProcessData,
 } from '@/mock/waterCondition'
-import { getProcessData as getBasicProcessData } from '@/mock/basicData'
-import type { ConditionTab } from '@/mock/waterCondition'
 
 // ==================== 筛选状态 ====================
 const reservoirs = reservoirOptions.data
-const tabs = [...waterConditionTabs.data, { key: 'basic-process', label: '水情过程', unit: '' }]
+const tabs = waterConditionTabs.data
 
 const dateRange = ref<[string, string]>(['2026-05-15 00:00', '2026-05-16 14:30'])
 const selectedReservoir = ref('longyangxia')
-const activeTabKey = ref('water-level')
+const activeTabKey = ref('inflow')
 const defaultRange: [string, string] = ['2026-05-15 00:00', '2026-05-16 14:30']
 const defaultReservoir = 'longyangxia'
 
@@ -29,23 +28,8 @@ const activeTabInfo = computed(() => {
   return tabs.find(t => t.key === activeTabKey.value) || tabs[0]
 })
 
-// 是否是水情过程页签
-const isBasicProcess = computed(() => activeTabKey.value === 'basic-process')
-
 // 当前图表数据
 const chartData = computed(() => {
-  if (isBasicProcess.value) {
-    const data = getBasicProcessData(selectedReservoir.value).data
-    return {
-      title: `${reservoirName.value} - 水情过程`,
-      unit: '',
-      legend: ['入库流量', '出库流量'],
-      xAxis: data.dates,
-      inflow: data.inflows,
-      outflow: data.outflows,
-      updateIndex: -1,
-    }
-  }
   return getProcessData(selectedReservoir.value, activeTabKey.value).data
 })
 
@@ -69,102 +53,110 @@ const renderChart = () => {
   if (!chart) return
   const data = chartData.value
 
-  if (isBasicProcess.value) {
-    // 水情过程：双线（入库流量、出库流量）
-    const option: echarts.EChartsOption = {
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'rgba(6, 30, 70, 0.9)',
-        borderColor: 'rgba(50, 150, 255, 0.4)',
-        textStyle: { color: '#e0e6ed', fontSize: 12 },
+  // 构建系列数据
+  const seriesData = data.series.map((s, index) => {
+    const baseSeries: any = {
+      name: s.name,
+      type: 'line',
+      data: s.data,
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 6,
+      lineStyle: {
+        width: 2.5,
+        color: s.color,
+        type: s.type === 'dashed' ? 'dashed' : s.type === 'dotted' ? 'dotted' : 'solid',
       },
-      legend: {
-        data: ['入库流量', '出库流量'],
-        textStyle: { color: '#7a8fa3', fontSize: 12 },
-        bottom: 0,
-      },
-      grid: {
-        left: 60,
-        right: 60,
-        top: 20,
-        bottom: 36,
-      },
-      xAxis: {
-        type: 'category',
-        data: data.xAxis,
-        axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#7a8fa3', fontSize: 11 },
-        splitLine: { show: false },
-        boundaryGap: false,
-      },
-      yAxis: {
-        type: 'value',
-        name: '流量 (m³/s)',
-        nameTextStyle: { color: '#7a8fa3', fontSize: 12 },
-        axisLine: { show: false },
-        axisLabel: { color: '#7a8fa3', fontSize: 11 },
-        splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)', type: 'dashed' } },
-      },
-      series: [
-        {
-          name: '入库流量',
-          type: 'line',
-          data: (data as any).inflow,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 5,
-          lineStyle: { width: 2, color: '#00e5a0' },
-          itemStyle: { color: '#00e5a0' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(0, 229, 160, 0.12)' },
-              { offset: 1, color: 'rgba(0, 229, 160, 0.02)' },
-            ]),
-          },
-        },
-        {
-          name: '出库流量',
-          type: 'line',
-          data: (data as any).outflow,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 5,
-          lineStyle: { width: 2, color: '#b37feb' },
-          itemStyle: { color: '#b37feb' },
-        },
-      ],
+      itemStyle: { color: s.color },
     }
 
-    chart.setOption(option, true)
-    chart.resize()
-    return
-  }
+    // 添加面积渐变（仅第一个实线系列）
+    if (index === 0 && s.type === 'solid') {
+      baseSeries.areaStyle = {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: s.color + '25' },
+          { offset: 1, color: s.color + '05' },
+        ]),
+      }
+    }
 
-  // 调令执行对比：目标值 vs 实际值（原有逻辑）
-  const updateLabel = data.xAxis[data.updateIndex]
+    // 添加标记线
+    if (data.updateIndex !== undefined && data.updateIndex >= 0 && index === 0) {
+      baseSeries.markLine = {
+        silent: true,
+        symbol: 'none',
+        data: [
+          {
+            xAxis: data.xAxis[data.updateIndex],
+            lineStyle: {
+              color: data.markLineStyle?.color || 'rgba(0, 175, 255, 0.5)',
+              type: 'dashed',
+              width: 1.5,
+            },
+            label: {
+              formatter: `{b}\n${data.markLineStyle?.label || '更新节点'}`,
+              color: '#7a8fa3',
+              fontSize: 11,
+              position: 'insideEndTop',
+            },
+          },
+        ],
+      }
+    }
+
+    // 添加末端标签
+    const lastValue = s.data[s.data.length - 1]
+    if (lastValue !== null && lastValue !== undefined) {
+      baseSeries.markPoint = {
+        symbol: 'none',
+        data: [
+          {
+            coord: [data.xAxis.length - 1, lastValue],
+            value: lastValue,
+            label: {
+              formatter: `{a} ${lastValue.toFixed(1)}`,
+              color: s.color,
+              fontSize: 11,
+              fontWeight: 600,
+              position: 'right',
+            },
+          },
+        ],
+      }
+    }
+
+    return baseSeries
+  })
 
   const option: echarts.EChartsOption = {
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
+      backgroundColor: 'rgba(8, 28, 58, 0.95)',
+      borderColor: 'rgba(0, 175, 255, 0.3)',
+      borderWidth: 1,
       textStyle: { color: '#e0e6ed', fontSize: 12 },
+      axisPointer: {
+        type: 'cross',
+        crossStyle: { color: '#7a8fa3' },
+      },
     },
     legend: {
       data: data.legend,
       textStyle: { color: '#7a8fa3', fontSize: 12 },
       bottom: 0,
+      itemGap: 24,
     },
     grid: {
-      left: 60,
-      right: 60,
+      left: 65,
+      right: 80,
       top: 20,
-      bottom: 36,
+      bottom: 45,
     },
     xAxis: {
       type: 'category',
       data: data.xAxis,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
+      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.2)' } },
       axisLabel: { color: '#7a8fa3', fontSize: 11 },
       splitLine: { show: false },
       boundaryGap: false,
@@ -172,87 +164,14 @@ const renderChart = () => {
     yAxis: {
       type: 'value',
       name: data.unit,
-      nameTextStyle: { color: '#7a8fa3', fontSize: 12 },
+      min: data.yAxisMin,
+      max: data.yAxisMax,
+      nameTextStyle: { color: '#7a8fa3', fontSize: 11 },
       axisLine: { show: false },
       axisLabel: { color: '#7a8fa3', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)', type: 'dashed' } },
+      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.08)', type: 'dashed' } },
     },
-    series: [
-      {
-        name: data.legend[0],
-        type: 'line',
-        data: data.target,
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 5,
-        lineStyle: { width: 2, type: 'dashed', color: '#00afff' },
-        itemStyle: { color: '#00afff' },
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          data: [
-            {
-              xAxis: updateLabel,
-              lineStyle: { color: 'rgba(0, 175, 255, 0.6)', type: 'dashed', width: 1.5 },
-              label: {
-                formatter: `{b}\n调度更新节点`,
-                color: '#7a8fa3',
-                fontSize: 11,
-                position: 'start',
-              },
-            },
-          ],
-        },
-        markPoint: {
-          symbol: 'none',
-          data: [
-            {
-              coord: [data.xAxis.length - 1, data.targetLastValue],
-              value: data.targetLastValue,
-              label: {
-                formatter: `目标 {c}`,
-                color: '#00afff',
-                fontSize: 12,
-                fontWeight: 600,
-                position: 'right',
-              },
-            },
-          ],
-        },
-      },
-      {
-        name: data.legend[1],
-        type: 'line',
-        data: data.actual,
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 5,
-        lineStyle: { width: 2, color: '#00e5a0' },
-        itemStyle: { color: '#00e5a0' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 229, 160, 0.15)' },
-            { offset: 1, color: 'rgba(0, 229, 160, 0.02)' },
-          ]),
-        },
-        markPoint: {
-          symbol: 'none',
-          data: [
-            {
-              coord: [data.xAxis.length - 1, data.actualLastValue],
-              value: data.actualLastValue,
-              label: {
-                formatter: `实际 {c}`,
-                color: '#00e5a0',
-                fontSize: 12,
-                fontWeight: 600,
-                position: 'right',
-              },
-            },
-          ],
-        },
-      },
-    ],
+    series: seriesData,
   }
 
   chart.setOption(option, true)
@@ -261,14 +180,16 @@ const renderChart = () => {
 
 // ==================== 交互 ====================
 const handleQuery = () => {
-  // 当前阶段只刷新图表渲染
   renderChart()
+  ElMessage.success('查询条件已更新')
 }
 
 const handleReset = () => {
   dateRange.value = [...defaultRange] as [string, string]
   selectedReservoir.value = defaultReservoir
-  activeTabKey.value = 'water-level'
+  activeTabKey.value = 'inflow'
+  renderChart()
+  ElMessage.success('已重置为默认条件')
 }
 
 const handleReservoirChange = () => {
@@ -280,14 +201,10 @@ const handleTabChange = (key: string) => {
 }
 
 const handleDownload = () => {
-  // 当前阶段只做 UI 提示
-  const msg = '暂不支持真实下载'
-  // 简单提示
-  alert(msg)
+  ElMessage.info('当前为前端原型，暂不支持真实下载')
 }
 
 const handleFullscreen = () => {
-  // 简单浏览器全屏
   if (chartRef.value) {
     chartRef.value.requestFullscreen?.()
   }
@@ -335,7 +252,7 @@ watch(selectedReservoir, () => {
 
 <template>
   <div class="water-condition-view">
-    <!-- 顶部筛选区（含指标页签） -->
+    <!-- 顶部筛选区 -->
     <div class="filter-bar">
       <div class="filter-left">
         <div class="filter-item">
@@ -371,75 +288,72 @@ watch(selectedReservoir, () => {
         </div>
 
         <div class="filter-actions">
-          <el-button type="primary" size="small" class="filter-btn" @click="handleQuery">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right: 4px;">
-              <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <button class="btn-primary" @click="handleQuery">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
             </svg>
             查询
-          </el-button>
-          <el-button size="small" class="filter-btn" @click="handleReset">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right: 4px;">
-              <path d="M3 7a4 4 0 016.5-3.1M11 7a4 4 0 01-6.5 3.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              <path d="M9.5 2.5L12 4l-2.5 1.5M4.5 11.5L2 10l2.5-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </button>
+          <button class="btn-secondary" @click="handleReset">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
             重置
-          </el-button>
+          </button>
         </div>
       </div>
 
       <div class="filter-divider"></div>
 
-      <!-- 指标页签（整合在筛选栏右侧） -->
+      <!-- 指标页签 -->
       <div class="tabs-inline">
         <button
           v-for="tab in tabs"
           :key="tab.key"
-          class="tab-btn-inline"
+          class="tab-btn"
           :class="{ active: activeTabKey === tab.key }"
           @click="handleTabChange(tab.key)"
         >
-          <svg v-if="tab.key === 'water-level'" width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1l5 6.5a4 4 0 01-10 0L7 1z" stroke="currentColor" stroke-width="1.3" fill="none"/>
-            <circle cx="7" cy="7.5" r="1.5" fill="currentColor"/>
+          <svg v-if="tab.key === 'inflow'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
           </svg>
-          <svg v-else-if="tab.key === 'flow'" width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 10c2-4 4-6 5-7M12 10c-2-4-4-6-5-7M7 3v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <svg v-else-if="tab.key === 'water-level'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
           </svg>
-          <svg v-else-if="tab.key === 'output'" width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1v3M7 10v3M1 7h3M10 7h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+          <svg v-else-if="tab.key === 'output'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
           </svg>
-          <svg v-else width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 3h10M2 7h10M2 11h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M5 5v4M9 5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 2"/>
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
           </svg>
           {{ tab.label }}
         </button>
       </div>
     </div>
 
-    <!-- 核心图表卡片 -->
+    <!-- 图表卡片 -->
     <div class="chart-card">
-      <!-- 图表标题栏 -->
       <div class="chart-header">
-        <span class="chart-title">{{ chartTitle }}</span>
+        <div class="header-left">
+          <span class="chart-title">{{ chartTitle }}</span>
+          <span class="chart-unit">{{ activeTabInfo.unit }}</span>
+        </div>
         <div class="chart-tools">
-          <span v-if="!isBasicProcess" class="tool-unit">{{ activeTabInfo.unit }}</span>
           <button class="tool-btn" title="下载" @click="handleDownload">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
           </button>
           <button class="tool-btn" title="全屏" @click="handleFullscreen">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
             </svg>
           </button>
         </div>
       </div>
-      <!-- 图表区 -->
       <div ref="chartRef" class="chart-container"></div>
     </div>
   </div>
@@ -451,19 +365,20 @@ watch(selectedReservoir, () => {
   flex-direction: column;
   height: 100%;
   padding: 12px;
-  gap: 8px;
+  gap: 12px;
   overflow: hidden;
 }
 
-/* ===== 筛选区 ===== */
+/* 筛选区 */
 .filter-bar {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  padding: 8px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
+  padding: 12px 16px;
+  background: rgba(6, 30, 70, 0.45);
+  border: 1px solid rgba(50, 150, 255, 0.10);
+  backdrop-filter: blur(14px);
   border-radius: 12px;
 }
 
@@ -484,112 +399,109 @@ watch(selectedReservoir, () => {
   font-size: 12px;
   color: #7a8fa3;
   white-space: nowrap;
-  font-weight: 500;
 }
 
 .filter-actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
-.filter-btn {
-  font-size: 12px !important;
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #00afff 0%, #00d4ff 100%);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #00d4ff 0%, #00e5ff 100%);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: rgba(50, 150, 255, 0.1);
+  border: 1px solid rgba(50, 150, 255, 0.3);
+  border-radius: 6px;
+  color: #00d4ff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: rgba(50, 150, 255, 0.2);
+  border-color: rgba(50, 150, 255, 0.5);
 }
 
 .filter-divider {
   width: 1px;
   height: 28px;
-  background: rgba(50, 150, 255, 0.2);
+  background: rgba(50, 150, 255, 0.15);
   flex-shrink: 0;
 }
 
-/* ===== 筛选栏内联页签 ===== */
+/* 页签 */
 .tabs-inline {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
   flex: 1;
-  min-width: 0;
+  justify-content: center;
 }
 
-.tab-btn-inline {
+.tab-btn {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   background: transparent;
-  border: 1px solid rgba(50, 150, 255, 0.2);
+  border: 1px solid rgba(50, 150, 255, 0.15);
   color: #7a8fa3;
-  font-size: 12px;
-  padding: 5px 14px;
+  font-size: 13px;
+  padding: 8px 20px;
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
+  border-radius: 8px;
+  transition: all 0.3s;
   white-space: nowrap;
 }
 
-.tab-btn-inline:hover {
+.tab-btn:hover {
   color: #c0c8d4;
-  border-color: rgba(50, 150, 255, 0.35);
+  border-color: rgba(50, 150, 255, 0.3);
+  background: rgba(50, 150, 255, 0.05);
 }
 
-.tab-btn-inline.active {
+.tab-btn.active {
   color: #00d4ff;
   border-color: rgba(0, 175, 255, 0.5);
-  background: rgba(0, 175, 255, 0.08);
+  background: rgba(0, 175, 255, 0.1);
   font-weight: 500;
 }
 
-.tab-btn-inline svg {
+.tab-btn svg {
   flex-shrink: 0;
 }
-:deep(.dark-date-picker .el-input__wrapper) {
-  border: 1px solid rgba(50, 150, 255, 0.25) !important;
-}
 
-:deep(.dark-date-picker .el-input__inner) {
-  color: #c0c8d4 !important;
-  font-size: 12px;
-}
-
-:deep(.dark-select) {
-  width: 160px;
-}
-
-:deep(.dark-select .el-input__wrapper) {
-  border: 1px solid rgba(50, 150, 255, 0.25) !important;
-}
-
-:deep(.dark-select .el-input__inner) {
-  color: #c0c8d4 !important;
-  font-size: 12px;
-}
-
-:deep(.el-button) {
-  --el-button-bg-color: transparent;
-  --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: #e0e6ed;
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2);
-  --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7);
-  --el-button-hover-text-color: #00e5ff;
-}
-
-/* ===== 图表卡片 ===== */
+/* 图表卡片 */
 .chart-card {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
+  background: rgba(6, 30, 70, 0.45);
+  border: 1px solid rgba(50, 150, 255, 0.10);
+  backdrop-filter: blur(14px);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -598,15 +510,30 @@ watch(selectedReservoir, () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
   flex-shrink: 0;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .chart-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #e0e6ed;
+}
+
+.chart-unit {
+  font-size: 12px;
+  color: #7a8fa3;
+  padding: 2px 10px;
+  background: rgba(50, 150, 255, 0.08);
+  border: 1px solid rgba(50, 150, 255, 0.15);
+  border-radius: 4px;
 }
 
 .chart-tools {
@@ -615,37 +542,60 @@ watch(selectedReservoir, () => {
   gap: 8px;
 }
 
-.tool-unit {
-  font-size: 12px;
-  color: #7a8fa3;
-  padding: 2px 10px;
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 4px;
-}
-
 .tool-btn {
   background: none;
-  border: 1px solid rgba(50, 150, 255, 0.25);
+  border: 1px solid rgba(50, 150, 255, 0.15);
   color: #7a8fa3;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .tool-btn:hover {
   color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.5);
+  border-color: rgba(0, 175, 255, 0.4);
   background: rgba(0, 175, 255, 0.08);
 }
 
 .chart-container {
   flex: 1;
   min-height: 0;
-  padding: 8px;
+  padding: 12px;
+}
+
+/* Element Plus 深色主题覆盖 */
+:deep(.dark-date-picker .el-input__wrapper),
+:deep(.dark-select .el-input__wrapper) {
+  background: transparent;
+  border: 1px solid rgba(50, 150, 255, 0.25);
+  box-shadow: none;
+}
+
+:deep(.dark-date-picker .el-input__inner),
+:deep(.dark-select .el-input__inner) {
+  color: #e0e6ed;
+}
+
+:deep(.el-range-input) {
+  color: #e0e6ed;
+}
+
+:deep(.el-range-separator) {
+  color: #7a8fa3;
+}
+
+:deep(.el-popper) {
+  background: #112536;
+  border-color: rgba(50, 150, 255, 0.25);
+}
+
+:deep(.el-popper__arrow::before) {
+  background: #112536;
+  border-color: rgba(50, 150, 255, 0.25);
 }
 </style>
