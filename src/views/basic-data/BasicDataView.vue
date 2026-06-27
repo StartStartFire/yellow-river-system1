@@ -31,8 +31,8 @@ watch(selectedId, () => {
 const tabList = [
   { key: 'section', label: '水库断面' },
   { key: 'baseinfo', label: '基础信息' },
-  { key: 'engineering', label: '工情信息' },
   { key: 'keycurves', label: '关键曲线' },
+  { key: 'engineering', label: '工情信息' },
 ]
 
 const handleSelectReservoir = (id: string) => {
@@ -95,8 +95,8 @@ const handleToggleSidebar = () => {
 .basic-data-view {
   display: flex;
   height: 100%;
-  gap: 8px;
-  padding: 8px 12px 0;
+  gap: 12px;
+  padding: 12px;
   overflow: hidden;
 }
 
@@ -105,47 +105,43 @@ const handleToggleSidebar = () => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 6px;
+  gap: 12px;
 }
 
 .tabs-bar {
   display: flex;
-  gap: 2px;
+  gap: 4px;
   flex-shrink: 0;
+  padding: 4px;
+  background: rgba(6, 30, 70, 0.45);
+  border: 1px solid rgba(50, 150, 255, 0.10);
+  backdrop-filter: blur(14px);
+  border-radius: 10px;
 }
 
 .tab-btn {
-  background: none;
-  border: 1px solid rgba(50, 150, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
   color: #7a8fa3;
   font-size: 13px;
-  padding: 6px 20px;
+  padding: 8px 16px;
   cursor: pointer;
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px;
   transition: all 0.2s;
-  position: relative;
 }
 
 .tab-btn:hover {
   color: #c0c8d4;
-  border-color: rgba(50, 150, 255, 0.35);
+  background: rgba(50, 150, 255, 0.05);
 }
 
 .tab-btn.active {
   color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.5);
-  background: rgba(0, 175, 255, 0.08);
+  background: rgba(0, 175, 255, 0.1);
   font-weight: 500;
-}
-
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(0, 175, 255, 0.08);
 }
 
 .tab-content {

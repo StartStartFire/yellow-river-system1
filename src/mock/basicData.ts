@@ -6,6 +6,11 @@ export interface ReservoirBrief {
   status: 'normal' | 'warning' | 'abnormal'
 }
 
+export interface ReservoirGroup {
+  name: string
+  items: ReservoirBrief[]
+}
+
 export interface MetricCardData {
   label: string
   value: number
@@ -76,17 +81,47 @@ export interface ApiResponse<T> {
 
 // ==================== Mock 数据（统一 API 响应格式） ====================
 
-// 水库列表（左侧列表用）
-export const reservoirList: ApiResponse<ReservoirBrief[]> = {
+// 水库列表（分组显示）
+export const reservoirGroups: ApiResponse<ReservoirGroup[]> = {
   code: 200,
   message: 'success',
   data: [
-    { id: 'longyangxia', name: '龙羊峡', status: 'normal' },
-    { id: 'liujiaxia', name: '刘家峡', status: 'normal' },
-    { id: 'gongboxia', name: '公伯峡', status: 'warning' },
-    { id: 'jishixia', name: '积石峡', status: 'normal' },
-    { id: 'qingtongxia', name: '青铜峡', status: 'normal' },
+    {
+      name: '龙羊峡以上',
+      items: [
+        { id: 'yangqu', name: '羊曲', status: 'normal' },
+        { id: 'banduo', name: '班多', status: 'normal' },
+        { id: 'cihaxia', name: '茨哈峡', status: 'normal' },
+        { id: 'maerdang', name: '玛尔挡', status: 'normal' },
+      ],
+    },
+    {
+      name: '龙羊峡 — 刘家峡',
+      items: [
+        { id: 'longyangxia', name: '龙羊峡', status: 'normal' },
+        { id: 'gongboxia', name: '公伯峡', status: 'warning' },
+        { id: 'jishixia', name: '积石峡', status: 'normal' },
+        { id: 'liujiaxia', name: '刘家峡', status: 'normal' },
+      ],
+    },
+    {
+      name: '刘家峡以下',
+      items: [
+        { id: 'xiaoxia', name: '小峡', status: 'normal' },
+        { id: 'daxia', name: '大峡', status: 'normal' },
+        { id: 'wujinxia', name: '乌金峡', status: 'normal' },
+        { id: 'qingtongxia', name: '青铜峡', status: 'normal' },
+        { id: 'heishanxia', name: '黑山峡', status: 'normal' },
+      ],
+    },
   ],
+}
+
+// 兼容旧接口（扁平列表）
+export const reservoirList: ApiResponse<ReservoirBrief[]> = {
+  code: 200,
+  message: 'success',
+  data: reservoirGroups.data.flatMap(g => g.items),
 }
 
 // 各水库核心指标
@@ -224,6 +259,128 @@ const sectionsMap: Record<string, ReservoirSection> = {
       crestLength: 365.0,
       maxHeight: 52.0,
     },
+  },
+  // 龙羊峡以上水库
+  yangqu: {
+    title: '羊曲水库断面示意图',
+    elevationAxis: [2720, 2700, 2680, 2660, 2640, 2620],
+    levels: [
+      { name: '校核洪水位', value: 2715.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 2708.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 2702.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 2698.0, color: '#EAB308' },
+      { name: '死水位', value: 2660.0, color: '#94A3B8' },
+    ],
+    currentLevel: 2695.30,
+    inflow: 680,
+    outflow: 650,
+    dam: { type: '混凝土面板堆石坝', crestElevation: 2720.0, crestLength: 280.0, maxHeight: 150.0 },
+  },
+  banduo: {
+    title: '班多水库断面示意图',
+    elevationAxis: [2640, 2620, 2600, 2580, 2560, 2540],
+    levels: [
+      { name: '校核洪水位', value: 2635.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 2628.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 2622.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 2618.0, color: '#EAB308' },
+      { name: '死水位', value: 2580.0, color: '#94A3B8' },
+    ],
+    currentLevel: 2615.20,
+    inflow: 520,
+    outflow: 500,
+    dam: { type: '混凝土重力坝', crestElevation: 2640.0, crestLength: 180.0, maxHeight: 120.0 },
+  },
+  cihaxia: {
+    title: '茨哈峡水库断面示意图',
+    elevationAxis: [2580, 2560, 2540, 2520, 2500, 2480],
+    levels: [
+      { name: '校核洪水位', value: 2575.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 2568.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 2562.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 2558.0, color: '#EAB308' },
+      { name: '死水位', value: 2520.0, color: '#94A3B8' },
+    ],
+    currentLevel: 2555.80,
+    inflow: 450,
+    outflow: 430,
+    dam: { type: '混凝土拱坝', crestElevation: 2580.0, crestLength: 160.0, maxHeight: 110.0 },
+  },
+  maerdang: {
+    title: '玛尔挡水库断面示意图',
+    elevationAxis: [3300, 3280, 3260, 3240, 3220, 3200],
+    levels: [
+      { name: '校核洪水位', value: 3295.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 3288.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 3282.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 3278.0, color: '#EAB308' },
+      { name: '死水位', value: 3240.0, color: '#94A3B8' },
+    ],
+    currentLevel: 3275.60,
+    inflow: 380,
+    outflow: 360,
+    dam: { type: '混凝土面板堆石坝', crestElevation: 3300.0, crestLength: 220.0, maxHeight: 210.0 },
+  },
+  // 刘家峡以下水库
+  xiaoxia: {
+    title: '小峡水库断面示意图',
+    elevationAxis: [1510, 1500, 1490, 1480, 1470, 1460],
+    levels: [
+      { name: '校核洪水位', value: 1508.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 1502.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 1498.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 1495.0, color: '#EAB308' },
+      { name: '死水位', value: 1470.0, color: '#94A3B8' },
+    ],
+    currentLevel: 1492.50,
+    inflow: 920,
+    outflow: 900,
+    dam: { type: '混凝土闸坝', crestElevation: 1510.0, crestLength: 250.0, maxHeight: 45.0 },
+  },
+  daxia: {
+    title: '大峡水库断面示意图',
+    elevationAxis: [1480, 1470, 1460, 1450, 1440, 1430],
+    levels: [
+      { name: '校核洪水位', value: 1478.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 1472.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 1468.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 1465.0, color: '#EAB308' },
+      { name: '死水位', value: 1440.0, color: '#94A3B8' },
+    ],
+    currentLevel: 1462.30,
+    inflow: 880,
+    outflow: 860,
+    dam: { type: '混凝土闸坝', crestElevation: 1480.0, crestLength: 220.0, maxHeight: 42.0 },
+  },
+  wujinxia: {
+    title: '乌金峡水库断面示意图',
+    elevationAxis: [1450, 1440, 1430, 1420, 1410, 1400],
+    levels: [
+      { name: '校核洪水位', value: 1448.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 1442.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 1438.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 1435.0, color: '#EAB308' },
+      { name: '死水位', value: 1410.0, color: '#94A3B8' },
+    ],
+    currentLevel: 1432.80,
+    inflow: 850,
+    outflow: 830,
+    dam: { type: '混凝土闸坝', crestElevation: 1450.0, crestLength: 200.0, maxHeight: 38.0 },
+  },
+  heishanxia: {
+    title: '黑山峡水库断面示意图',
+    elevationAxis: [1380, 1370, 1360, 1350, 1340, 1330],
+    levels: [
+      { name: '校核洪水位', value: 1378.0, color: '#C084FC' },
+      { name: '设计洪水位', value: 1372.0, color: '#F97316' },
+      { name: '正常蓄水位', value: 1368.0, color: '#38BDF8' },
+      { name: '汛限水位', value: 1365.0, color: '#EAB308' },
+      { name: '死水位', value: 1340.0, color: '#94A3B8' },
+    ],
+    currentLevel: 1362.50,
+    inflow: 820,
+    outflow: 800,
+    dam: { type: '混凝土重力坝', crestElevation: 1380.0, crestLength: 180.0, maxHeight: 55.0 },
   },
 }
 
@@ -366,6 +523,112 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
       ],
     },
   ],
+  // 龙羊峡以上水库基础信息
+  yangqu: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '羊曲水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '年调节水库' }, { key: '坝型', value: '混凝土面板堆石坝' },
+      { key: '坝顶高程', value: '2720.00 m' }, { key: '最大坝高', value: '150.00 m' },
+      { key: '装机容量', value: '220 MW' }, { key: '机组台数', value: '3 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥1500m³/s时启动防洪预案；汛限水位2698m' },
+      { key: '发电调度', value: '水位≥2680m时优先发电；配合龙羊峡水库调度' },
+      { key: '生态调度', value: '全年下泄≥40m³/s；保障下游生态基流' },
+    ]},
+  ],
+  banduo: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '班多水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '年调节水库' }, { key: '坝型', value: '混凝土重力坝' },
+      { key: '坝顶高程', value: '2640.00 m' }, { key: '最大坝高', value: '120.00 m' },
+      { key: '装机容量', value: '180 MW' }, { key: '机组台数', value: '3 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥1200m³/s时启动防洪预案；汛限水位2618m' },
+      { key: '发电调度', value: '水位≥2600m时优先发电；服从上游水库统一调度' },
+      { key: '生态调度', value: '全年下泄≥35m³/s；保障下游生态基流' },
+    ]},
+  ],
+  cihaxia: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '茨哈峡水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '年调节水库' }, { key: '坝型', value: '混凝土拱坝' },
+      { key: '坝顶高程', value: '2580.00 m' }, { key: '最大坝高', value: '110.00 m' },
+      { key: '装机容量', value: '150 MW' }, { key: '机组台数', value: '2 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥1000m³/s时启动防洪预案；汛限水位2558m' },
+      { key: '发电调度', value: '水位≥2540m时优先发电；服从上游水库统一调度' },
+      { key: '生态调度', value: '全年下泄≥30m³/s；保障下游生态基流' },
+    ]},
+  ],
+  maerdang: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '玛尔挡水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '年调节水库' }, { key: '坝型', value: '混凝土面板堆石坝' },
+      { key: '坝顶高程', value: '3300.00 m' }, { key: '最大坝高', value: '210.00 m' },
+      { key: '装机容量', value: '160 MW' }, { key: '机组台数', value: '2 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥800m³/s时启动防洪预案；汛限水位3278m' },
+      { key: '发电调度', value: '水位≥3260m时优先发电；服从上游水库统一调度' },
+      { key: '生态调度', value: '全年下泄≥25m³/s；保障下游生态基流' },
+    ]},
+  ],
+  // 刘家峡以下水库基础信息
+  xiaoxia: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '小峡水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '日调节水库' }, { key: '坝型', value: '混凝土闸坝' },
+      { key: '坝顶高程', value: '1510.00 m' }, { key: '最大坝高', value: '45.00 m' },
+      { key: '装机容量', value: '230 MW' }, { key: '机组台数', value: '4 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥2000m³/s时启用泄洪闸；汛限水位1495m' },
+      { key: '发电调度', value: '服从刘家峡水库统一调度；利用下泄流量发电' },
+      { key: '生态调度', value: '非汛期下泄≥50m³/s；保障兰州段生态用水' },
+    ]},
+  ],
+  daxia: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '大峡水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '日调节水库' }, { key: '坝型', value: '混凝土闸坝' },
+      { key: '坝顶高程', value: '1480.00 m' }, { key: '最大坝高', value: '42.00 m' },
+      { key: '装机容量', value: '210 MW' }, { key: '机组台数', value: '4 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥1800m³/s时启用泄洪闸；汛限水位1465m' },
+      { key: '发电调度', value: '服从上游水库统一调度；利用下泄流量发电' },
+      { key: '生态调度', value: '非汛期下泄≥45m³/s；保障下游生态用水' },
+    ]},
+  ],
+  wujinxia: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '乌金峡水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '日调节水库' }, { key: '坝型', value: '混凝土闸坝' },
+      { key: '坝顶高程', value: '1450.00 m' }, { key: '最大坝高', value: '38.00 m' },
+      { key: '装机容量', value: '140 MW' }, { key: '机组台数', value: '4 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥1500m³/s时启用泄洪闸；汛限水位1435m' },
+      { key: '发电调度', value: '服从上游水库统一调度；利用下泄流量发电' },
+      { key: '生态调度', value: '非汛期下泄≥40m³/s；保障下游生态用水' },
+    ]},
+  ],
+  heishanxia: [
+    { title: '工程属性', items: [
+      { key: '水库名称', value: '黑山峡水库' }, { key: '所属流域', value: '黄河上游' },
+      { key: '水库类型', value: '年调节水库' }, { key: '坝型', value: '混凝土重力坝' },
+      { key: '坝顶高程', value: '1380.00 m' }, { key: '最大坝高', value: '55.00 m' },
+      { key: '装机容量', value: '120 MW' }, { key: '机组台数', value: '2 台' },
+    ]},
+    { title: '调度规则', items: [
+      { key: '防洪调度', value: '入库Q≥1200m³/s时启动防洪预案；汛限水位1365m' },
+      { key: '发电调度', value: '服从上游水库统一调度；兼顾宁蒙河段防凌' },
+      { key: '生态调度', value: '全年下泄≥35m³/s；保障下游生态基流' },
+    ]},
+  ],
 }
 
 // 各水库水情过程数据
@@ -442,6 +705,68 @@ const engineeringMap: Record<string, { summary: EngineeringSummary; turbines: Tu
       { id: 'J-G8', name: '8号泄洪闸', openPercentage: 0, dischargeFlow: 0 },
     ],
   },
+  // 龙羊峡以上水库工情信息
+  yangqu: { summary: { turbineTotal: 3, turbineRunning: 2, gateTotal: 4, gateOpen: 1, totalOutput: 165000 }, turbines: [
+    { id: 'YQ-1', name: '1号机组', status: 'running', output: 85, flow: 95, gateOpen: 82 },
+    { id: 'YQ-2', name: '2号机组', status: 'running', output: 80, flow: 90, gateOpen: 80 },
+    { id: 'YQ-3', name: '3号机组', status: 'stop', output: 0, flow: 0, gateOpen: 0 },
+  ], gates: [
+    { id: 'YQ-G1', name: '1号泄洪闸', openPercentage: 25, dischargeFlow: 180 },
+    { id: 'YQ-G2', name: '2号泄洪闸', openPercentage: 0, dischargeFlow: 0 },
+  ]},
+  banduo: { summary: { turbineTotal: 3, turbineRunning: 2, gateTotal: 4, gateOpen: 1, totalOutput: 135000 }, turbines: [
+    { id: 'BD-1', name: '1号机组', status: 'running', output: 70, flow: 80, gateOpen: 78 },
+    { id: 'BD-2', name: '2号机组', status: 'running', output: 65, flow: 75, gateOpen: 76 },
+    { id: 'BD-3', name: '3号机组', status: 'stop', output: 0, flow: 0, gateOpen: 0 },
+  ], gates: [
+    { id: 'BD-G1', name: '1号泄洪闸', openPercentage: 20, dischargeFlow: 150 },
+    { id: 'BD-G2', name: '2号泄洪闸', openPercentage: 0, dischargeFlow: 0 },
+  ]},
+  cihaxia: { summary: { turbineTotal: 2, turbineRunning: 2, gateTotal: 3, gateOpen: 1, totalOutput: 120000 }, turbines: [
+    { id: 'CH-1', name: '1号机组', status: 'running', output: 62, flow: 70, gateOpen: 75 },
+    { id: 'CH-2', name: '2号机组', status: 'running', output: 58, flow: 68, gateOpen: 73 },
+  ], gates: [
+    { id: 'CH-G1', name: '1号泄洪闸', openPercentage: 18, dischargeFlow: 120 },
+  ]},
+  maerdang: { summary: { turbineTotal: 2, turbineRunning: 2, gateTotal: 3, gateOpen: 1, totalOutput: 130000 }, turbines: [
+    { id: 'MD-1', name: '1号机组', status: 'running', output: 68, flow: 78, gateOpen: 80 },
+    { id: 'MD-2', name: '2号机组', status: 'running', output: 62, flow: 72, gateOpen: 76 },
+  ], gates: [
+    { id: 'MD-G1', name: '1号泄洪闸', openPercentage: 22, dischargeFlow: 140 },
+  ]},
+  // 刘家峡以下水库工情信息
+  xiaoxia: { summary: { turbineTotal: 4, turbineRunning: 3, gateTotal: 5, gateOpen: 2, totalOutput: 185000 }, turbines: [
+    { id: 'XX-1', name: '1号机组', status: 'running', output: 52, flow: 60, gateOpen: 75 },
+    { id: 'XX-2', name: '2号机组', status: 'running', output: 48, flow: 56, gateOpen: 72 },
+    { id: 'XX-3', name: '3号机组', status: 'running', output: 50, flow: 58, gateOpen: 74 },
+    { id: 'XX-4', name: '4号机组', status: 'stop', output: 0, flow: 0, gateOpen: 0 },
+  ], gates: [
+    { id: 'XX-G1', name: '1号泄洪闸', openPercentage: 30, dischargeFlow: 220 },
+    { id: 'XX-G2', name: '2号泄洪闸', openPercentage: 25, dischargeFlow: 180 },
+  ]},
+  daxia: { summary: { turbineTotal: 4, turbineRunning: 3, gateTotal: 5, gateOpen: 2, totalOutput: 170000 }, turbines: [
+    { id: 'DX-1', name: '1号机组', status: 'running', output: 48, flow: 55, gateOpen: 72 },
+    { id: 'DX-2', name: '2号机组', status: 'running', output: 45, flow: 52, gateOpen: 70 },
+    { id: 'DX-3', name: '3号机组', status: 'running', output: 47, flow: 54, gateOpen: 71 },
+    { id: 'DX-4', name: '4号机组', status: 'stop', output: 0, flow: 0, gateOpen: 0 },
+  ], gates: [
+    { id: 'DX-G1', name: '1号泄洪闸', openPercentage: 28, dischargeFlow: 200 },
+    { id: 'DX-G2', name: '2号泄洪闸', openPercentage: 22, dischargeFlow: 160 },
+  ]},
+  wujinxia: { summary: { turbineTotal: 4, turbineRunning: 3, gateTotal: 4, gateOpen: 1, totalOutput: 115000 }, turbines: [
+    { id: 'WJ-1', name: '1号机组', status: 'running', output: 32, flow: 38, gateOpen: 70 },
+    { id: 'WJ-2', name: '2号机组', status: 'running', output: 30, flow: 36, gateOpen: 68 },
+    { id: 'WJ-3', name: '3号机组', status: 'running', output: 31, flow: 37, gateOpen: 69 },
+    { id: 'WJ-4', name: '4号机组', status: 'stop', output: 0, flow: 0, gateOpen: 0 },
+  ], gates: [
+    { id: 'WJ-G1', name: '1号泄洪闸', openPercentage: 25, dischargeFlow: 180 },
+  ]},
+  heishanxia: { summary: { turbineTotal: 2, turbineRunning: 2, gateTotal: 3, gateOpen: 1, totalOutput: 98000 }, turbines: [
+    { id: 'HS-1', name: '1号机组', status: 'running', output: 52, flow: 62, gateOpen: 75 },
+    { id: 'HS-2', name: '2号机组', status: 'running', output: 46, flow: 56, gateOpen: 72 },
+  ], gates: [
+    { id: 'HS-G1', name: '1号泄洪闸', openPercentage: 20, dischargeFlow: 150 },
+  ]},
 }
 
 // 导出统一方法（返回 API 响应格式）
@@ -562,6 +887,48 @@ const keyCurvesMap: Record<string, KeyCurvesData> = {
       opening: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
       flow: [0, 58, 128, 212, 308, 418, 542, 680, 832, 998, 1180],
     },
+  },
+  // 龙羊峡以上水库关键曲线
+  yangqu: {
+    storageCurve: { levels: [2660, 2670, 2680, 2690, 2700, 2710], storage: [8.5, 12.2, 16.8, 22.5, 29.2, 36.8] },
+    turbineCurve: { head: [80, 100, 120, 140, 160, 180], power: [120, 148, 175, 202, 228, 255] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 120, 260, 420, 600, 800] },
+  },
+  banduo: {
+    storageCurve: { levels: [2580, 2590, 2600, 2610, 2620, 2630], storage: [6.2, 9.8, 14.5, 20.2, 27.0, 34.8] },
+    turbineCurve: { head: [70, 90, 110, 130, 150, 170], power: [100, 128, 155, 182, 208, 235] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 100, 220, 360, 520, 700] },
+  },
+  cihaxia: {
+    storageCurve: { levels: [2520, 2530, 2540, 2550, 2560, 2570], storage: [5.8, 9.2, 13.8, 19.5, 26.2, 33.8] },
+    turbineCurve: { head: [65, 85, 105, 125, 145, 165], power: [90, 115, 140, 165, 190, 215] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 85, 185, 305, 445, 600] },
+  },
+  maerdang: {
+    storageCurve: { levels: [3240, 3250, 3260, 3270, 3280, 3290], storage: [4.5, 7.8, 12.2, 17.8, 24.5, 32.2] },
+    turbineCurve: { head: [60, 80, 100, 120, 140, 160], power: [85, 112, 138, 165, 192, 218] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 75, 165, 275, 405, 550] },
+  },
+  // 刘家峡以下水库关键曲线
+  xiaoxia: {
+    storageCurve: { levels: [1470, 1475, 1480, 1485, 1490, 1495], storage: [0.12, 0.18, 0.25, 0.33, 0.42, 0.52] },
+    turbineCurve: { head: [25, 30, 35, 40, 45, 50], power: [38, 48, 58, 68, 78, 88] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 95, 210, 350, 510, 690] },
+  },
+  daxia: {
+    storageCurve: { levels: [1440, 1445, 1450, 1455, 1460, 1465], storage: [0.10, 0.15, 0.22, 0.30, 0.39, 0.49] },
+    turbineCurve: { head: [22, 28, 34, 40, 46, 52], power: [35, 45, 55, 65, 75, 85] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 88, 195, 325, 475, 645] },
+  },
+  wujinxia: {
+    storageCurve: { levels: [1410, 1415, 1420, 1425, 1430, 1435], storage: [0.08, 0.12, 0.18, 0.25, 0.33, 0.42] },
+    turbineCurve: { head: [20, 25, 30, 35, 40, 45], power: [28, 36, 44, 52, 60, 68] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 72, 160, 268, 390, 530] },
+  },
+  heishanxia: {
+    storageCurve: { levels: [1340, 1345, 1350, 1355, 1360, 1365], storage: [0.06, 0.10, 0.15, 0.21, 0.28, 0.36] },
+    turbineCurve: { head: [18, 22, 26, 30, 34, 38], power: [22, 30, 38, 46, 54, 62] },
+    gateCurve: { opening: [0, 20, 40, 60, 80, 100], flow: [0, 62, 138, 232, 340, 465] },
   },
 }
 
