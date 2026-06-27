@@ -106,8 +106,8 @@ const handleNext = () => {
   store.syncObjectivesFromScenario(selectedSubOptionId.value)
   // 标记 Step 1 已完成
   store.markStepCompleted(1)
-  // 后续再改路由
-  router.push('/model-config/model-data')
+  // 跳转 Step 2
+  router.push('/model-config/dispatch-subject')
 }
 
 // ==================== SVG 图标 ====================

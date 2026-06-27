@@ -90,7 +90,7 @@ export const reservoirList: ApiResponse<ReservoirBrief[]> = {
 }
 
 // 各水库核心指标
-const metricsMap: Record<string, Record<string, MetricCardData>> = {
+export const metricsMap: Record<string, Record<string, MetricCardData>> = {
   longyangxia: {
     waterLevel:   { label: '当前水位',   value: 2472.35, unit: 'm',     change: -0.12, isUpBad: true },
     inflow:       { label: '入库流量',   value: 1250,   unit: 'm³/s',  change: 83,   isUpBad: true },

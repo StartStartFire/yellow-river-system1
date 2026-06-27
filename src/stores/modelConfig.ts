@@ -24,6 +24,16 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     subOptionId: '',   // 选中的子选项ID
   })
 
+  // ==================== Step 2: 调度主体（新） ====================
+  const dispatchSubject = ref({
+    startTime: '',
+    endTime: '',
+    timeStep: '每日',
+    scheduleFrequency: '不限制',
+    selectedReservoirIds: [] as string[],
+    selectedGroupId: '',  // 预设组合ID，空=自定义
+  })
+
   // ==================== Step 1: 模型数据 ====================
   const modelData = ref({
     activeMenuId: 'inflow-level',
@@ -250,6 +260,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     basicConfig.value.selectedObjectives = objectives
   }
 
+  // ==================== Step 2 操作（调度主体）====================
+  const setDispatchSubject = (data: Partial<typeof dispatchSubject.value>) => {
+    Object.assign(dispatchSubject.value, data)
+  }
+
   // ==================== Step 1 操作（调度场景）====================
   const setModelData = (data: Partial<typeof modelData.value>) => {
     Object.assign(modelData.value, data)
@@ -289,6 +304,14 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     dispatchScenario.value = {
       categoryId: '',
       subOptionId: '',
+    }
+    dispatchSubject.value = {
+      startTime: '',
+      endTime: '',
+      timeStep: '每日',
+      scheduleFrequency: '不限制',
+      selectedReservoirIds: [],
+      selectedGroupId: '',
     }
     modelData.value = {
       activeMenuId: 'inflow-level',
@@ -335,6 +358,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // 状态
     currentStep,
     dispatchScenario,
+    dispatchSubject,
     modelData,
     basicConfig,
     modelAlgorithm,
@@ -373,6 +397,9 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // Step 1（调度场景）
     setDispatchScenario,
     syncObjectivesFromScenario,
+
+    // Step 2（调度主体）
+    setDispatchSubject,
 
     // Step 1（模型数据）
     setModelData,

@@ -30,6 +30,11 @@ const routes = [
     component: () => import('@/views/model-config/dispatch-scenario/DispatchScenarioView.vue')
   },
   {
+    path: '/model-config/dispatch-subject',
+    name: 'DispatchSubject',
+    component: () => import('@/views/model-config/dispatch-subject/DispatchSubjectView.vue')
+  },
+  {
     path: '/model-config/model-data',
     name: 'ModelData',
     component: () => import('@/views/model-config/model-data/ModelDataView.vue')

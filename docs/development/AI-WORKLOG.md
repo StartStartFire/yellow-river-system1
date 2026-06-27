@@ -548,6 +548,69 @@ docs/development/AI-WORKLOG.md                            — 本记录
 
 ---
 
+### 开发时间
+
+```text
+2026-06-27（第二十三次）
+```
+
+### 本次完成内容
+
+```text
+模型配置 Step 2「调度主体」页面开发完成：
+
+1. 新增设计文档（docs/page-design/04-model-config/02-dispatch-subject.md）：
+   - 完整页面说明，含上下分区布局、场景约束规则、联动映射表
+   - 水库选择：预设组合（龙刘/龙刘黑/全部） + "更多组合"弹窗多选
+   - 场景约束：中长期(≥1年≤5年/步长每旬每月)、关键期(≤1年/步长每旬每月)、实时(≤31天/步长每日锁定)
+
+2. 新 Step 2 页面（DispatchSubjectView.vue）：
+   - 上半区 2×2 网格：调度起止时间、时间步长（场景联动过滤）、调度频率、总时段数（自动计算）
+   - 下半区：4 个预设组合卡片横向排列（龙刘/龙刘黑/全部/更多组合）
+   - "更多组合"弹窗：5 座水库 checkbox 多选，显示水位/入库流量/运行状态
+   - 底部已选摘要行 + 预设组合选中自动勾选水库
+   - 手动勾选水库自动取消预设组合选中态
+   - 保存/取消弹窗确认，上一步/下一步路由跳转
+   - 总时段数随步长和起止时间即时变化
+   - 全部校验（时段范围/步长合法性/水库必选）
+
+3. 新增 mock 数据（src/mock/modelConfig.ts）：
+   - scenarioToSubjectDefaults：Step 1→Step 2 预填映射表（9 个子选项）
+   - scenarioCategoryConstraints：场景大类→时间/步长约束
+   - subjectReservoirGroups：预设组合（含全部水库）
+   - reservoirNameMap / allReservoirs
+
+4. Pinia Store 更新（src/stores/modelConfig.ts）：
+   - 新增 dispatchSubject 状态 + setDispatchSubject 方法
+
+5. 路由更新（src/router/index.ts）：
+   - 新增 /model-config/dispatch-subject 路由
+   - Step 1 下一步跳转改为 → /model-config/dispatch-subject
+
+6. Mock 数据导出修复（src/mock/basicData.ts）：
+   - metricsMap 添加 export
+```
+
+### 修改文件
+
+```text
+新建设计文档：
+  docs/page-design/04-model-config/02-dispatch-subject.md
+
+新建页面：
+  src/views/model-config/dispatch-subject/DispatchSubjectView.vue
+
+修改文件：
+  src/mock/modelConfig.ts
+  src/mock/basicData.ts
+  src/stores/modelConfig.ts
+  src/router/index.ts
+  src/views/.../DispatchScenarioView.vue (下一步跳转更新)
+  docs/development/AI-WORKLOG.md
+```
+
+---
+
 ## 4. 当前重要约束
 
 开发必须参考：
