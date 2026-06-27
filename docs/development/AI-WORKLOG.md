@@ -468,7 +468,85 @@ docs/development/AI-WORKLOG.md                            — 本记录
 - 调度目标新增「输沙调度」「多能互补」，共5项目标
 - 总时段数显示在调度周期卡片标题栏最右侧
 
-------
+---
+
+### 开发时间
+
+```text
+2026-06-27（第二十二次）
+```
+
+### 本次完成内容
+
+```text
+模型配置流程重构 — Step 1「调度场景」页面开发完成：
+
+1. 新增设计文档（docs/page-design/04-model-config/01-dispatch-scenario.md）：
+   - 完整页面说明，含布局、交互规则、视觉规范、数据联动策略
+
+2. 新 Step 1 页面（DispatchScenarioView.vue）：
+   - 3 个大卡片横向排列：多年的中长期调度 / 年内关键期调度 / 实时调度
+   - 每个卡片包含 SVG 图标 + 标题 + 描述 + 子选项 radio 列表
+   - 卡片互斥，点击选中高亮（蓝色发光边框+右上角勾选标记）
+   - 子选项选中后 radio 圆点填充动画
+   - 默认无选中，需主动选择才能进入下一步
+   - 保存/取消弹窗确认（与现有页面一致）
+   - 所有数据来自 mock（dispatchScenarioCategories）
+
+3. 新增 mock 数据（src/mock/modelConfig.ts）：
+   - dispatchScenarioCategories：3 大类 + 9 个子选项 + linkedObjectives
+   - DispatchSubOption / DispatchScenarioCategory 类型接口
+
+4. 步骤条改为 6 步兼容（ModelConfigStepBar.vue）：
+   - 新增 version='old'|'new' prop
+   - old 保持原有 5 步不动，new 使用新 6 步流程
+   - 旧页面无需任何修改，默认使用旧版
+
+5. 底部操作栏适配（ModelConfigFooter.vue）：
+   - step < 5 → step < 6，Step 6 隐藏"下一步"（ConfigSummary 使用独立底部）
+
+6. Pinia Store 更新（src/stores/modelConfig.ts）：
+   - 新增 dispatchScenario 状态（categoryId / subOptionId）
+   - 新增 setDispatchScenario / syncObjectivesFromScenario 方法
+   - syncObjectivesFromScenario：根据子选项自动联动调度目标到 basicConfig
+   - stepTitles 更新为新 6 步流程
+   - stepCompleted 扩展为 6 项
+   - setStep / markStepCompleted 支持 1~6
+   - resetAll 新增 dispatchScenario 重置
+
+7. 路由更新（src/router/index.ts）：
+   - 新增 /model-config/dispatch-scenario 路由
+   - /model-config 默认重定向改为 /model-config/dispatch-scenario
+```
+
+### 关键设计决策
+
+```text
+1. 步骤条向后兼容：旧页面不改动，通过 version='old' 默认使用 5 步
+2. 联动策略：子选项选中即自动联动调度目标（syncObjectivesFromScenario）
+3. 后续 5 步页面将在后续开发中逐步迁移为新 6 步流程
+4. Step 2（调度主体）未开发前，下一步暂跳转 /model-config/model-data
+```
+
+### 修改文件
+
+```text
+新建设计文档：
+  docs/page-design/04-model-config/01-dispatch-scenario.md
+
+新建页面：
+  src/views/model-config/dispatch-scenario/DispatchScenarioView.vue
+
+修改文件：
+  src/components/model-config/ModelConfigStepBar.vue  — 6步兼容（version prop）
+  src/components/model-config/ModelConfigFooter.vue   — step<5→step<6
+  src/mock/modelConfig.ts                             — dispatchScenarioCategories
+  src/stores/modelConfig.ts                           — dispatchScenario 状态+联动
+  src/router/index.ts                                 — 新路由+默认重定向
+  docs/development/AI-WORKLOG.md                      — 本记录
+```
+
+---
 
 ## 4. 当前重要约束
 

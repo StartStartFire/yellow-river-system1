@@ -55,7 +55,7 @@ defineEmits<{
       <div class="footer-divider" />
 
       <el-button
-        v-if="step < 5"
+        v-if="step < 6"
         type="primary"
         size="default"
         @click="$emit('next')"

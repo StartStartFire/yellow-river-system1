@@ -18,6 +18,12 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   // ==================== 当前步骤 ====================
   const currentStep = ref(1)
 
+  // ==================== Step 1: 调度场景（新） ====================
+  const dispatchScenario = ref({
+    categoryId: '',    // 选中的大类ID: 'multi-year' | 'critical-period' | 'realtime'
+    subOptionId: '',   // 选中的子选项ID
+  })
+
   // ==================== Step 1: 模型数据 ====================
   const modelData = ref({
     activeMenuId: 'inflow-level',
@@ -66,7 +72,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   })
 
   // ==================== 步骤完成状态 ====================
-  const stepCompleted = ref<boolean[]>([false, false, false, false, false])
+  const stepCompleted = ref<boolean[]>([false, false, false, false, false, false])
 
   // ==================== 计算属性 ====================
 
@@ -76,8 +82,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   /** 是否所有步骤都已完成 */
   const allCompleted = computed(() => stepCompleted.value.every(Boolean))
 
-  /** 当前步骤标题 */
-  const stepTitles = ['模型数据', '基础配置', '模型算法', '场景配置', '配置汇总']
+  /** 当前步骤标题（新 6 步流程） */
+  const stepTitles = ['调度场景', '调度主体', '模型数据', '模型算法', '场景配置', '配置汇总']
+
+  /** 旧 5 步流程标题（兼容旧页面） */
+  const oldStepTitles = ['模型数据', '基础配置', '模型算法', '场景配置', '配置汇总']
 
   const currentStepTitle = computed(() => stepTitles[currentStep.value - 1] || '')
 
@@ -139,21 +148,21 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   /** 设置当前步骤 */
   const setStep = (step: number) => {
-    if (step >= 1 && step <= 5) {
+    if (step >= 1 && step <= 6) {
       currentStep.value = step
     }
   }
 
   /** 标记步骤已完成 */
   const markStepCompleted = (step: number) => {
-    if (step >= 1 && step <= 5) {
+    if (step >= 1 && step <= 6) {
       stepCompleted.value[step - 1] = true
     }
   }
 
   /** 重置所有步骤完成状态 */
   const resetSteps = () => {
-    stepCompleted.value = [false, false, false, false, false]
+    stepCompleted.value = [false, false, false, false, false, false]
   }
 
   // ==================== 步骤间联动方法 ====================
@@ -215,7 +224,33 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     }
   }
 
-  // ==================== Step 1 操作 ====================
+  // ==================== Step 1 操作（调度场景）====================
+  const setDispatchScenario = (data: Partial<typeof dispatchScenario.value>) => {
+    Object.assign(dispatchScenario.value, data)
+  }
+
+  /**
+   * 根据子选项ID联动调度目标
+   * 从 dispatchScenarioCategories 中查找对应的 linkedObjectives
+   */
+  const syncObjectivesFromScenario = (subOptionId: string) => {
+    // 动态导入无法在 store 中用，直接使用 mock 数据的映射
+    const scenarioObjectiveMap: Record<string, string[]> = {
+      'multi-objective': ['flood-control', 'power-generation', 'ecology'],
+      'flood': ['flood-control'],
+      'ice': ['flood-control'],
+      'supply': ['power-generation'],
+      'sediment-period': ['sediment'],
+      'ice-sediment': ['flood-control', 'sediment'],
+      'cross-section': ['sediment'],
+      'reach': ['sediment'],
+      'multi-energy': ['multi-energy'],
+    }
+    const objectives = scenarioObjectiveMap[subOptionId] || []
+    basicConfig.value.selectedObjectives = objectives
+  }
+
+  // ==================== Step 1 操作（调度场景）====================
   const setModelData = (data: Partial<typeof modelData.value>) => {
     Object.assign(modelData.value, data)
   }
@@ -251,6 +286,10 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   /** 重置所有配置 */
   const resetAll = () => {
     currentStep.value = 1
+    dispatchScenario.value = {
+      categoryId: '',
+      subOptionId: '',
+    }
     modelData.value = {
       activeMenuId: 'inflow-level',
       dateRange: ['2025-05-19', '2025-05-25'],
@@ -295,6 +334,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   return {
     // 状态
     currentStep,
+    dispatchScenario,
     modelData,
     basicConfig,
     modelAlgorithm,
@@ -306,6 +346,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     allCompleted,
     currentStepTitle,
     stepTitles,
+    oldStepTitles,
 
     // 步骤间联动计算属性
     compatibleModelIds,
@@ -329,7 +370,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     getSuggestedParamsForTimeStep,
     applyTimeStepToAlgorithmParams,
 
-    // Step 1
+    // Step 1（调度场景）
+    setDispatchScenario,
+    syncObjectivesFromScenario,
+
+    // Step 1（模型数据）
     setModelData,
 
     // Step 2

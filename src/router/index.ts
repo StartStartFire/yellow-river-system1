@@ -22,7 +22,12 @@ const routes = [
   },
   {
     path: '/model-config',
-    redirect: '/model-config/model-data'
+    redirect: '/model-config/dispatch-scenario'
+  },
+  {
+    path: '/model-config/dispatch-scenario',
+    name: 'DispatchScenario',
+    component: () => import('@/views/model-config/dispatch-scenario/DispatchScenarioView.vue')
   },
   {
     path: '/model-config/model-data',
