@@ -22,17 +22,22 @@ const routes = [
   },
   {
     path: '/model-config',
-    redirect: '/model-config/model-data'
+    redirect: '/model-config/dispatch-scenario'
+  },
+  {
+    path: '/model-config/dispatch-scenario',
+    name: 'DispatchScenario',
+    component: () => import('@/views/model-config/dispatch-scenario/DispatchScenarioView.vue')
+  },
+  {
+    path: '/model-config/dispatch-subject',
+    name: 'DispatchSubject',
+    component: () => import('@/views/model-config/dispatch-subject/DispatchSubjectView.vue')
   },
   {
     path: '/model-config/model-data',
     name: 'ModelData',
     component: () => import('@/views/model-config/model-data/ModelDataView.vue')
-  },
-  {
-    path: '/model-config/basic-config',
-    name: 'BasicConfig',
-    component: () => import('@/views/model-config/basic-config/BasicConfigView.vue')
   },
   {
     path: '/model-config/model-algorithm',

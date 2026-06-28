@@ -321,32 +321,112 @@ export const modelDataMock = {
   } as ModelDataResponse,
 }
 
-// ==================== Step 2: 基础配置 Mock 数据 ====================
+// ==================== Step 1: 调度场景 Mock 数据 ====================
 
-export interface ReservoirGroup {
+export interface DispatchSubOption {
   id: string
   name: string
-  reservoirs: string[]
+  description: string
+  /** 关联的调度目标ID列表（自动联动） */
+  linkedObjectives: string[]
 }
+
+export interface DispatchScenarioCategory {
+  id: string
+  name: string
+  icon: string
+  description: string
+  subOptions: DispatchSubOption[]
+}
+
+export const dispatchScenarioCategories: DispatchScenarioCategory[] = [
+  {
+    id: 'multi-year',
+    name: '多年的中长期调度',
+    icon: 'calendar',
+    description: '以年为单位的长期调度规划，统筹多目标水资源配置，适用于年度调度方案编制与中长期水资源优化分配',
+    subOptions: [
+      {
+        id: 'multi-objective',
+        name: '多目标优化调度',
+        description: '综合考虑防洪、发电、生态、供水等多目标协同优化',
+        linkedObjectives: ['flood-control', 'power-generation', 'ecology'],
+      },
+    ],
+  },
+  {
+    id: 'critical-period',
+    name: '年内关键期调度',
+    icon: 'wave',
+    description: '针对年内特定关键时期制定精细化调度方案，满足各时期差异化调度需求',
+    subOptions: [
+      {
+        id: 'flood',
+        name: '防洪期',
+        description: '主汛期防洪调度，控制水库水位保障防洪安全',
+        linkedObjectives: ['flood-control'],
+      },
+      {
+        id: 'ice',
+        name: '防凌期',
+        description: '凌汛期防凌调度，控制下泄流量防止冰塞冰坝',
+        linkedObjectives: ['flood-control'],
+      },
+      {
+        id: 'supply',
+        name: '供水期',
+        description: '供水保障调度，保障城乡生活与工农业供水安全',
+        linkedObjectives: ['power-generation'],
+      },
+      {
+        id: 'sediment-period',
+        name: '调水调沙',
+        description: '水沙联合调度，利用洪水过程输沙减淤',
+        linkedObjectives: ['sediment'],
+      },
+    ],
+  },
+  {
+    id: 'realtime',
+    name: '实时调度',
+    icon: 'lightning',
+    description: '基于实时水情和预报信息的应急响应与精细调度，应对突发水情沙情变化',
+    subOptions: [
+      {
+        id: 'ice-sediment',
+        name: '凌峰水沙调度',
+        description: '凌汛期水沙过程调控，协调防凌与输沙关系',
+        linkedObjectives: ['flood-control', 'sediment'],
+      },
+      {
+        id: 'cross-section',
+        name: '断面输沙调度',
+        description: '控制断面输沙率，保障下游河道输沙效率',
+        linkedObjectives: ['sediment'],
+      },
+      {
+        id: 'reach',
+        name: '区间冲淤调度',
+        description: '控制河段冲淤平衡，减少库区与河道淤积',
+        linkedObjectives: ['sediment'],
+      },
+      {
+        id: 'multi-energy',
+        name: '多能互补',
+        description: '协调水电与风光等新能源，提高多能互补综合效益',
+        linkedObjectives: ['multi-energy'],
+      },
+    ],
+  },
+]
+
+// ==================== 旧 Step 2 基础配置 Mock 数据 ====================
 
 export interface DispatchObjective {
   id: string
   name: string
   description: string
   icon: string
-}
-
-export interface BasicConfigState {
-  currentStep: number
-  startTime: string
-  endTime: string
-  timeStep: string
-  scheduleFrequency: string
-  totalPeriods: number
-  schemeName: string
-  selectedReservoirGroup: string
-  selectedObjectives: string[]
-  constraintCount: number
 }
 
 export interface ConstraintDetail {
@@ -360,40 +440,6 @@ export interface ConstraintSummaryData {
   count: number
   description: string
   constraints: ConstraintDetail[]
-}
-
-export const basicConfigState = {
-  code: 200,
-  message: 'success',
-  data: {
-    currentStep: 2,
-    startTime: '2025-05-16',
-    endTime: '2025-05-26',
-    timeStep: '每日',
-    scheduleFrequency: '每月一次',
-    totalPeriods: 11,
-    schemeName: '',
-    selectedReservoirGroup: 'long-liu',
-    selectedObjectives: ['flood-control'],
-    constraintCount: 12,
-  } as BasicConfigState,
-}
-
-export const reservoirGroups = {
-  code: 200,
-  message: 'success',
-  data: [
-    {
-      id: 'long-liu',
-      name: '龙刘组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库'],
-    },
-    {
-      id: 'long-liu-hei',
-      name: '龙刘黑组合',
-      reservoirs: ['龙羊峡水库', '刘家峡水库', '黑山峡水库'],
-    },
-  ] as ReservoirGroup[],
 }
 
 export const dispatchObjectives = {
@@ -918,6 +964,114 @@ export interface ConfigSummaryState {
   currentPage: number
   estimatedTime: string
   planCount: number
+}
+
+// ==================== Step 2: 调度主体 Mock 数据 ====================
+
+/** 水库ID → 显示名称映射 */
+export const reservoirNameMap: Record<string, string> = {
+  longyangxia: '龙羊峡水库',
+  liujiaxia: '刘家峡水库',
+  qingtongxia: '青铜峡水库',
+  gongboxia: '公伯峡水库',
+  jishixia: '积石峡水库',
+}
+
+/** 所有可选水库列表 */
+export const allReservoirs: { id: string; name: string }[] = [
+  { id: 'longyangxia', name: '龙羊峡水库' },
+  { id: 'liujiaxia', name: '刘家峡水库' },
+  { id: 'qingtongxia', name: '青铜峡水库' },
+  { id: 'gongboxia', name: '公伯峡水库' },
+  { id: 'jishixia', name: '积石峡水库' },
+]
+
+/** 预设水库组合（含"全部水库"） */
+export const subjectReservoirGroups = [
+  {
+    id: 'long-liu',
+    name: '龙刘组合',
+    reservoirIds: ['longyangxia', 'liujiaxia'],
+    description: '龙羊峡+刘家峡',
+  },
+  {
+    id: 'long-liu-hei',
+    name: '龙刘黑组合',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia'],
+    description: '龙羊+刘家+青铜峡',
+  },
+  {
+    id: 'all',
+    name: '全部水库',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia'],
+    description: '5 座水库',
+  },
+]
+
+/** Step 1 场景 → Step 2 调度主体预填映射 */
+export const scenarioToSubjectDefaults: Record<string, {
+  startTime: string
+  endTime: string
+  timeStep: string
+  scheduleFrequency: string
+  reservoirIds: string[]
+}> = {
+  'multi-objective': {
+    startTime: '2025-01-01', endTime: '2025-12-31',
+    timeStep: '每月', scheduleFrequency: '每月一次',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia'],
+  },
+  'flood': {
+    startTime: '2025-06-01', endTime: '2025-09-30',
+    timeStep: '每月', scheduleFrequency: '每月一次',
+    reservoirIds: ['longyangxia', 'liujiaxia'],
+  },
+  'ice': {
+    startTime: '2025-12-01', endTime: '2026-02-28',
+    timeStep: '每月', scheduleFrequency: '每月一次',
+    reservoirIds: ['longyangxia', 'liujiaxia'],
+  },
+  'supply': {
+    startTime: '2025-03-01', endTime: '2025-06-30',
+    timeStep: '每旬', scheduleFrequency: '每旬一次',
+    reservoirIds: ['longyangxia', 'liujiaxia'],
+  },
+  'sediment-period': {
+    startTime: '2025-07-01', endTime: '2025-08-31',
+    timeStep: '每旬', scheduleFrequency: '每旬一次',
+    reservoirIds: ['longyangxia', 'liujiaxia'],
+  },
+  'ice-sediment': {
+    startTime: '2025-12-10', endTime: '2026-01-10',
+    timeStep: '每日', scheduleFrequency: '不限制',
+    reservoirIds: ['longyangxia', 'liujiaxia'],
+  },
+  'cross-section': {
+    startTime: '2025-07-01', endTime: '2025-07-31',
+    timeStep: '每日', scheduleFrequency: '每月一次',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia'],
+  },
+  'reach': {
+    startTime: '2025-08-01', endTime: '2025-08-31',
+    timeStep: '每日', scheduleFrequency: '每月一次',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia'],
+  },
+  'multi-energy': {
+    startTime: '2025-06-01', endTime: '2025-06-30',
+    timeStep: '每日', scheduleFrequency: '不限制',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia'],
+  },
+}
+
+/** 场景大类ID → 时间/步长约束 */
+export const scenarioCategoryConstraints: Record<string, {
+  maxDays: number
+  allowedTimeSteps: string[]
+  defaultTimeStep: string
+}> = {
+  'multi-year': { maxDays: 365 * 5, allowedTimeSteps: ['每旬', '每月'], defaultTimeStep: '每月' },
+  'critical-period': { maxDays: 365, allowedTimeSteps: ['每旬', '每月'], defaultTimeStep: '每月' },
+  'realtime': { maxDays: 31, allowedTimeSteps: ['每日'], defaultTimeStep: '每日' },
 }
 
 export const configSummaryState = {

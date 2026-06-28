@@ -52,9 +52,10 @@ const relevantParamIds = computed(() => {
 
 // 步骤条点击
 const handleStepClick = (step: number) => {
-  if (step === 1) router.push('/model-config/model-data')
-  if (step === 2) router.push('/model-config/basic-config')
-  if (step === 3) router.push('/model-config/model-algorithm')
+  if (step === 1) router.push('/model-config/dispatch-scenario')
+  if (step === 2) router.push('/model-config/dispatch-subject')
+  if (step === 3) router.push('/model-config/model-data')
+  if (step === 4) router.push('/model-config/model-algorithm')
 }
 
 // 场景类型切换
@@ -115,7 +116,7 @@ const paramIcons: Record<string, string> = {
 <template>
   <div class="scenario-constraint-view">
     <!-- 步骤条 -->
-    <ModelConfigStepBar :current-step="4" @step-click="handleStepClick" />
+    <ModelConfigStepBar :current-step="5" version="new" @step-click="handleStepClick" />
 
     <!-- 主体内容 -->
     <div class="main-content">
@@ -211,7 +212,7 @@ const paramIcons: Record<string, string> = {
 
     <!-- 底部操作栏 -->
     <ModelConfigFooter
-      :step="4"
+      :step="5"
       @cancel="handleCancel"
       @save="handleSave"
       @prev="handlePrev"

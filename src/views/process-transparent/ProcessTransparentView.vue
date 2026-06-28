@@ -94,11 +94,9 @@ const handleTerminate = () => {
 // ── 左侧图表 refs ──
 const convergenceChartRef = ref<HTMLDivElement | null>(null)
 const objectiveChartRef = ref<HTMLDivElement | null>(null)
-const diversityChartRef = ref<HTMLDivElement | null>(null)
 
 let convergenceChart: echarts.ECharts | null = null
 let objectiveChart: echarts.ECharts | null = null
-let diversityChart: echarts.ECharts | null = null
 
 let resizeObserver: ResizeObserver | null = null
 
@@ -182,43 +180,6 @@ const buildObjectiveOption = () => {
       { name:'发电目标', type:'line', data:d.power, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ffaa00'} },
       { name:'生态目标', type:'line', data:d.ecology, smooth:true, symbol:'none', lineStyle:{width:2,color:'#00e5a0'} },
     ],
-  }
-}
-
-// ──────────── 左侧：种群多样性变化 ────────────
-const buildDiversityOption = () => {
-  const d = scenarioData.value.diversityData
-  return {
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
-    },
-    grid: { left: 46, right: 12, top: 30, bottom: 20 },
-    xAxis: {
-      type: 'category',
-      data: d.generations,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
-      splitLine: { show: false },
-    },
-    yAxis: {
-      type: 'value',
-      name: '多样性指数',
-      nameTextStyle: { color: '#7a8fa3', fontSize: 9 },
-      axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
-    },
-    series: [{
-      name:'种群多样性', type:'line', data:d.diversity,
-      smooth:true, symbol:'none',
-      lineStyle:{width:2,color:'#b37feb'},
-      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
-        {offset:0,color:'rgba(179,127,235,0.25)'},{offset:1,color:'rgba(179,127,235,0.02)'}
-      ])},
-    }],
   }
 }
 
@@ -307,11 +268,6 @@ const renderCharts = () => {
       objectiveChart.setOption(buildObjectiveOption(), true)
       objectiveChart.resize()
     }
-    if (diversityChartRef.value) {
-      if (!diversityChart) diversityChart = echarts.init(diversityChartRef.value)
-      diversityChart.setOption(buildDiversityOption(), true)
-      diversityChart.resize()
-    }
     if (rightLYXChartRef.value) {
       if (!rightLYXChart) rightLYXChart = echarts.init(rightLYXChartRef.value)
       rightLYXChart.setOption(buildReservoirOption('lyx'), true)
@@ -330,7 +286,6 @@ const initResizeObserver = () => {
   resizeObserver = new ResizeObserver(() => {
     convergenceChart?.resize()
     objectiveChart?.resize()
-    diversityChart?.resize()
     rightLYXChart?.resize()
     rightLJXChart?.resize()
   })
@@ -390,7 +345,7 @@ onUnmounted(() => {
   if (progressTimer) clearInterval(progressTimer)
   if (logTimer) clearInterval(logTimer)
   if (resizeObserver) resizeObserver.disconnect()
-  ;[convergenceChart, objectiveChart, diversityChart, rightLYXChart, rightLJXChart].forEach(c => c?.dispose())
+  ;[convergenceChart, objectiveChart, rightLYXChart, rightLJXChart].forEach(c => c?.dispose())
 })
 </script>
 
@@ -461,10 +416,6 @@ onUnmounted(() => {
           <div class="chart-card">
             <div class="chart-card-header"><span class="chart-label">最优目标值变化趋势</span></div>
             <div ref="objectiveChartRef" class="chart-container-sm"></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-card-header"><span class="chart-label">种群多样性变化</span></div>
-            <div ref="diversityChartRef" class="chart-container-sm"></div>
           </div>
         </div>
       </div>
