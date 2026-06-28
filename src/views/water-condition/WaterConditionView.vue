@@ -15,14 +15,6 @@ const tabs = waterConditionTabs.data
 const dateRange = ref<[string, string]>(['2026-05-15 00:00', '2026-05-16 14:30'])
 const selectedReservoir = ref('longyangxia')
 const activeTabKey = ref('inflow')
-const defaultRange: [string, string] = ['2026-05-15 00:00', '2026-05-16 14:30']
-const defaultReservoir = 'longyangxia'
-
-// 当前选中水库名称
-const reservoirName = computed(() => {
-  return reservoirs.find(r => r.value === selectedReservoir.value)?.label || '龙羊峡水库'
-})
-
 // 当前页签信息
 const activeTabInfo = computed(() => {
   return tabs.find(t => t.key === activeTabKey.value) || tabs[0]
@@ -179,19 +171,6 @@ const renderChart = () => {
 }
 
 // ==================== 交互 ====================
-const handleQuery = () => {
-  renderChart()
-  ElMessage.success('查询条件已更新')
-}
-
-const handleReset = () => {
-  dateRange.value = [...defaultRange] as [string, string]
-  selectedReservoir.value = defaultReservoir
-  activeTabKey.value = 'inflow'
-  renderChart()
-  ElMessage.success('已重置为默认条件')
-}
-
 const handleReservoirChange = () => {
   renderChart()
 }
@@ -276,6 +255,7 @@ watch(selectedReservoir, () => {
             v-model="selectedReservoir"
             size="small"
             class="dark-select"
+            style="width: 160px"
             @change="handleReservoirChange"
           >
             <el-option
@@ -287,24 +267,7 @@ watch(selectedReservoir, () => {
           </el-select>
         </div>
 
-        <div class="filter-actions">
-          <button class="btn-primary" @click="handleQuery">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
-            </svg>
-            查询
-          </button>
-          <button class="btn-secondary" @click="handleReset">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            重置
-          </button>
-        </div>
       </div>
-
-      <div class="filter-divider"></div>
 
       <!-- 指标页签 -->
       <div class="tabs-inline">
@@ -337,7 +300,6 @@ watch(selectedReservoir, () => {
       <div class="chart-header">
         <div class="header-left">
           <span class="chart-title">{{ chartTitle }}</span>
-          <span class="chart-unit">{{ activeTabInfo.unit }}</span>
         </div>
         <div class="chart-tools">
           <button class="tool-btn" title="下载" @click="handleDownload">
@@ -401,64 +363,12 @@ watch(selectedReservoir, () => {
   white-space: nowrap;
 }
 
-.filter-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-primary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  background: linear-gradient(135deg, #00afff 0%, #00d4ff 100%);
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #00d4ff 0%, #00e5ff 100%);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-}
-
-.btn-secondary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  background: rgba(50, 150, 255, 0.1);
-  border: 1px solid rgba(50, 150, 255, 0.3);
-  border-radius: 6px;
-  color: #00d4ff;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-  background: rgba(50, 150, 255, 0.2);
-  border-color: rgba(50, 150, 255, 0.5);
-}
-
-.filter-divider {
-  width: 1px;
-  height: 28px;
-  background: rgba(50, 150, 255, 0.15);
-  flex-shrink: 0;
-}
-
 /* 页签 */
 .tabs-inline {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
-  justify-content: center;
+  margin-left: auto;
 }
 
 .tab-btn {
@@ -525,15 +435,6 @@ watch(selectedReservoir, () => {
   font-size: 15px;
   font-weight: 600;
   color: #e0e6ed;
-}
-
-.chart-unit {
-  font-size: 12px;
-  color: #7a8fa3;
-  padding: 2px 10px;
-  background: rgba(50, 150, 255, 0.08);
-  border: 1px solid rgba(50, 150, 255, 0.15);
-  border-radius: 4px;
 }
 
 .chart-tools {
