@@ -14,10 +14,10 @@
 | 3 | 顶部导航栏 | 已完成 | 深色科技风，蓝青色高亮，支持路由跳转 |
 | 4 | 首页 | 已完成 | 地图全屏背景 + 水库点位 + 左右浮层面板（可收起/展开）+ 水情监控 + 发电统计 + 水位/负荷过程线 + 预警信息 |
 | 5 | 基础数据 | 已完成 | 水库选择 + 断面示意图 + 基础信息（工程属性+调度规则）+ 水情过程图表 + 工情信息 + 关键曲线（库容/机组出力/泄洪闸过流） |
-| 6 | 水调水情 | 已完成 | 调令执行对比图（水位/流量/出力三页签），时间范围+水库筛选 |
+| 6 | 水调水情 | 已完成 | 调令执行对比图（入流/水位/出力/出流四页签），时间范围+水库筛选 |
 | 7 | 模型配置 | **6 步流程全部完成** | 调度场景 → 调度主体 → 模型数据 → 模型算法 → 场景配置 → 配置汇总，完整闭环 |
 | 8 | 过程透明 | 已完成 | 全功能完成，含方案切换 + 6 个 ECharts 图表 + 进度模拟 + 底部摘要 + 操作区 |
-| 9 | 评价决策 | 已完成 | 评价分析（雷达图+桑基图+帕累托曲线+算法排名表格）+ 决策分析 |
+| 9 | 评价决策 | 已完成 | Tab导航（评价分析/决策分析），评价分析（雷达图+桑基图+帕累托曲线+算法排名表格），决策分析（目标满足情况+过程曲线+水量流向图） |
 | 10 | 案例库 | 已完成 | 7个案例（7种唯一图标）+ 筛选 + 详情页签 + 关键指标 + 过程预览 + 评价结论 |
 | 11 | 报表统计 | 已完成 | 逐月/逐年报表切换、多级表头、5水库完整数据、考核结果状态标签 |
 
@@ -59,11 +59,11 @@
 - 机组工况列表（运行/停机/检修状态）
 
 **水调水情（WaterConditionView）**：全功能完成。包含：
-- 顶部筛选区：时间范围、水库选择、查询/重置
-- 指标页签：水位/流量/出力
+- 顶部筛选区：时间范围、水库选择
+- 指标页签：入流/水位/出力/出流
 - 核心图表：双折线过程对比图（目标值 vs 实际值）
 - 调度更新节点标记 + 末端数值标签
-- 图表右上角：单位下拉/下载/全屏按钮 UI
+- 图表右上角：下载/全屏按钮 UI
 
 ------
 
@@ -748,7 +748,57 @@ docs/development/AI-WORKLOG.md
 
 ---
 
-开发必须参考：
+### 开发时间
+
+```text
+2026-06-28（第二十七次）
+```
+
+### 本次完成内容
+
+```text
+1. 水调水情页面修改：
+   - 删除查询和重置按钮（筛选区仅保留时间范围、水库选择）
+   - 指标页签从"水位/流量/出力"改为"入流/水位/出力/出流"
+   - 水库下拉框宽度增加至 160px
+   - 删除水库下拉框右侧竖线分隔符
+   - 指标页签移至筛选栏最右侧（margin-left: auto）
+   - 删除图表标题右侧的单位标签
+
+2. 模型配置调度主体弹窗水库扩展：
+   - allReservoirs 从 5 个扩展到 13 个（与基础数据一致）
+   - 弹窗中水库按区域分为三组展示（龙羊峡以上、龙羊峡—刘家峡、刘家峡以下）
+   - metricsMap 补充 8 个水库的水位/入库流量数据
+   - 龙刘黑组合修正为龙羊峡+刘家峡+黑山峡
+
+3. 评价决策页面重构：
+   - 从"两个可折叠卡片"改为"Tab 导航切换"
+   - 新增 Tab 导航栏（评价分析 / 决策分析）
+   - 决策分析三个卡片高度自适应铺满
+   - 目标满足列表改为 space-evenly 均匀分布
+
+4. 文档全面更新：
+   - docs/page-design/02-basic-data.md — 水库列表更新为 13 座
+   - docs/page-design/03-water-condition.md — 删除查询重置、页签改为入流/水位/出力/出流
+   - docs/page-design/06-evaluation-decision.md — 改为 Tab 导航结构
+   - docs/requirements/system-requirements.md — 模型配置更新为 6 步流程，评价决策改为 Tab 结构
+   - docs/development/AI-WORKLOG.md — 本记录
+```
+
+### 修改文件
+
+```text
+src/views/water-condition/WaterConditionView.vue              — 删除查询重置，页签改为入流/水位/出力/出流
+src/views/model-config/dispatch-subject/DispatchSubjectView.vue — 水库分组展示，13个水库
+src/views/evaluation-decision/EvaluationDecisionView.vue       — 改折叠卡片为Tab导航
+src/mock/modelConfig.ts                                         — allReservoirs扩展到13个
+src/mock/basicData.ts                                           — metricsMap补充8个水库
+docs/page-design/02-basic-data.md                               — 水库列表更新
+docs/page-design/03-water-condition.md                          — 删除查询重置，页签更新
+docs/page-design/06-evaluation-decision.md                      — Tab导航结构
+docs/requirements/system-requirements.md                        — 模型配置6步、评价决策Tab
+docs/development/AI-WORKLOG.md                                  — 本记录
+```
 
 ```text
 AGENTS.md

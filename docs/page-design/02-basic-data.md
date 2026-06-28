@@ -8,7 +8,7 @@
 
 ## 2. 页面定位
 
-基础数据页面用于以水库对象为核心，展示水库静态信息、关键运行指标、水库断面、水情过程和工情信息。
+基础数据页面用于以水库对象为核心，展示水库静态信息、水库断面、关键曲线和工情信息。该页面当前不含水情过程曲线功能。
 
 当前阶段只做前端页面原型展示，不接后端接口，不连接数据库，不实现真实数据查询和修改。页面数据全部来自：
 
@@ -65,9 +65,9 @@ src/mock/basicData.ts
 │ 顶部系统栏：系统名称 / 导航菜单 / 当前时间 / 调度令状态 │
 ├───────────────┬──────────────────────────────────────────────┤
 │ 左侧水库列表   │ 右侧水库详情区                               │
-│               │ 顶部：水库信息页签                           │
-│ 龙羊峡         │ 标签页：基础信息 / 水库断面 / 水情过程 / 工情信息 │
-│ 刘家峡         │ 当前标签内容区                               │
+│               │ 标签页：水库断面 / 基础信息 / 关键曲线 / 工情信息 │
+│ 龙羊峡（13座） │ 当前标签内容区                               │
+│ 分组展示       │                                              │
 └───────────────┴──────────────────────────────────────────────┘
 ```
 
@@ -163,19 +163,12 @@ src/mock/basicData.ts
 
 左侧水库列表用于切换当前查看的水库对象。
 
-页面当前重点展示：
+页面当前展示 13 座水库，按区位分三组：
 
 ```text
-龙羊峡
-刘家峡
-```
-
-后续可扩展：
-
-```text
-公伯峡
-积石峡
-青铜峡
+龙羊峡以上：羊曲、班多、茨哈峡、玛尔挡
+龙羊峡 — 刘家峡：龙羊峡、公伯峡、积石峡、刘家峡
+刘家峡以下：小峡、大峡、乌金峡、青铜峡、黑山峡
 ```
 
 ## 6.2 区域标题
@@ -245,40 +238,18 @@ src/mock/basicData.ts
 内容包括：
 
 ```text
-1. 顶部页签：水库信息
-2. 二级标签页
-3. 当前标签内容区
+1. 标签页：水库断面 / 基础信息 / 关键曲线 / 工情信息
+2. 当前标签内容区
 ```
 
 ------
 
-## 7.1 顶部页签
+## 7.1 标签页
 
-页面右侧顶部显示页签：
-
-```text
-水库信息
-```
-
-要求：
+页面右侧顶部显示标签页：
 
 ```text
-1. 作为当前详情区的一级页签。
-2. 使用蓝色高亮边框。
-3. 当前阶段只保留”水库信息”页签。
-4. 不在基础数据页面中展示”模型数据”页签。
-```
-
-------
-
-# 8. 二级标签页
-
-右侧详情区顶部显示二级标签页。
-
-标签包括：
-
-```text
-基础信息 / 水库断面 / 水情过程 / 工情信息
+水库断面 / 基础信息 / 关键曲线 / 工情信息
 ```
 
 默认选中：
@@ -287,24 +258,19 @@ src/mock/basicData.ts
 水库断面
 ```
 
-说明：
-
-```text
-根据当前原型图，页面默认展示“水库断面”内容。
-```
-
-交互要求：
+要求：
 
 ```text
 1. 点击标签切换内容区。
 2. 当前选中标签使用蓝色高亮。
 3. 标签样式与深色主题适配。
-4. 当前阶段所有数据来自 mock。
+4. 当前阶段所有数据来自 src/mock/basicData.ts。
+5. 不在基础数据页面中展示”模型数据”页签。
 ```
 
 ------
 
-# 8.1 基础信息标签页
+# 8. 各标签页详情
 
 ## 8.1.1 功能定位
 
@@ -333,11 +299,11 @@ src/mock/basicData.ts
 18. 生态下泄要求
 ```
 
-## 8.1.3 布局建议
+## 8.1.3 布局说明
 
 ```text
 1. 使用信息卡片或描述列表。
-2. 静态属性分为“工程属性”“特征水位”“调度规则”三组。
+2. 静态属性分为”工程属性”和”调度规则”两组。
 3. 每组使用独立小卡片。
 4. 避免密集堆满字段。
 ```
@@ -525,47 +491,13 @@ src/mock/basicData.ts
 
 ------
 
-# 8.3 水情过程标签页
+# 8.3 工情信息标签页
 
 ## 8.3.1 功能定位
 
-水情过程用于展示当前水库水位、入库流量、出库流量的历史变化过程。
-
-## 8.3.2 页面内容
-
-建议包括：
-
-```text
-1. 时间范围选择
-2. 指标切换
-3. 水位过程线
-4. 入库流量过程线
-5. 出库流量过程线
-```
-
-## 8.3.3 图表要求
-
-```text
-1. 使用 ECharts 折线图或双轴组合图。
-2. 横轴为时间。
-3. 纵轴为水位或流量。
-4. 支持 tooltip。
-5. 支持 legend。
-6. 支持图例开关。
-7. 数据来自 src/mock/basicData.ts。
-```
-
-图表应符合全局规范中的 ECharts 图表要求。
-
-------
-
-# 8.4 工情信息标签页
-
-## 8.4.1 功能定位
-
 工情信息用于展示当前水库机组、闸门、泄洪和发电运行状态。
 
-## 8.4.2 建议展示内容
+## 8.3.2 展示内容
 
 ```text
 1. 机组运行状态
@@ -578,13 +510,39 @@ src/mock/basicData.ts
 8. 检修状态
 ```
 
-## 8.4.3 布局建议
+## 8.3.3 布局建议
 
 ```text
 1. 上方展示工情摘要卡片。
 2. 下方展示机组运行表格。
 3. 可增加闸门开度示意条。
 4. 当前阶段使用 mock 数据。
+```
+
+------
+
+# 8.4 关键曲线标签页
+
+## 8.4.1 功能定位
+
+关键曲线用于展示当前水库的库容曲线、机组出力曲线和泄洪闸过流曲线，以 ECharts 图表形式呈现。
+
+## 8.4.2 图表内容
+
+```text
+1. 库容曲线 — 水位与库容关系曲线
+2. 机组出力曲线 — 水头与出力关系曲线
+3. 泄洪闸过流曲线 — 闸门开度与过流能力关系曲线
+```
+
+## 8.4.3 展示要求
+
+```text
+1. 使用 ECharts 折线图或面积图。
+2. 图表背景透明，适配深色主题。
+3. 支持 tooltip。
+4. 支持图例。
+5. 数据来自 src/mock/basicData.ts。
 ```
 
 ------
@@ -608,79 +566,15 @@ interface ApiResponse<T> {
 }
 ```
 
-```ts
-export const reservoirList: ApiResponse<ReservoirBrief[]> = {
-  code: 200,
-  message: 'success',
-  data: [
-    {
-      id: 'longyangxia',
-      name: '龙羊峡',
-      status: 'normal',
-    },
-    {
-      id: 'liujiaxia',
-      name: '刘家峡',
-      status: 'normal',
-    },
-  ],
-}
+实际导出函数（src/mock/basicData.ts）：
 
-export const reservoirOverview: ApiResponse<Record<string, MetricCardData>> = {
-  code: 200,
-  message: 'success',
-  data: {
-    longyangxia: {
-      name: '龙羊峡',
-      currentLevel: 2467.35,
-      currentLevelChange: -0.12,
-      inflow: 487.6,
-      inflowChange: 23.4,
-      outflow: 612.3,
-      outflowChange: 15.7,
-      storage: 24.58,
-      storageChange: -0.18,
-    },
-    liujiaxia: {
-      name: '刘家峡',
-      currentLevel: 1738.62,
-      currentLevelChange: -0.08,
-      inflow: 426.5,
-      inflowChange: 18.2,
-      outflow: 520.4,
-      outflowChange: 12.6,
-      storage: 57.32,
-      storageChange: -0.11,
-    },
-  },
-}
-
-export const reservoirSection: ApiResponse<Record<string, ReservoirSection>> = {
-  code: 200,
-  message: 'success',
-  data: {
-    longyangxia: {
-      title: '龙羊峡水库断面示意图',
-      elevationAxis: [2520, 2500, 2480, 2460, 2440, 2420, 2400, 2380],
-      levels: [
-        { name: '校核洪水位', value: 2505.0, color: '#C084FC' },
-        { name: '设计洪水位', value: 2497.0, color: '#F97316' },
-        { name: '正常蓄水位', value: 2480.0, color: '#38BDF8' },
-        { name: '汛限水位', value: 2470.0, color: '#EAB308' },
-        { name: '当前水位', value: 2467.35, color: '#00AFFF' },
-        { name: '死水位', value: 2410.0, color: '#CBD5E1' },
-      ],
-      inflow: 487.6,
-      outflow: 612.3,
-      dam: {
-        type: '混凝土重力坝',
-        crestElevation: 2510.0,
-        crestLength: 393.0,
-        maxHeight: 178.0,
-      },
-    },
-  },
-}
+```text
+getMetrics(reservoirId)        → 4 项核心指标（水位/入库/出库/蓄水量）
+getSection(reservoirId)        → 断面数据（特征水位/坝体参数）
+getBaseInfo(reservoirId)       → 基础信息（工程属性+调度规则分组）
+getProcessData(reservoirId)    → 水情过程数据（日期/水位/入库/出库）
+getEngineeringInfo(reservoirId)→ 工情信息（摘要+机组+闸门列表）
+getKeyCurves(reservoirId)      → 关键曲线（库容/出力/过流）
 ```
 
 ------
@@ -692,18 +586,19 @@ export const reservoirSection: ApiResponse<Record<string, ReservoirSection>> = {
 ```text
 1. 默认选中龙羊峡。
 2. 点击左侧水库列表项后切换当前水库。
-3. 右侧水库名称、核心指标、断面图、基础信息、水情过程、工情信息同步更新。
-4. 当前阶段只切换 mock 数据。
+3. 右侧断面图、基础信息、关键曲线、工情信息同步更新。
+4. 切换水库时自动重置到”水库断面”标签页。
+5. 当前阶段只切换 mock 数据。
 ```
 
 ## 10.2 标签页切换
 
 ```text
-1. 默认选中“水库断面”。
-2. 点击“基础信息”展示水库静态属性。
-3. 点击“水库断面”展示断面示意图。
-4. 点击“水情过程”展示水位/流量过程图。
-5. 点击“工情信息”展示机组和闸门运行信息。
+1. 默认选中”水库断面”。
+2. 点击”基础信息”展示水库静态属性（工程属性+调度规则）。
+3. 点击”水库断面”展示断面示意图。
+4. 点击”关键曲线”展示库容/出力/过流曲线。
+5. 点击”工情信息”展示机组和闸门运行信息。
 ```
 
 ## 10.3 左侧列表收起
@@ -727,32 +622,16 @@ export const reservoirSection: ApiResponse<Record<string, ReservoirSection>> = {
 
 ## 11. 组件拆分建议
 
-基础数据页面建议拆分为：
+基础数据页面使用的组件：
 
 ```text
-src/views/basic-data/BasicDataView.vue
-
-src/components/basic-data/ReservoirSidebar.vue
-src/components/basic-data/ReservoirTabs.vue
-src/components/basic-data/BaseInfoPanel.vue
-src/components/basic-data/ProcessChart.vue
-src/components/basic-data/EngineeringInfo.vue
-```
-
-公共组件建议复用：
-
-```text
-src/components/chart/ReservoirSectionGraph.vue
-src/components/common/StatusTag.vue
-```
-
-说明：
-
-```text
-1. 当前页面直接使用 SectionChart / BaseInfoPanel / ProcessChart / EngineeringInfo 组件。
-2. 如果当前项目还没有公共组件，可以先在 BasicDataView.vue 中完成页面。
-3. 页面稳定后再拆分组件。
-4. 不要为了基础数据页面一次性重构整个项目。
+src/views/basic-data/BasicDataView.vue               — 页面主组件
+src/components/basic-data/ReservoirSidebar.vue        — 左测水库列表（13座，三组）
+src/components/basic-data/BaseInfoPanel.vue           — 基础信息（工程属性+调度规则）
+src/components/basic-data/EngineeringInfo.vue          — 工情信息（机组+闸门）
+src/components/basic-data/KeyCurvesPanel.vue           — 关键曲线（库容/出力/过流）
+src/components/chart/ReservoirSectionGraph.vue         — 水库断面示意图
+src/components/common/StatusTag.vue                    — 状态标签
 ```
 
 ------
@@ -766,21 +645,20 @@ src/components/common/StatusTag.vue
 2. 顶部导航完整显示。
 3. 当前导航”基础数据”高亮。
 4. 页面整体风格与首页一致。
-5. 左侧水库列表正常展示龙羊峡、刘家峡。
+5. 左侧水库列表正常展示 13 座水库，分三组显示。
 6. 默认选中龙羊峡。
-7. 点击刘家峡后，右侧数据可以切换。
-8. 右侧顶部显示”水库信息”页签。
-9. 二级标签页正常显示。
-10. 默认展示”水库断面”标签页。
-11. 水库断面示意图结构完整。
-12. 断面图中能够看到水位线、当前水位、水体、大坝、入库流量和出库流量。
-13. 基础信息标签页可以展示静态信息。
-14. 水情过程标签页可以展示 mock 图表。
-15. 工情信息标签页可以展示 mock 表格或卡片。
-16. 页面数据全部来自 src/mock/basicData.ts。
-17. 不调用任何后端接口。
-18. 不连接数据库。
-19. 不实现真实数据上传、修改或删除。
+7. 点击其他水库后，右侧数据可以切换。
+8. 标签页正常显示：水库断面 / 基础信息 / 关键曲线 / 工情信息。
+9. 默认展示”水库断面”标签页。
+10. 水库断面示意图结构完整。
+11. 断面图中能够看到水位线、当前水位、水体、大坝、入库流量和出库流量。
+12. 基础信息标签页可以展示静态信息（工程属性+调度规则）。
+13. 关键曲线标签页可以展示库容曲线、机组出力曲线、泄洪闸过流曲线。
+14. 工情信息标签页可以展示机组运行表格。
+15. 页面数据全部来自 src/mock/basicData.ts。
+16. 不调用任何后端接口。
+17. 不连接数据库。
+18. 不实现真实数据上传、修改或删除。
 ```
 
 ------
