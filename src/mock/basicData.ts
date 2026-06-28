@@ -156,6 +156,56 @@ export const metricsMap: Record<string, Record<string, MetricCardData>> = {
     outflow:      { label: '出库流量',   value: 950,    unit: 'm³/s',  change: 20,   isUpBad: false },
     storage:      { label: '蓄水量',     value: 6.18,   unit: '亿m³',  change: 0.12, isUpBad: true },
   },
+  // 龙羊峡以上水库
+  yangqu: {
+    waterLevel:   { label: '当前水位',   value: 2695.30, unit: 'm',     change: -0.20, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 680,    unit: 'm³/s',  change: 35,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 650,    unit: 'm³/s',  change: 20,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 8.52,   unit: '亿m³',  change: -0.15, isUpBad: true },
+  },
+  banduo: {
+    waterLevel:   { label: '当前水位',   value: 2615.20, unit: 'm',     change: -0.10, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 520,    unit: 'm³/s',  change: 28,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 500,    unit: 'm³/s',  change: 15,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 3.25,   unit: '亿m³',  change: -0.08, isUpBad: true },
+  },
+  cihaxia: {
+    waterLevel:   { label: '当前水位',   value: 2555.80, unit: 'm',     change: -0.12, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 450,    unit: 'm³/s',  change: 22,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 430,    unit: 'm³/s',  change: 18,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 2.18,   unit: '亿m³',  change: -0.05, isUpBad: true },
+  },
+  maerdang: {
+    waterLevel:   { label: '当前水位',   value: 3275.60, unit: 'm',     change: -0.18, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 380,    unit: 'm³/s',  change: 18,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 360,    unit: 'm³/s',  change: 12,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 12.36,  unit: '亿m³',  change: -0.22, isUpBad: true },
+  },
+  // 刘家峡以下水库
+  xiaoxia: {
+    waterLevel:   { label: '当前水位',   value: 1492.50, unit: 'm',     change: -0.06, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 920,    unit: 'm³/s',  change: 38,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 900,    unit: 'm³/s',  change: 25,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 1.85,   unit: '亿m³',  change: -0.03, isUpBad: true },
+  },
+  daxia: {
+    waterLevel:   { label: '当前水位',   value: 1462.30, unit: 'm',     change: -0.08, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 880,    unit: 'm³/s',  change: 32,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 860,    unit: 'm³/s',  change: 20,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 1.62,   unit: '亿m³',  change: -0.04, isUpBad: true },
+  },
+  wujinxia: {
+    waterLevel:   { label: '当前水位',   value: 1432.80, unit: 'm',     change: -0.05, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 850,    unit: 'm³/s',  change: 30,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 830,    unit: 'm³/s',  change: 18,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 1.35,   unit: '亿m³',  change: -0.02, isUpBad: true },
+  },
+  heishanxia: {
+    waterLevel:   { label: '当前水位',   value: 1362.50, unit: 'm',     change: -0.07, isUpBad: true },
+    inflow:       { label: '入库流量',   value: 820,    unit: 'm³/s',  change: 26,   isUpBad: true },
+    outflow:      { label: '出库流量',   value: 800,    unit: 'm³/s',  change: 15,   isUpBad: false },
+    storage:      { label: '蓄水量',     value: 1.05,   unit: '亿m³',  change: -0.03, isUpBad: true },
+  },
 }
 
 // 各水库断面数据

@@ -975,6 +975,14 @@ export const reservoirNameMap: Record<string, string> = {
   qingtongxia: '青铜峡水库',
   gongboxia: '公伯峡水库',
   jishixia: '积石峡水库',
+  yangqu: '羊曲水库',
+  banduo: '班多水库',
+  cihaxia: '茨哈峡水库',
+  maerdang: '玛尔挡水库',
+  xiaoxia: '小峡水库',
+  daxia: '大峡水库',
+  wujinxia: '乌金峡水库',
+  heishanxia: '黑山峡水库',
 }
 
 /** 所有可选水库列表 */
@@ -984,6 +992,14 @@ export const allReservoirs: { id: string; name: string }[] = [
   { id: 'qingtongxia', name: '青铜峡水库' },
   { id: 'gongboxia', name: '公伯峡水库' },
   { id: 'jishixia', name: '积石峡水库' },
+  { id: 'yangqu', name: '羊曲水库' },
+  { id: 'banduo', name: '班多水库' },
+  { id: 'cihaxia', name: '茨哈峡水库' },
+  { id: 'maerdang', name: '玛尔挡水库' },
+  { id: 'xiaoxia', name: '小峡水库' },
+  { id: 'daxia', name: '大峡水库' },
+  { id: 'wujinxia', name: '乌金峡水库' },
+  { id: 'heishanxia', name: '黑山峡水库' },
 ]
 
 /** 预设水库组合（含"全部水库"） */
@@ -997,14 +1013,14 @@ export const subjectReservoirGroups = [
   {
     id: 'long-liu-hei',
     name: '龙刘黑组合',
-    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia'],
-    description: '龙羊+刘家+青铜峡',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'heishanxia'],
+    description: '龙羊峡+刘家峡+黑山峡',
   },
   {
     id: 'all',
     name: '全部水库',
-    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia'],
-    description: '5 座水库',
+    reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia', 'yangqu', 'banduo', 'cihaxia', 'maerdang', 'xiaoxia', 'daxia', 'wujinxia', 'heishanxia'],
+    description: '13 座水库',
   },
 ]
 

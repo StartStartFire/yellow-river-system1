@@ -9,10 +9,9 @@ import {
   subjectReservoirGroups,
   scenarioToSubjectDefaults,
   scenarioCategoryConstraints,
-  allReservoirs,
   reservoirNameMap,
 } from '@/mock/modelConfig'
-import { metricsMap } from '@/mock/basicData'
+import { metricsMap, reservoirGroups as basicDataGroups } from '@/mock/basicData'
 import type { MetricCardData } from '@/mock/basicData'
 
 // ==================== Store ====================
@@ -271,6 +270,17 @@ type MetricsMap = Record<string, Record<string, MetricCardData>>
 
 const reservoirMetrics = (metricsMap as MetricsMap)
 
+/** 按区域分组的水库列表（与基础数据保持一致） */
+const reservoirGroups = computed(() => {
+  return basicDataGroups.data.map(group => ({
+    name: group.name,
+    items: group.items.map(item => ({
+      ...item,
+      fullName: reservoirNameMap[item.id] || item.name,
+    })),
+  }))
+})
+
 const getReservoirStatus = (id: string): { label: string; color: string } => {
   const statusMap: Record<string, { label: string; color: string }> = {
     longyangxia: { label: '正常', color: '#00ff88' },
@@ -278,6 +288,14 @@ const getReservoirStatus = (id: string): { label: string; color: string } => {
     gongboxia: { label: '关注', color: '#ffaa00' },
     jishixia: { label: '正常', color: '#00ff88' },
     qingtongxia: { label: '正常', color: '#00ff88' },
+    yangqu: { label: '正常', color: '#00ff88' },
+    banduo: { label: '正常', color: '#00ff88' },
+    cihaxia: { label: '正常', color: '#00ff88' },
+    maerdang: { label: '正常', color: '#00ff88' },
+    xiaoxia: { label: '正常', color: '#00ff88' },
+    daxia: { label: '正常', color: '#00ff88' },
+    wujinxia: { label: '正常', color: '#00ff88' },
+    heishanxia: { label: '正常', color: '#00ff88' },
   }
   return statusMap[id] || { label: '正常', color: '#00ff88' }
 }
@@ -476,38 +494,45 @@ onMounted(() => {
     class="reservoir-dialog"
   >
     <div class="dialog-reservoir-list">
-      <div
-        v-for="res in allReservoirs"
-        :key="res.id"
-        class="dialog-reservoir-item"
-        :class="{ 'item-checked': dialogReservoirIds.includes(res.id) }"
-        @click="
-          dialogReservoirIds.includes(res.id)
-            ? dialogReservoirIds = dialogReservoirIds.filter(id => id !== res.id)
-            : dialogReservoirIds.push(res.id)
-        "
-      >
-        <div class="item-checkbox" :class="{ 'checkbox-checked': dialogReservoirIds.includes(res.id) }">
-          <svg v-if="dialogReservoirIds.includes(res.id)" width="12" height="12" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8.5L6 11.5L13 4.5" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="item-info">
-          <span class="item-name">{{ res.name }}</span>
-          <span class="item-meta">
-            水位 {{ reservoirMetrics[res.id]?.waterLevel?.value ?? '--' }}m
-          </span>
-          <span class="item-meta">
-            入库 {{ reservoirMetrics[res.id]?.inflow?.value ?? '--' }}m³/s
-          </span>
+      <template v-for="group in reservoirGroups" :key="group.name">
+        <div class="dialog-group-header">
+          <span class="dialog-group-line"></span>
+          <span class="dialog-group-name">{{ group.name }}</span>
+          <span class="dialog-group-line"></span>
         </div>
         <div
-          class="item-status"
-          :style="{ color: getReservoirStatus(res.id).color }"
+          v-for="res in group.items"
+          :key="res.id"
+          class="dialog-reservoir-item"
+          :class="{ 'item-checked': dialogReservoirIds.includes(res.id) }"
+          @click="
+            dialogReservoirIds.includes(res.id)
+              ? dialogReservoirIds = dialogReservoirIds.filter(id => id !== res.id)
+              : dialogReservoirIds.push(res.id)
+          "
         >
-          {{ getReservoirStatus(res.id).label }}
+          <div class="item-checkbox" :class="{ 'checkbox-checked': dialogReservoirIds.includes(res.id) }">
+            <svg v-if="dialogReservoirIds.includes(res.id)" width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8.5L6 11.5L13 4.5" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="item-info">
+            <span class="item-name">{{ res.fullName }}</span>
+            <span class="item-meta">
+              水位 {{ reservoirMetrics[res.id]?.waterLevel?.value ?? '--' }}m
+            </span>
+            <span class="item-meta">
+              入库 {{ reservoirMetrics[res.id]?.inflow?.value ?? '--' }}m³/s
+            </span>
+          </div>
+          <div
+            class="item-status"
+            :style="{ color: getReservoirStatus(res.id).color }"
+          >
+            {{ getReservoirStatus(res.id).label }}
+          </div>
         </div>
-      </div>
+      </template>
     </div>
     <template #footer>
       <div class="dialog-footer">
@@ -900,7 +925,32 @@ onMounted(() => {
 .dialog-reservoir-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+}
+
+.dialog-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 6px;
+}
+
+.dialog-group-header:first-child {
+  padding-top: 0;
+}
+
+.dialog-group-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(50, 150, 255, 0.25), transparent);
+}
+
+.dialog-group-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5a8abf;
+  white-space: nowrap;
+  letter-spacing: 1px;
 }
 
 .dialog-reservoir-item {

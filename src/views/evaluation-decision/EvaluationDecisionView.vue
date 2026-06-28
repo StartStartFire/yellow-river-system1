@@ -19,10 +19,8 @@ const plans = planOptions.data
 // 默认选中方案一、二、三
 const selectedComparePlans = ref<string[]>([...pageState.data.selectedComparePlans])
 
-// 评价分析折叠状态（默认展开）
-const evaluationExpanded = ref(true)
-// 决策分析折叠状态（默认折叠）
-const decisionExpanded = ref(false)
+// Tab 切换（默认评价分析）
+const activeTab = ref('evaluation')
 
 // 决策分析当前方案（默认方案二）
 const currentDecisionPlan = ref(pageState.data.currentDecisionPlan)
@@ -610,20 +608,19 @@ const initResizeObserver = () => {
 
 // ========== 交互事件 ==========
 
-// 切换决策分析：展开时自动收起评价分析
-const handleToggleDecision = () => {
-  decisionExpanded.value = !decisionExpanded.value
-  if (decisionExpanded.value) {
-    evaluationExpanded.value = false
-  }
-}
-
-// 切换评价分析：展开时自动收起决策分析
-const handleToggleEvaluation = () => {
-  evaluationExpanded.value = !evaluationExpanded.value
-  if (evaluationExpanded.value) {
-    decisionExpanded.value = false
-  }
+const handleTabSwitch = (tab: string) => {
+  activeTab.value = tab
+  setTimeout(() => {
+    renderCharts()
+    // 二次 resize 确保 display 变化后 ECharts 获取正确尺寸
+    setTimeout(() => {
+      radarChart?.resize()
+      sankeyChart?.resize()
+      paretoChart?.resize()
+      processChart?.resize()
+      waterFlowChart?.resize()
+    }, 200)
+  }, 100)
 }
 
 // 导出方案
@@ -651,7 +648,7 @@ watch(activeProcessTab, () => {
   }
 })
 
-watch([evaluationExpanded, decisionExpanded], () => {
+watch(activeTab, () => {
   setTimeout(() => renderCharts(), 100)
 })
 
@@ -671,198 +668,189 @@ onUnmounted(() => {
 
 <template>
   <div class="evaluation-decision-view">
-    <!-- ===== 评价分析卡片 ===== -->
-    <div class="analysis-card">
-      <!-- 标题栏（可点击折叠） -->
-      <div class="card-header" @click="handleToggleEvaluation">
-        <div class="card-header-left">
-          <span class="card-title">评价分析</span>
+    <!-- ===== Tab 导航栏 ===== -->
+    <div class="tab-nav-bar">
+      <button
+        class="tab-nav-btn"
+        :class="{ active: activeTab === 'evaluation' }"
+        @click="handleTabSwitch('evaluation')"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6"/>
+          <path d="M5.5 8L7.5 10L11 5.5"/>
+        </svg>
+        评价分析
+      </button>
+      <button
+        class="tab-nav-btn"
+        :class="{ active: activeTab === 'decision' }"
+        @click="handleTabSwitch('decision')"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="12" height="12" rx="2"/>
+          <path d="M5 8L7 10L11 6"/>
+        </svg>
+        决策分析
+      </button>
+    </div>
+
+    <!-- ===== 评价分析内容 ===== -->
+    <div v-show="activeTab === 'evaluation'" class="tab-content">
+      <!-- 顶部：多方案对比选择 -->
+      <div class="selector-bar">
+        <span class="selector-label">多方案对比：</span>
+        <el-checkbox-group v-model="selectedComparePlans" class="plan-checkboxes">
+          <el-checkbox v-for="plan in plans" :key="plan.value" :value="plan.value" :label="plan.label">
+            <span class="checkbox-label-text">{{ plan.label }}</span>
+          </el-checkbox>
+        </el-checkbox-group>
+      </div>
+
+      <!-- 第一行图表：雷达图 + 评价指标桑基图 -->
+      <div class="charts-row">
+        <div class="chart-box chart-box-left">
+          <div ref="radarChartRef" class="chart-container chart-container-eva"></div>
         </div>
-        <div class="card-header-right">
-          <span class="collapse-arrow" :class="{ expanded: evaluationExpanded }">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
+        <div class="chart-box chart-box-right">
+          <div ref="sankeyChartRef" class="chart-container chart-container-eva"></div>
         </div>
       </div>
 
-      <!-- 评价分析内容 -->
-      <div v-show="evaluationExpanded" class="card-body">
-        <!-- 顶部：多方案对比选择 -->
-        <div class="selector-bar">
-          <span class="selector-label">多方案对比：</span>
-          <el-checkbox-group v-model="selectedComparePlans" class="plan-checkboxes">
-            <el-checkbox v-for="plan in plans" :key="plan.value" :value="plan.value" :label="plan.label">
-              <span class="checkbox-label-text">{{ plan.label }}</span>
-            </el-checkbox>
-          </el-checkbox-group>
+      <!-- 第二行图表：帕累托曲线 + 评价算法排名分析 -->
+      <div class="charts-row">
+        <div class="chart-box chart-box-left">
+          <div ref="paretoChartRef" class="chart-container chart-container-eva-sm"></div>
         </div>
-
-        <!-- 第一行图表：雷达图 + 评价指标桑基图 -->
-        <div class="charts-row">
-          <div class="chart-box chart-box-left">
-            <div ref="radarChartRef" class="chart-container chart-container-eva"></div>
-          </div>
-          <div class="chart-box chart-box-right">
-            <div ref="sankeyChartRef" class="chart-container chart-container-eva"></div>
-          </div>
-        </div>
-
-        <!-- 第二行图表：帕累托曲线 + 评价算法排名分析 -->
-        <div class="charts-row">
-          <div class="chart-box chart-box-left">
-            <div ref="paretoChartRef" class="chart-container chart-container-eva-sm"></div>
-          </div>
-          <div class="chart-box chart-box-right">
-            <div class="ranking-table-wrap eva-ranking-table">
-              <el-table
-                :data="rankingData.data"
-                stripe
-                size="small"
-                style="width: 100%"
-                :header-cell-style="{
-                  color: '#e0e6ed',
-                  borderBottom: '1px solid rgba(50, 150, 255, 0.15)',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  padding: '2px 8px',
-                }"
-                :cell-style="{
-                  background: 'transparent',
-                  color: '#c0c8d4',
-                  borderBottom: '1px solid rgba(50, 150, 255, 0.08)',
-                  fontSize: '11px',
-                  padding: '4px 8px',
-                }"
-              >
-                <el-table-column prop="rank" label="排名" width="50" />
-                <el-table-column prop="algorithm" label="评价算法" min-width="130" />
-                <el-table-column v-for="score in rankingData.data[0]?.scores || []" :key="score.plan" :label="score.plan" min-width="100">
-                  <template #default="{ row }">
-                    <div class="score-cell">
-                      <span class="score-value">{{ row.scores.find((s: any) => s.plan === score.plan)?.value.toFixed(3) }}</span>
-                      <div class="score-bar-bg">
-                        <div
-                          class="score-bar-fill"
-                          :style="{ width: (row.scores.find((s: any) => s.plan === score.plan)?.value * 100).toFixed(1) + '%' }"
-                        ></div>
-                      </div>
+        <div class="chart-box chart-box-right">
+          <div class="ranking-table-wrap eva-ranking-table">
+            <el-table
+              :data="rankingData.data"
+              stripe
+              size="small"
+              style="width: 100%"
+              :header-cell-style="{
+                color: '#e0e6ed',
+                borderBottom: '1px solid rgba(50, 150, 255, 0.15)',
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '2px 8px',
+              }"
+              :cell-style="{
+                background: 'transparent',
+                color: '#c0c8d4',
+                borderBottom: '1px solid rgba(50, 150, 255, 0.08)',
+                fontSize: '11px',
+                padding: '4px 8px',
+              }"
+            >
+              <el-table-column prop="rank" label="排名" width="50" />
+              <el-table-column prop="algorithm" label="评价算法" min-width="130" />
+              <el-table-column v-for="score in rankingData.data[0]?.scores || []" :key="score.plan" :label="score.plan" min-width="100">
+                <template #default="{ row }">
+                  <div class="score-cell">
+                    <span class="score-value">{{ row.scores.find((s: any) => s.plan === score.plan)?.value.toFixed(3) }}</span>
+                    <div class="score-bar-bg">
+                      <div
+                        class="score-bar-fill"
+                        :style="{ width: (row.scores.find((s: any) => s.plan === score.plan)?.value * 100).toFixed(1) + '%' }"
+                      ></div>
                     </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===== 决策分析卡片 ===== -->
-    <div class="analysis-card" :class="{ 'card-expanded': decisionExpanded }">
-      <!-- 标题栏（可点击折叠） -->
-      <div class="card-header" @click="handleToggleDecision">
-        <div class="card-header-left">
-          <span class="card-title">决策分析</span>
+    <!-- ===== 决策分析内容 ===== -->
+    <div v-show="activeTab === 'decision'" class="tab-content tab-content-decision">
+      <!-- 顶部控件 -->
+      <div class="decision-top-bar">
+        <div class="decision-selector">
+          <span class="selector-label">当前决策方案：</span>
+          <el-select v-model="currentDecisionPlan" size="small" style="width: 140px;">
+            <el-option
+              v-for="plan in plans"
+              :key="plan.value"
+              :value="plan.value"
+              :label="plan.label"
+            />
+          </el-select>
         </div>
-        <div class="card-header-right">
-          <span v-if="!decisionExpanded" class="collapse-hint">展开后包含：目标满足情况、过程曲线、水量使用流向图、导出方案</span>
-          <span class="collapse-arrow" :class="{ expanded: decisionExpanded }">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </div>
+        <button class="export-btn" @click="handleExportPlan">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right: 4px;">
+            <path d="M7 1L7 9M7 1L4 4M7 1L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1 10V12C1 12.5523 1.44772 13 2 13H12C12.5523 13 13 12.5523 13 12V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          导出方案
+        </button>
       </div>
 
-      <!-- 决策分析内容 -->
-      <div v-show="decisionExpanded" class="card-body">
-        <!-- 顶部控件 -->
-        <div class="decision-top-bar">
-          <div class="decision-selector">
-            <span class="selector-label">当前决策方案：</span>
-            <el-select v-model="currentDecisionPlan" size="small" style="width: 140px;">
-              <el-option
-                v-for="plan in plans"
-                :key="plan.value"
-                :value="plan.value"
-                :label="plan.label"
-              />
-            </el-select>
-          </div>
-          <button class="export-btn" @click="handleExportPlan">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right: 4px;">
-              <path d="M7 1L7 9M7 1L4 4M7 1L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M1 10V12C1 12.5523 1.44772 13 2 13H12C12.5523 13 13 12.5523 13 12V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            导出方案
-          </button>
-        </div>
-
-        <!-- 三列布局 -->
-        <div class="decision-body">
-          <!-- 左列：目标满足情况 -->
-          <div class="decision-col decision-col-left">
-            <div class="sub-chart-box">
-              <div class="sub-chart-title">目标满足情况</div>
-              <div class="target-list">
-                <div v-for="(target, i) in targets" :key="i" class="target-item">
-                  <div class="target-icon" :class="target.status === '已满足' ? 'icon-satisfied' : target.status === '基本满足' ? 'icon-basic' : 'icon-unsatisfied'">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
-                      <path d="M4.5 7L6.5 9L9.5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+      <!-- 三列布局 -->
+      <div class="decision-body">
+        <!-- 左列：目标满足情况 -->
+        <div class="decision-col decision-col-left">
+          <div class="sub-chart-box">
+            <div class="sub-chart-title">目标满足情况</div>
+            <div class="target-list">
+              <div v-for="(target, i) in targets" :key="i" class="target-item">
+                <div class="target-icon" :class="target.status === '已满足' ? 'icon-satisfied' : target.status === '基本满足' ? 'icon-basic' : 'icon-unsatisfied'">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
+                    <path d="M4.5 7L6.5 9L9.5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="target-info">
+                  <div class="target-name">{{ target.name }}</div>
+                  <div class="target-status" :class="{
+                    'text-green': target.status === '已满足',
+                    'text-yellow': target.status === '基本满足',
+                    'text-red': target.status === '未满足',
+                  }">{{ target.status }}</div>
+                </div>
+                <div class="target-progress-wrap">
+                  <div class="target-progress-bg">
+                    <div
+                      class="target-progress-fill"
+                      :class="{
+                        'fill-green': target.status === '已满足',
+                        'fill-yellow': target.status === '基本满足',
+                        'fill-red': target.status === '未满足',
+                      }"
+                      :style="{ width: Math.min(target.rate, 100) + '%' }"
+                    ></div>
                   </div>
-                  <div class="target-info">
-                    <div class="target-name">{{ target.name }}</div>
-                    <div class="target-status" :class="{
-                      'text-green': target.status === '已满足',
-                      'text-yellow': target.status === '基本满足',
-                      'text-red': target.status === '未满足',
-                    }">{{ target.status }}</div>
-                  </div>
-                  <div class="target-progress-wrap">
-                    <div class="target-progress-bg">
-                      <div
-                        class="target-progress-fill"
-                        :class="{
-                          'fill-green': target.status === '已满足',
-                          'fill-yellow': target.status === '基本满足',
-                          'fill-red': target.status === '未满足',
-                        }"
-                        :style="{ width: Math.min(target.rate, 100) + '%' }"
-                      ></div>
-                    </div>
-                    <span class="target-rate">{{ target.rate.toFixed(1) }}%</span>
-                  </div>
+                  <span class="target-rate">{{ target.rate.toFixed(1) }}%</span>
                 </div>
               </div>
-              <div class="target-footnote">完成率 = 实际值 / 目标值 × 100%</div>
             </div>
+            <div class="target-footnote">完成率 = 实际值 / 目标值 × 100%</div>
           </div>
+        </div>
 
-          <!-- 中列：过程曲线 -->
-          <div class="decision-col decision-col-center">
-            <div class="sub-chart-box">
-              <!-- 内部页签 -->
-              <div class="process-tabs">
-                <button
-                  v-for="tab in processTabOptions"
-                  :key="tab.key"
-                  class="process-tab-btn"
-                  :class="{ active: activeProcessTab === tab.key }"
-                  @click="activeProcessTab = tab.key"
-                >{{ tab.label }}</button>
-              </div>
-              <div ref="processChartRef" class="chart-container chart-container-process"></div>
+        <!-- 中列：过程曲线 -->
+        <div class="decision-col decision-col-center">
+          <div class="sub-chart-box">
+            <!-- 内部页签 -->
+            <div class="process-tabs">
+              <button
+                v-for="tab in processTabOptions"
+                :key="tab.key"
+                class="process-tab-btn"
+                :class="{ active: activeProcessTab === tab.key }"
+                @click="activeProcessTab = tab.key"
+              >{{ tab.label }}</button>
             </div>
+            <div ref="processChartRef" class="chart-container chart-container-process"></div>
           </div>
+        </div>
 
-          <!-- 右列：水量使用流向图 -->
-          <div class="decision-col decision-col-right">
-            <div class="sub-chart-box">
-              <div ref="waterFlowChartRef" class="chart-container"></div>
-            </div>
+        <!-- 右列：水量使用流向图 -->
+        <div class="decision-col decision-col-right">
+          <div class="sub-chart-box">
+            <div ref="waterFlowChartRef" class="chart-container"></div>
           </div>
         </div>
       </div>
@@ -878,68 +866,70 @@ onUnmounted(() => {
   padding: 6px 10px;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
 }
 
-/* ===== 分析卡片 ===== */
-.analysis-card {
+/* ===== Tab 导航栏 ===== */
+.tab-nav-bar {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 4px;
+  background: rgba(6, 30, 70, 0.6);
+  border: 1px solid rgba(50, 150, 255, 0.2);
+  border-radius: 10px;
+}
+
+.tab-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #7a8fa3;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  justify-content: center;
+}
+
+.tab-nav-btn:hover {
+  color: #c0c8d4;
+  background: rgba(0, 175, 255, 0.05);
+}
+
+.tab-nav-btn.active {
+  color: #00d4ff;
+  background: rgba(0, 175, 255, 0.12);
+  box-shadow: 0 0 12px rgba(0, 175, 255, 0.1);
+}
+
+.tab-nav-btn svg {
+  flex-shrink: 0;
+}
+
+/* ===== Tab 内容区 ===== */
+.tab-content {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 20px rgba(0, 160, 255, 0.12);
+  gap: 6px;
   overflow: hidden;
+  padding: 0;
 }
 
-.card-header {
+.tab-content-decision {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 16px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-}
-.card-header:hover {
-  background: rgba(0, 175, 255, 0.04);
-}
-.card-header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #e0e6ed;
-  letter-spacing: 0.5px;
-}
-.card-header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.collapse-hint {
-  font-size: 11px;
-  color: #5a6f83;
-}
-.collapse-arrow {
-  display: flex;
-  align-items: center;
-  color: #7a8fa3;
-  transition: transform 0.25s ease;
-}
-.collapse-arrow.expanded {
-  transform: rotate(180deg);
-  color: #00afff;
-}
-
-.card-body {
-  padding: 6px 12px 10px;
-  border-top: 1px solid rgba(50, 150, 255, 0.15);
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ===== 方案选择器 ===== */
@@ -989,6 +979,7 @@ onUnmounted(() => {
   display: flex;
   gap: 8px;
   margin-bottom: 6px;
+  flex-shrink: 0;
 }
 .charts-row:last-child {
   margin-bottom: 0;
@@ -1013,13 +1004,14 @@ onUnmounted(() => {
 .chart-container {
   flex: 1;
   width: 100%;
-  min-height: 250px;
+  min-height: 0;
 }
 .chart-container-process {
-  min-height: 160px;
+  flex: 1;
+  min-height: 0;
 }
 .chart-container-eva {
-  min-height: 320px;
+  min-height: 280px;
 }
 .chart-container-eva-sm {
   min-height: 200px;
@@ -1135,12 +1127,14 @@ onUnmounted(() => {
 .decision-body {
   display: flex;
   gap: 10px;
+  flex: 1;
   min-height: 0;
 }
 .decision-col {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 .decision-col-left {
   flex: 32;
@@ -1161,6 +1155,7 @@ onUnmounted(() => {
   border-radius: 8px;
   overflow: hidden;
   flex: 1;
+  min-height: 0;
 }
 .sub-chart-title {
   font-size: 12px;
@@ -1169,6 +1164,7 @@ onUnmounted(() => {
   padding: 6px 10px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.1);
   letter-spacing: 0.3px;
+  flex-shrink: 0;
 }
 
 /* ===== 目标满足情况 ===== */
@@ -1177,6 +1173,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+  min-height: 0;
+  justify-content: space-evenly;
 }
 .target-item {
   display: flex;
@@ -1259,6 +1258,7 @@ onUnmounted(() => {
   color: #5a6f83;
   padding: 4px 10px 6px;
   border-top: 1px solid rgba(50, 150, 255, 0.08);
+  flex-shrink: 0;
 }
 
 /* ===== 过程曲线页签 ===== */
@@ -1292,48 +1292,6 @@ onUnmounted(() => {
   border-bottom-color: transparent;
 }
 
-/* ===== 滚动条 ===== */
-/* ===== 展开卡片自适应填充 ===== */
-.analysis-card.card-expanded {
-  flex: 1;
-  min-height: 0;
-}
-.analysis-card.card-expanded > .card-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.analysis-card.card-expanded .decision-body {
-  flex: 1;
-  min-height: 0;
-}
-.analysis-card.card-expanded .decision-col {
-  min-height: 0;
-}
-.analysis-card.card-expanded .sub-chart-box {
-  flex: 1;
-  min-height: 0;
-}
-.analysis-card.card-expanded .target-list {
-  flex: 1;
-  justify-content: space-evenly;
-}
-.analysis-card.card-expanded .chart-container {
-  flex: 1;
-  min-height: 0;
-}
-
-.evaluation-decision-view::-webkit-scrollbar {
-  width: 4px;
-}
-.evaluation-decision-view::-webkit-scrollbar-track {
-  background: transparent;
-}
-.evaluation-decision-view::-webkit-scrollbar-thumb {
-  background: rgba(50, 150, 255, 0.2);
-  border-radius: 2px;
-}
 </style>
 
 <!-- 非 scoped 样式：确保表头背景透明，透出 tr 背景色 -->
