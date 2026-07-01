@@ -8,7 +8,7 @@ defineProps<Props>()
 
 <template>
   <div class="panel-card"
-    style="background: rgba(6, 30, 70, 0.45); border: 1px solid rgba(50, 150, 255, 0.10); backdrop-filter: blur(14px); border-radius: 12px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);">
+    style="background: rgba(6, 30, 70, 0.35); border: 1px solid rgba(50, 150, 255, 0.10); backdrop-filter: blur(5px); border-radius: 12px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);">
     <div v-if="title" class="panel-header">
       <span class="panel-title">{{ title }}</span>
       <span v-if="unit" class="panel-unit">{{ unit }}</span>

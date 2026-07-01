@@ -1059,7 +1059,7 @@ export const scenarioToSubjectDefaults: Record<string, {
   },
   'ice-sediment': {
     startTime: '2025-12-10', endTime: '2026-01-10',
-    timeStep: '每日', scheduleFrequency: '不限制',
+    timeStep: '每日', scheduleFrequency: '每月一次',
     reservoirIds: ['longyangxia', 'liujiaxia'],
   },
   'cross-section': {
@@ -1074,7 +1074,7 @@ export const scenarioToSubjectDefaults: Record<string, {
   },
   'multi-energy': {
     startTime: '2025-06-01', endTime: '2025-06-30',
-    timeStep: '每日', scheduleFrequency: '不限制',
+    timeStep: '每日', scheduleFrequency: '每月一次',
     reservoirIds: ['longyangxia', 'liujiaxia', 'qingtongxia', 'gongboxia', 'jishixia'],
   },
 }

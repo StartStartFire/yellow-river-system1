@@ -30,7 +30,7 @@ const handleStepClick = (step: number) => {
 
 /** 旧版 5 步流程 */
 const oldSteps: StepItem[] = [
-  { step: 1, title: '模型数据', desc: '选择与管理模型输入数据' },
+  { step: 1, title: '调度数据', desc: '选择与管理模型输入数据' },
   { step: 2, title: '基础配置', desc: '设置调度规则与工程目标' },
   { step: 3, title: '模型算法', desc: '选择模型与优化算法' },
   { step: 4, title: '场景配置', desc: '布置调度场景与约束条件' },
@@ -41,7 +41,7 @@ const oldSteps: StepItem[] = [
 const newSteps: StepItem[] = [
   { step: 1, title: '调度场景', desc: '选择调度目的与业务场景' },
   { step: 2, title: '调度主体', desc: '选择水库、时段与周期' },
-  { step: 3, title: '模型数据', desc: '上传与选择水文数据' },
+  { step: 3, title: '调度数据', desc: '上传与选择水文数据' },
   { step: 4, title: '模型算法', desc: '选择模型与优化算法' },
   { step: 5, title: '场景配置', desc: '配置约束条件与参数' },
   { step: 6, title: '配置汇总', desc: '确认配置并开始计算' },

@@ -22,6 +22,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   const dispatchScenario = ref({
     categoryId: '',    // 选中的大类ID: 'multi-year' | 'critical-period' | 'realtime'
     subOptionId: '',   // 选中的子选项ID
+    scenarioName: '',  // 方案名称
   })
 
   // ==================== Step 2: 调度主体（新） ====================
@@ -34,7 +35,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     selectedGroupId: '',  // 预设组合ID，空=自定义
   })
 
-  // ==================== Step 1: 模型数据 ====================
+  // ==================== Step 1: 调度数据 ====================
   const modelData = ref({
     activeMenuId: 'inflow-level',
     dateRange: ['2025-05-19', '2025-05-25'] as [string, string],
@@ -93,10 +94,10 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   const allCompleted = computed(() => stepCompleted.value.every(Boolean))
 
   /** 当前步骤标题（新 6 步流程） */
-  const stepTitles = ['调度场景', '调度主体', '模型数据', '模型算法', '场景配置', '配置汇总']
+  const stepTitles = ['调度场景', '调度主体', '调度数据', '模型算法', '场景配置', '配置汇总']
 
   /** 旧 5 步流程标题（兼容旧页面） */
-  const oldStepTitles = ['模型数据', '基础配置', '模型算法', '场景配置', '配置汇总']
+  const oldStepTitles = ['调度数据', '基础配置', '模型算法', '场景配置', '配置汇总']
 
   const currentStepTitle = computed(() => stepTitles[currentStep.value - 1] || '')
 
@@ -177,7 +178,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   // ==================== 步骤间联动方法 ====================
 
-  /** 从 Step 1 模型数据同步时间范围到 Step 2 */
+  /** 从 Step 1 调度数据同步时间范围到 Step 2 */
   const syncBasicConfigFromModelData = () => {
     if (modelData.value.dateRange && modelData.value.dateRange.length === 2) {
       basicConfig.value.startTime = modelData.value.dateRange[0]
@@ -401,7 +402,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // Step 2（调度主体）
     setDispatchSubject,
 
-    // Step 1（模型数据）
+    // Step 1（调度数据）
     setModelData,
 
     // Step 2

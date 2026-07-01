@@ -660,11 +660,11 @@ const pageNumbers = computed(() => {
     >
       <div class="summary-body">
 
-        <!-- Step 1: 模型数据 -->
+        <!-- Step 1: 调度数据 -->
         <div class="summary-section">
           <div class="summary-section-header">
             <div class="step-badge">1</div>
-            <span class="summary-section-title">模型数据</span>
+            <span class="summary-section-title">调度数据</span>
           </div>
           <div class="summary-fields">
             <el-descriptions :column="2" size="small" border class="dark-descriptions">

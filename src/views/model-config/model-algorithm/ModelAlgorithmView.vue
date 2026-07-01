@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
@@ -43,12 +43,6 @@ paramDefs.forEach(p => {
 const visibleParams = computed(() => {
   if (!currentAlgorithm.value) return paramDefs
   return paramDefs.filter(p => currentAlgorithm.value!.paramIds.includes(p.id))
-})
-
-const selectedParamId = ref<string>('')
-
-const currentParam = computed(() => {
-  return paramDefs.find(p => p.id === selectedParamId.value) || null
 })
 
 // ==================== 右侧：调度目标与约束状态 ====================
@@ -118,9 +112,6 @@ watch(selectedAlgorithmId, (newAlgoId) => {
     }
   })
   paramValues.value = newValues
-  if (algo.paramIds.length > 0) {
-    selectedParamId.value = algo.paramIds[0]
-  }
 })
 
 // ==================== 参数操作 ====================
@@ -132,25 +123,6 @@ const handleParamInput = (paramId: string, rawValue: string | number, param: Alg
   clamped = param.min + steps * param.step
   clamped = Math.round(clamped * 100) / 100
   paramValues.value[paramId] = clamped
-}
-
-const handleResetDefault = () => {
-  if (!currentParam.value) return
-  const def = paramDefs.find(p => p.id === currentParam.value!.id)
-  if (def) paramValues.value[def.id] = def.value
-}
-
-const getParamDef = (id: string) => paramDefs.find(p => p.id === id)
-
-// 初始化选中第一个参数
-const algo = allAlgorithms.find(a => a.id === selectedAlgorithmId.value)
-if (algo && algo.paramIds.length > 0) {
-  selectedParamId.value = algo.paramIds[0]
-}
-
-// ==================== Tooltip ====================
-const renderTooltipContent = (desc: string) => {
-  return `<div style="font-size:12px;line-height:1.6;color:#c0c8d4;max-width:220px;">${desc}</div>`
 }
 
 const formatParamValue = (param: AlgorithmParameter) => {
@@ -242,207 +214,159 @@ const objectiveIcons: Record<string, string> = {
     <!-- 步骤条 -->
     <ModelConfigStepBar :current-step="4" version="new" />
 
-    <!-- 主体：左右分区 -->
+    <!-- 主体：四方格 2×2 布局 -->
     <div class="main-content">
-      <!-- ===== 左侧：模型与算法 ===== -->
-      <div class="left-panel">
-        <!-- 第一行：模型 + 算法选择 -->
-        <div class="selection-row">
-          <div class="card select-card">
-            <div class="card-header">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-                <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
-                <circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.3"/>
-                <path d="M5 11c0-1.7 1.3-3 3-3s3 1.3 3 3" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-              <span class="card-title">调度模型选择</span>
-            </div>
-            <div class="card-body">
-              <el-select v-model="selectedModelId" size="small" class="dark-select full-width-select">
+      <!-- ===== 卡1：模型与算法（左上） ===== -->
+      <div class="card card-model">
+        <div class="card-header">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
+            <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M5 11c0-1.7 1.3-3 3-3s3 1.3 3 3" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <span>模型与算法</span>
+          <span class="group-badge badge-blue">水库组合：{{ currentGroupName }}</span>
+        </div>
+        <div class="card-body">
+          <div class="model-row">
+            <div class="model-col">
+              <div class="col-label">调度模型</div>
+              <el-select v-model="selectedModelId" size="small" class="dark-select">
                 <el-option v-for="model in models" :key="model.id" :label="model.name" :value="model.id" />
               </el-select>
-              <div class="select-hint">
-                当前模型：<span class="hint-value">{{ currentModel?.name || '未选择' }}</span>
-              </div>
-              <div class="linkage-hint">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="linkage-icon">
-                  <path d="M4 8h8M8 4v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                </svg>
-                <span class="linkage-text">当前水库组合「{{ currentGroupName }}」可用的模型</span>
-              </div>
+              <div class="select-desc">当前：<span class="highlight">{{ currentModel?.name || '未选择' }}</span></div>
             </div>
-          </div>
-
-          <div class="card select-card">
-            <div class="card-header">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-                <path d="M2 12l4-6 3 3 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="3" cy="13" r="1" fill="currentColor"/>
-                <circle cx="7" cy="7" r="1" fill="currentColor"/>
-                <circle cx="13" cy="4" r="1" fill="currentColor"/>
-              </svg>
-              <span class="card-title">优化算法选择</span>
-            </div>
-            <div class="card-body">
-              <el-select v-model="selectedAlgorithmId" size="small" class="dark-select full-width-select">
+            <div class="model-col">
+              <div class="col-label">优化算法</div>
+              <el-select v-model="selectedAlgorithmId" size="small" class="dark-select">
                 <el-option v-for="algo in supportedAlgorithms" :key="algo.id" :label="algo.name" :value="algo.id" />
               </el-select>
-              <div class="select-hint">
-                当前算法：<span class="hint-value">{{ currentAlgorithm?.name || '未选择' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 第二行：算法参数设置 -->
-        <div class="card params-card">
-          <div class="card-header">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/>
-              <circle cx="11" cy="12" r="2" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M5 6v6M11 4v2" stroke="currentColor" stroke-width="1.3"/>
-            </svg>
-            <span class="card-title">算法参数设置</span>
-            <span v-if="currentAlgorithm" class="algo-name-tag">{{ currentAlgorithm.name }}</span>
-          </div>
-          <div class="card-body params-body">
-            <!-- 左列表 -->
-            <div class="param-list">
-              <div
-                v-for="param in visibleParams"
-                :key="param.id"
-                class="param-list-item"
-                :class="{ active: selectedParamId === param.id }"
-                @click="selectedParamId = param.id"
-              >
-                <div class="param-list-name">{{ param.name }}</div>
-                <div class="param-list-value">{{ formatParamValue(param) }}</div>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="param-list-arrow">
-                  <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            </div>
-
-            <!-- 右详情 -->
-            <div v-if="currentParam" class="param-detail">
-              <div class="detail-header">
-                <div class="detail-name">{{ currentParam.name }}</div>
-                <el-tooltip
-                  :content="currentParam.description"
-                  placement="top"
-                  effect="dark"
-                  :show-after="300"
-                  popper-class="param-tooltip"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="detail-info-icon">
-                    <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/>
-                    <path d="M8 5.5v4M8 5.5v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                  </svg>
-                </el-tooltip>
-              </div>
-              <div class="detail-value-row">
-                <el-input
-                  :model-value="formatParamValue(currentParam)"
-                  size="small"
-                  class="dark-input detail-input"
-                  @update:model-value="(val: string|number) => handleParamInput(currentParam.id, val, currentParam)"
-                />
-              </div>
-              <div class="detail-slider-row">
-                <span class="slider-label">{{ currentParam.min }}</span>
-                <el-slider v-model="paramValues[currentParam.id]" :min="currentParam.min" :max="currentParam.max" :step="currentParam.step" size="small" class="dark-slider" />
-                <span class="slider-label">{{ currentParam.max }}</span>
-              </div>
-              <div class="detail-range">
-                取值范围：<span class="range-val">{{ currentParam.min }} ~ {{ currentParam.max }}</span>
-                <button class="reset-btn" @click="handleResetDefault">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 7a4 4 0 016.5-3.1M11 7a4 4 0 01-6.5 3.1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                    <path d="M9.5 2.5L12 4l-2.5 1.5M4.5 11.5L2 10l2.5-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  恢复默认值
-                </button>
-              </div>
-              <div class="detail-divider"></div>
-              <div class="detail-desc">
-                <div class="desc-label">参数说明</div>
-                <p class="desc-text">{{ currentParam.description }}</p>
-              </div>
-            </div>
-            <div v-else class="param-detail param-detail-empty">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="empty-icon">
-                <circle cx="24" cy="24" r="20" stroke="rgba(50,150,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
-                <path d="M18 24l4 4 8-8" stroke="rgba(50,150,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span class="empty-text">请在左侧选择参数</span>
+              <div class="select-desc">当前：<span class="highlight">{{ currentAlgorithm?.name || '未选择' }}</span></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== 右侧：调度目标 + 约束条件 ===== -->
-      <div class="right-panel">
-        <!-- 调度目标 -->
-        <div class="card right-card objectives-card">
-          <div class="card-header">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
-              <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-              <circle cx="8" cy="8" r="1" fill="currentColor"/>
-            </svg>
-            <span class="card-title">调度目标</span>
-            <span class="card-badge">{{ selectedObjectives.length }} / {{ objectivesDef.length }}</span>
-          </div>
-          <div class="card-body objective-body">
-            <div class="objective-list">
-              <div
-                v-for="obj in objectivesDef"
-                :key="obj.id"
-                class="objective-item"
-                :class="{ 'obj-active': selectedObjectives.includes(obj.id) }"
-                @click="handleToggleObjective(obj.id)"
-              >
-                <div class="obj-left">
-                  <div class="obj-icon" v-html="objectiveIcons[obj.icon] || ''"></div>
-                  <div class="obj-info">
-                    <div class="obj-name">{{ obj.name }}</div>
-                    <div class="obj-desc">{{ obj.description }}</div>
-                  </div>
-                </div>
-                <div v-if="selectedObjectives.includes(obj.id)" class="obj-check">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="6.5" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.5"/>
-                    <path d="M5.5 8.5L7 10l3.5-4" stroke="#00afff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
+      <!-- ===== 卡2：调度目标（右上） ===== -->
+      <div class="card card-objectives">
+        <div class="card-header">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
+            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="1" fill="currentColor"/>
+          </svg>
+          <span>调度目标</span>
+          <span class="card-badge">{{ selectedObjectives.length }} / {{ objectivesDef.length }}</span>
+        </div>
+        <div class="card-body objective-body">
+          <div
+            v-for="obj in objectivesDef"
+            :key="obj.id"
+            class="objective-item"
+            :class="{ 'obj-active': selectedObjectives.includes(obj.id) }"
+            @click="handleToggleObjective(obj.id)"
+          >
+            <div class="obj-left">
+              <div class="obj-icon" v-html="objectiveIcons[obj.icon] || ''"></div>
+              <div class="obj-info">
+                <div class="obj-name">{{ obj.name }}</div>
+                <div class="obj-desc">{{ obj.description }}</div>
               </div>
+            </div>
+            <div class="obj-check-mark">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="6.5" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.5"/>
+                <path d="M5.5 8.5L7 10l3.5-4" stroke="#00afff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 约束条件 -->
-        <div class="card right-card constraint-card">
-          <div class="card-header">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
-              <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            <span class="card-title">约束条件</span>
-          </div>
-          <div class="card-body constraint-body">
-            <div class="constraint-summary">
-              <div class="constraint-count-row">
-                <span class="constraint-count-label">已启用</span>
-                <span class="constraint-count-value">{{ enabledConstraintCount }}</span>
-                <span class="constraint-count-label">项约束条件</span>
-              </div>
-              <div class="constraint-desc">{{ constraintData.description }}</div>
-              <el-button size="small" class="constraint-btn" @click="constraintDialogVisible = true">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-                  <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- ===== 卡3：算法参数设置（左下） ===== -->
+      <div class="card card-params">
+        <div class="card-header">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
+            <circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="11" cy="12" r="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M5 6v6M11 4v2" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <span>算法参数设置</span>
+          <span v-if="currentAlgorithm" class="algo-tag">{{ currentAlgorithm.name }}</span>
+        </div>
+        <div class="card-body params-body">
+          <div
+            v-for="param in visibleParams"
+            :key="param.id"
+            class="param-row"
+          >
+            <div class="param-row-name">
+              <span>{{ param.name }}</span>
+              <el-tooltip
+                :content="param.description"
+                placement="top"
+                effect="dark"
+                :show-after="300"
+                popper-class="param-tooltip"
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="param-info-icon">
+                  <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                  <path d="M8 5.5v4M8 5.5v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
                 </svg>
-                查看详情
-              </el-button>
+              </el-tooltip>
+            </div>
+            <div class="param-row-controls">
+              <el-input
+                :model-value="formatParamValue(param)"
+                size="small"
+                class="param-value-input"
+                @update:model-value="(val: string|number) => handleParamInput(param.id, val, param)"
+              />
+            </div>
+            <div class="param-row-slider">
+              <el-slider
+                v-model="paramValues[param.id]"
+                :min="param.min"
+                :max="param.max"
+                :step="param.step"
+                size="small"
+                class="dark-slider"
+              />
+            </div>
+            <div class="param-row-range">{{ param.min }} ~ {{ param.max }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 卡4：约束条件（右下） ===== -->
+      <div class="card card-constraint">
+        <div class="card-header">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
+            <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <span>约束条件</span>
+          <span class="card-badge">{{ enabledConstraintCount }} / {{ editingConstraints.length }}</span>
+          <button class="constraint-edit-btn" @click="constraintDialogVisible = true" title="编辑约束">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path d="M11 2l3 3-9 9H2v-3l9-9z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-body constraint-body">
+          <div
+            v-for="(c, cIdx) in editingConstraints"
+            :key="cIdx"
+            class="constraint-item"
+            :class="{ 'constraint-disabled': !constraintEnabled[cIdx] }"
+          >
+            <div class="constraint-item-left">
+              <span class="constraint-item-dot" :class="{ 'dot-on': constraintEnabled[cIdx] }"></span>
+              <span class="constraint-item-name">{{ c.name }}</span>
+            </div>
+            <div class="constraint-item-right">
+              <span class="constraint-item-range">{{ c.min }} ~ {{ c.max }}</span>
+              <span class="constraint-item-unit">{{ c.unit }}</span>
             </div>
           </div>
         </div>
@@ -464,9 +388,9 @@ const objectiveIcons: Record<string, string> = {
       title="约束条件详情"
       width="620px"
       :close-on-click-modal="false"
-      class="confirm-dialog constraint-detail-dialog"
+      class="confirm-dialog"
     >
-      <div class="constraint-detail-body">
+      <div class="constraint-dialog-body">
         <div class="constraint-summary-text">
           选择本次计算需要启用的约束条件，并可编辑各约束的数值范围：
         </div>
@@ -479,7 +403,7 @@ const objectiveIcons: Record<string, string> = {
           >
             <div class="constraint-switch-top">
               <div class="constraint-switch-left">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="constraint-item-icon">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="constraint-item-icon">
                   <circle cx="8" cy="8" r="4" fill="rgba(0,175,255,0.15)" stroke="#00afff" stroke-width="1.2"/>
                   <path d="M6 8l1.5 1.5L10 7" stroke="#00afff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -561,43 +485,15 @@ const objectiveIcons: Record<string, string> = {
   overflow: hidden;
 }
 
-/* ===== 主体：左右分区 ===== */
+/* ===== 主体：四方格 2×2 ===== */
 .main-content {
   flex: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
   gap: 8px;
   min-height: 0;
   overflow: hidden;
-}
-
-.left-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-  min-height: 0;
-}
-
-.right-panel {
-  width: 280px;
-  min-width: 250px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow: hidden;
-}
-
-/* ===== 选择行 ===== */
-.selection-row {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.selection-row > * {
-  flex: 1;
-  min-width: 0;
 }
 
 /* ===== 通用卡片 ===== */
@@ -608,217 +504,103 @@ const objectiveIcons: Record<string, string> = {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.select-card {
-  overflow: visible;
+  min-height: 0;
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.18);
-  flex-shrink: 0;
-}
-
-.card-icon {
-  color: #00d4ff;
-  flex-shrink: 0;
-}
-
-.card-title {
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.12);
   font-size: 12px;
   font-weight: 600;
   color: #e0e6ed;
+  flex-shrink: 0;
 }
+
+.card-icon { color: #00d4ff; flex-shrink: 0; }
 
 .card-body {
-  padding: 12px 14px;
+  padding: 10px 12px;
   flex: 1;
+  min-height: 0;
 }
 
-.select-card .card-body {
+/* ===== 卡1：模型与算法 ===== */
+.card-model { grid-column: 1; grid-row: 1; }
+
+.model-row {
+  display: flex;
+  gap: 10px;
+  height: 100%;
+  align-items: stretch;
+}
+
+.model-col {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  justify-content: center;
+  gap: 6px;
+  min-width: 0;
 }
 
-.full-width-select { width: 100%; }
+.col-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #7a8fa3;
+}
 
-.select-hint {
+.select-desc {
   font-size: 11px;
   color: #5a6f83;
 }
 
-.hint-value { color: #00d4ff; font-weight: 500; }
+.highlight { color: #00d4ff; font-weight: 500; }
 
-.linkage-hint {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: rgba(0, 175, 255, 0.06);
-  border-radius: 4px;
-  border: 1px solid rgba(0, 175, 255, 0.12);
-}
-
-.linkage-icon { color: #00d4ff; flex-shrink: 0; }
-.linkage-text { font-size: 10px; color: #7a8fa3; line-height: 1.4; }
-
-/* ===== 参数卡片 ===== */
-.params-card {
-  flex: 1;
-  min-height: 0;
-}
-
-.params-card .card-body { padding: 0; }
-
-.algo-name-tag {
+.group-badge {
   margin-left: auto;
   font-size: 10px;
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.12);
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
-}
-
-.params-body {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
-/* 左列表 */
-.param-list {
-  width: 170px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  border-right: 1px solid rgba(50, 150, 255, 0.1);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.param-list::-webkit-scrollbar { width: 3px; }
-.param-list::-webkit-scrollbar-track { background: transparent; }
-.param-list::-webkit-scrollbar-thumb { background: rgba(50,150,255,0.2); border-radius: 2px; }
-
-.param-list-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
+  gap: 4px;
 }
 
-.param-list-item:hover {
-  background: rgba(0, 175, 255, 0.06);
-  border-color: rgba(50, 150, 255, 0.15);
+.badge-blue {
+  color: #5a8abf;
+  background: rgba(0, 175, 255, 0.08);
 }
 
-.param-list-item.active {
-  background: rgba(0, 175, 255, 0.1);
-  border-color: rgba(0, 175, 255, 0.3);
-}
+/* ===== 卡2：调度目标 ===== */
+.card-objectives { grid-column: 2; grid-row: 1; }
 
-.param-list-name {
-  flex: 1;
-  font-size: 11px;
-  color: #c0c8d4;
+.card-badge {
+  margin-left: auto;
+  font-size: 10px;
+  color: #5a8abf;
+  background: rgba(0, 175, 255, 0.08);
+  padding: 1px 8px;
+  border-radius: 10px;
   font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-
-.param-list-item.active .param-list-name { color: #00d4ff; }
-
-.param-list-value {
-  font-size: 11px;
-  color: #7a8fa3;
-  font-weight: 500;
-  min-width: 28px;
-  text-align: right;
-}
-
-.param-list-item.active .param-list-value { color: #e0e6ed; }
-
-.param-list-arrow { color: rgba(50,150,255,0.3); flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
-.param-list-item.active .param-list-arrow { opacity: 1; color: #00d4ff; }
-
-/* 右详情 */
-.param-detail {
-  flex: 1;
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
-  overflow-y: auto;
-}
-
-.param-detail-empty {
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.empty-icon { flex-shrink: 0; }
-.empty-text { font-size: 12px; color: #5a6f83; }
-
-.detail-header { display: flex; align-items: center; gap: 8px; }
-.detail-name { font-size: 16px; font-weight: 600; color: #e0e6ed; }
-.detail-info-icon { color: #5a6f83; cursor: pointer; flex-shrink: 0; }
-.detail-info-icon:hover { color: #00d4ff; }
-.detail-value-row { display: flex; }
-.detail-input { width: 140px; }
-.detail-input :deep(.el-input__wrapper) { background: rgba(2,27,63,0.8)!important; box-shadow: 0 0 0 1px rgba(50,150,255,0.25) inset!important; }
-.detail-input :deep(.el-input__inner) { color: #00d4ff!important; font-size: 22px; font-weight: 700; text-align: center; }
-.detail-slider-row { display: flex; align-items: center; gap: 10px; }
-.slider-label { font-size: 10px; color: #5a6f83; flex-shrink: 0; min-width: 30px; text-align: center; }
-.detail-range { display: flex; align-items: center; gap: 12px; font-size: 11px; color: #5a6f83; }
-.range-val { color: #7a8fa3; font-weight: 500; }
-.reset-btn {
-  display: flex; align-items: center; gap: 4px; margin-left: auto;
-  padding: 3px 8px; background: rgba(50,150,255,0.08);
-  border: 1px solid rgba(50,150,255,0.2); border-radius: 4px;
-  color: #7a8fa3; font-size: 10px; cursor: pointer; transition: all 0.2s;
-}
-.reset-btn:hover { background: rgba(0,175,255,0.15); border-color: rgba(0,175,255,0.4); color: #00d4ff; }
-.detail-divider { height: 1px; background: rgba(50,150,255,0.1); }
-.detail-desc { display: flex; flex-direction: column; gap: 6px; }
-.desc-label { font-size: 12px; font-weight: 600; color: #7a8fa3; }
-.desc-text { margin: 0; font-size: 12px; color: #c0c8d4; line-height: 1.7; }
-
-/* ===== 右侧：调度目标 ===== */
-.right-card .card-body { padding: 8px 10px; }
 
 .objective-body {
   overflow-y: auto;
-  min-height: 0;
-}
-
-.objective-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .objective-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 7px 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
@@ -837,13 +619,13 @@ const objectiveIcons: Record<string, string> = {
 .obj-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
 .obj-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   color: #5a8abf;
   flex-shrink: 0;
   display: flex;
@@ -856,7 +638,7 @@ const objectiveIcons: Record<string, string> = {
 .obj-info { min-width: 0; }
 
 .obj-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: #7a8fa3;
   transition: color 0.2s;
@@ -868,13 +650,12 @@ const objectiveIcons: Record<string, string> = {
   font-size: 10px;
   color: #5a6f83;
   line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.obj-check {
+.obj-check-mark {
   flex-shrink: 0;
   animation: checkPop 0.2s ease;
 }
@@ -885,70 +666,207 @@ const objectiveIcons: Record<string, string> = {
   100% { transform: scale(1); opacity: 1; }
 }
 
-.card-badge {
+/* ===== 卡3：算法参数设置 ===== */
+.card-params { grid-column: 1; grid-row: 2; }
+
+.algo-tag {
   margin-left: auto;
   font-size: 10px;
-  color: #5a8abf;
-  background: rgba(0, 175, 255, 0.08);
-  padding: 1px 8px;
-  border-radius: 10px;
+  color: #00d4ff;
+  background: rgba(0, 175, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
   font-weight: 500;
 }
 
-/* ===== 右侧：约束条件 ===== */
-.constraint-card {
+.params-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px 4px;
+}
+
+/* 单行参数 */
+.param-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.param-row:hover {
+  background: rgba(0, 175, 255, 0.03);
+}
+
+.param-row-name {
+  width: 68px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #c0c8d4;
+}
+
+.param-info-icon {
+  color: #5a6f83;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.param-info-icon:hover { color: #00d4ff; }
+
+.param-row-controls {
+  width: 80px;
   flex-shrink: 0;
 }
 
-.constraint-body {
-  display: flex;
-  align-items: center;
+.param-value-input { width: 100%; }
+
+.param-value-input :deep(.el-input__wrapper) {
+  background: rgba(2, 27, 63, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important;
 }
 
-.constraint-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
+.param-value-input :deep(.el-input__inner) {
+  color: #00d4ff !important;
+  font-size: 13px;
+  font-weight: 600;
   text-align: center;
 }
 
-.constraint-count-row {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
+.param-row-slider {
+  flex: 1;
+  min-width: 60px;
 }
 
-.constraint-count-label {
-  font-size: 11px;
+.param-row-range {
+  width: 70px;
+  flex-shrink: 0;
+  font-size: 10px;
   color: #5a6f83;
+  text-align: right;
 }
 
-.constraint-count-value {
-  font-size: 24px;
-  font-weight: 700;
+/* ===== 卡4：约束条件 ===== */
+.card-constraint { grid-column: 2; grid-row: 2; }
+
+.card-constraint .card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.12);
+  font-size: 12px;
+  font-weight: 600;
   color: #e0e6ed;
+  flex-shrink: 0;
+}
+
+.constraint-edit-btn {
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid rgba(50, 150, 255, 0.2);
+  background: rgba(0, 175, 255, 0.06);
+  color: #5a8abf;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.constraint-edit-btn:hover {
+  background: rgba(0, 175, 255, 0.15);
+  border-color: rgba(0, 175, 255, 0.4);
+  color: #00d4ff;
+}
+
+.constraint-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px !important;
+}
+
+.constraint-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.constraint-item:hover {
+  background: rgba(0, 175, 255, 0.03);
+}
+
+.constraint-item.constraint-disabled {
+  opacity: 0.4;
+}
+
+.constraint-item-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.constraint-item-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #3a5068;
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+
+.constraint-item-dot.dot-on {
+  background: #00d4ff;
+  box-shadow: 0 0 5px rgba(0, 212, 255, 0.4);
+}
+
+.constraint-item-name {
+  font-size: 11px;
+  color: #c0c8d4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.constraint-item-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.constraint-item-range {
+  font-size: 10px;
+  color: #5a8abf;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-.constraint-desc {
+.constraint-item-unit {
   font-size: 10px;
   color: #5a6f83;
-  line-height: 1.4;
 }
-
-.constraint-btn {
-  font-size: 11px !important;
-  display: inline-flex !important;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-icon { flex-shrink: 0; }
 
 /* ===== 约束弹窗 ===== */
-.constraint-detail-body {
+.constraint-dialog-body {
   max-height: 420px;
   overflow-y: auto;
   padding: 4px 0;
@@ -957,7 +875,7 @@ const objectiveIcons: Record<string, string> = {
 .constraint-summary-text {
   font-size: 12px;
   color: #c0c8d4;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.15);
 }
@@ -979,9 +897,7 @@ const objectiveIcons: Record<string, string> = {
   transition: all 0.2s;
 }
 
-.constraint-switch-item.constraint-disabled {
-  opacity: 0.45;
-}
+.constraint-switch-item.constraint-disabled { opacity: 0.45; }
 
 .constraint-switch-top {
   display: flex;
@@ -1003,9 +919,7 @@ const objectiveIcons: Record<string, string> = {
   color: #c0c8d4;
 }
 
-.constraint-disabled .constraint-item-name {
-  color: #5a6f83;
-}
+.constraint-disabled .constraint-item-name { color: #5a6f83; }
 
 .constraint-range-row {
   display: flex;
@@ -1032,7 +946,7 @@ const objectiveIcons: Record<string, string> = {
   margin-left: 4px;
 }
 
-/* ===== 弹窗 ===== */
+/* ===== 弹窗通用 ===== */
 .confirm-dialog :deep(.el-dialog) {
   background: rgba(6, 30, 70, 0.98) !important;
   border: 1px solid rgba(50, 150, 255, 0.4);
@@ -1051,9 +965,7 @@ const objectiveIcons: Record<string, string> = {
   font-weight: 600;
 }
 
-.confirm-dialog :deep(.el-dialog__body) {
-  padding: 18px 18px;
-}
+.confirm-dialog :deep(.el-dialog__body) { padding: 18px; }
 
 .confirm-dialog :deep(.el-dialog__footer) {
   border-top: 1px solid rgba(50, 150, 255, 0.1);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
@@ -27,6 +27,9 @@ const selectedCategoryId = ref<string>('')
 /** 选中的子选项ID */
 const selectedSubOptionId = ref<string>('')
 
+/** 方案名称 */
+const scenarioName = ref(store.dispatchScenario.scenarioName)
+
 // 查找选中的子选项对象
 const selectedSubOption = computed<DispatchSubOption | null>(() => {
   if (!selectedCategoryId.value || !selectedSubOptionId.value) return null
@@ -43,7 +46,7 @@ const selectedCategory = computed<DispatchScenarioCategory | null>(() => {
 
 /** 是否可以进入下一步 */
 const canNext = computed(() => {
-  return selectedCategoryId.value !== '' && selectedSubOptionId.value !== ''
+  return selectedCategoryId.value !== '' && selectedSubOptionId.value !== '' && scenarioName.value.trim() !== ''
 })
 
 // ==================== 交互 ====================
@@ -75,10 +78,15 @@ const confirmSave = () => {
     ElMessage.warning('请先选择调度场景')
     return
   }
+  if (!scenarioName.value.trim()) {
+    ElMessage.warning('请输入方案名称')
+    return
+  }
   // 写入 Store
   store.setDispatchScenario({
     categoryId: selectedCategoryId.value,
     subOptionId: selectedSubOptionId.value,
+    scenarioName: scenarioName.value.trim(),
   })
   // 联动调度目标
   store.syncObjectivesFromScenario(selectedSubOptionId.value)
@@ -97,10 +105,15 @@ const handleNext = () => {
     ElMessage.warning('请先选择调度场景')
     return
   }
+  if (!scenarioName.value.trim()) {
+    ElMessage.warning('请输入方案名称')
+    return
+  }
   // 写入 Store
   store.setDispatchScenario({
     categoryId: selectedCategoryId.value,
     subOptionId: selectedSubOptionId.value,
+    scenarioName: scenarioName.value.trim(),
   })
   // 联动调度目标
   store.syncObjectivesFromScenario(selectedSubOptionId.value)
@@ -109,6 +122,19 @@ const handleNext = () => {
   // 跳转 Step 2
   router.push('/model-config/dispatch-subject')
 }
+
+// ==================== 生命周期 ====================
+onMounted(() => {
+  if (store.dispatchScenario.scenarioName) {
+    scenarioName.value = store.dispatchScenario.scenarioName
+  }
+  if (store.dispatchScenario.categoryId) {
+    selectedCategoryId.value = store.dispatchScenario.categoryId
+  }
+  if (store.dispatchScenario.subOptionId) {
+    selectedSubOptionId.value = store.dispatchScenario.subOptionId
+  }
+})
 
 // ==================== SVG 图标 ====================
 const svgIcons: Record<string, string> = {
@@ -158,6 +184,23 @@ const subIconMap: Record<string, string> = {
   <div class="dispatch-scenario-view">
     <!-- 步骤条（新版 6 步） -->
     <ModelConfigStepBar :current-step="1" version="new" />
+
+    <!-- 方案名称输入行 -->
+    <div class="name-row">
+      <div class="name-row-icon">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M2 4h12M2 8h10M2 12h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="name-row-label">方案名称</span>
+      <el-input
+        v-model="scenarioName"
+        placeholder="请输入本次调度方案名称"
+        size="small"
+        class="name-input"
+        clearable
+      />
+    </div>
 
     <!-- 主体：3 个大卡片 -->
     <div class="main-content">
@@ -303,6 +346,52 @@ const subIconMap: Record<string, string> = {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+/* ===== 方案名称输入行 ===== */
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin-bottom: 6px;
+  background: rgba(6, 30, 70, 0.4);
+  border: 1px solid rgba(50, 150, 255, 0.2);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.name-row-icon {
+  color: #5a8abf;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.name-row-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c0c8d4;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.name-input {
+  max-width: 420px;
+}
+
+.name-input :deep(.el-input__wrapper) {
+  background: rgba(2, 27, 63, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important;
+}
+
+.name-input :deep(.el-input__inner) {
+  color: #c0c8d4 !important;
+  font-size: 13px;
+}
+
+.name-input :deep(.el-input__inner::placeholder) {
+  color: #5a6f83;
 }
 
 .cards-grid {

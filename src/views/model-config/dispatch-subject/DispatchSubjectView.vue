@@ -38,7 +38,7 @@ const categoryConstraint = computed(() => {
 const startTime = ref('')
 const endTime = ref('')
 const timeStep = ref('每日')
-const scheduleFrequency = ref('不限制')
+const scheduleFrequency = ref('每月一次')
 const selectedReservoirIds = ref<string[]>([])
 const selectedGroupId = ref('')
 
@@ -324,100 +324,7 @@ onMounted(() => {
 
     <!-- 主体 -->
     <div class="main-content">
-      <!-- 上半区：调度时段与周期 -->
-      <div class="section-title-row">
-        <div class="section-accent"></div>
-        <span class="section-title">调度时段与周期</span>
-        <span class="section-hint">设定本次调度的时间范围与计算精度</span>
-      </div>
-
-      <div class="period-grid">
-        <!-- 调度起止时间 -->
-        <div class="param-card">
-          <div class="param-label">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-              <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/>
-              <path d="M5 1v4M11 1v4M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            调度起止时间
-          </div>
-          <el-date-picker
-            v-model="startTime"
-            type="date"
-            placeholder="开始日期"
-            class="date-picker-half"
-            value-format="YYYY-MM-DD"
-          />
-          <span class="date-separator">~</span>
-          <el-date-picker
-            v-model="endTime"
-            type="date"
-            placeholder="结束日期"
-            class="date-picker-half"
-            value-format="YYYY-MM-DD"
-          />
-        </div>
-
-        <!-- 时间步长 -->
-        <div class="param-card">
-          <div class="param-label">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
-              <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
-            </svg>
-            时间步长
-            <span v-if="isTimeStepLocked" class="lock-badge">锁定</span>
-          </div>
-          <el-select
-            v-model="timeStep"
-            :disabled="isTimeStepLocked"
-            class="param-select"
-            @change="handleTimeStepChange"
-          >
-            <el-option
-              v-for="ts in allowedTimeSteps"
-              :key="ts"
-              :label="ts"
-              :value="ts"
-            />
-          </el-select>
-          <div v-if="isTimeStepLocked" class="param-hint">实时调度仅支持日步长</div>
-        </div>
-
-        <!-- 调度频率 -->
-        <div class="param-card">
-          <div class="param-label">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-              <path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/>
-            </svg>
-            调度频率
-          </div>
-          <el-select v-model="scheduleFrequency" class="param-select">
-            <el-option label="每月一次" value="每月一次" />
-            <el-option label="每旬一次" value="每旬一次" />
-            <el-option label="每周一次" value="每周一次" />
-            <el-option label="不限制" value="不限制" />
-          </el-select>
-        </div>
-
-        <!-- 总时段数 -->
-        <div class="param-card total-card">
-          <div class="param-label">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-              <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
-              <path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            总时段数
-          </div>
-          <div class="total-display">
-            <span class="total-number">{{ totalPeriods }}</span>
-            <span class="total-unit">时段</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 下半区：水库选择 -->
+      <!-- 上半区：参与调度水库 -->
       <div class="section-title-row">
         <div class="section-accent"></div>
         <span class="section-title">参与调度水库</span>
@@ -471,6 +378,89 @@ onMounted(() => {
           <div class="summary-right">
             <span class="summary-count">共 {{ selectedReservoirIds.length }} 座水库</span>
           </div>
+        </div>
+      </div>
+
+      <!-- 下半区：调度时段与周期 -->
+      <div class="section-title-row">
+        <div class="section-accent"></div>
+        <span class="section-title">调度时段与周期</span>
+        <span class="section-hint">设定本次调度的时间范围与计算精度</span>
+        <div class="section-total">
+          <span class="total-number-sm">{{ totalPeriods }}</span>
+          <span class="total-unit-sm">时段</span>
+        </div>
+      </div>
+
+      <div class="period-grid">
+        <!-- 调度起止时间（占比 2.2，更宽） -->
+        <div class="param-card">
+          <div class="param-label">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
+              <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/>
+              <path d="M5 1v4M11 1v4M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            调度起止时间
+          </div>
+          <div class="date-picker-wrapper">
+            <el-date-picker
+              v-model="startTime"
+              type="date"
+              placeholder="开始日期"
+              class="date-picker-half"
+              value-format="YYYY-MM-DD"
+            />
+            <span class="date-separator">~</span>
+            <el-date-picker
+              v-model="endTime"
+              type="date"
+              placeholder="结束日期"
+              class="date-picker-half"
+              value-format="YYYY-MM-DD"
+            />
+          </div>
+        </div>
+
+        <!-- 时间步长（占比 1） -->
+        <div class="param-card" style="position: relative;">
+          <div class="param-label">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
+              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
+              <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            时间步长
+            <span v-if="isTimeStepLocked" class="lock-badge">锁定</span>
+          </div>
+          <el-select
+            v-model="timeStep"
+            :disabled="isTimeStepLocked"
+            class="param-select"
+            @change="handleTimeStepChange"
+          >
+            <el-option
+              v-for="ts in allowedTimeSteps"
+              :key="ts"
+              :label="ts"
+              :value="ts"
+            />
+          </el-select>
+          <div v-if="isTimeStepLocked" class="param-hint">实时调度仅支持日步长</div>
+        </div>
+
+        <!-- 调度频率（占比 1） -->
+        <div class="param-card">
+          <div class="param-label">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
+              <path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/>
+            </svg>
+            调度频率
+          </div>
+          <el-select v-model="scheduleFrequency" class="param-select">
+            <el-option label="每月一次" value="每月一次" />
+            <el-option label="每旬一次" value="每旬一次" />
+            <el-option label="每周一次" value="每周一次" />
+          </el-select>
         </div>
       </div>
     </div>
@@ -656,10 +646,30 @@ onMounted(() => {
   margin-left: 4px;
 }
 
-/* ===== 上半区：参数卡片网格 ===== */
+.section-total {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.total-number-sm {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e0e6ed;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+.total-unit-sm {
+  font-size: 12px;
+  color: #7a8fa3;
+}
+
+/* ===== 上半区：参数卡片网格（三卡一行） ===== */
 .period-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2.2fr 1fr 1fr;
   gap: 10px;
   flex-shrink: 0;
 }
@@ -667,24 +677,24 @@ onMounted(() => {
 .param-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 16px 18px;
+  gap: 8px;
+  padding: 14px 16px;
   background: rgba(6, 30, 70, 0.5);
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .param-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-size: 12px;
   font-weight: 500;
   color: #7a8fa3;
   white-space: nowrap;
-  width: 100%;
-  margin-bottom: 2px;
+  flex-shrink: 0;
+  margin-right: 2px;
 }
 
 .param-icon {
@@ -699,17 +709,26 @@ onMounted(() => {
   background: rgba(240, 160, 32, 0.15);
   color: #f0a020;
   font-weight: 600;
-  margin-left: auto;
+  margin-left: 4px;
+  flex-shrink: 0;
 }
 
 .param-select {
-  width: 160px;
+  width: 100%;
+  min-width: 0;
+}
+
+.date-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .date-picker-half {
-  width: calc(50% - 24px);
-  min-width: 0;
   flex: 1;
+  min-width: 0;
 }
 
 .date-separator {
@@ -719,36 +738,12 @@ onMounted(() => {
 }
 
 .param-hint {
-  width: 100%;
+  position: absolute;
+  bottom: -16px;
+  left: 0;
   font-size: 10px;
   color: #f0a020;
-  margin-top: -2px;
-}
-
-/* 总时段数卡片 */
-.total-card {
-  display: flex;
-  align-items: center;
-}
-
-.total-display {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-left: auto;
-}
-
-.total-number {
-  font-size: 28px;
-  font-weight: 700;
-  color: #e0e6ed;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 1px;
-}
-
-.total-unit {
-  font-size: 13px;
-  color: #7a8fa3;
+  white-space: nowrap;
 }
 
 /* ===== 下半区：水库选择 ===== */

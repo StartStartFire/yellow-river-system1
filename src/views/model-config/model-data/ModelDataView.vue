@@ -106,7 +106,7 @@ const confirmSave = () => {
     dateRange: ['2025-05-19', '2025-05-25'], // 当前为固定 mock，后续可从日历选择
     selectedDataIds: [],
   })
-  ElMessage.success('模型数据配置已保存')
+  ElMessage.success('调度数据配置已保存')
 }
 
 const confirmCancel = () => {
@@ -414,7 +414,7 @@ const iconMap: Record<string, string> = {
           <path d="M16 24l6 6 10-10" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <div class="dialog-text">
-          <span class="dialog-title-main">确认保存当前模型数据配置？</span>
+          <span class="dialog-title-main">确认保存当前调度数据配置？</span>
           <span class="dialog-desc">保存后当前目录选择和时间范围将保留。</span>
         </div>
       </div>
