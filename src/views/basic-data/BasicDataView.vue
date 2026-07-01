@@ -95,9 +95,11 @@ const handleToggleSidebar = () => {
 .basic-data-view {
   display: flex;
   height: 100%;
-  gap: 12px;
-  padding: 12px;
+  gap: 0;
+  padding: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 .detail-panel {
@@ -105,18 +107,17 @@ const handleToggleSidebar = () => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 12px;
+  gap: 0;
 }
 
 .tabs-bar {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
-  padding: 4px;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 10px;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.12);
 }
 
 .tab-btn {
@@ -125,22 +126,21 @@ const handleToggleSidebar = () => {
   gap: 6px;
   background: transparent;
   border: none;
+  border-bottom: 2px solid transparent;
   color: #7a8fa3;
   font-size: 13px;
-  padding: 8px 16px;
+  padding: 10px 16px;
   cursor: pointer;
-  border-radius: 8px;
   transition: all 0.2s;
 }
 
 .tab-btn:hover {
   color: #c0c8d4;
-  background: rgba(50, 150, 255, 0.05);
 }
 
 .tab-btn.active {
   color: #00d4ff;
-  background: rgba(0, 175, 255, 0.1);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.6);
   font-weight: 500;
 }
 

@@ -4,58 +4,158 @@
 
 /* 使用 :root:root（双倍 specificity）覆盖 Element Plus 默认 CSS 变量，不受 @layer 影响 */
 :root:root {
-  --el-bg-color: #112536;
-  --el-bg-color-overlay: #0f1f33;
+  --el-bg-color: rgba(6, 20, 42, 0.92);
+  --el-bg-color-overlay: rgba(6, 20, 42, 0.95);
   --el-text-color-primary: #e0e6ed;
   --el-text-color-regular: #c0c8d4;
   --el-text-color-secondary: #7a8fa3;
   --el-text-color-placeholder: #5a6f83;
   --el-text-color-disabled: #4a5f73;
   --el-fill-color-blank: transparent;
-  --el-fill-color: #0d1f36;
-  --el-fill-color-light: #0f2340;
-  --el-table-bg-color: #112536;
-  --el-table-header-bg-color: #0a1a2e;
-  --el-table-row-bg-color: #112536;
-  --el-table-tr-bg-color: #112536;
-  --el-border-color: #1a3a52;
-  --el-border-color-light: #1a3a52;
-  --el-border-color-lighter: #1a3a52;
-  --el-border-color-extra-light: #1a3a52;
-  --el-border-color-dark: #1a3a52;
+  --el-fill-color: rgba(6, 20, 42, 0.9);
+  --el-fill-color-light: rgba(8, 24, 48, 0.85);
+  --el-table-bg-color: transparent;
+  --el-table-header-bg-color: rgba(6, 20, 42, 0.6);
+  --el-table-row-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-border-color: rgba(0, 175, 255, 0.12);
+  --el-border-color-light: rgba(0, 175, 255, 0.10);
+  --el-border-color-lighter: rgba(0, 175, 255, 0.08);
+  --el-border-color-extra-light: rgba(0, 175, 255, 0.06);
+  --el-border-color-dark: rgba(0, 175, 255, 0.15);
   --el-input-bg-color: transparent;
 }
 
 @layer base {
   html {
-    @apply bg-tech-bg text-tech-text;
+    @apply text-tech-text;
+    background-color: #061220;
+    background-image: url('/background/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
 
   body {
     @apply m-0 min-h-screen antialiased;
+    background: transparent;
   }
+}
+
+/* ═══════════════════════════════════════════════
+   统一面板系统 — 替代浮动卡片
+   ═══════════════════════════════════════════════ */
+
+/* 页面级统一面板：每个页面最外层使用 */
+.page-panel {
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
+  border-radius: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 面板内部分区标题 */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5a7fa3;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* 分区发光分割线 — 水平 */
+.h-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 175, 255, 0.15) 15%,
+    rgba(0, 212, 255, 0.3) 50%,
+    rgba(0, 175, 255, 0.15) 85%,
+    transparent 100%
+  );
+}
+
+/* 分区发光分割线 — 垂直 */
+.v-divider {
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 175, 255, 0.15) 15%,
+    rgba(0, 212, 255, 0.3) 50%,
+    rgba(0, 175, 255, 0.15) 85%,
+    transparent 100%
+  );
+}
+
+/* 行内Tab/筛选条 */
+.inline-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* 行内Tab按钮 */
+.tab-pill {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #7a8fa3;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-pill:hover {
+  color: #c0c8d4;
+  background: rgba(0, 175, 255, 0.06);
+}
+
+.tab-pill.active {
+  color: #00d4ff;
+  background: rgba(0, 175, 255, 0.1);
 }
 
 /* Element Plus 深色主题覆盖 */
 @layer components {
   .el-button {
-    @apply border-tech-border bg-tech-card text-tech-text;
+    @apply text-tech-text;
+    background: rgba(0, 175, 255, 0.08);
+    border: 1px solid rgba(0, 175, 255, 0.2);
   }
 
   .el-button--primary {
-    @apply bg-tech-primary border-tech-primary text-black;
+    @apply text-white;
+    background: rgba(0, 175, 255, 0.25);
+    border: 1px solid rgba(0, 175, 255, 0.4);
   }
 
   .el-card {
-    @apply bg-tech-card border-tech-border text-tech-text;
+    @apply text-tech-text;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .el-table {
-    @apply bg-tech-card text-tech-text;
+    @apply text-tech-text;
+    background: transparent !important;
   }
 
   .el-table--striped .el-table__body tr.el-table__row--striped td {
-    @apply bg-tech-bg;
+    background: rgba(0, 175, 255, 0.03) !important;
   }
 
   .el-tabs__item {
@@ -68,11 +168,14 @@
 
   .el-input__inner,
   .el-input__wrapper {
-    @apply bg-transparent border-tech-border text-tech-text;
+    @apply bg-transparent text-tech-text;
+    box-shadow: 0 0 0 1px rgba(0, 175, 255, 0.2) !important;
   }
 
   .el-dialog {
-    @apply bg-tech-card;
+    background: rgba(6, 20, 42, 0.96) !important;
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 175, 255, 0.15);
   }
 
   .el-dialog__title {

@@ -326,9 +326,11 @@ watch(selectedReservoir, () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 12px;
-  gap: 12px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* 筛选区 */
@@ -337,11 +339,11 @@ watch(selectedReservoir, () => {
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  padding: 12px 16px;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.12);
   backdrop-filter: blur(14px);
-  border-radius: 12px;
 }
 
 .filter-left {
@@ -376,26 +378,26 @@ watch(selectedReservoir, () => {
   align-items: center;
   gap: 6px;
   background: transparent;
-  border: 1px solid rgba(50, 150, 255, 0.15);
+  border: none;
+  border-bottom: 2px solid transparent;
   color: #7a8fa3;
   font-size: 13px;
   padding: 8px 20px;
   cursor: pointer;
-  border-radius: 8px;
   transition: all 0.3s;
   white-space: nowrap;
 }
 
 .tab-btn:hover {
   color: #c0c8d4;
-  border-color: rgba(50, 150, 255, 0.3);
+  border-bottom-color: rgba(50, 150, 255, 0.3);
   background: rgba(50, 150, 255, 0.05);
 }
 
 .tab-btn.active {
   color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.5);
-  background: rgba(0, 175, 255, 0.1);
+  border-bottom-color: rgba(0, 212, 255, 0.6);
+  background: transparent;
   font-weight: 500;
 }
 
@@ -409,10 +411,9 @@ watch(selectedReservoir, () => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
+  background: transparent;
+  border: none;
   backdrop-filter: blur(14px);
-  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -421,7 +422,7 @@ watch(selectedReservoir, () => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
   flex-shrink: 0;
 }
 
@@ -445,7 +446,7 @@ watch(selectedReservoir, () => {
 
 .tool-btn {
   background: none;
-  border: 1px solid rgba(50, 150, 255, 0.15);
+  border: none;
   color: #7a8fa3;
   width: 32px;
   height: 32px;
@@ -459,7 +460,6 @@ watch(selectedReservoir, () => {
 
 .tool-btn:hover {
   color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.4);
   background: rgba(0, 175, 255, 0.08);
 }
 

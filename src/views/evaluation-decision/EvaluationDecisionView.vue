@@ -862,12 +862,13 @@ onUnmounted(() => {
 .evaluation-decision-view {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px 10px;
+  padding: 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
   position: relative;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== Tab 导航栏 ===== */
@@ -875,10 +876,8 @@ onUnmounted(() => {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
-  padding: 4px;
-  background: rgba(6, 30, 70, 0.6);
-  border: 1px solid rgba(50, 150, 255, 0.2);
-  border-radius: 10px;
+  padding: 6px 14px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.12);
 }
 
 .tab-nav-btn {
@@ -892,7 +891,7 @@ onUnmounted(() => {
   color: #7a8fa3;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.25s ease;
   justify-content: center;
@@ -906,7 +905,7 @@ onUnmounted(() => {
 .tab-nav-btn.active {
   color: #00d4ff;
   background: rgba(0, 175, 255, 0.12);
-  box-shadow: 0 0 12px rgba(0, 175, 255, 0.1);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.6);
 }
 
 .tab-nav-btn svg {
@@ -919,7 +918,7 @@ onUnmounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
   overflow: hidden;
   padding: 0;
 }
@@ -940,6 +939,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   margin-bottom: 4px;
   min-height: 24px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
+  padding-bottom: 8px;
 }
 .selector-label {
   font-size: 12px;
@@ -977,20 +978,20 @@ onUnmounted(() => {
 /* ===== 图表行 ===== */
 .charts-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 0;
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
 }
 .charts-row:last-child {
-  margin-bottom: 0;
+  border-bottom: none;
 }
 
 .chart-box {
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.18);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
 }
 .chart-box-left {
@@ -1126,7 +1127,7 @@ onUnmounted(() => {
 /* ===== 决策分析三列布局 ===== */
 .decision-body {
   display: flex;
-  gap: 10px;
+  gap: 0;
   flex: 1;
   min-height: 0;
 }
@@ -1141,18 +1142,20 @@ onUnmounted(() => {
 }
 .decision-col-center {
   flex: 33;
+  border-left: 1px solid rgba(0, 175, 255, 0.08);
 }
 .decision-col-right {
   flex: 35;
+  border-left: 1px solid rgba(0, 175, 255, 0.08);
 }
 
 /* ===== 子图表盒子 ===== */
 .sub-chart-box {
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.18);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
   flex: 1;
   min-height: 0;

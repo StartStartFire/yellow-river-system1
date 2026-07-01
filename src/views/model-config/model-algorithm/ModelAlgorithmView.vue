@@ -480,9 +480,11 @@ const objectiveIcons: Record<string, string> = {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== 主体：四方格 2×2 ===== */
@@ -491,16 +493,13 @@ const objectiveIcons: Record<string, string> = {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr;
-  gap: 8px;
+  gap: 0;
   min-height: 0;
   overflow: hidden;
 }
 
 /* ===== 通用卡片 ===== */
 .card {
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -528,7 +527,7 @@ const objectiveIcons: Record<string, string> = {
 }
 
 /* ===== 卡1：模型与算法 ===== */
-.card-model { grid-column: 1; grid-row: 1; }
+.card-model { grid-column: 1; grid-row: 1; border-right: 1px solid rgba(0, 175, 255, 0.08); border-bottom: 1px solid rgba(0, 175, 255, 0.1); }
 
 .model-row {
   display: flex;
@@ -575,7 +574,7 @@ const objectiveIcons: Record<string, string> = {
 }
 
 /* ===== 卡2：调度目标 ===== */
-.card-objectives { grid-column: 2; grid-row: 1; }
+.card-objectives { grid-column: 2; grid-row: 1; border-bottom: 1px solid rgba(0, 175, 255, 0.1); }
 
 .card-badge {
   margin-left: auto;
@@ -667,7 +666,7 @@ const objectiveIcons: Record<string, string> = {
 }
 
 /* ===== 卡3：算法参数设置 ===== */
-.card-params { grid-column: 1; grid-row: 2; }
+.card-params { grid-column: 1; grid-row: 2; border-right: 1px solid rgba(0, 175, 255, 0.08); }
 
 .algo-tag {
   margin-left: auto;

@@ -590,9 +590,11 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== 主体 ===== */
@@ -601,9 +603,9 @@ onMounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   overflow: hidden;
-  padding-right: 2px;
+  padding: 12px 14px;
 }
 
 .main-content::-webkit-scrollbar {
@@ -670,7 +672,7 @@ onMounted(() => {
 .period-grid {
   display: grid;
   grid-template-columns: 2.2fr 1fr 1fr;
-  gap: 10px;
+  gap: 0;
   flex-shrink: 0;
 }
 
@@ -679,9 +681,8 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 14px 16px;
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 10px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
   flex-wrap: nowrap;
 }
 
@@ -750,7 +751,7 @@ onMounted(() => {
 .reservoir-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   flex: 1;
   min-height: 0;
 }
@@ -759,7 +760,7 @@ onMounted(() => {
 .group-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 0;
 }
 
 .group-card {
@@ -770,9 +771,7 @@ onMounted(() => {
   justify-content: center;
   gap: 6px;
   padding: 20px 12px;
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 10px;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: center;
@@ -780,14 +779,11 @@ onMounted(() => {
 }
 
 .group-card:hover {
-  border-color: rgba(0, 175, 255, 0.35);
   background: rgba(0, 175, 255, 0.03);
 }
 
 .group-card.group-selected {
-  border-color: rgba(0, 175, 255, 0.6);
   background: rgba(0, 175, 255, 0.06);
-  box-shadow: 0 0 16px rgba(0, 175, 255, 0.12);
 }
 
 .group-check {
@@ -849,9 +845,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  background: rgba(6, 30, 70, 0.4);
-  border: 1px solid rgba(50, 150, 255, 0.15);
-  border-radius: 8px;
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
   flex-shrink: 0;
 }
 

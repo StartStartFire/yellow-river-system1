@@ -355,9 +355,7 @@ const iconMap: Record<string, string> = {
         </div>
 
         <!-- 图表/表格区 -->
-        <div class="content-panel"
-          style="background: rgba(6, 30, 70, 0.85); border: 1px solid rgba(50, 150, 255, 0.35); border-radius: 12px;"
-        >
+        <div class="content-panel">
           <!-- 标题 -->
           <div class="content-header">
             <span class="content-title">{{ chartTitle }}</span>
@@ -458,9 +456,11 @@ const iconMap: Record<string, string> = {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== 主体区域 ===== */
@@ -468,7 +468,7 @@ const iconMap: Record<string, string> = {
   display: flex;
   flex: 1;
   min-height: 0;
-  gap: 8px;
+  gap: 0;
 }
 
 /* ===== 左侧目录 ===== */
@@ -659,7 +659,7 @@ const iconMap: Record<string, string> = {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   min-width: 0;
 }
 
@@ -669,9 +669,7 @@ const iconMap: Record<string, string> = {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
   flex-shrink: 0;
 }
 

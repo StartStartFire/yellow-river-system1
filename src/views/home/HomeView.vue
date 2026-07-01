@@ -64,6 +64,8 @@ const handleClearSelected = () => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 .home-body {
@@ -87,7 +89,7 @@ const handleClearSelected = () => {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 24%;
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -140,7 +142,7 @@ const handleClearSelected = () => {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-right: none;
-  border-radius: 10px 0 0 10px;
+  border-radius: 4px 0 0 4px;
   cursor: pointer;
   padding: 8px 0;
   color: #7a8fa3;

@@ -792,16 +792,18 @@ const pageNumbers = computed(() => {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  padding: 8px 12px 0;
-  gap: 8px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== 主体内容 ===== */
 .main-content {
   flex: 1;
   display: flex;
-  gap: 8px;
+  gap: 0;
   min-height: 0;
   overflow: hidden;
 }
@@ -812,6 +814,7 @@ const pageNumbers = computed(() => {
   min-width: 0;
   min-height: 0;
   display: flex;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
 }
 
 /* ===== 右侧信息区 ===== */
@@ -820,7 +823,7 @@ const pageNumbers = computed(() => {
   min-width: 240px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
   overflow-y: auto;
   padding-right: 2px;
 }
@@ -840,9 +843,6 @@ const pageNumbers = computed(() => {
 
 /* ===== 通用卡片 ===== */
 .card {
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1082,6 +1082,7 @@ const pageNumbers = computed(() => {
 /* ===== 右侧信息卡片 ===== */
 .info-card {
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
 }
 
 .info-card.chart-card {
@@ -1186,9 +1187,7 @@ const pageNumbers = computed(() => {
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
   flex-shrink: 0;
 }
 

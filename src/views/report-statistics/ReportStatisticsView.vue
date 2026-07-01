@@ -438,9 +438,10 @@ const getAssessmentColor = (result: string) => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  gap: 12px;
-  background: #0a1929;
+  padding: 0;
+  gap: 0;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
   overflow: hidden;
 }
 
@@ -450,10 +451,10 @@ const getAssessmentColor = (result: string) => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   flex-shrink: 0;
 }
 
@@ -478,9 +479,9 @@ const getAssessmentColor = (result: string) => {
 
 .type-switcher {
   display: flex;
-  background: rgba(10, 25, 41, 0.6);
-  border: 1px solid rgba(50, 150, 255, 0.15);
-  border-radius: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -488,6 +489,7 @@ const getAssessmentColor = (result: string) => {
   padding: 6px 16px;
   background: transparent;
   border: none;
+  border-bottom: 2px solid transparent;
   color: #7a8fa3;
   font-size: 12px;
   cursor: pointer;
@@ -499,8 +501,9 @@ const getAssessmentColor = (result: string) => {
 }
 
 .type-btn.active {
-  background: linear-gradient(135deg, #00afff 0%, #00d4ff 100%);
-  color: #fff;
+  background: transparent;
+  color: #00d4ff;
+  border-bottom-color: rgba(0, 212, 255, 0.6);
 }
 
 .filter-actions {
@@ -572,7 +575,7 @@ const getAssessmentColor = (result: string) => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0;
 }
 
 .report-content::-webkit-scrollbar {
@@ -591,10 +594,10 @@ const getAssessmentColor = (result: string) => {
 
 /* 报表区块 */
 .report-section {
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -604,8 +607,8 @@ const getAssessmentColor = (result: string) => {
   font-size: 14px;
   font-weight: 600;
   color: #00d4ff;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
-  background: rgba(10, 25, 41, 0.4);
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  background: transparent;
 }
 
 .table-wrapper {

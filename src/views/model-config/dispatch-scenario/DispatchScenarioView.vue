@@ -336,9 +336,11 @@ const subIconMap: Record<string, string> = {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== 主体区域 ===== */
@@ -346,6 +348,7 @@ const subIconMap: Record<string, string> = {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  padding: 0 12px;
 }
 
 /* ===== 方案名称输入行 ===== */
@@ -354,10 +357,7 @@ const subIconMap: Record<string, string> = {
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  margin-bottom: 6px;
-  background: rgba(6, 30, 70, 0.4);
-  border: 1px solid rgba(50, 150, 255, 0.2);
-  border-radius: 8px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
   flex-shrink: 0;
 }
 
@@ -397,7 +397,7 @@ const subIconMap: Record<string, string> = {
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 0;
   height: 100%;
 }
 
@@ -406,26 +406,20 @@ const subIconMap: Record<string, string> = {
   position: relative;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 12px;
   padding: 28px 22px 22px;
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
   height: 100%;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
 }
 
 .scenario-card:hover {
-  border-color: rgba(0, 175, 255, 0.35);
   background: rgba(0, 175, 255, 0.03);
 }
 
 .scenario-card.card-selected {
-  border-color: rgba(0, 175, 255, 0.6);
   background: rgba(0, 175, 255, 0.06);
-  box-shadow: 0 0 20px rgba(0, 175, 255, 0.15), 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
 /* ===== 选中标记（右上角） ===== */

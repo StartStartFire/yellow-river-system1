@@ -56,11 +56,11 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-tech-bg">
+  <div class="min-h-screen flex flex-col">
     <!-- 合并的顶部栏：系统名称 + 导航 + 时间/状态 -->
     <div
-      class="h-12 flex items-center px-6 border-b border-tech-border/30"
-      style="background: rgba(6, 30, 70, 0.92); backdrop-filter: blur(6px);"
+      class="h-12 flex items-center px-6 relative z-10"
+      style="background: rgba(6, 20, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 175, 255, 0.15);"
     >
       <!-- 左侧：系统名称 -->
       <div class="flex items-center gap-2 shrink-0">

@@ -524,19 +524,24 @@ onUnmounted(() => {
 .process-transparent-view {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 4px 8px;
+  gap: 0;
+  padding: 10px 14px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   position: relative;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ── 方案情景选择区 ── */
 .scenario-section {
   display: flex;
-  gap: 6px;
+  gap: 0;
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
 }
 .scenario-card {
   flex: 1;
@@ -544,20 +549,22 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: rgba(6, 30, 70, 0.75);
-  border: 1px solid rgba(50, 150, 255, 0.2);
-  border-radius: 10px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.25s;
 }
+.scenario-card:last-child {
+  border-right: none;
+}
 .scenario-card:hover {
-  border-color: rgba(50, 150, 255, 0.4);
-  background: rgba(6, 30, 70, 0.9);
+  background: rgba(0, 175, 255, 0.04);
 }
 .scenario-card.active {
-  border-color: rgba(0, 175, 255, 0.6);
-  background: rgba(0, 175, 255, 0.08);
-  box-shadow: 0 0 12px rgba(0, 160, 255, 0.08);
+  background: rgba(0, 175, 255, 0.06);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.5);
 }
 .scenario-radio { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .radio-dot {
@@ -577,9 +584,10 @@ onUnmounted(() => {
 .status-bar {
   display: flex; flex-direction: column; gap: 4px;
   padding: 6px 10px;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   flex-shrink: 0;
 }
 .status-bar-title {
@@ -608,7 +616,7 @@ onUnmounted(() => {
    ════════════════════════════════════ */
 .middle-section {
   display: flex;
-  gap: 10px;
+  gap: 0;
   flex: 1;
   min-height: 0;
 }
@@ -619,6 +627,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border-right: 1px solid rgba(0, 175, 255, 0.1);
 }
 .left-charts {
   flex: 1;
@@ -646,22 +655,21 @@ onUnmounted(() => {
   padding: 5px 0;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid rgba(50,150,255,0.25);
-  border-radius: 6px;
-  background: rgba(6,30,70,0.6);
+  border: none;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
   color: #7a8fa3;
   cursor: pointer;
   transition: all 0.2s;
 }
 .right-tab-btn:hover {
   color: #c0c8d4;
-  background: rgba(6,30,70,0.9);
-  border-color: rgba(50,150,255,0.4);
+  border-bottom-color: rgba(0, 175, 255, 0.3);
 }
 .right-tab-btn.active {
   color: #00afff;
-  background: rgba(0,175,255,0.1);
-  border-color: rgba(0,175,255,0.5);
+  border-bottom-color: rgba(0, 212, 255, 0.6);
 }
 
 .right-charts-col {
@@ -674,9 +682,9 @@ onUnmounted(() => {
 .right-chart-wrap {
   flex: 1;
   display: flex;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   padding: 2px;
   min-width: 0;
 }
@@ -691,9 +699,9 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   padding: 0;
 }
 .chart-card-header {
@@ -718,10 +726,19 @@ onUnmounted(() => {
 /* ── 底部辅助信息区 ── */
 .bottom-section {
   display: flex;
-  gap: 4px;
+  gap: 0;
   flex-shrink: 0;
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  padding-top: 8px;
 }
-.bottom-card { flex: 1; min-width: 0; }
+.bottom-card {
+  flex: 1;
+  min-width: 0;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
+}
+.bottom-card:last-child {
+  border-right: none;
+}
 .bottom-card :deep(.panel-header) {
   padding: 1px 6px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.12);

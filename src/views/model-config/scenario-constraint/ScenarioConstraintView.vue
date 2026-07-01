@@ -278,9 +278,11 @@ const paramIcons: Record<string, string> = {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* ===== 主体内容 ===== */
@@ -288,10 +290,10 @@ const paramIcons: Record<string, string> = {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   min-height: 0;
   overflow-y: auto;
-  padding-right: 2px;
+  padding: 0 14px;
 }
 
 .main-content::-webkit-scrollbar {
@@ -309,9 +311,6 @@ const paramIcons: Record<string, string> = {
 
 /* ===== 通用卡片 ===== */
 .card {
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -345,6 +344,7 @@ const paramIcons: Record<string, string> = {
 /* ===== 标题区卡片 ===== */
 .header-card.card {
   overflow: visible;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
 }
 
 .header-card .card-header {
@@ -375,35 +375,34 @@ const paramIcons: Record<string, string> = {
 /* ===== 场景类型切换 ===== */
 .switch-row {
   display: flex;
-  gap: 8px;
-  padding: 2px 16px 12px;
+  gap: 24px;
+  padding: 2px 16px 0;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
 }
 
 .switch-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 18px;
-  border-radius: 8px;
+  padding: 8px 4px 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   transition: all 0.25s;
-  background: rgba(2, 27, 63, 0.6);
-  border: 1px solid rgba(50, 150, 255, 0.2);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
   color: #7a8fa3;
 }
 
 .switch-btn:hover {
-  border-color: rgba(50, 150, 255, 0.4);
   color: #c0c8d4;
 }
 
 .switch-btn.switch-active {
-  background: linear-gradient(135deg, rgba(0, 175, 255, 0.2), rgba(0, 229, 255, 0.1));
-  border-color: rgba(0, 175, 255, 0.5);
+  background: transparent;
+  border-bottom-color: #00afff;
   color: #00d4ff;
-  box-shadow: 0 0 10px rgba(0, 175, 255, 0.1);
 }
 
 .switch-icon {
@@ -455,6 +454,7 @@ const paramIcons: Record<string, string> = {
 /* ===== 场景描述 ===== */
 .description-section {
   padding: 0 16px 14px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
 }
 
 .desc-header {

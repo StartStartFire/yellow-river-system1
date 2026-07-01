@@ -17,7 +17,7 @@ const emit = defineEmits<{
         v-for="reservoir in monitorData"
         :key="reservoir.id"
         class="reservoir-block"
-        style="background: transparent; border: 1px solid rgba(50, 150, 255, 0.08); border-radius: 8px; padding: 12px;"
+        style="padding: 12px;"
       >
         <!-- 水库名称 + 状态 - 名称可点击 -->
         <div class="flex items-center justify-between mb-3">
@@ -68,6 +68,14 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
+.reservoir-block {
+  border-bottom: 1px solid rgba(50, 150, 255, 0.1);
+}
+
+.reservoir-block:last-child {
+  border-bottom: none;
+}
+
 .metric-item {
   display: flex;
   align-items: baseline;

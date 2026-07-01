@@ -81,10 +81,9 @@ const selectedInitial = computed(() => {
   width: 180px;
   min-width: 180px;
   height: 100%;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(0, 175, 255, 0.12);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

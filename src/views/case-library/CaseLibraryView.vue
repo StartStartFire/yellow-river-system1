@@ -601,9 +601,10 @@ function getCoverGradient(type: string): string {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  gap: 12px;
-  background: #0a1929;
+  padding: 0;
+  gap: 0;
+  background: rgba(6, 20, 42, 0.88);
+  backdrop-filter: blur(16px);
 }
 
 /* 筛选区 */
@@ -612,10 +613,9 @@ function getCoverGradient(type: string): string {
   align-items: center;
   justify-content: space-between;
   padding: 8px 14px;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
   flex-shrink: 0;
 }
 
@@ -727,7 +727,7 @@ function getCoverGradient(type: string): string {
 .main-content {
   flex: 1;
   display: flex;
-  gap: 12px;
+  gap: 0;
   min-height: 0;
 }
 
@@ -736,10 +736,10 @@ function getCoverGradient(type: string): string {
   width: 48%;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -748,7 +748,7 @@ function getCoverGradient(type: string): string {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
 }
 
 .title-text {
@@ -789,21 +789,22 @@ function getCoverGradient(type: string): string {
   display: flex;
   gap: 12px;
   padding: 12px;
-  background: rgba(17, 37, 54, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.08);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .case-card:hover {
-  background: rgba(17, 37, 54, 0.8);
-  border-color: rgba(50, 150, 255, 0.2);
+  background: rgba(0, 175, 255, 0.04);
+  border-bottom-color: rgba(0, 175, 255, 0.2);
 }
 
 .case-card.active {
-  background: rgba(0, 175, 255, 0.08);
-  border-color: rgba(0, 175, 255, 0.3);
+  background: rgba(0, 175, 255, 0.06);
+  border-bottom-color: rgba(0, 212, 255, 0.4);
 }
 
 .case-cover {
@@ -912,22 +913,20 @@ function getCoverGradient(type: string): string {
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid rgba(50, 150, 255, 0.15);
-  border-radius: 4px;
+  border: none;
+  border-radius: 0;
   color: #7a8fa3;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .action-btn:hover {
-  background: rgba(50, 150, 255, 0.15);
+  background: rgba(0, 175, 255, 0.08);
   color: #e0e6ed;
-  border-color: rgba(50, 150, 255, 0.3);
 }
 
 .action-btn.favorited {
   color: #ff4d4f;
-  border-color: rgba(255, 77, 79, 0.3);
 }
 
 /* 右侧案例详情 */
@@ -935,10 +934,9 @@ function getCoverGradient(type: string): string {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: rgba(6, 30, 70, 0.45);
-  border: 1px solid rgba(50, 150, 255, 0.10);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -947,7 +945,7 @@ function getCoverGradient(type: string): string {
   justify-content: space-between;
   align-items: flex-start;
   padding: 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
 }
 
 .header-left {
@@ -1001,17 +999,18 @@ function getCoverGradient(type: string): string {
 /* 页签区 */
 .detail-tabs {
   display: flex;
-  gap: 4px;
-  padding: 8px 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
-  background: rgba(10, 25, 41, 0.3);
+  gap: 0;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  background: transparent;
 }
 
 .tab-btn {
-  padding: 6px 12px;
+  padding: 8px 16px;
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: #7a8fa3;
   font-size: 12px;
   cursor: pointer;
@@ -1020,12 +1019,13 @@ function getCoverGradient(type: string): string {
 
 .tab-btn:hover {
   color: #e0e6ed;
-  background: rgba(50, 150, 255, 0.1);
+  background: transparent;
 }
 
 .tab-btn.active {
   color: #00d4ff;
-  background: rgba(0, 175, 255, 0.15);
+  background: transparent;
+  border-bottom-color: rgba(0, 212, 255, 0.6);
 }
 
 /* 页签内容 */
@@ -1048,9 +1048,10 @@ function getCoverGradient(type: string): string {
 }
 
 .config-section {
-  background: rgba(17, 37, 54, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.08);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-radius: 0;
   padding: 12px;
 }
 
@@ -1116,9 +1117,10 @@ function getCoverGradient(type: string): string {
 }
 
 .key-findings {
-  background: rgba(17, 37, 54, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.08);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   padding: 12px;
 }
 
@@ -1161,9 +1163,10 @@ function getCoverGradient(type: string): string {
 }
 
 .chart-box {
-  background: rgba(17, 37, 54, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.08);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-radius: 0;
   padding: 12px;
 }
 
@@ -1192,7 +1195,7 @@ function getCoverGradient(type: string): string {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(17, 37, 54, 0.5);
+  background: transparent;
 }
 
 .score-value {
@@ -1256,8 +1259,8 @@ function getCoverGradient(type: string): string {
 /* 关键指标区 */
 .metrics-section {
   padding: 12px 16px;
-  border-top: 1px solid rgba(50, 150, 255, 0.08);
-  background: rgba(10, 25, 41, 0.3);
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  background: transparent;
 }
 
 .metrics-title {
@@ -1278,9 +1281,10 @@ function getCoverGradient(type: string): string {
   flex-direction: column;
   gap: 4px;
   padding: 10px;
-  background: rgba(17, 37, 54, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.08);
-  border-radius: 6px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-radius: 0;
 }
 
 .metric-name {
@@ -1305,8 +1309,8 @@ function getCoverGradient(type: string): string {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 16px;
-  border-top: 1px solid rgba(50, 150, 255, 0.08);
-  background: rgba(10, 25, 41, 0.3);
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  background: transparent;
 }
 
 /* Element Plus 深色主题覆盖 */
