@@ -54,14 +54,14 @@ withDefaults(defineProps<Props>(), {
 .section-title {
   font-size: 12px;
   font-weight: 600;
-  color: #7a8fa3;
+  color: #8aa0b8;
   letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
 .section-unit {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 .section-body {

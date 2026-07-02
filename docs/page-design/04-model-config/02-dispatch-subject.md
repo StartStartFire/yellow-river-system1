@@ -32,7 +32,7 @@
    - 调度频率（下拉选择）
    - 总时段数（自动计算，只读展示）
 3. 下半部分：水库选择区
-   - 预设水库组合（快捷卡片）
+   - 预设水库组合（快捷分区）
    - 自定义水库多选（自由勾选）
    - 两种模式联动：选预设时自动勾选对应水库，手动勾选时取消预设选中
 4. 底部操作栏：取消 / 上一步 / 保存 / 下一步
@@ -246,25 +246,25 @@
 ### 7.4 预设组合交互规则
 
 ```text
-1. 预设组合以卡片按钮形式展示，横向排列（含"更多组合"共 4 个卡片）
+1. 预设组合以分区按钮形式展示，横向排列（含"更多组合"共 4 个分区）
 2. 点击某个预设组合卡片 → 自动选中该卡片（蓝色高亮）→ 自动勾选对应水库
 3. 再次点击已选中的预设组合 → 取消选中 → 不清空已选水库
-4. 预设卡片之间互斥（一次只能选中一个预设）
+4. 预设分区之间互斥（一次只能选中一个预设）
 5. 点击另一个预设组合 → 切换到新组合（替换水库勾选）
-6. 预设卡片选中态：蓝色边框高亮 + 右上角勾选标记
+6. 预设分区选中态：下划线高亮 + 右上角勾选标记
 ```
 
 ### 7.5 "更多组合"入口卡片
 
 | 属性 | 说明 |
 |------|------|
-| 卡片名称 | 更多组合 |
+| 分区名称 | 更多组合 |
 | 图标 | ⋯（三点）或 ⋮⋮（网格） |
-| 位置 | 预设卡片最右侧 |
+| 位置 | 预设分区的右侧 |
 | 行为 | 点击打开弹窗 |
 
 ```text
-1. 卡片样式与其他预设组合一致，但更强调"操作入口"感
+1. 分区样式与其他预设组合一致，但更强调"操作入口"感
 2. 点击后打开水库多选弹窗
 3. 不与其他预设组合互斥（它不是组合选择，而是入口）
 ```
@@ -331,70 +331,54 @@ src/mock/basicData.ts 中的 reservoirOverviewMock
 
 ---
 
-## 8. 卡片设计规范
+## 8. 分区设计规范
 
-### 8.1 上半区卡片（调度时段与周期）
+### 8.1 上半区（调度时段与周期）
 
-采用 2×2 网格布局，每个参数一个独立卡片：
+采用 2×2 网格布局，所有参数位于页面统一面板内，通过细分割线分隔：
 
 ```css
-/* 小参数卡片 */
-width: 50%;
-padding: 14px 16px;
-background: rgba(6, 30, 70, 0.5);
-border: 1px solid rgba(50, 150, 255, 0.25);
-border-radius: 10px;
+/* 参数分区 — 无独立卡片，使用统一面板背景 */
+width: 50%; padding: 14px 16px;
+background: transparent;
+/* 列间用 border-right 分割线，行间用 border-bottom 分割线 */
 ```
 
-每个卡片包含：
-- 标题（如"调度起止时间"）
-- 控件主体
+每个参数分区包含：
 
-### 8.2 下半区卡片（水库选择）
+- 标签（小号大写字体，浅灰蓝色，letter-spacing）
+- 内容区（表单控件或计算结果显示）
 
-预设组合区卡片：
+### 8.2 下半区（水库选择）
+
+预设组合区分区：
 
 ```css
-/* 预设组合卡片 */
+/* 预设组合分区 — 无独立卡片 */
 padding: 14px 16px;
-background: rgba(6, 30, 70, 0.5);
-border: 1px solid rgba(50, 150, 255, 0.25);
-border-radius: 10px;
-cursor: pointer;
-transition: all 0.25s;
+background: transparent;
+cursor: pointer; transition: all 0.25s;
+border-bottom: 2px solid transparent;
+```
 
-/* 选中态 */
-border-color: rgba(0, 175, 255, 0.6);
+选中态（下划线高亮指示）：
+```css
+border-bottom-color: rgba(0, 212, 255, 0.6);
 background: rgba(0, 175, 255, 0.06);
-box-shadow: 0 0 16px rgba(0, 175, 255, 0.12);
 ```
 
-水库列表卡片：
+水库列表分区：
 
 ```css
-/* 水库列表容器 */
-background: rgba(6, 30, 70, 0.5);
-border: 1px solid rgba(50, 150, 255, 0.25);
-border-radius: 10px;
+/* 水库列表 — 无容器边框，嵌入页面 */
+background: transparent;
 ```
 
-水库行：
-
+水库行（底部分割线）：
 ```css
-/* 每行 */
-display: flex;
-align-items: center;
-gap: 12px;
-padding: 12px 16px;
-border-bottom: 1px solid rgba(50, 150, 255, 0.06);
-cursor: pointer;
-transition: background 0.2s;
-
-/* 最后一行无底部边框 */
-:last-child { border-bottom: none; }
-
-/* hover */
-background: rgba(0, 175, 255, 0.03);
+display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+border-bottom: 1px solid rgba(0, 175, 255, 0.06);
+cursor: pointer; transition: background 0.2s;
 ```
 
 ---

@@ -363,7 +363,7 @@ const wavePath2 = computed(() => {
   width: 100%;
   max-width: 2200px;
   aspect-ratio: 1672 / 654;
-  background: #061a3a;
+  background: transparent;
   overflow: hidden;
   border-radius: 6px;
   flex-shrink: 0;
@@ -430,7 +430,7 @@ const wavePath2 = computed(() => {
 
 .param-label {
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .param-value {

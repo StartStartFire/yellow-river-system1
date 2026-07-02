@@ -58,7 +58,7 @@ const levelConfig = {
 }
 
 .warning-time {
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
   min-width: 65px;
 }
@@ -70,7 +70,7 @@ const levelConfig = {
 }
 
 .warning-content {
-  color: #7a8fa3;
+  color: #8aa0b8;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;

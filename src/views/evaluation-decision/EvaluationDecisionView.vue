@@ -85,7 +85,7 @@ const buildRadarOption = () => {
       text: '多方案评价雷达图',
       right: 12,
       top: 4,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
       trigger: 'item' as const,
@@ -95,7 +95,7 @@ const buildRadarOption = () => {
     },
     legend: {
       data: filteredPlans.map(p => p.plan),
-      textStyle: { color: '#7a8fa3', fontSize: 11 },
+      textStyle: { color: '#8aa0b8', fontSize: 11 },
       bottom: 2,
     },
     radar: {
@@ -152,7 +152,7 @@ const buildSankeyOption = () => {
       text: '多方案评价指标',
       right: 12,
       top: 6,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
       trigger: 'item' as const,
@@ -218,7 +218,7 @@ const buildParetoOption = () => {
       text: '帕累托曲线',
       right: 12,
       top: 4,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
       trigger: 'axis' as const,
@@ -228,24 +228,24 @@ const buildParetoOption = () => {
     },
     legend: {
       data: filteredData.map(d => d.plan),
-      textStyle: { color: '#7a8fa3', fontSize: 11 },
+      textStyle: { color: '#8aa0b8', fontSize: 11 },
       top: 22,
     },
     grid: { left: 50, right: 16, top: 48, bottom: 22 },
     xAxis: {
       type: 'value',
       name: '最优投影值',
-      nameTextStyle: { color: '#7a8fa3', fontSize: 10 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
+      axisLabel: { color: '#8aa0b8', fontSize: 9 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     yAxis: {
       type: 'value',
       name: '综合优选指数',
-      nameTextStyle: { color: '#7a8fa3', fontSize: 10 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
       axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
+      axisLabel: { color: '#8aa0b8', fontSize: 9 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     series: filteredData.map(d => ({
@@ -279,7 +279,7 @@ const buildProcessOption = () => {
         text: '水位变化过程线',
         right: 12,
         top: 2,
-        textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+        textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
       },
       tooltip: {
         trigger: 'axis' as const,
@@ -289,7 +289,7 @@ const buildProcessOption = () => {
       },
       legend: {
         data: ['龙羊峡水库', '刘家峡水库', '汛限水位', '正常蓄水位'],
-        textStyle: { color: '#7a8fa3', fontSize: 10 },
+        textStyle: { color: '#8aa0b8', fontSize: 10 },
         top: 18,
       },
       grid: { left: 42, right: 8, top: 46, bottom: 16 },
@@ -297,15 +297,15 @@ const buildProcessOption = () => {
         type: 'category',
         data: d.dates,
         axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#7a8fa3', fontSize: 9 },
+        axisLabel: { color: '#8aa0b8', fontSize: 9 },
         splitLine: { show: false },
       },
       yAxis: {
         type: 'value',
         name: '水位（m）',
-        nameTextStyle: { color: '#7a8fa3', fontSize: 10 },
+        nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
         axisLine: { show: false },
-        axisLabel: { color: '#7a8fa3', fontSize: 9 },
+        axisLabel: { color: '#8aa0b8', fontSize: 9 },
         splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
       },
       series: [
@@ -362,7 +362,7 @@ const buildProcessOption = () => {
         text: '流量变化过程线',
         right: 12,
         top: 2,
-        textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+        textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
       },
       tooltip: {
         trigger: 'axis' as const,
@@ -372,7 +372,7 @@ const buildProcessOption = () => {
       },
       legend: {
         data: ['龙羊峡水库', '刘家峡水库'],
-        textStyle: { color: '#7a8fa3', fontSize: 10 },
+        textStyle: { color: '#8aa0b8', fontSize: 10 },
         top: 18,
       },
       grid: { left: 42, right: 8, top: 46, bottom: 16 },
@@ -380,15 +380,15 @@ const buildProcessOption = () => {
         type: 'category',
         data: d.dates,
         axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#7a8fa3', fontSize: 9 },
+        axisLabel: { color: '#8aa0b8', fontSize: 9 },
         splitLine: { show: false },
       },
       yAxis: {
         type: 'value',
         name: '流量（m³/s）',
-        nameTextStyle: { color: '#7a8fa3', fontSize: 10 },
+        nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
         axisLine: { show: false },
-        axisLabel: { color: '#7a8fa3', fontSize: 9 },
+        axisLabel: { color: '#8aa0b8', fontSize: 9 },
         splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
       },
       series: [
@@ -417,7 +417,7 @@ const buildProcessOption = () => {
         text: '出力变化过程线',
         right: 12,
         top: 2,
-        textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+        textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
       },
       tooltip: {
         trigger: 'axis' as const,
@@ -427,7 +427,7 @@ const buildProcessOption = () => {
       },
       legend: {
         data: ['龙羊峡水库', '刘家峡水库', '龙羊峡装机容量', '刘家峡装机容量'],
-        textStyle: { color: '#7a8fa3', fontSize: 10 },
+        textStyle: { color: '#8aa0b8', fontSize: 10 },
         top: 18,
       },
       grid: { left: 42, right: 8, top: 46, bottom: 16 },
@@ -435,15 +435,15 @@ const buildProcessOption = () => {
         type: 'category',
         data: d.dates,
         axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#7a8fa3', fontSize: 9 },
+        axisLabel: { color: '#8aa0b8', fontSize: 9 },
         splitLine: { show: false },
       },
       yAxis: {
         type: 'value',
         name: '出力（MW）',
-        nameTextStyle: { color: '#7a8fa3', fontSize: 10 },
+        nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
         axisLine: { show: false },
-        axisLabel: { color: '#7a8fa3', fontSize: 9 },
+        axisLabel: { color: '#8aa0b8', fontSize: 9 },
         splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
       },
       series: [
@@ -511,7 +511,7 @@ const buildWaterFlowOption = () => {
       text: '水量使用流向图',
       right: 12,
       top: 6,
-      textStyle: { color: '#7a8fa3', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
       trigger: 'item' as const,
@@ -867,8 +867,7 @@ onUnmounted(() => {
   min-height: 0;
   overflow: hidden;
   position: relative;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== Tab 导航栏 ===== */
@@ -888,7 +887,7 @@ onUnmounted(() => {
   padding: 8px 0;
   font-size: 13px;
   font-weight: 500;
-  color: #7a8fa3;
+  color: #8aa0b8;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -944,7 +943,7 @@ onUnmounted(() => {
 }
 .selector-label {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
 }
 .plan-checkboxes {
@@ -1163,7 +1162,7 @@ onUnmounted(() => {
 .sub-chart-title {
   font-size: 12px;
   font-weight: 600;
-  color: #7a8fa3;
+  color: #8aa0b8;
   padding: 6px 10px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.1);
   letter-spacing: 0.3px;
@@ -1258,7 +1257,7 @@ onUnmounted(() => {
 
 .target-footnote {
   font-size: 10px;
-  color: #5a6f83;
+  color: #6e8a9e;
   padding: 4px 10px 6px;
   border-top: 1px solid rgba(50, 150, 255, 0.08);
   flex-shrink: 0;
@@ -1279,7 +1278,7 @@ onUnmounted(() => {
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 4px 4px 0 0;
   background: rgba(6, 30, 70, 0.5);
-  color: #7a8fa3;
+  color: #8aa0b8;
   cursor: pointer;
   transition: all 0.2s;
 }

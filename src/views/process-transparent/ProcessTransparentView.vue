@@ -115,15 +115,15 @@ const buildConvergenceOption = () => {
       type: 'category',
       data: d.iterations,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
+      axisLabel: { color: '#8aa0b8', fontSize: 9 },
       splitLine: { show: false },
     },
     yAxis: {
       type: 'value',
       name: '适应度值',
-      nameTextStyle: { color: '#7a8fa3', fontSize: 9 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 9 },
       axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
+      axisLabel: { color: '#8aa0b8', fontSize: 9 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     series: [{
@@ -155,7 +155,7 @@ const buildObjectiveOption = () => {
     },
     legend: {
       data:['总目标值','防洪目标','发电目标','生态目标'],
-      textStyle: { color: '#7a8fa3', fontSize: 9 },
+      textStyle: { color: '#8aa0b8', fontSize: 9 },
       top: 0,
     },
     grid: { left: 46, right: 12, top: 32, bottom: 20 },
@@ -163,15 +163,15 @@ const buildObjectiveOption = () => {
       type: 'category',
       data: d.iterations,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
+      axisLabel: { color: '#8aa0b8', fontSize: 9 },
       splitLine: { show: false },
     },
     yAxis: {
       type: 'value',
       name: '目标值',
-      nameTextStyle: { color: '#7a8fa3', fontSize: 9 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 9 },
       axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 9 },
+      axisLabel: { color: '#8aa0b8', fontSize: 9 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     series: [
@@ -209,11 +209,11 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
       tooltip: { trigger:'axis', backgroundColor:'rgba(6,30,70,0.9)', borderColor:'rgba(50,150,255,0.4)', textStyle:{color:'#e0e6ed',fontSize:11} },
-      title: { text: name, left:'center', top:2, textStyle:{color:'#7a8fa3',fontSize:11,fontWeight:600} },
-      legend: { data:['当前优化方案','入库预报','历史运行'], textStyle:{color:'#7a8fa3',fontSize:9}, top:18 },
+      title: { text: name, left:'center', top:2, textStyle:{color:'#8aa0b8',fontSize:11,fontWeight:600} },
+      legend: { data:['当前优化方案','入库预报','历史运行'], textStyle:{color:'#8aa0b8',fontSize:9}, top:18 },
       grid: { left:42, right:8, top:42, bottom:18 },
-      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#7a8fa3',fontSize:9}, splitLine:{show:false} },
-      yAxis: { type:'value', name:'水位（m）', nameTextStyle:{color:'#7a8fa3',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#7a8fa3',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
+      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{show:false} },
+      yAxis: { type:'value', name:'水位（m）', nameTextStyle:{color:'#8aa0b8',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
       series: [
         { name:'当前优化方案', type:'line', data:r.optimal, smooth:true, symbol:'none', lineStyle:{width:2,color:lineColor} },
         { name:'入库预报', type:'line', data:r.forecast, smooth:true, symbol:'none', lineStyle:{width:2,color:dashColor,type:'dashed'} },
@@ -225,11 +225,11 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
       tooltip: { trigger:'axis', backgroundColor:'rgba(6,30,70,0.9)', borderColor:'rgba(50,150,255,0.4)', textStyle:{color:'#e0e6ed',fontSize:11} },
-      title: { text: name, left:'center', top:2, textStyle:{color:'#7a8fa3',fontSize:11,fontWeight:600} },
-      legend: { data:['优化下泄流量','历史下泄流量','最小生态流量'], textStyle:{color:'#7a8fa3',fontSize:9}, top:18 },
+      title: { text: name, left:'center', top:2, textStyle:{color:'#8aa0b8',fontSize:11,fontWeight:600} },
+      legend: { data:['优化下泄流量','历史下泄流量','最小生态流量'], textStyle:{color:'#8aa0b8',fontSize:9}, top:18 },
       grid: { left:46, right:8, top:42, bottom:18 },
-      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#7a8fa3',fontSize:9}, splitLine:{show:false} },
-      yAxis: { type:'value', name:'流量（m³/s）', nameTextStyle:{color:'#7a8fa3',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#7a8fa3',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
+      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{show:false} },
+      yAxis: { type:'value', name:'流量（m³/s）', nameTextStyle:{color:'#8aa0b8',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
       series: [
         { name:'优化下泄流量', type:'line', data:r.optimal, smooth:true, symbol:'none', lineStyle:{width:2,color:lineColor} },
         { name:'历史下泄流量', type:'line', data:r.schedule, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ffaa00'} },
@@ -241,11 +241,11 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
       tooltip: { trigger:'axis', backgroundColor:'rgba(6,30,70,0.9)', borderColor:'rgba(50,150,255,0.4)', textStyle:{color:'#e0e6ed',fontSize:11} },
-      title: { text: name, left:'center', top:2, textStyle:{color:'#7a8fa3',fontSize:11,fontWeight:600} },
-      legend: { data:['优化出力','历史出力','装机容量'], textStyle:{color:'#7a8fa3',fontSize:9}, top:18 },
+      title: { text: name, left:'center', top:2, textStyle:{color:'#8aa0b8',fontSize:11,fontWeight:600} },
+      legend: { data:['优化出力','历史出力','装机容量'], textStyle:{color:'#8aa0b8',fontSize:9}, top:18 },
       grid: { left:46, right:8, top:42, bottom:18 },
-      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#7a8fa3',fontSize:9}, splitLine:{show:false} },
-      yAxis: { type:'value', name:'出力（MW）', nameTextStyle:{color:'#7a8fa3',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#7a8fa3',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
+      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{show:false} },
+      yAxis: { type:'value', name:'出力（MW）', nameTextStyle:{color:'#8aa0b8',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
       series: [
         { name:'优化出力', type:'line', data:r.optimal, smooth:true, symbol:'none', lineStyle:{width:2,color:lineColor} },
         { name:'历史出力', type:'line', data:r.schedule, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ffaa00'} },
@@ -530,8 +530,7 @@ onUnmounted(() => {
   min-height: 0;
   overflow-y: auto;
   position: relative;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ── 方案情景选择区 ── */
@@ -578,7 +577,7 @@ onUnmounted(() => {
 }
 .scenario-info { display: flex; flex-direction: column; gap: 2px; }
 .scenario-name { font-size: 14px; font-weight: 600; color: #e0e6ed; }
-.scenario-taskId { font-size: 11px; color: #5a6f83; }
+.scenario-taskId { font-size: 11px; color: #6e8a9e; }
 
 /* ── 状态栏 ── */
 .status-bar {
@@ -591,11 +590,11 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .status-bar-title {
-  font-size: 13px; font-weight: 600; color: #7a8fa3; letter-spacing: 0.5px;
+  font-size: 13px; font-weight: 600; color: #8aa0b8; letter-spacing: 0.5px;
 }
 .status-fields { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .status-field { display: flex; align-items: center; gap: 4px; }
-.field-label { font-size: 11px; color: #7a8fa3; white-space: nowrap; }
+.field-label { font-size: 11px; color: #8aa0b8; white-space: nowrap; }
 .field-value { font-size: 12px; color: #c0c8d4; display: flex; align-items: center; gap: 4px; }
 .status-dot {
   width: 7px; height: 7px; border-radius: 50%;
@@ -659,7 +658,7 @@ onUnmounted(() => {
   border-radius: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: #7a8fa3;
+  color: #8aa0b8;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -716,7 +715,7 @@ onUnmounted(() => {
 .chart-card-header .chart-label {
   font-size: 11px;
   font-weight: 600;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 .chart-container-sm {
   flex: 1;
@@ -746,7 +745,7 @@ onUnmounted(() => {
 .bottom-card :deep(.panel-title) {
   font-size: 10px;
   font-weight: 600;
-  color: #7a8fa3;
+  color: #8aa0b8;
   letter-spacing: 0;
 }
 .bottom-card :deep(.panel-body) { padding: 2px 6px; }
@@ -757,12 +756,12 @@ onUnmounted(() => {
   font-size: 10px; line-height: 1.3;
   font-family: 'Courier New', monospace;
 }
-.log-time { color: #5a6f83; flex-shrink: 0; }
+.log-time { color: #6e8a9e; flex-shrink: 0; }
 .log-level { color: #00afff; flex-shrink: 0; font-weight: 600; }
 .log-msg { color: #c0c8d4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 6px; }
 .info-item { display: flex; justify-content: space-between; align-items: center; padding: 0; }
-.info-label { font-size: 10px; color: #7a8fa3; }
+.info-label { font-size: 10px; color: #8aa0b8; }
 .info-value { font-size: 10px; color: #e0e6ed; font-weight: 600; }
 .constraint-status { font-size: 10px; font-weight: 600; color: #00ff88; }
 

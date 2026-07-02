@@ -440,8 +440,7 @@ const getAssessmentColor = (result: string) => {
   flex-direction: column;
   padding: 0;
   gap: 0;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
   overflow: hidden;
 }
 
@@ -473,7 +472,7 @@ const getAssessmentColor = (result: string) => {
 
 .filter-label {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
 }
 
@@ -490,7 +489,7 @@ const getAssessmentColor = (result: string) => {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;

@@ -417,8 +417,8 @@ const pageNumbers = computed(() => {
               >
                 <template #prefix>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="search-icon">
-                    <circle cx="6" cy="6" r="4" stroke="#5a6f83" stroke-width="1.3"/>
-                    <path d="M9.5 9.5L13 13" stroke="#5a6f83" stroke-width="1.3" stroke-linecap="round"/>
+                    <circle cx="6" cy="6" r="4" stroke="#6e8a9e" stroke-width="1.3"/>
+                    <path d="M9.5 9.5L13 13" stroke="#6e8a9e" stroke-width="1.3" stroke-linecap="round"/>
                   </svg>
                 </template>
               </el-input>
@@ -795,8 +795,7 @@ const pageNumbers = computed(() => {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== 主体内容 ===== */
@@ -954,7 +953,7 @@ const pageNumbers = computed(() => {
 
 .dark-table :deep(.el-table__header th) {
   background: rgba(2, 27, 63, 0.8) !important;
-  color: #7a8fa3 !important;
+  color: #8aa0b8 !important;
   font-size: 11px;
   font-weight: 500;
   border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
@@ -1027,7 +1026,7 @@ const pageNumbers = computed(() => {
 
 .pagination-info {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .pagination-num {
@@ -1047,7 +1046,7 @@ const pageNumbers = computed(() => {
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 6px;
   background: transparent;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1108,7 +1107,7 @@ const pageNumbers = computed(() => {
 
 .time-label {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 /* 方案数量 */
@@ -1125,12 +1124,12 @@ const pageNumbers = computed(() => {
 
 .plan-count-unit {
   font-size: 14px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .plan-count-label {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 /* 图表 + 图例布局 */
@@ -1175,7 +1174,7 @@ const pageNumbers = computed(() => {
 }
 
 .legend-detail {
-  color: #5a6f83;
+  color: #6e8a9e;
   white-space: nowrap;
   margin-left: auto;
 }
@@ -1315,7 +1314,7 @@ const pageNumbers = computed(() => {
 
 :deep(.dark-descriptions .el-descriptions__label.is-bordered-label) {
   background: rgba(2, 27, 63, 0.8) !important;
-  color: #7a8fa3 !important;
+  color: #8aa0b8 !important;
   font-weight: 500;
 }
 
@@ -1335,7 +1334,7 @@ const pageNumbers = computed(() => {
 }
 
 :deep(.el-input__inner::placeholder) {
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 :deep(.el-button) {
@@ -1408,7 +1407,7 @@ const pageNumbers = computed(() => {
 }
 
 .dialog-desc {
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   line-height: 1.5;
 }

@@ -12,7 +12,7 @@ defineProps<Props>()
 
 const statusMap: Record<string, { label: string; color: string }> = {
   running:  { label: '运行',   color: '#00FF88' },
-  stop:     { label: '停机',   color: '#7a8fa3' },
+  stop:     { label: '停机',   color: '#8aa0b8' },
   maintenance: { label: '检修', color: '#FFAA00' },
 }
 </script>
@@ -136,7 +136,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 
 .summary-label {
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .summary-value {
@@ -172,13 +172,13 @@ const statusMap: Record<string, { label: string; color: string }> = {
 .data-table th {
   text-align: left;
   padding: 8px 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-weight: 500;
   font-size: 11px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.2);
   position: sticky;
   top: 0;
-  background: rgba(6, 30, 70, 0.95);
+  background: rgba(6, 30, 70, 0.35);
 }
 
 .data-table td {
@@ -234,7 +234,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 .gate-pct {
   font-size: 11px;
   font-family: 'Roboto Mono', monospace;
-  color: #7a8fa3;
+  color: #8aa0b8;
   min-width: 32px;
   text-align: right;
 }

@@ -8,8 +8,8 @@
   --el-bg-color-overlay: rgba(6, 20, 42, 0.95);
   --el-text-color-primary: #e0e6ed;
   --el-text-color-regular: #c0c8d4;
-  --el-text-color-secondary: #7a8fa3;
-  --el-text-color-placeholder: #5a6f83;
+  --el-text-color-secondary: #8aa0b8;
+  --el-text-color-placeholder: #6e8a9e;
   --el-text-color-disabled: #4a5f73;
   --el-fill-color-blank: transparent;
   --el-fill-color: rgba(6, 20, 42, 0.9);
@@ -38,7 +38,7 @@
   }
 
   body {
-    @apply m-0 min-h-screen antialiased;
+    @apply m-0 min-h-screen subpixel-antialiased;
     background: transparent;
   }
 }
@@ -49,8 +49,7 @@
 
 /* 页面级统一面板：每个页面最外层使用 */
 .page-panel {
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
   border-radius: 0;
   height: 100%;
   display: flex;
@@ -109,7 +108,7 @@
   padding: 5px 14px;
   font-size: 12px;
   font-weight: 500;
-  color: #7a8fa3;
+  color: #8aa0b8;
   background: transparent;
   border: none;
   border-radius: 4px;
@@ -166,15 +165,27 @@
     @apply text-tech-primary;
   }
 
-  .el-input__inner,
   .el-input__wrapper {
     @apply bg-transparent text-tech-text;
     box-shadow: 0 0 0 1px rgba(0, 175, 255, 0.2) !important;
+    border: none !important;
+    background-color: transparent !important;
+  }
+
+  .el-input__wrapper.is-focus {
+    box-shadow: 0 0 0 1px rgba(0, 175, 255, 0.5) !important;
+  }
+
+  .el-input__wrapper:hover {
+    box-shadow: 0 0 0 1px rgba(0, 175, 255, 0.35) !important;
+  }
+
+  .el-input__inner {
+    @apply bg-transparent text-tech-text;
   }
 
   .el-dialog {
     background: rgba(6, 20, 42, 0.96) !important;
-    backdrop-filter: blur(16px);
     border: 1px solid rgba(0, 175, 255, 0.15);
   }
 

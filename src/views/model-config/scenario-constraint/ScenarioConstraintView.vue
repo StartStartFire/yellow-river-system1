@@ -281,8 +281,7 @@ const paramIcons: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== 主体内容 ===== */
@@ -392,7 +391,7 @@ const paramIcons: Record<string, string> = {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .switch-btn:hover {
@@ -428,7 +427,7 @@ const paramIcons: Record<string, string> = {
 
 .linkage-text {
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   line-height: 1.4;
 }
 
@@ -464,12 +463,12 @@ const paramIcons: Record<string, string> = {
 .desc-label {
   font-size: 12px;
   font-weight: 500;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .char-count {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
   text-align: right;
   margin-top: 4px;
 }
@@ -574,7 +573,7 @@ const paramIcons: Record<string, string> = {
 }
 
 :deep(.dark-textarea .el-textarea__inner::placeholder) {
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 :deep(.dark-textarea .el-textarea__inner:focus) {
@@ -652,7 +651,7 @@ const paramIcons: Record<string, string> = {
 }
 
 .dialog-desc {
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   line-height: 1.5;
 }

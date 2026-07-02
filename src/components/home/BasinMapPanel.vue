@@ -296,7 +296,6 @@ onUnmounted(() => {
   left: 12px;
   z-index: 1000;
   background: rgba(6, 30, 70, 0.45);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-radius: 8px;
   padding: 6px 14px;
@@ -324,7 +323,6 @@ onUnmounted(() => {
   padding: 12px;
   min-width: 100px;
   background: rgba(6, 30, 70, 0.55);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-radius: 8px;
 }
@@ -372,7 +370,6 @@ onUnmounted(() => {
   gap: 4px;
   padding: 6px 10px;
   background: rgba(6, 30, 70, 0.55);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-radius: 8px;
 }
@@ -504,7 +501,6 @@ onUnmounted(() => {
   background: rgba(6, 30, 70, 0.95);
   border: 1px solid rgba(0, 170, 255, 0.4);
   border-radius: 8px;
-  backdrop-filter: blur(6px);
   color: #e0e6ed;
   box-shadow: 0 0 20px rgba(0, 160, 255, 0.2);
 }
@@ -520,7 +516,7 @@ onUnmounted(() => {
 }
 
 .reservoir-popup .leaflet-popup-close-button {
-  color: #7a8fa3 !important;
+  color: #8aa0b8 !important;
   font-size: 18px !important;
   top: 6px !important;
   right: 6px !important;
@@ -547,7 +543,7 @@ onUnmounted(() => {
 }
 
 .map-popup .popup-row span:first-child {
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .map-popup .popup-row span:last-child {

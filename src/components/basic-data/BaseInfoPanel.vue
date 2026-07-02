@@ -83,10 +83,9 @@ const ruleItems = computed(() => {
 
 /* ====== 公共分区 ====== */
 .section {
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.12);
-  backdrop-filter: blur(16px);
-  border-radius: 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -95,8 +94,8 @@ const ruleItems = computed(() => {
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  background: rgba(10, 25, 41, 0.4);
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+  background: transparent;
+  border-bottom: none;
 }
 
 .section-title {
@@ -145,9 +144,8 @@ const ruleItems = computed(() => {
 }
 
 .rule-card {
-  background: rgba(17, 37, 54, 0.4);
-  border: 1px solid rgba(50, 150, 255, 0.06);
-  border-radius: 8px;
+  background: rgba(17, 37, 54, 0.18);
+  border-bottom: 1px solid rgba(0, 175, 255, 0.04);
   padding: 10px 14px;
   display: flex;
   flex-direction: column;

@@ -98,8 +98,7 @@ const handleToggleSidebar = () => {
   gap: 0;
   padding: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 .detail-panel {
@@ -127,7 +126,7 @@ const handleToggleSidebar = () => {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 13px;
   padding: 10px 16px;
   cursor: pointer;

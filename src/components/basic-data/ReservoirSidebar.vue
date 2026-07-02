@@ -119,7 +119,7 @@ const selectedInitial = computed(() => {
   background: rgba(50, 150, 255, 0.08);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-radius: 6px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
@@ -216,7 +216,7 @@ const selectedInitial = computed(() => {
 
 .item-name {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
   transition: color 0.2s;
 }

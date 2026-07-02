@@ -87,7 +87,7 @@ const renderChart = () => {
             },
             label: {
               formatter: `{b}\n${data.markLineStyle?.label || '更新节点'}`,
-              color: '#7a8fa3',
+              color: '#8aa0b8',
               fontSize: 11,
               position: 'insideEndTop',
             },
@@ -130,12 +130,12 @@ const renderChart = () => {
       textStyle: { color: '#e0e6ed', fontSize: 12 },
       axisPointer: {
         type: 'cross',
-        crossStyle: { color: '#7a8fa3' },
+        crossStyle: { color: '#8aa0b8' },
       },
     },
     legend: {
       data: data.legend,
-      textStyle: { color: '#7a8fa3', fontSize: 12 },
+      textStyle: { color: '#8aa0b8', fontSize: 12 },
       bottom: 0,
       itemGap: 24,
     },
@@ -149,7 +149,7 @@ const renderChart = () => {
       type: 'category',
       data: data.xAxis,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.2)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { show: false },
       boundaryGap: false,
     },
@@ -158,9 +158,9 @@ const renderChart = () => {
       name: data.unit,
       min: data.yAxisMin,
       max: data.yAxisMax,
-      nameTextStyle: { color: '#7a8fa3', fontSize: 11 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
       axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.08)', type: 'dashed' } },
     },
     series: seriesData,
@@ -329,8 +329,7 @@ watch(selectedReservoir, () => {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* 筛选区 */
@@ -343,7 +342,6 @@ watch(selectedReservoir, () => {
   background: transparent;
   border: none;
   border-bottom: 1px solid rgba(0, 175, 255, 0.12);
-  backdrop-filter: blur(14px);
 }
 
 .filter-left {
@@ -361,7 +359,7 @@ watch(selectedReservoir, () => {
 
 .filter-label {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
 }
 
@@ -380,7 +378,7 @@ watch(selectedReservoir, () => {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 13px;
   padding: 8px 20px;
   cursor: pointer;
@@ -413,7 +411,6 @@ watch(selectedReservoir, () => {
   flex-direction: column;
   background: transparent;
   border: none;
-  backdrop-filter: blur(14px);
   overflow: hidden;
 }
 
@@ -447,7 +444,7 @@ watch(selectedReservoir, () => {
 .tool-btn {
   background: none;
   border: none;
-  color: #7a8fa3;
+  color: #8aa0b8;
   width: 32px;
   height: 32px;
   border-radius: 6px;
@@ -487,7 +484,7 @@ watch(selectedReservoir, () => {
 }
 
 :deep(.el-range-separator) {
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 :deep(.el-popper) {

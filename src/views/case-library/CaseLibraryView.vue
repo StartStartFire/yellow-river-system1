@@ -92,13 +92,13 @@ const chartBaseOption = {
   xAxis: {
     type: 'category',
     axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.2)' } },
-    axisLabel: { color: '#7a8fa3', fontSize: 10 },
+    axisLabel: { color: '#8aa0b8', fontSize: 10 },
     splitLine: { show: false },
   },
   yAxis: {
     type: 'value',
     axisLine: { show: false },
-    axisLabel: { color: '#7a8fa3', fontSize: 10 },
+    axisLabel: { color: '#8aa0b8', fontSize: 10 },
     splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.08)' } },
   },
   series: [{
@@ -192,7 +192,7 @@ const getChangeColor = (type: string) => {
   if (type === 'down') return '#ffaa00'
   if (type === 'success') return '#00ff88'
   if (type === 'excellent') return '#00d4ff'
-  return '#7a8fa3'
+  return '#8aa0b8'
 }
 
 const getIconByType = (type: string) => {
@@ -603,8 +603,7 @@ function getCoverGradient(type: string): string {
   flex-direction: column;
   padding: 0;
   gap: 0;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* 筛选区 */
@@ -634,7 +633,7 @@ function getCoverGradient(type: string): string {
 
 .filter-label {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
 }
 
@@ -691,7 +690,7 @@ function getCoverGradient(type: string): string {
   background: transparent;
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 6px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -711,7 +710,7 @@ function getCoverGradient(type: string): string {
   background: transparent;
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 4px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 11px;
   cursor: pointer;
   transition: all 0.3s;
@@ -759,7 +758,7 @@ function getCoverGradient(type: string): string {
 
 .title-count {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .case-list {
@@ -885,12 +884,12 @@ function getCoverGradient(type: string): string {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .case-summary {
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   margin: 0;
   line-height: 1.5;
   display: -webkit-box;
@@ -915,7 +914,7 @@ function getCoverGradient(type: string): string {
   background: transparent;
   border: none;
   border-radius: 0;
-  color: #7a8fa3;
+  color: #8aa0b8;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -981,14 +980,14 @@ function getCoverGradient(type: string): string {
 
 .meta-score {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .detail-info {
   display: flex;
   gap: 16px;
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .header-actions {
@@ -1011,7 +1010,7 @@ function getCoverGradient(type: string): string {
   border: none;
   border-bottom: 2px solid transparent;
   border-radius: 0;
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -1079,7 +1078,7 @@ function getCoverGradient(type: string): string {
 
 .item-label {
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .item-value {
@@ -1205,7 +1204,7 @@ function getCoverGradient(type: string): string {
 
 .score-label {
   font-size: 11px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .evaluation-dimensions {
@@ -1253,7 +1252,7 @@ function getCoverGradient(type: string): string {
 
 .dimension-weight {
   font-size: 10px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 /* 关键指标区 */
@@ -1266,7 +1265,7 @@ function getCoverGradient(type: string): string {
 .metrics-title {
   font-size: 12px;
   font-weight: 600;
-  color: #7a8fa3;
+  color: #8aa0b8;
   margin: 0 0 10px 0;
 }
 
@@ -1289,7 +1288,7 @@ function getCoverGradient(type: string): string {
 
 .metric-name {
   font-size: 10px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .metric-value {
@@ -1341,15 +1340,15 @@ function getCoverGradient(type: string): string {
 }
 
 :deep(.el-range-separator) {
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 :deep(.el-date-editor .el-range__icon) {
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 :deep(.el-date-editor .el-range-close-icon) {
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 :deep(.el-popper) {

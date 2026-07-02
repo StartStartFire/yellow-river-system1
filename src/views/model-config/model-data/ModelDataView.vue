@@ -152,7 +152,7 @@ const initChart = () => {
     },
     legend: {
       data: ['入库流量 (m³/s)', '水位 (m)'],
-      textStyle: { color: '#7a8fa3', fontSize: 12 },
+      textStyle: { color: '#8aa0b8', fontSize: 12 },
       top: 0,
     },
     grid: {
@@ -165,24 +165,24 @@ const initChart = () => {
       type: 'category',
       data: chartData.xAxis,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { show: false },
     },
     yAxis: [
       {
         type: 'value',
         name: '入库流量 (m³/s)',
-        nameTextStyle: { color: '#7a8fa3', fontSize: 11 },
+        nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
         axisLine: { show: false },
-        axisLabel: { color: '#7a8fa3', fontSize: 11 },
+        axisLabel: { color: '#8aa0b8', fontSize: 11 },
         splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)', type: 'dashed' } },
       },
       {
         type: 'value',
         name: '水位 (m)',
-        nameTextStyle: { color: '#7a8fa3', fontSize: 11 },
+        nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
         axisLine: { show: false },
-        axisLabel: { color: '#7a8fa3', fontSize: 11 },
+        axisLabel: { color: '#8aa0b8', fontSize: 11 },
         splitLine: { show: false },
       },
     ],
@@ -288,10 +288,10 @@ const iconMap: Record<string, string> = {
         <div class="sidebar-inner">
           <div class="sidebar-title-row">
             <svg v-if="!sidebarCollapsed" width="16" height="16" viewBox="0 0 16 16" fill="none" class="shrink-0">
-              <rect x="2" y="3" width="5" height="4" rx="1" stroke="#7a8fa3" stroke-width="1.3"/>
-              <rect x="9" y="3" width="5" height="4" rx="1" stroke="#7a8fa3" stroke-width="1.3"/>
-              <rect x="2" y="9.5" width="5" height="4" rx="1" stroke="#7a8fa3" stroke-width="1.3"/>
-              <rect x="9" y="9.5" width="5" height="4" rx="1" stroke="#7a8fa3" stroke-width="1.3"/>
+              <rect x="2" y="3" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
+              <rect x="9" y="3" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
+              <rect x="2" y="9.5" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
+              <rect x="9" y="9.5" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
             </svg>
             <span v-if="!sidebarCollapsed" class="sidebar-title">数据目录</span>
           </div>
@@ -459,8 +459,7 @@ const iconMap: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== 主体区域 ===== */
@@ -565,7 +564,7 @@ const iconMap: Record<string, string> = {
 .group-header {
   font-size: 11px;
   font-weight: 500;
-  color: #5a6f83;
+  color: #6e8a9e;
   padding: 6px 14px 8px;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -581,7 +580,7 @@ const iconMap: Record<string, string> = {
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .menu-item:hover {
@@ -621,7 +620,7 @@ const iconMap: Record<string, string> = {
   padding: 10px 14px;
   border-top: 1px solid rgba(50, 150, 255, 0.15);
   cursor: pointer;
-  color: #5a6f83;
+  color: #6e8a9e;
   font-size: 12px;
   transition: all 0.2s;
   margin-top: auto;
@@ -686,7 +685,7 @@ const iconMap: Record<string, string> = {
 }
 
 .info-label {
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 .info-divider {
@@ -764,7 +763,7 @@ const iconMap: Record<string, string> = {
 
 .data-table :deep(.el-table__header th) {
   background: rgba(2, 27, 63, 0.8) !important;
-  color: #7a8fa3 !important;
+  color: #8aa0b8 !important;
   font-size: 12px;
   font-weight: 500;
   border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
@@ -861,7 +860,7 @@ const iconMap: Record<string, string> = {
 }
 
 .dialog-desc {
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   line-height: 1.5;
 }

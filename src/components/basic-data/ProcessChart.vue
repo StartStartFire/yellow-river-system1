@@ -40,7 +40,7 @@ const initChart = () => {
     },
     legend: {
       data: props.series.map(s => s.name),
-      textStyle: { color: '#7a8fa3', fontSize: 11 },
+      textStyle: { color: '#8aa0b8', fontSize: 11 },
       top: 0,
     },
     grid: {
@@ -53,15 +53,15 @@ const initChart = () => {
       type: 'category' as const,
       data: props.xAxis,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { show: false },
     },
     yAxis: {
       type: 'value' as const,
       name: 'm',
-      nameTextStyle: { color: '#7a8fa3', fontSize: 11 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
       axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     series: props.series.map(s => ({

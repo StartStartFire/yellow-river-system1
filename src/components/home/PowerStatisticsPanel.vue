@@ -37,7 +37,7 @@ const statsData = powerStatistics.data
 }
 
 .power-table thead th {
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-weight: 500;
   padding: 8px 6px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.25);

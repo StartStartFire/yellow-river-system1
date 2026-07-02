@@ -60,7 +60,7 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
     <!-- 合并的顶部栏：系统名称 + 导航 + 时间/状态 -->
     <div
       class="h-14 flex items-center px-6 relative z-10"
-      style="background: rgba(6, 20, 42, 0.72); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 175, 255, 0.12);"
+      style="background: rgba(6, 20, 42, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 175, 255, 0.12);"
     >
       <!-- 左侧：系统名称 -->
       <div class="flex items-center gap-2.5 shrink-0">

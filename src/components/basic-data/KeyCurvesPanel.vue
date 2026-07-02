@@ -81,7 +81,7 @@ const getChartOption = (config: {
       fontFamily: 'Microsoft YaHei',
     },
     subtextStyle: {
-      color: '#7a8fa3',
+      color: '#8aa0b8',
       fontSize: 12,
       lineHeight: 18,
     },
@@ -108,7 +108,7 @@ const getChartOption = (config: {
     },
     axisPointer: {
       type: 'cross',
-      crossStyle: { color: '#7a8fa3' },
+      crossStyle: { color: '#8aa0b8' },
       lineStyle: { color: config.color + '40', type: 'dashed' },
     },
     formatter: (params: any) => {
@@ -116,11 +116,11 @@ const getChartOption = (config: {
       return `<div style="font-size:12px">
         <div style="color:${config.color};font-weight:600;margin-bottom:6px">${config.title}</div>
         <div style="display:flex;justify-content:space-between;gap:20px">
-          <span style="color:#7a8fa3">${config.xName}</span>
+          <span style="color:#8aa0b8">${config.xName}</span>
           <span style="color:#e0e6ed;font-weight:500">${data.name}</span>
         </div>
         <div style="display:flex;justify-content:space-between;gap:20px;margin-top:4px">
-          <span style="color:#7a8fa3">${config.yName}</span>
+          <span style="color:#8aa0b8">${config.yName}</span>
           <span style="color:${config.color};font-weight:600;font-size:14px">${data.value}</span>
         </div>
       </div>`
@@ -132,7 +132,7 @@ const getChartOption = (config: {
     nameLocation: 'center',
     nameGap: 28,
     nameTextStyle: {
-      color: '#7a8fa3',
+      color: '#8aa0b8',
       fontSize: 12,
       fontFamily: 'Microsoft YaHei',
     },
@@ -144,7 +144,7 @@ const getChartOption = (config: {
     },
     axisTick: { show: false },
     axisLabel: {
-      color: '#7a8fa3',
+      color: '#8aa0b8',
       fontSize: 11,
       interval: Math.floor(config.xData.length / 6),
     },
@@ -156,14 +156,14 @@ const getChartOption = (config: {
     nameLocation: 'center',
     nameGap: 50,
     nameTextStyle: {
-      color: '#7a8fa3',
+      color: '#8aa0b8',
       fontSize: 12,
       fontFamily: 'Microsoft YaHei',
     },
     axisLine: { show: false },
     axisTick: { show: false },
     axisLabel: {
-      color: '#7a8fa3',
+      color: '#8aa0b8',
       fontSize: 11,
     },
     splitLine: {
@@ -275,7 +275,7 @@ onMounted(() => {
 .tab-btn {
   background: none;
   border: 1px solid rgba(50, 150, 255, 0.2);
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 13px;
   padding: 6px 20px;
   cursor: pointer;
@@ -309,10 +309,7 @@ onMounted(() => {
 .chart-area {
   flex: 1;
   min-height: 0;
-  background: rgba(6, 30, 70, 0.5);
-  border: 1px solid rgba(50, 150, 255, 0.12);
-  backdrop-filter: blur(16px);
-  border-radius: 14px;
+  background: transparent;
   padding: 16px;
   display: flex;
   flex-direction: column;

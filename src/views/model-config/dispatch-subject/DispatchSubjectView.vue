@@ -593,8 +593,7 @@ onMounted(() => {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== 主体 ===== */
@@ -644,7 +643,7 @@ onMounted(() => {
 
 .section-hint {
   font-size: 12px;
-  color: #5a6f83;
+  color: #6e8a9e;
   margin-left: 4px;
 }
 
@@ -665,7 +664,7 @@ onMounted(() => {
 
 .total-unit-sm {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 /* ===== 上半区：参数卡片网格（三卡一行） ===== */
@@ -692,7 +691,7 @@ onMounted(() => {
   gap: 5px;
   font-size: 12px;
   font-weight: 500;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
   flex-shrink: 0;
   margin-right: 2px;
@@ -733,7 +732,7 @@ onMounted(() => {
 }
 
 .date-separator {
-  color: #5a6f83;
+  color: #6e8a9e;
   font-size: 12px;
   flex-shrink: 0;
 }
@@ -812,7 +811,7 @@ onMounted(() => {
 
 .group-desc {
   font-size: 12px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 .group-count {
@@ -862,7 +861,7 @@ onMounted(() => {
 
 .summary-label {
   font-size: 13px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
 }
 
@@ -880,7 +879,7 @@ onMounted(() => {
 
 .summary-count {
   font-size: 13px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 /* ===== 弹窗：水库多选 ===== */
@@ -996,7 +995,7 @@ onMounted(() => {
 
 .item-meta {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 .item-status {
@@ -1057,7 +1056,7 @@ onMounted(() => {
 }
 
 .dialog-desc {
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   line-height: 1.5;
 }
@@ -1106,6 +1105,6 @@ onMounted(() => {
 }
 
 :deep(.el-input__inner::placeholder) {
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 </style>

@@ -483,8 +483,7 @@ const objectiveIcons: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== 主体：四方格 2×2 ===== */
@@ -547,12 +546,12 @@ const objectiveIcons: Record<string, string> = {
 .col-label {
   font-size: 11px;
   font-weight: 500;
-  color: #7a8fa3;
+  color: #8aa0b8;
 }
 
 .select-desc {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 .highlight { color: #00d4ff; font-weight: 500; }
@@ -639,7 +638,7 @@ const objectiveIcons: Record<string, string> = {
 .obj-name {
   font-size: 11px;
   font-weight: 600;
-  color: #7a8fa3;
+  color: #8aa0b8;
   transition: color 0.2s;
 }
 
@@ -647,7 +646,7 @@ const objectiveIcons: Record<string, string> = {
 
 .obj-desc {
   font-size: 10px;
-  color: #5a6f83;
+  color: #6e8a9e;
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -712,7 +711,7 @@ const objectiveIcons: Record<string, string> = {
 }
 
 .param-info-icon {
-  color: #5a6f83;
+  color: #6e8a9e;
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.2s;
@@ -748,7 +747,7 @@ const objectiveIcons: Record<string, string> = {
   width: 70px;
   flex-shrink: 0;
   font-size: 10px;
-  color: #5a6f83;
+  color: #6e8a9e;
   text-align: right;
 }
 
@@ -861,7 +860,7 @@ const objectiveIcons: Record<string, string> = {
 
 .constraint-item-unit {
   font-size: 10px;
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 /* ===== 约束弹窗 ===== */
@@ -918,7 +917,7 @@ const objectiveIcons: Record<string, string> = {
   color: #c0c8d4;
 }
 
-.constraint-disabled .constraint-item-name { color: #5a6f83; }
+.constraint-disabled .constraint-item-name { color: #6e8a9e; }
 
 .constraint-range-row {
   display: flex;
@@ -935,13 +934,13 @@ const objectiveIcons: Record<string, string> = {
 
 .range-label {
   font-size: 10px;
-  color: #5a6f83;
+  color: #6e8a9e;
   white-space: nowrap;
 }
 
 .range-unit {
   font-size: 11px;
-  color: #5a6f83;
+  color: #6e8a9e;
   margin-left: 4px;
 }
 
@@ -975,7 +974,7 @@ const objectiveIcons: Record<string, string> = {
 .dialog-icon { flex-shrink: 0; margin-top: 2px; }
 .dialog-text { display: flex; flex-direction: column; gap: 4px; }
 .dialog-title-main { color: #e0e6ed; font-size: 13px; font-weight: 500; }
-.dialog-desc { color: #7a8fa3; font-size: 11px; line-height: 1.5; }
+.dialog-desc { color: #8aa0b8; font-size: 11px; line-height: 1.5; }
 .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
 
 /* ===== Element Plus 深色覆盖 ===== */

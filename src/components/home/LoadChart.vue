@@ -38,7 +38,7 @@ const initChart = () => {
     },
     legend: {
       data: displayData.map(s => s.name),
-      textStyle: { color: '#7a8fa3', fontSize: 11 },
+      textStyle: { color: '#8aa0b8', fontSize: 11 },
       top: 0,
     },
     grid: {
@@ -51,15 +51,15 @@ const initChart = () => {
       type: 'category' as const,
       data: seriesData.xAxis,
       axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { show: false },
     },
     yAxis: {
       type: 'value' as const,
       name: unit,
-      nameTextStyle: { color: '#7a8fa3', fontSize: 11 },
+      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
       axisLine: { show: false },
-      axisLabel: { color: '#7a8fa3', fontSize: 11 },
+      axisLabel: { color: '#8aa0b8', fontSize: 11 },
       splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     series: displayData.map(s => ({
@@ -136,7 +136,7 @@ onUnmounted(() => {
 .toggle-btn {
   background: none;
   border: 1px solid rgba(50, 150, 255, 0.3);
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 11px;
   padding: 2px 10px;
   border-radius: 4px;

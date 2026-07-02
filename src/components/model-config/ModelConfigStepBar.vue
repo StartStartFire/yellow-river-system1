@@ -53,7 +53,7 @@ const steps = computed(() => props.version === 'new' ? newSteps : oldSteps)
 <template>
   <div
     class="step-bar flex items-center px-6 py-3"
-    style="background: rgba(6, 30, 70, 0.85); border: 1px solid rgba(50, 150, 255, 0.35); border-radius: 12px;"
+    style="background: transparent; border: none; border-bottom: 1px solid rgba(0, 175, 255, 0.1); border-radius: 0;"
   >
     <div
       v-for="(s, idx) in steps"
@@ -126,6 +126,6 @@ const steps = computed(() => props.version === 'new' ? newSteps : oldSteps)
 .pending-step {
   background: rgba(50, 150, 255, 0.08);
   border: 1px solid rgba(50, 150, 255, 0.2);
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 </style>

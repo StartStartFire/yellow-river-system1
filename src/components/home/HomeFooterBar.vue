@@ -7,7 +7,7 @@ const weatherData = weatherInfo.data
 
 <template>
   <div class="footer-bar"
-    style="background: rgba(6, 30, 70, 0.85); border-top: 1px solid rgba(50, 150, 255, 0.25); backdrop-filter: blur(6px);">
+    style="background: rgba(6, 30, 70, 0.85); border-top: 1px solid rgba(50, 150, 255, 0.25);">
     <!-- 通知公告 -->
     <div class="footer-section announcement-section">
       <span class="footer-label">通知公告</span>
@@ -51,7 +51,7 @@ const weatherData = weatherInfo.data
 
 .footer-label {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   white-space: nowrap;
 }
 
@@ -81,7 +81,7 @@ const weatherData = weatherInfo.data
 .exit-btn {
   background: none;
   border: 1px solid rgba(50, 150, 255, 0.3);
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   padding: 2px 12px;
   border-radius: 4px;

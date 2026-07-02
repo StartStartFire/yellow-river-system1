@@ -64,8 +64,7 @@ const handleClearSelected = () => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 .home-body {
@@ -95,16 +94,32 @@ const handleClearSelected = () => {
               right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 左面板：右侧透明（面向中心）→ 左侧不透明 */
 .left-panel {
   left: calc(-24% - 12px);
+  background: linear-gradient(
+    90deg,
+    rgba(6, 20, 42, 0.92) 0%,
+    rgba(6, 20, 42, 0.85) 30%,
+    rgba(6, 20, 42, 0.65) 60%,
+    rgba(6, 20, 42, 0.25) 100%
+  );
 }
 
 .left-panel.visible {
   left: 12px;
 }
 
+/* 右面板：左侧透明（面向中心）→ 右侧不透明 */
 .right-panel {
   right: calc(-24% - 12px);
+  background: linear-gradient(
+    270deg,
+    rgba(6, 20, 42, 0.92) 0%,
+    rgba(6, 20, 42, 0.85) 30%,
+    rgba(6, 20, 42, 0.65) 60%,
+    rgba(6, 20, 42, 0.25) 100%
+  );
 }
 
 .right-panel.visible {
@@ -139,13 +154,12 @@ const handleClearSelected = () => {
   justify-content: center;
   gap: 10px;
   background: rgba(6, 30, 70, 0.55);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-right: none;
   border-radius: 4px 0 0 4px;
   cursor: pointer;
   padding: 8px 0;
-  color: #7a8fa3;
+  color: #8aa0b8;
   transition: all 0.3s ease;
   user-select: none;
 }

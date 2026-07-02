@@ -99,7 +99,7 @@ const changeColor = (card: MetricCardData) => {
 
 .card-label {
   font-size: 12px;
-  color: #7a8fa3;
+  color: #8aa0b8;
   margin-bottom: 4px;
 }
 
@@ -113,7 +113,7 @@ const changeColor = (card: MetricCardData) => {
 .card-unit {
   font-size: 12px;
   font-weight: 400;
-  color: #7a8fa3;
+  color: #8aa0b8;
   margin-left: 4px;
 }
 

@@ -339,8 +339,7 @@ const subIconMap: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.88);
-  backdrop-filter: blur(16px);
+  background: rgba(6, 20, 42, 0.92);
 }
 
 /* ===== 主体区域 ===== */
@@ -369,9 +368,9 @@ const subIconMap: Record<string, string> = {
 }
 
 .name-row-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #c0c8d4;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e0e6ed;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -381,8 +380,7 @@ const subIconMap: Record<string, string> = {
 }
 
 .name-input :deep(.el-input__wrapper) {
-  background: rgba(2, 27, 63, 0.6) !important;
-  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important;
+  background: transparent !important;
 }
 
 .name-input :deep(.el-input__inner) {
@@ -391,7 +389,7 @@ const subIconMap: Record<string, string> = {
 }
 
 .name-input :deep(.el-input__inner::placeholder) {
-  color: #5a6f83;
+  color: #6e8a9e;
 }
 
 .cards-grid {
@@ -473,7 +471,7 @@ const subIconMap: Record<string, string> = {
   text-align: center;
   font-size: 17px;
   font-weight: 700;
-  color: #7a8fa3;
+  color: #8aa0b8;
   margin-bottom: 10px;
   transition: color 0.3s ease;
   letter-spacing: 0.5px;
@@ -488,7 +486,7 @@ const subIconMap: Record<string, string> = {
   text-align: center;
   font-size: 12px;
   line-height: 1.7;
-  color: #5a6f83;
+  color: #6e8a9e;
   margin-bottom: 16px;
   min-height: 42px;
   display: -webkit-box;
@@ -602,7 +600,7 @@ const subIconMap: Record<string, string> = {
 
 .sub-desc {
   font-size: 10px;
-  color: #5a6f83;
+  color: #6e8a9e;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -613,7 +611,7 @@ const subIconMap: Record<string, string> = {
 .sub-icon {
   width: 16px;
   height: 16px;
-  color: #5a6f83;
+  color: #6e8a9e;
   flex-shrink: 0;
   opacity: 0.6;
 }
@@ -675,7 +673,7 @@ const subIconMap: Record<string, string> = {
 }
 
 .dialog-desc {
-  color: #7a8fa3;
+  color: #8aa0b8;
   font-size: 12px;
   line-height: 1.5;
 }

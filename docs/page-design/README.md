@@ -6,16 +6,18 @@
 
 ## 通用布局
 
-- 顶部系统栏
-- 顶部导航栏
-- 页面主体内容区
-- 卡片化布局
+- 顶部系统栏（半透明毛玻璃）
+- 顶部导航栏（半透明毛玻璃，`background: rgba(6,20,42,0.85); backdrop-filter: blur(12px)`）
+- 页面主体内容区（统一深色半透明面板，`background: rgba(6,20,42,0.92)`，**无 backdrop-filter**）
+- **统一面板 + 发光分割线**布局风格：所有页面使用单一统一的半透明面板作为内容背景，各功能区域之间使用 1px 发光渐变分割线分隔，取消独立的浮动圆角卡片
 - 图表区留白充足
 - 不做密集数据大屏
 
 ## 通用组件
 
-- 页面卡片
+- 分区面板（SectionPanel，由原 PanelCard 改造，去除卡片背景/边框/圆角，改用 title + divider）
+- 发光分割线（h-divider / v-divider，`linear-gradient` 渐变分割线）
+- 行内 Tab 按钮（tab-pill，下划线高亮风格，不再使用圆角矩形边框）
 - 筛选区
 - 图表容器
 - 状态标签
@@ -134,52 +136,74 @@
 采用：
 
 ```text
-深色半透明面板
-轻玻璃拟态
+统一深色半透明面板
+轻玻璃拟态（全局背景图穿透）
 ```
 
-参数：
+页面级统一面板参数（应用至 `.page-panel` 或页面根容器）：
 
 ```css
-background: rgba(6,30,70,.45);
-
-border:
-1px solid rgba(50,150,255,.10);
-
-backdrop-filter:
-blur(14px);
-
-box-shadow: 0 4px 30px rgba(0,0,0,.3);
+background: rgba(6, 20, 42, 0.92);
+/* 不设 backdrop-filter、不设 border、不设 border-radius、不设 box-shadow */
 ```
 
-**说明**：当前首页面板已升级为全屏地图背景 + 半透明玻璃浮层方案，卡片透明度更低（0.45）、模糊更强（14px）、边框更弱（0.10），以达到地图穿透效果。其他页面如暂未使用地图背景，可沿用传统参数（background: rgba(6,30,70,.85)，border: 1px solid rgba(50,150,255,.35)）。
+**说明**：已从“浮动独立圆角卡片”风格全线迁移为“统一面板 + 发光分割线”风格。每个页面最外层使用单一统一的 `.page-panel` 半透明背景，各功能区域之间仅用 1px 发光渐变分割线（`.h-divider` / `.v-divider`）分隔，不再使用独立的圆角边框卡片。**首页仍保持全屏地图背景 + 半透明玻璃浮层的例外方案**，其侧边面板参数见首页设计文档。
 
 ------
 
-### 卡片风格
+### 分区风格（替代原卡片风格）
+
+当前使用**分区面板 + 发光分割线**替代传统的独立边框卡片。
+
+分区内标题：
 
 ```css
-border-radius:12px;
-
-box-shadow:
-0 0 20px rgba(0,160,255,.12);
+/* 小写标签，大写字母间距 */
+font-size: 12px; font-weight: 600;
+color: #8aa0b8; letter-spacing: 0.8px;
+text-transform: uppercase;
+/* 不设背景、不设边框 */
 ```
 
-卡片要求：
+分区要求：
 
-1. 标题区清晰。
+1. 标题区用小写大写标签，轻量低调。
 2. 内容区留白充足。
-3. 边框不宜过粗。
-4. 阴影不宜过亮。
-5. 不允许强霓虹发光。
+3. 分区之间用发光分割线分隔，不设独立卡片边框。
+4. 不允许强霓虹发光。
 
 ------
 
-### 边框风格
+### 分割线风格（替代原边框风格）
+
+采用发光渐变分割线代替传统的实色边框：
+
+水平分割线 `.h-divider`：
 
 ```css
-border:
-1px solid rgba(0,170,255,.4);
+height: 1px;
+background: linear-gradient(
+  90deg,
+  transparent 0%,
+  rgba(0, 175, 255, 0.15) 15%,
+  rgba(0, 212, 255, 0.30) 50%,
+  rgba(0, 175, 255, 0.15) 85%,
+  transparent 100%
+);
+```
+
+垂直分割线 `.v-divider`：
+
+```css
+width: 1px;
+background: linear-gradient(
+  180deg,
+  transparent 0%,
+  rgba(0, 175, 255, 0.15) 15%,
+  rgba(0, 212, 255, 0.30) 50%,
+  rgba(0, 175, 255, 0.15) 85%,
+  transparent 100%
+);
 ```
 
 禁止：
@@ -187,7 +211,8 @@ border:
 ```text
 粗重描边
 强霓虹发光
-```
+独立卡片边框
+圆角容器边框
 
 ------
 
@@ -351,8 +376,8 @@ Element Plus
 ```css
 --el-text-color-primary: #e0e6ed;     /* 标题/强调 */
 --el-text-color-regular: #c0c8d4;     /* 正文/输入框值 */
---el-text-color-secondary: #7a8fa3;   /* 辅助说明 */
---el-text-color-placeholder: #5a6f83; /* placeholder */
+--el-text-color-secondary: #8aa0b8;   /* 辅助说明 */
+--el-text-color-placeholder: #6e8a9e; /* placeholder */
 --el-text-color-disabled: #4a5f73;    /* 禁用态 */
 ```
 

@@ -73,9 +73,10 @@ defineEmits<{
 <style scoped>
 .model-config-footer {
   flex-shrink: 0;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-radius: 0;
   padding: 10px 16px;
 }
 
@@ -102,7 +103,7 @@ defineEmits<{
 
 /* 取消按钮 - 默认为灰色 */
 .footer-btn-cancel {
-  color: #7a8fa3 !important;
+  color: #8aa0b8 !important;
   border-color: rgba(80, 100, 120, 0.3) !important;
 }
 

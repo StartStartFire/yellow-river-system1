@@ -83,7 +83,7 @@ const emit = defineEmits<{
 }
 
 .metric-label {
-  color: #7a8fa3;
+  color: #8aa0b8;
   min-width: 52px;
 }
 
@@ -95,7 +95,7 @@ const emit = defineEmits<{
 }
 
 .metric-unit {
-  color: #5a6f83;
+  color: #6e8a9e;
   font-size: 11px;
 }
 </style>

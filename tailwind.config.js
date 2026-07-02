@@ -13,7 +13,7 @@ export default {
         'tech-primary': '#00d4ff',
         'tech-secondary': '#0088cc',
         'tech-text': '#e0e6ed',
-        'tech-muted': '#7a8fa3'
+        'tech-muted': '#8aa0b8'
       },
       screens: {
         'xl': '1920px'
