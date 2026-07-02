@@ -59,13 +59,13 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
   <div class="min-h-screen flex flex-col">
     <!-- 合并的顶部栏：系统名称 + 导航 + 时间/状态 -->
     <div
-      class="h-12 flex items-center px-6 relative z-10"
-      style="background: rgba(6, 20, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 175, 255, 0.15);"
+      class="h-14 flex items-center px-6 relative z-10"
+      style="background: rgba(6, 20, 42, 0.72); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 175, 255, 0.12);"
     >
       <!-- 左侧：系统名称 -->
-      <div class="flex items-center gap-2 shrink-0">
-        <div class="w-2 h-2 rounded-full bg-tech-primary animate-pulse"></div>
-        <span class="text-sm font-semibold text-tech-text whitespace-nowrap">黄河上游水库群调度系统</span>
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="w-2.5 h-2.5 rounded-full bg-tech-primary animate-pulse"></div>
+        <span class="text-base font-bold text-tech-text whitespace-nowrap tracking-wide">黄河上游水库群调度系统</span>
       </div>
 
       <!-- 中间：导航按钮 - 居中 -->
@@ -74,7 +74,7 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
           v-for="(item, index) in navItems"
           :key="item.key"
           @click="handleNavClick(item)"
-          class="relative px-4 py-1.5 text-xs font-medium transition-all duration-300 rounded-md whitespace-nowrap"
+          class="relative px-5 py-2 text-sm font-medium transition-all duration-300 rounded-md whitespace-nowrap"
           :class="[
             index === activeIndex
               ? 'text-white'
