@@ -161,9 +161,12 @@ docs/requirements/system-requirements.md
 
 ```text
 docs/development/AI-WORKLOG.md
+docs/development/SESSIONS.md
 ```
 
-说明AI编程完成和未完成的任务记录，方便新会话快速开始。
+说明：
+- `AI-WORKLOG.md` — 项目快照（模块状态/设计规范/关键文件），新会话必读
+- `SESSIONS.md` — 开发流水账，每次会话记录，滚动保留近 5 次，按需查阅
 
 ---
 
@@ -183,7 +186,8 @@ project-root/
 │  │  └─ system-requirements.md
 │  │
 │  ├─ development/
-│  │  └─ AI-WORKLOG.md
+│  │  ├─ AI-WORKLOG.md
+│  │  └─ SESSIONS.md
 │  │
 │  └─ page-design/
 │     ├─ README.md
@@ -630,4 +634,22 @@ camelCase，例如 reservoir.ts
 
 ```text
 先用前端模拟数据把页面跑通。
+```
+
+---
+
+## 20. 新会话启动指引
+
+每次新开 AI 会话时，AI 应先执行以下步骤恢复上下文：
+
+```text
+1. 阅读 docs/development/AI-WORKLOG.md
+   → 了解项目当前快照：模块状态、设计规范参数、关键文件索引、核心设计决策
+
+2. 如需追溯近期改动原因，按需打开 docs/development/SESSIONS.md
+   → 查看最近 5 次会话记录（完成内容 + 修改文件列表）
+
+3. 如需了解具体页面设计细节，阅读 docs/page-design/ 下对应页面的设计文档
+
+4. 所有页面数据来自 src/mock/，所有业务计算均为前端模拟
 ```
