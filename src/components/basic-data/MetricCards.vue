@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import PanelCard from '@/components/common/PanelCard.vue'
-import type { MetricCardData } from '@/mock/basicData'
+import { TECH_BLUE } from '@/utils/chart'
+import type { MetricCardData } from '@/types/reservoir'
 
 interface Props {
   cards: MetricCardData[]
@@ -11,10 +12,10 @@ const props = defineProps<Props>()
 
 // 图标SVG
 const iconMap: Record<string, string> = {
-  waterLevel: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L8 8C5 12 4 15 4 17C4 20.3 6.7 22 9 22H15C17.3 22 20 20.3 20 17C20 15 19 12 16 8L12 2Z" stroke="#00AFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  waterLevel: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L8 8C5 12 4 15 4 17C4 20.3 6.7 22 9 22H15C17.3 22 20 20.3 20 17C20 15 19 12 16 8L12 2Z" stroke="${TECH_BLUE}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   inflow:   `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12H20M20 12L15 7M20 12L15 17" stroke="#00E5FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   outflow:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12H20M4 12L9 7M4 12L9 17" stroke="#00E5FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  storage:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#00AFFF" stroke-width="1.5"/><path d="M4 12H20" stroke="#00AFFF" stroke-width="1.5"/></svg>`,
+  storage:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="${TECH_BLUE}" stroke-width="1.5"/><path d="M4 12H20" stroke="${TECH_BLUE}" stroke-width="1.5"/></svg>`,
 }
 
 const getKey = (label: string) => {
@@ -79,7 +80,7 @@ const changeColor = (card: MetricCardData) => {
 }
 
 .metric-card:hover {
-  border-color: rgba(0, 175, 255, 0.5);
+  border-color: rgba(var(--tech-blue-rgb), 0.5);
 }
 
 .card-icon {
@@ -89,7 +90,7 @@ const changeColor = (card: MetricCardData) => {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: rgba(0, 175, 255, 0.08);
+  background: rgba(var(--tech-blue-rgb), 0.08);
   border-radius: 8px;
 }
 
@@ -99,21 +100,21 @@ const changeColor = (card: MetricCardData) => {
 
 .card-label {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   margin-bottom: 4px;
 }
 
 .card-value {
   font-size: 20px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   line-height: 1.2;
 }
 
 .card-unit {
   font-size: 12px;
   font-weight: 400;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   margin-left: 4px;
 }
 

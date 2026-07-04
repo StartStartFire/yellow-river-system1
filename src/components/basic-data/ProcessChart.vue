@@ -4,6 +4,8 @@ import type { EChartsOption } from 'echarts'
 import PanelCard from '@/components/common/PanelCard.vue'
 import BaseChart from '@/components/chart/BaseChart.vue'
 import {
+  TEXT_PRIMARY,
+  TECH_BLUE,
   baseTooltip,
   baseLegend,
   baseCategoryXAxis,
@@ -25,7 +27,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const colorMap: Record<string, string> = {
-  waterLevel: '#00AFFF',
+  waterLevel: TECH_BLUE,
   inflow: '#00E5FF',
   outflow: '#00ff88',
 }
@@ -33,7 +35,7 @@ const colorMap: Record<string, string> = {
 const chartOption = computed<EChartsOption>(() => ({
   tooltip: {
     ...baseTooltip,
-    textStyle: { color: '#e0e6ed', fontSize: 12 },
+    textStyle: { color: TEXT_PRIMARY, fontSize: 12 },
   },
   legend: {
     ...baseLegend,

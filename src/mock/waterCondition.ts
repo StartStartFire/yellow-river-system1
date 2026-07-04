@@ -1,18 +1,7 @@
-// ==================== 统一 API 响应结构 ====================
-interface ApiResponse<T> {
-  code: number
-  message: string
-  data: T
-}
+import type { ApiResponse } from '@/types/common'
+import type { ReservoirOption, ConditionTab, ProcessSeries, WaterConditionState } from '@/types/reservoir'
 
 // ==================== 页面状态 ====================
-export interface WaterConditionState {
-  activeTab: string
-  reservoir: string
-  dateRange: [string, string]
-  updateTime: string
-}
-
 export const waterConditionPageState: ApiResponse<WaterConditionState> = {
   code: 200,
   message: 'success',
@@ -25,11 +14,6 @@ export const waterConditionPageState: ApiResponse<WaterConditionState> = {
 }
 
 // ==================== 水库选项 ====================
-export interface ReservoirOption {
-  label: string
-  value: string
-}
-
 export const reservoirOptions: ApiResponse<ReservoirOption[]> = {
   code: 200,
   message: 'success',
@@ -40,13 +24,6 @@ export const reservoirOptions: ApiResponse<ReservoirOption[]> = {
 }
 
 // ==================== 指标页签 ====================
-export interface ConditionTab {
-  key: string
-  label: string
-  unit: string
-  icon: string
-}
-
 export const waterConditionTabs: ApiResponse<ConditionTab[]> = {
   code: 200,
   message: 'success',
@@ -59,17 +36,6 @@ export const waterConditionTabs: ApiResponse<ConditionTab[]> = {
 }
 
 // ==================== 过程数据 ====================
-export interface ProcessSeries {
-  title: string
-  unit: string
-  legend: string[]
-  xAxis: string[]
-  series: { name: string; data: number[]; color: string; type: 'solid' | 'dashed' | 'dotted' }[]
-  updateIndex?: number
-  markLineStyle?: { color: string; label: string }
-  yAxisMin?: number
-  yAxisMax?: number
-}
 
 // 入流数据：预报流量 + 历史流量
 const longyangxiaInflow: ProcessSeries = {

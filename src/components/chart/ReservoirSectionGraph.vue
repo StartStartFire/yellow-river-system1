@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import PanelCard from '@/components/common/PanelCard.vue'
-import type { ReservoirSection } from '@/mock/basicData'
+import { TECH_BLUE } from '@/utils/chart'
+import type { ReservoirSection } from '@/types/reservoir'
 
 interface Props {
   section: ReservoirSection
@@ -65,7 +66,7 @@ const levelLines = computed<LevelLine[]>(() => {
   lines.push({
     name: '当前水位',
     value: props.section.currentLevel,
-    color: '#00AFFF',
+    color: TECH_BLUE,
     y: toY(props.section.currentLevel),
     isCurrent: true,
   })
@@ -408,7 +409,7 @@ const wavePath2 = computed(() => {
   gap: 16px;
   padding: 10px 16px;
   margin-top: 10px;
-  background: rgba(0, 175, 255, 0.05);
+  background: rgba(var(--tech-blue-rgb), 0.05);
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 8px;
   flex-shrink: 0;
@@ -430,13 +431,13 @@ const wavePath2 = computed(() => {
 
 .param-label {
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .param-value {
   font-size: 13px;
   font-weight: 600;
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-family: 'DIN Alternate', 'Roboto Mono', monospace;
 }
 

@@ -6,9 +6,9 @@ const warningData = warningList.data
 
 const levelConfig = {
   1: { label: '一级', color: '#FF4D4F' },
-  2: { label: '二级', color: '#FFAA00' },
+  2: { label: '二级', color: 'var(--tech-orange)' },
   3: { label: '三级', color: '#FFD700' },
-  4: { label: '四级', color: '#00AFFF' },
+  4: { label: '四级', color: 'var(--tech-blue)' },
 }
 </script>
 
@@ -58,19 +58,19 @@ const levelConfig = {
 }
 
 .warning-time {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
   min-width: 65px;
 }
 
 .warning-type {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   white-space: nowrap;
   min-width: 60px;
 }
 
 .warning-content {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -78,7 +78,7 @@ const levelConfig = {
 }
 
 .warning-target {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   white-space: nowrap;
   min-width: 70px;
 }

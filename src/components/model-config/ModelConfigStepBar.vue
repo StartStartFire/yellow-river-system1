@@ -53,7 +53,7 @@ const steps = computed(() => props.version === 'new' ? newSteps : oldSteps)
 <template>
   <div
     class="step-bar flex items-center px-6 py-3"
-    style="background: transparent; border: none; border-bottom: 1px solid rgba(0, 175, 255, 0.1); border-radius: 0;"
+    style="background: transparent; border: none; border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1); border-radius: 0;"
   >
     <div
       v-for="(s, idx) in steps"
@@ -111,21 +111,21 @@ const steps = computed(() => props.version === 'new' ? newSteps : oldSteps)
 }
 
 .active-step {
-  background: linear-gradient(135deg, rgba(0, 175, 255, 0.3) 0%, rgba(0, 229, 255, 0.15) 100%);
-  border: 1px solid rgba(0, 175, 255, 0.6);
-  color: #00d4ff;
-  box-shadow: 0 0 12px rgba(0, 175, 255, 0.25);
+  background: linear-gradient(135deg, rgba(var(--tech-blue-rgb), 0.3) 0%, rgba(0, 229, 255, 0.15) 100%);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.6);
+  color: var(--tech-cyan);
+  box-shadow: 0 0 12px rgba(var(--tech-blue-rgb), 0.25);
 }
 
 .completed-step {
-  background: rgba(0, 255, 136, 0.2);
-  border: 1px solid rgba(0, 255, 136, 0.5);
+  background: rgba(var(--tech-green-rgb), 0.2);
+  border: 1px solid rgba(var(--tech-green-rgb), 0.5);
   color: #00ff88;
 }
 
 .pending-step {
   background: rgba(50, 150, 255, 0.08);
   border: 1px solid rgba(50, 150, 255, 0.2);
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 </style>

@@ -54,14 +54,14 @@ withDefaults(defineProps<Props>(), {
 .section-title {
   font-size: 12px;
   font-weight: 600;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
 .section-unit {
   font-size: 11px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 .section-body {
@@ -77,9 +77,9 @@ withDefaults(defineProps<Props>(), {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 175, 255, 0.25) 20%,
-    rgba(0, 212, 255, 0.4) 50%,
-    rgba(0, 175, 255, 0.25) 80%,
+    rgba(var(--tech-blue-rgb), 0.25) 20%,
+    rgba(var(--tech-cyan-rgb), 0.4) 50%,
+    rgba(var(--tech-blue-rgb), 0.25) 80%,
     transparent 100%
   );
 }

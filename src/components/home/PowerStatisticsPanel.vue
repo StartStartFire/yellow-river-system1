@@ -37,7 +37,7 @@ const statsData = powerStatistics.data
 }
 
 .power-table thead th {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-weight: 500;
   padding: 8px 6px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.25);
@@ -45,23 +45,23 @@ const statsData = powerStatistics.data
 
 .power-table tbody td {
   padding: 7px 6px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   border-bottom: 1px solid rgba(50, 150, 255, 0.1);
 }
 
 .power-table tbody tr:hover {
-  background: rgba(0, 175, 255, 0.06);
+  background: rgba(var(--tech-blue-rgb), 0.06);
 }
 
 .value-cell {
   font-family: 'DIN Alternate', 'Roboto Mono', monospace;
-  color: #00d4ff;
+  color: var(--tech-cyan);
 }
 
 .total-row td {
   font-weight: 700;
-  color: #00afff;
-  border-top: 1px solid rgba(0, 175, 255, 0.4);
+  color: var(--tech-blue);
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.4);
 }
 
 .total-row .value-cell {

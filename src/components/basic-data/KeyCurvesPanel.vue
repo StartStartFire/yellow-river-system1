@@ -5,13 +5,14 @@ import BaseChart from '@/components/chart/BaseChart.vue'
 import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TECH_CYAN,
   baseTooltip,
   baseCategoryXAxis,
   baseValueYAxis,
   createGrid,
   createAreaGradient,
 } from '@/utils/chart'
-import type { KeyCurvesData } from '@/mock/basicData'
+import type { KeyCurvesData } from '@/types/reservoir'
 
 const props = defineProps<{
   curves: KeyCurvesData
@@ -34,7 +35,7 @@ const chartOption = computed<EChartsOption>(() => {
       yName: '库容 (亿m³)',
       xData: props.curves.storageCurve.levels.map(v => v.toString()),
       yData: props.curves.storageCurve.storage,
-      color: '#00d4ff',
+      color: TECH_CYAN,
     },
     turbine: {
       title: '机组出力曲线',
@@ -204,7 +205,7 @@ const chartOption = computed<EChartsOption>(() => {
 .tab-btn {
   background: none;
   border: 1px solid rgba(50, 150, 255, 0.2);
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 13px;
   padding: 6px 20px;
   cursor: pointer;
@@ -214,14 +215,14 @@ const chartOption = computed<EChartsOption>(() => {
 }
 
 .tab-btn:hover {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   border-color: rgba(50, 150, 255, 0.35);
 }
 
 .tab-btn.active {
-  color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.5);
-  background: rgba(0, 175, 255, 0.08);
+  color: var(--tech-cyan);
+  border-color: rgba(var(--tech-blue-rgb), 0.5);
+  background: rgba(var(--tech-blue-rgb), 0.08);
   font-weight: 500;
 }
 
@@ -232,7 +233,7 @@ const chartOption = computed<EChartsOption>(() => {
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(0, 175, 255, 0.08);
+  background: rgba(var(--tech-blue-rgb), 0.08);
 }
 
 .chart-area {

@@ -10,6 +10,8 @@ import {
   baseCategoryXAxis,
   baseValueYAxis,
   RESERVOIR_COLORS,
+  TEXT_PRIMARY,
+  TECH_BLUE,
   createGrid,
 } from '@/utils/chart'
 
@@ -19,7 +21,7 @@ const activeType = ref<'active' | 'reactive'>('active')
 
 // 只展示龙羊峡和刘家峡
 const colorMap: Record<string, string> = {
-  '龙羊峡水库': '#00afff',
+  '龙羊峡水库': TECH_BLUE,
   '刘家峡水库': '#00e5ff',
 }
 
@@ -33,7 +35,7 @@ const chartOption = computed<EChartsOption>(() => {
   return {
     tooltip: {
       ...baseTooltip,
-      textStyle: { color: '#e0e6ed', fontSize: 12 },
+      textStyle: { color: TEXT_PRIMARY, fontSize: 12 },
     },
     legend: {
       ...baseLegend,
@@ -58,7 +60,7 @@ const chartOption = computed<EChartsOption>(() => {
       symbolSize: 4,
       lineStyle: { width: 2 },
       itemStyle: {
-        color: colorMap[s.name] || RESERVOIR_COLORS[s.name] || '#00afff',
+        color: colorMap[s.name] || RESERVOIR_COLORS[s.name] || TECH_BLUE,
       },
     })),
   }
@@ -95,7 +97,7 @@ const chartOption = computed<EChartsOption>(() => {
 .toggle-btn {
   background: none;
   border: 1px solid rgba(50, 150, 255, 0.3);
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 11px;
   padding: 2px 10px;
   border-radius: 4px;
@@ -104,8 +106,8 @@ const chartOption = computed<EChartsOption>(() => {
 }
 
 .toggle-btn.active {
-  background: rgba(0, 175, 255, 0.2);
-  border-color: rgba(0, 175, 255, 0.6);
-  color: #00d4ff;
+  background: rgba(var(--tech-blue-rgb), 0.2);
+  border-color: rgba(var(--tech-blue-rgb), 0.6);
+  color: var(--tech-cyan);
 }
 </style>

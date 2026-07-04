@@ -13,7 +13,7 @@ import {
   modelLabelMap,
   algorithmLabelMap,
 } from '@/mock/modelConfig'
-import type { ConfigPlan, DistributionItem } from '@/mock/modelConfig'
+import type { ConfigPlan, DistributionItem } from '@/types/model'
 
 // ==================== Store ====================
 const store = useModelConfigStore()
@@ -764,7 +764,7 @@ const pageNumbers = computed(() => {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* ===== 主体内容 ===== */
@@ -782,7 +782,7 @@ const pageNumbers = computed(() => {
   min-width: 0;
   min-height: 0;
   display: flex;
-  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
 }
 
 /* ===== 右侧信息区 ===== */
@@ -826,14 +826,14 @@ const pageNumbers = computed(() => {
 }
 
 .card-icon {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   flex-shrink: 0;
 }
 
 .card-title {
   font-size: 12px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .card-body {
@@ -870,7 +870,7 @@ const pageNumbers = computed(() => {
 .header-accent-line {
   width: 3px;
   height: 18px;
-  background: linear-gradient(180deg, #00d4ff, rgba(0, 212, 255, 0.3));
+  background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3));
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -878,7 +878,7 @@ const pageNumbers = computed(() => {
 .header-title {
   font-size: 15px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .toolbar-actions {
@@ -922,7 +922,7 @@ const pageNumbers = computed(() => {
 
 .dark-table :deep(.el-table__header th) {
   background: rgba(2, 27, 63, 0.8) !important;
-  color: #8aa0b8 !important;
+  color: var(--tech-text-secondary) !important;
   font-size: 11px;
   font-weight: 500;
   border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
@@ -930,17 +930,17 @@ const pageNumbers = computed(() => {
 
 .dark-table :deep(.el-table__body td) {
   background: transparent !important;
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   font-size: 11px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.06) !important;
 }
 
 .dark-table :deep(.el-table__row--striped td) {
-  background: rgba(0, 175, 255, 0.02) !important;
+  background: rgba(var(--tech-blue-rgb), 0.02) !important;
 }
 
 .dark-table :deep(.el-table__body tr:hover td) {
-  background: rgba(0, 175, 255, 0.06) !important;
+  background: rgba(var(--tech-blue-rgb), 0.06) !important;
 }
 
 .dark-table :deep(.el-table__inner-wrapper) {
@@ -959,8 +959,8 @@ const pageNumbers = computed(() => {
 }
 
 .dark-table :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background: rgba(0, 175, 255, 0.5) !important;
-  border-color: #00d4ff !important;
+  background: rgba(var(--tech-blue-rgb), 0.5) !important;
+  border-color: var(--tech-cyan) !important;
 }
 
 /* ===== 操作按钮行 ===== */
@@ -977,8 +977,8 @@ const pageNumbers = computed(() => {
   height: auto !important;
 }
 
-.action-detail { color: #00d4ff !important; }
-.action-edit { color: #c0c8d4 !important; }
+.action-detail { color: var(--tech-cyan) !important; }
+.action-edit { color: var(--tech-text-regular) !important; }
 .action-copy { color: #f0a020 !important; }
 .action-delete { color: #ff6b6b !important; }
 .action-run { color: #00ff88 !important; }
@@ -995,11 +995,11 @@ const pageNumbers = computed(() => {
 
 .pagination-info {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .pagination-num {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-weight: 600;
 }
 
@@ -1015,7 +1015,7 @@ const pageNumbers = computed(() => {
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 6px;
   background: transparent;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1026,8 +1026,8 @@ const pageNumbers = computed(() => {
 
 .page-btn:hover:not(:disabled) {
   border-color: rgba(50, 150, 255, 0.5);
-  color: #c0c8d4;
-  background: rgba(0, 175, 255, 0.05);
+  color: var(--tech-text-regular);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .page-btn:disabled {
@@ -1036,9 +1036,9 @@ const pageNumbers = computed(() => {
 }
 
 .page-btn.page-active {
-  background: rgba(0, 175, 255, 0.2);
-  border-color: rgba(0, 175, 255, 0.5);
-  color: #00d4ff;
+  background: rgba(var(--tech-blue-rgb), 0.2);
+  border-color: rgba(var(--tech-blue-rgb), 0.5);
+  color: var(--tech-cyan);
   font-weight: 600;
 }
 
@@ -1050,7 +1050,7 @@ const pageNumbers = computed(() => {
 /* ===== 右侧信息卡片 ===== */
 .info-card {
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .info-card.chart-card {
@@ -1069,14 +1069,14 @@ const pageNumbers = computed(() => {
 .time-display {
   font-size: 22px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 1px;
 }
 
 .time-label {
   font-size: 11px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 /* 方案数量 */
@@ -1088,17 +1088,17 @@ const pageNumbers = computed(() => {
 .plan-count-num {
   font-size: 28px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .plan-count-unit {
   font-size: 14px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .plan-count-label {
   font-size: 11px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 /* 图表 + 图例布局 */
@@ -1138,12 +1138,12 @@ const pageNumbers = computed(() => {
 }
 
 .legend-name {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   white-space: nowrap;
 }
 
 .legend-detail {
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   white-space: nowrap;
   margin-left: auto;
 }
@@ -1155,7 +1155,7 @@ const pageNumbers = computed(() => {
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
-  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   flex-shrink: 0;
 }
 
@@ -1236,9 +1236,9 @@ const pageNumbers = computed(() => {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: rgba(0, 175, 255, 0.15);
-  border: 1px solid rgba(0, 175, 255, 0.4);
-  color: #00d4ff;
+  background: rgba(var(--tech-blue-rgb), 0.15);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.4);
+  color: var(--tech-cyan);
   font-size: 11px;
   font-weight: 700;
   display: flex;
@@ -1250,7 +1250,7 @@ const pageNumbers = computed(() => {
 .summary-section-title {
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .summary-fields {
@@ -1277,18 +1277,18 @@ const pageNumbers = computed(() => {
 :deep(.dark-descriptions .el-descriptions__cell) {
   background: rgba(2, 27, 63, 0.6) !important;
   border-color: rgba(50, 150, 255, 0.15) !important;
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   font-size: 12px;
 }
 
 :deep(.dark-descriptions .el-descriptions__label.is-bordered-label) {
   background: rgba(2, 27, 63, 0.8) !important;
-  color: #8aa0b8 !important;
+  color: var(--tech-text-secondary) !important;
   font-weight: 500;
 }
 
 :deep(.dark-descriptions .el-descriptions__content) {
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
 }
 
 /* ===== Element Plus 深色覆盖 ===== */
@@ -1298,29 +1298,29 @@ const pageNumbers = computed(() => {
 }
 
 :deep(.el-input__inner) {
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   font-size: 12px;
 }
 
 :deep(.el-input__inner::placeholder) {
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 :deep(.el-button) {
   --el-button-bg-color: transparent;
   --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
+  --el-button-text-color: var(--tech-text-regular);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
   --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: #e0e6ed;
+  --el-button-hover-text-color: var(--tech-text-primary);
 }
 
 :deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2);
-  --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7);
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
+  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
   --el-button-hover-text-color: #00e5ff;
 }
 
@@ -1338,7 +1338,7 @@ const pageNumbers = computed(() => {
 }
 
 .confirm-dialog :deep(.el-dialog__title) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 15px;
   font-weight: 600;
 }
@@ -1370,13 +1370,13 @@ const pageNumbers = computed(() => {
 }
 
 .dialog-title-main {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 14px;
   font-weight: 500;
 }
 
 .dialog-desc {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }

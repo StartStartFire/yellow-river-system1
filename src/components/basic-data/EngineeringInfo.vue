@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PanelCard from '@/components/common/PanelCard.vue'
-import type { TurbineItem, GateItem, EngineeringSummary } from '@/mock/basicData'
+import { TEXT_SECONDARY, TECH_ORANGE } from '@/utils/chart'
+import type { TurbineItem, GateItem, EngineeringSummary } from '@/types/reservoir'
 
 interface Props {
   summary: EngineeringSummary
@@ -12,8 +13,8 @@ defineProps<Props>()
 
 const statusMap: Record<string, { label: string; color: string }> = {
   running:  { label: '运行',   color: '#00FF88' },
-  stop:     { label: '停机',   color: '#8aa0b8' },
-  maintenance: { label: '检修', color: '#FFAA00' },
+  stop:     { label: '停机',   color: TEXT_SECONDARY },
+  maintenance: { label: '检修', color: TECH_ORANGE },
 }
 </script>
 
@@ -38,7 +39,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
       <div class="summary-divider"></div>
       <div class="summary-item">
         <span class="summary-label">开启数</span>
-        <span class="summary-value" style="color: #00AFFF;">{{ summary.gateOpen }} 扇</span>
+        <span class="summary-value" style="color: var(--tech-blue);">{{ summary.gateOpen }} 扇</span>
       </div>
       <div class="summary-divider"></div>
       <div class="summary-item">
@@ -73,7 +74,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
             <td class="cell-num">{{ t.flow }}</td>
             <td class="cell-gate">
               <div class="gate-bar-bg">
-                <div class="gate-bar-fill" :style="{ width: t.gateOpen + '%', background: t.gateOpen > 0 ? '#00AFFF' : '#2a3a4a' }"></div>
+                <div class="gate-bar-fill" :style="{ width: t.gateOpen + '%', background: t.gateOpen > 0 ? 'var(--tech-blue)' : '#2a3a4a' }"></div>
               </div>
               <span class="gate-pct">{{ t.gateOpen }}%</span>
             </td>
@@ -98,7 +99,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
             <td class="cell-id">{{ g.id }}</td>
             <td>{{ g.name }}</td>
             <td class="cell-num">
-              <span v-if="g.openPercentage > 0" style="color: #00AFFF; font-weight: 600;">{{ g.openPercentage }}</span>
+              <span v-if="g.openPercentage > 0" style="color: var(--tech-blue); font-weight: 600;">{{ g.openPercentage }}</span>
               <span v-else style="color: #5a6d80;">关闭</span>
             </td>
             <td class="cell-num">{{ g.dischargeFlow }}</td>
@@ -122,7 +123,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
   align-items: center;
   gap: 16px;
   padding: 10px 16px;
-  background: rgba(0, 175, 255, 0.05);
+  background: rgba(var(--tech-blue-rgb), 0.05);
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 8px;
 }
@@ -136,7 +137,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 
 .summary-label {
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .summary-value {
@@ -172,7 +173,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 .data-table th {
   text-align: left;
   padding: 8px 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-weight: 500;
   font-size: 11px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.2);
@@ -183,17 +184,17 @@ const statusMap: Record<string, { label: string; color: string }> = {
 
 .data-table td {
   padding: 6px 12px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   border-bottom: 1px solid rgba(50, 150, 255, 0.06);
 }
 
 .data-table tbody tr:hover {
-  background: rgba(0, 175, 255, 0.05);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .cell-id {
   font-family: 'Roboto Mono', monospace;
-  color: #00AFFF;
+  color: var(--tech-blue);
   font-size: 11px;
 }
 
@@ -234,7 +235,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 .gate-pct {
   font-size: 11px;
   font-family: 'Roboto Mono', monospace;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   min-width: 32px;
   text-align: right;
 }

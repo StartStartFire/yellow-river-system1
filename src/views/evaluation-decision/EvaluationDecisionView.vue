@@ -10,6 +10,9 @@ import {
   TEXT_PRIMARY,
   TEXT_REGULAR,
   TEXT_SECONDARY,
+  TECH_BLUE,
+  TECH_GREEN,
+  TECH_ORANGE,
   AXIS_LINE_COLOR,
   SPLIT_LINE_COLOR,
   baseTooltip,
@@ -288,7 +291,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.longyang,
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 2, color: '#00afff' },
+          lineStyle: { width: 2, color: TECH_BLUE },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0, 175, 255, 0.2)' },
@@ -302,7 +305,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.liujia,
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 2, color: '#00e5a0' },
+          lineStyle: { width: 2, color: TECH_GREEN },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0, 229, 160, 0.2)' },
@@ -324,7 +327,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.dates.map(() => d.normalLevel),
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 1.5, color: '#ffaa00', type: 'dashed' },
+          lineStyle: { width: 1.5, color: TECH_ORANGE, type: 'dashed' },
         },
       ],
     }
@@ -363,7 +366,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.longyang,
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 2, color: '#00afff' },
+          lineStyle: { width: 2, color: TECH_BLUE },
         },
         {
           name: '刘家峡水库',
@@ -371,7 +374,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.liujia,
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 2, color: '#00e5a0' },
+          lineStyle: { width: 2, color: TECH_GREEN },
         },
       ],
     }
@@ -410,7 +413,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.longyang,
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 2, color: '#00afff' },
+          lineStyle: { width: 2, color: TECH_BLUE },
         },
         {
           name: '刘家峡水库',
@@ -418,7 +421,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.liujia,
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 2, color: '#00e5a0' },
+          lineStyle: { width: 2, color: TECH_GREEN },
         },
         {
           name: '龙羊峡装机容量',
@@ -434,7 +437,7 @@ const processOption = computed<echarts.EChartsOption>(() => {
           data: d.dates.map(() => d.liujiaCapacity),
           smooth: true,
           symbol: 'none',
-          lineStyle: { width: 1.5, color: '#ffaa00', type: 'dashed' },
+          lineStyle: { width: 1.5, color: TECH_ORANGE, type: 'dashed' },
         },
       ],
     }
@@ -620,7 +623,7 @@ watch(activeTab, () => {
               size="small"
               style="width: 100%"
               :header-cell-style="{
-                color: '#e0e6ed',
+                color: 'var(--tech-text-primary)',
                 borderBottom: '1px solid rgba(50, 150, 255, 0.15)',
                 fontSize: '11px',
                 fontWeight: 600,
@@ -628,7 +631,7 @@ watch(activeTab, () => {
               }"
               :cell-style="{
                 background: 'transparent',
-                color: '#c0c8d4',
+                color: 'var(--tech-text-regular)',
                 borderBottom: '1px solid rgba(50, 150, 255, 0.08)',
                 fontSize: '11px',
                 padding: '4px 8px',
@@ -758,7 +761,7 @@ watch(activeTab, () => {
   min-height: 0;
   overflow: hidden;
   position: relative;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* ===== Tab 导航栏 ===== */
@@ -767,7 +770,7 @@ watch(activeTab, () => {
   gap: 4px;
   flex-shrink: 0;
   padding: 6px 14px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.12);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.12);
 }
 
 .tab-nav-btn {
@@ -778,7 +781,7 @@ watch(activeTab, () => {
   padding: 8px 0;
   font-size: 13px;
   font-weight: 500;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   background: transparent;
   border: none;
   border-radius: 0;
@@ -788,14 +791,14 @@ watch(activeTab, () => {
 }
 
 .tab-nav-btn:hover {
-  color: #c0c8d4;
-  background: rgba(0, 175, 255, 0.05);
+  color: var(--tech-text-regular);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .tab-nav-btn.active {
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.12);
-  border-bottom: 2px solid rgba(0, 212, 255, 0.6);
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.12);
+  border-bottom: 2px solid rgba(var(--tech-cyan-rgb), 0.6);
 }
 
 .tab-nav-btn svg {
@@ -829,12 +832,12 @@ watch(activeTab, () => {
   flex-shrink: 0;
   margin-bottom: 4px;
   min-height: 24px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   padding-bottom: 8px;
 }
 .selector-label {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
 }
 .plan-checkboxes {
@@ -848,14 +851,14 @@ watch(activeTab, () => {
 }
 :deep(.el-checkbox__label) {
   font-size: 11px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: #00afff;
-  border-color: #00afff;
+  background-color: var(--tech-blue);
+  border-color: var(--tech-blue);
 }
 :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
-  color: #00afff;
+  color: var(--tech-blue);
 }
 :deep(.el-checkbox__inner) {
   width: 12px;
@@ -870,7 +873,7 @@ watch(activeTab, () => {
   display: flex;
   gap: 0;
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.08);
 }
 .charts-row:last-child {
   border-bottom: none;
@@ -933,7 +936,7 @@ watch(activeTab, () => {
 }
 .score-value {
   font-size: 10px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   min-width: 38px;
   font-family: monospace;
 }
@@ -947,7 +950,7 @@ watch(activeTab, () => {
 }
 .score-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0088cc, #00afff);
+  background: linear-gradient(90deg, #0088cc, var(--tech-blue));
   border-radius: 3px;
   transition: width 0.4s ease;
 }
@@ -966,31 +969,31 @@ watch(activeTab, () => {
   gap: 8px;
 }
 :deep(.el-select) {
-  --el-select-input-focus-border-color: #00afff;
+  --el-select-input-focus-border-color: var(--tech-blue);
 }
 :deep(.el-select .el-input__wrapper) {
   background: rgba(6, 30, 70, 0.6);
   box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25);
 }
 :deep(.el-select .el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px #00afff;
+  box-shadow: 0 0 0 1px var(--tech-blue);
 }
 :deep(.el-select .el-input__inner) {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 :deep(.el-select-dropdown) {
   background: #0f1f33;
   border: 1px solid rgba(50, 150, 255, 0.3);
 }
 :deep(.el-select-dropdown__item) {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 :deep(.el-select-dropdown__item.hover) {
-  background: rgba(0, 175, 255, 0.1);
-  color: #00afff;
+  background: rgba(var(--tech-blue-rgb), 0.1);
+  color: var(--tech-blue);
 }
 :deep(.el-select-dropdown__item.selected) {
-  color: #00afff;
+  color: var(--tech-blue);
 }
 
 /* 导出按钮 */
@@ -1000,17 +1003,17 @@ watch(activeTab, () => {
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 500;
-  color: #00afff;
-  background: rgba(0, 175, 255, 0.1);
-  border: 1px solid rgba(0, 175, 255, 0.4);
+  color: var(--tech-blue);
+  background: rgba(var(--tech-blue-rgb), 0.1);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.4);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 .export-btn:hover {
-  background: rgba(0, 175, 255, 0.2);
-  border-color: rgba(0, 175, 255, 0.6);
+  background: rgba(var(--tech-blue-rgb), 0.2);
+  border-color: rgba(var(--tech-blue-rgb), 0.6);
   box-shadow: 0 0 12px rgba(0, 160, 255, 0.15);
 }
 
@@ -1032,11 +1035,11 @@ watch(activeTab, () => {
 }
 .decision-col-center {
   flex: 33;
-  border-left: 1px solid rgba(0, 175, 255, 0.08);
+  border-left: 1px solid rgba(var(--tech-blue-rgb), 0.08);
 }
 .decision-col-right {
   flex: 35;
-  border-left: 1px solid rgba(0, 175, 255, 0.08);
+  border-left: 1px solid rgba(var(--tech-blue-rgb), 0.08);
 }
 
 /* ===== 子图表盒子 ===== */
@@ -1053,7 +1056,7 @@ watch(activeTab, () => {
 .sub-chart-title {
   font-size: 12px;
   font-weight: 600;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   padding: 6px 10px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.1);
   letter-spacing: 0.3px;
@@ -1086,10 +1089,10 @@ watch(activeTab, () => {
 }
 .icon-satisfied {
   color: #00ff88;
-  background: rgba(0, 255, 136, 0.1);
+  background: rgba(var(--tech-green-rgb), 0.1);
 }
 .icon-basic {
-  color: #ffaa00;
+  color: var(--tech-orange);
   background: rgba(255, 170, 0, 0.1);
 }
 .icon-unsatisfied {
@@ -1104,14 +1107,14 @@ watch(activeTab, () => {
 }
 .target-name {
   font-size: 12px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   font-weight: 500;
 }
 .target-status {
   font-size: 10px;
 }
 .text-green { color: #00ff88; }
-.text-yellow { color: #ffaa00; }
+.text-yellow { color: var(--tech-orange); }
 .text-red { color: #ff4d4f; }
 
 .target-progress-wrap {
@@ -1134,12 +1137,12 @@ watch(activeTab, () => {
   transition: width 0.6s ease;
 }
 .fill-green { background: linear-gradient(90deg, #00cc66, #00ff88); }
-.fill-yellow { background: linear-gradient(90deg, #dd8800, #ffaa00); }
+.fill-yellow { background: linear-gradient(90deg, #dd8800, var(--tech-orange)); }
 .fill-red { background: linear-gradient(90deg, #cc3333, #ff4d4f); }
 
 .target-rate {
   font-size: 11px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   font-weight: 600;
   min-width: 48px;
   text-align: right;
@@ -1148,7 +1151,7 @@ watch(activeTab, () => {
 
 .target-footnote {
   font-size: 10px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   padding: 4px 10px 6px;
   border-top: 1px solid rgba(50, 150, 255, 0.08);
   flex-shrink: 0;
@@ -1169,19 +1172,19 @@ watch(activeTab, () => {
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 4px 4px 0 0;
   background: rgba(6, 30, 70, 0.5);
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 .process-tab-btn:hover {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   background: rgba(6, 30, 70, 0.8);
   border-color: rgba(50, 150, 255, 0.35);
 }
 .process-tab-btn.active {
-  color: #00afff;
-  background: rgba(0, 175, 255, 0.08);
-  border-color: rgba(0, 175, 255, 0.4);
+  color: var(--tech-blue);
+  background: rgba(var(--tech-blue-rgb), 0.08);
+  border-color: rgba(var(--tech-blue-rgb), 0.4);
   border-bottom-color: transparent;
 }
 

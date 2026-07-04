@@ -83,7 +83,7 @@ const selectedInitial = computed(() => {
   height: 100%;
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(0, 175, 255, 0.12);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.12);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -106,7 +106,7 @@ const selectedInitial = computed(() => {
 .header-title {
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   white-space: nowrap;
 }
 
@@ -119,7 +119,7 @@ const selectedInitial = computed(() => {
   background: rgba(50, 150, 255, 0.08);
   border: 1px solid rgba(50, 150, 255, 0.15);
   border-radius: 6px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
@@ -127,8 +127,8 @@ const selectedInitial = computed(() => {
 
 .collapse-btn:hover {
   background: rgba(50, 150, 255, 0.15);
-  color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.3);
+  color: var(--tech-cyan);
+  border-color: rgba(var(--tech-blue-rgb), 0.3);
 }
 
 .sidebar-list {
@@ -196,11 +196,11 @@ const selectedInitial = computed(() => {
 }
 
 .sidebar-item:hover {
-  background: rgba(0, 175, 255, 0.06);
+  background: rgba(var(--tech-blue-rgb), 0.06);
 }
 
 .sidebar-item.active {
-  background: rgba(0, 175, 255, 0.1);
+  background: rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .item-dot {
@@ -210,19 +210,19 @@ const selectedInitial = computed(() => {
   flex-shrink: 0;
 }
 
-.item-dot.normal { background: #00ff88; box-shadow: 0 0 4px rgba(0, 255, 136, 0.4); }
-.item-dot.warning { background: #ffaa00; box-shadow: 0 0 4px rgba(255, 170, 0, 0.4); }
+.item-dot.normal { background: #00ff88; box-shadow: 0 0 4px rgba(var(--tech-green-rgb), 0.4); }
+.item-dot.warning { background: var(--tech-orange); box-shadow: 0 0 4px rgba(255, 170, 0, 0.4); }
 .item-dot.abnormal { background: #ff4d4f; box-shadow: 0 0 4px rgba(255, 77, 79, 0.4); }
 
 .item-name {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
   transition: color 0.2s;
 }
 
 .sidebar-item.active .item-name {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-weight: 500;
 }
 
@@ -241,14 +241,14 @@ const selectedInitial = computed(() => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(0, 175, 255, 0.2) 0%, rgba(0, 212, 255, 0.1) 100%);
-  border: 1px solid rgba(0, 175, 255, 0.3);
+  background: linear-gradient(135deg, rgba(var(--tech-blue-rgb), 0.2) 0%, rgba(var(--tech-cyan-rgb), 0.1) 100%);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 600;
-  color: #00d4ff;
+  color: var(--tech-cyan);
   cursor: default;
 }
 </style>

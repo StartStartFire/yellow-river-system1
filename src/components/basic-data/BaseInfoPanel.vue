@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { BaseInfoGroup } from '@/mock/basicData'
+import type { BaseInfoGroup } from '@/types/reservoir'
 
 interface Props {
   groups: BaseInfoGroup[]
@@ -85,7 +85,7 @@ const ruleItems = computed(() => {
 .section {
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -102,7 +102,7 @@ const ruleItems = computed(() => {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   letter-spacing: 1px;
 }
 
@@ -130,7 +130,7 @@ const ruleItems = computed(() => {
 
 .eng-value {
   font-size: 13px;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-weight: 500;
   line-height: 1.4;
 }
@@ -145,7 +145,7 @@ const ruleItems = computed(() => {
 
 .rule-card {
   background: rgba(17, 37, 54, 0.18);
-  border-bottom: 1px solid rgba(0, 175, 255, 0.04);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.04);
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
@@ -154,7 +154,7 @@ const ruleItems = computed(() => {
 }
 
 .rule-card:hover {
-  border-color: rgba(0, 255, 136, 0.2);
+  border-color: rgba(var(--tech-green-rgb), 0.2);
 }
 
 .rule-name {
@@ -177,7 +177,7 @@ const ruleItems = computed(() => {
 
 .rule-desc {
   font-size: 12px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   line-height: 1.6;
   padding-left: 11px;
 }

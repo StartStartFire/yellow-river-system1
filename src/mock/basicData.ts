@@ -1,83 +1,15 @@
-// ==================== 类型定义 ====================
-
-export interface ReservoirBrief {
-  id: string
-  name: string
-  status: 'normal' | 'warning' | 'abnormal'
-}
-
-export interface ReservoirGroup {
-  name: string
-  items: ReservoirBrief[]
-}
-
-export interface MetricCardData {
-  label: string
-  value: number
-  unit: string
-  change: number // 较昨日变化值，正为上升，负为下降
-  isUpBad?: boolean // true: 上升代表不好（如水位上升），false: 上升代表好
-}
-
-export interface FeatureWaterLevel {
-  name: string
-  value: number
-  color: string
-  dashed?: boolean
-}
-
-export interface DamInfo {
-  type: string
-  crestElevation: number // 坝顶高程 m
-  crestLength: number // 坝顶长度 m
-  maxHeight: number // 最大坝高 m
-}
-
-export interface ReservoirSection {
-  title: string
-  elevationAxis: number[] // 高程刻度
-  levels: FeatureWaterLevel[] // 特征水位线
-  currentLevel: number // 当前水位
-  inflow: number // 入库流量 m³/s
-  outflow: number // 出库流量 m³/s
-  dam: DamInfo
-}
-
-export interface BaseInfoGroup {
-  title: string
-  items: { key: string; value: string }[]
-}
-
-export interface TurbineItem {
-  id: string
-  name: string
-  status: 'running' | 'stop' | 'maintenance'
-  output: number // kW
-  flow: number // m³/s
-  gateOpen: number // 闸门开度 %
-}
-
-export interface GateItem {
-  id: string
-  name: string
-  openPercentage: number // 开度 %
-  dischargeFlow: number // 泄洪流量 m³/s
-}
-
-export interface EngineeringSummary {
-  turbineTotal: number // 机组总数
-  turbineRunning: number // 运行中
-  gateTotal: number // 闸门总数
-  gateOpen: number // 开启数
-  totalOutput: number // 当前总出力 kW
-}
-
-// ==================== API 统一响应类型 ====================
-export interface ApiResponse<T> {
-  code: number
-  message: string
-  data: T
-}
+import type { ApiResponse } from '@/types/common'
+import type {
+  ReservoirBrief,
+  ReservoirGroup,
+  MetricCardData,
+  ReservoirSection,
+  BaseInfoGroup,
+  TurbineItem,
+  GateItem,
+  EngineeringSummary,
+  KeyCurvesData,
+} from '@/types/reservoir'
 
 // ==================== Mock 数据（统一 API 响应格式） ====================
 
@@ -861,12 +793,6 @@ export function getEngineeringInfo(reservoirId: string): ApiResponse<{ summary: 
 }
 
 // 关键曲线数据
-export interface KeyCurvesData {
-  storageCurve: { levels: number[]; storage: number[] }
-  turbineCurve: { head: number[]; power: number[] }
-  gateCurve: { opening: number[]; flow: number[] }
-}
-
 const keyCurvesMap: Record<string, KeyCurvesData> = {
   longyangxia: {
     storageCurve: {

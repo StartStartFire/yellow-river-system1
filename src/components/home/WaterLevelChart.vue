@@ -10,6 +10,8 @@ import {
   baseCategoryXAxis,
   baseValueYAxis,
   RESERVOIR_COLORS,
+  TEXT_PRIMARY,
+  TECH_BLUE,
   createGrid,
 } from '@/utils/chart'
 
@@ -20,14 +22,14 @@ const displaySeries = seriesData.series.filter(
   s => s.name === '龙羊峡水库' || s.name === '刘家峡水库'
 )
 const colorMap: Record<string, string> = {
-  '龙羊峡水库': '#00afff',
+  '龙羊峡水库': TECH_BLUE,
   '刘家峡水库': '#00e5ff',
 }
 
 const chartOption = computed<EChartsOption>(() => ({
   tooltip: {
     ...baseTooltip,
-    textStyle: { color: '#e0e6ed', fontSize: 12 },
+    textStyle: { color: TEXT_PRIMARY, fontSize: 12 },
   },
   legend: {
     ...baseLegend,
@@ -52,7 +54,7 @@ const chartOption = computed<EChartsOption>(() => ({
     symbolSize: 4,
     lineStyle: { width: 2 },
     itemStyle: {
-      color: colorMap[s.name] || RESERVOIR_COLORS[s.name] || '#00afff',
+      color: colorMap[s.name] || RESERVOIR_COLORS[s.name] || TECH_BLUE,
     },
   })),
 }))

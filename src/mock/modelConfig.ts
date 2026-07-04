@@ -1,56 +1,28 @@
-// ==================== 类型定义 ====================
-
-export interface MenuItem {
-  id: string
-  name: string
-  icon: string
-}
-
-export interface MenuGroup {
-  groupName: string
-  children: MenuItem[]
-}
-
-export interface ChartData {
-  title: string
-  xAxis: string[]
-  series: {
-    inflow: number[]
-    level: number[]
-  }
-}
-
-export interface TableColumn {
-  key: string
-  label: string
-  unit?: string
-}
-
-export interface TableData {
-  title: string
-  columns: TableColumn[]
-  rows: Record<string, string | number>[]
-}
-
-export interface MenuContentMap {
-  [menuId: string]: {
-    type: 'chart' | 'table'
-    chartData?: ChartData
-    tableData?: TableData
-  }
-}
-
-export interface PageState {
-  currentStep: number
-  activeMenuId: string
-  dateRange: [string, string]
-}
-
-export interface ModelDataResponse {
-  menus: MenuGroup[]
-  menuContents: MenuContentMap
-  pageState: PageState
-}
+import type {
+  MenuItem,
+  MenuGroup,
+  ChartData,
+  TableColumn,
+  TableData,
+  MenuContentMap,
+  PageState,
+  ModelDataResponse,
+  DispatchSubOption,
+  DispatchScenarioCategory,
+  DispatchObjective,
+  ConstraintDetail,
+  ConstraintSummaryData,
+  DispatchModel,
+  OptimizationAlgorithm,
+  AlgorithmParameter,
+  ModelAlgorithmState,
+  ScenarioParam,
+  ConstraintItem,
+  ScenarioConstraintState,
+  ConfigPlan,
+  DistributionItem,
+  ConfigSummaryState,
+} from '@/types/model'
 
 // ==================== Mock 数据 ====================
 
@@ -323,22 +295,6 @@ export const modelDataMock = {
 
 // ==================== Step 1: 调度场景 Mock 数据 ====================
 
-export interface DispatchSubOption {
-  id: string
-  name: string
-  description: string
-  /** 关联的调度目标ID列表（自动联动） */
-  linkedObjectives: string[]
-}
-
-export interface DispatchScenarioCategory {
-  id: string
-  name: string
-  icon: string
-  description: string
-  subOptions: DispatchSubOption[]
-}
-
 export const dispatchScenarioCategories: DispatchScenarioCategory[] = [
   {
     id: 'multi-year',
@@ -422,26 +378,6 @@ export const dispatchScenarioCategories: DispatchScenarioCategory[] = [
 
 // ==================== 旧 Step 2 基础配置 Mock 数据 ====================
 
-export interface DispatchObjective {
-  id: string
-  name: string
-  description: string
-  icon: string
-}
-
-export interface ConstraintDetail {
-  name: string
-  min: number
-  max: number
-  unit: string
-}
-
-export interface ConstraintSummaryData {
-  count: number
-  description: string
-  constraints: ConstraintDetail[]
-}
-
 export const dispatchObjectives = {
   code: 200,
   message: 'success',
@@ -503,35 +439,6 @@ export const constraintSummary = {
 }
 
 // ==================== Step 3: 模型算法 Mock 数据 ====================
-
-export interface DispatchModel {
-  id: string
-  name: string
-  supportedAlgorithms: string[]
-}
-
-export interface OptimizationAlgorithm {
-  id: string
-  name: string
-  paramIds: string[]
-}
-
-export interface AlgorithmParameter {
-  id: string
-  name: string
-  value: number
-  min: number
-  max: number
-  step: number
-  description: string
-}
-
-export interface ModelAlgorithmState {
-  currentStep: number
-  selectedModel: string
-  selectedAlgorithm: string
-  parameters: Record<string, number>
-}
 
 export const modelAlgorithmState = {
   code: 200,
@@ -722,27 +629,6 @@ export const algorithmParameters = {
 
 // ==================== Step 4: 场景约束 Mock 数据 ====================
 
-export interface ScenarioParam {
-  id: string
-  name: string
-  value: string
-  options: { label: string; value: string }[]
-}
-
-export interface ConstraintItem {
-  id: string
-  name: string
-  description: string
-  status: string
-}
-
-export interface ScenarioConstraintState {
-  currentStep: number
-  scenarioType: string
-  scenarioDescription: string
-  params: Record<string, string>
-}
-
 export const scenarioConstraintState = {
   code: 200,
   message: 'success',
@@ -900,22 +786,6 @@ export const constraintList = {
 
 // ==================== Step 5: 配置汇总 Mock 数据 ====================
 
-export interface ConfigPlan {
-  id: string
-  index: number
-  name: string
-  model: string
-  algorithm: string
-  scenario: string
-  selected: boolean
-}
-
-export interface DistributionItem {
-  name: string
-  value: number
-  percent: number
-}
-
 // ==================== 步骤间联动数据 ====================
 
 /** 水库组合 → 兼容的模型ID列表 */
@@ -974,16 +844,6 @@ export const algorithmLabelMap: Record<string, string> = {
   pso: 'PSO 粒子群优化算法',
   paem: 'PAEM 逐步逼近评价方法',
   nsga3: 'NSGA-III 多目标遗传算法',
-}
-
-export interface ConfigSummaryState {
-  currentStep: number
-  selectedPlanIds: string[]
-  total: number
-  pageSize: number
-  currentPage: number
-  estimatedTime: string
-  planCount: number
 }
 
 // ==================== Step 2: 调度主体 Mock 数据 ====================

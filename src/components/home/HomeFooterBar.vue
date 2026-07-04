@@ -51,7 +51,7 @@ const weatherData = weatherInfo.data
 
 .footer-label {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
 }
 
@@ -62,7 +62,7 @@ const weatherData = weatherInfo.data
 
 .announcement-text {
   font-size: 12px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   display: inline-block;
   white-space: nowrap;
   animation: scroll-text 20s linear infinite;
@@ -75,13 +75,13 @@ const weatherData = weatherInfo.data
 
 .weather-info {
   font-size: 12px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 
 .exit-btn {
   background: none;
   border: 1px solid rgba(50, 150, 255, 0.3);
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   padding: 2px 12px;
   border-radius: 4px;

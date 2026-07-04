@@ -11,7 +11,7 @@ import {
   scenarioParams,
   dispatchObjectives,
 } from '@/mock/modelConfig'
-import type { ScenarioParam } from '@/mock/modelConfig'
+import type { ScenarioParam } from '@/types/model'
 
 // ==================== Store ====================
 const store = useModelConfigStore()
@@ -281,7 +281,7 @@ const paramIcons: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* ===== 主体内容 ===== */
@@ -325,14 +325,14 @@ const paramIcons: Record<string, string> = {
 }
 
 .card-icon {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   flex-shrink: 0;
 }
 
 .card-title {
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .card-body {
@@ -343,7 +343,7 @@ const paramIcons: Record<string, string> = {
 /* ===== 标题区卡片 ===== */
 .header-card.card {
   overflow: visible;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .header-card .card-header {
@@ -360,7 +360,7 @@ const paramIcons: Record<string, string> = {
 .header-accent-line {
   width: 3px;
   height: 18px;
-  background: linear-gradient(180deg, #00d4ff, rgba(0, 212, 255, 0.3));
+  background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3));
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -368,7 +368,7 @@ const paramIcons: Record<string, string> = {
 .header-title {
   font-size: 15px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 /* ===== 场景类型切换 ===== */
@@ -376,7 +376,7 @@ const paramIcons: Record<string, string> = {
   display: flex;
   gap: 24px;
   padding: 2px 16px 0;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .switch-btn {
@@ -391,17 +391,17 @@ const paramIcons: Record<string, string> = {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .switch-btn:hover {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 
 .switch-btn.switch-active {
   background: transparent;
-  border-bottom-color: #00afff;
-  color: #00d4ff;
+  border-bottom-color: var(--tech-blue);
+  color: var(--tech-cyan);
 }
 
 .switch-icon {
@@ -415,35 +415,35 @@ const paramIcons: Record<string, string> = {
   gap: 6px;
   margin: 0 16px 10px;
   padding: 6px 10px;
-  background: rgba(0, 175, 255, 0.05);
-  border: 1px solid rgba(0, 175, 255, 0.12);
+  background: rgba(var(--tech-blue-rgb), 0.05);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.12);
   border-radius: 6px;
 }
 
 .linkage-icon {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   flex-shrink: 0;
 }
 
 .linkage-text {
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   line-height: 1.4;
 }
 
 /* ===== 关联参数高亮 ===== */
 .param-row.param-relevant {
-  background: rgba(0, 175, 255, 0.06);
+  background: rgba(var(--tech-blue-rgb), 0.06);
   border-radius: 6px;
   margin: 0 -8px;
   padding: 10px 8px;
-  border: 1px solid rgba(0, 175, 255, 0.15);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.15);
 }
 
 .param-tag {
   font-size: 10px;
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.12);
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.12);
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 500;
@@ -453,7 +453,7 @@ const paramIcons: Record<string, string> = {
 /* ===== 场景描述 ===== */
 .description-section {
   padding: 0 16px 14px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .desc-header {
@@ -463,12 +463,12 @@ const paramIcons: Record<string, string> = {
 .desc-label {
   font-size: 12px;
   font-weight: 500;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .char-count {
   font-size: 11px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   text-align: right;
   margin-top: 4px;
 }
@@ -510,7 +510,7 @@ const paramIcons: Record<string, string> = {
 }
 
 .param-icon {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -518,7 +518,7 @@ const paramIcons: Record<string, string> = {
 
 .param-name {
   font-size: 13px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   white-space: nowrap;
 }
 
@@ -539,7 +539,7 @@ const paramIcons: Record<string, string> = {
 }
 
 :deep(.dark-select .el-input__inner) {
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   font-size: 12px;
 }
 
@@ -549,15 +549,15 @@ const paramIcons: Record<string, string> = {
 }
 
 :deep(.el-select-dropdown__item) {
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
 }
 
 :deep(.el-select-dropdown__item.hover) {
-  background: rgba(0, 175, 255, 0.1) !important;
+  background: rgba(var(--tech-blue-rgb), 0.1) !important;
 }
 
 :deep(.el-select-dropdown__item.selected) {
-  color: #00d4ff !important;
+  color: var(--tech-cyan) !important;
   font-weight: 600;
 }
 
@@ -566,36 +566,36 @@ const paramIcons: Record<string, string> = {
   background: rgba(2, 27, 63, 0.8) !important;
   box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
   border: none !important;
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   font-size: 12px !important;
   line-height: 1.6 !important;
   resize: none;
 }
 
 :deep(.dark-textarea .el-textarea__inner::placeholder) {
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 :deep(.dark-textarea .el-textarea__inner:focus) {
-  box-shadow: 0 0 0 1px rgba(0, 175, 255, 0.5) inset !important;
+  box-shadow: 0 0 0 1px rgba(var(--tech-blue-rgb), 0.5) inset !important;
 }
 
 /* 按钮 */
 :deep(.el-button) {
   --el-button-bg-color: transparent;
   --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
+  --el-button-text-color: var(--tech-text-regular);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
   --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: #e0e6ed;
+  --el-button-hover-text-color: var(--tech-text-primary);
 }
 
 :deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2);
-  --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7);
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
+  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
   --el-button-hover-text-color: #00e5ff;
 }
 
@@ -613,7 +613,7 @@ const paramIcons: Record<string, string> = {
 }
 
 .confirm-dialog :deep(.el-dialog__title) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 15px;
   font-weight: 600;
 }
@@ -645,13 +645,13 @@ const paramIcons: Record<string, string> = {
 }
 
 .dialog-title-main {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 14px;
   font-weight: 500;
 }
 
 .dialog-desc {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }

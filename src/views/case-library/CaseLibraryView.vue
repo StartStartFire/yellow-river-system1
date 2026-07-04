@@ -8,6 +8,8 @@ import PanelCard from '@/components/common/PanelCard.vue'
 import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TECH_CYAN,
+  TECH_ORANGE,
   baseTooltip,
   baseCategoryXAxis,
   baseValueYAxis,
@@ -89,7 +91,7 @@ const handleTabChange = (tab: string) => {
 const waterLevelOption = computed<EChartsOption>(() => {
   if (!currentCase.value) return {}
   const data = currentCase.value.processCharts.waterLevel
-  const color = '#00d4ff'
+  const color = TECH_CYAN
   return {
     backgroundColor: 'transparent',
     title: {
@@ -172,17 +174,17 @@ const powerOption = computed<EChartsOption>(() => {
 
 const getScoreColor = (score: number) => {
   if (score >= 90) return '#00ff88'
-  if (score >= 80) return '#00d4ff'
-  if (score >= 70) return '#ffaa00'
+  if (score >= 80) return TECH_CYAN
+  if (score >= 70) return TECH_ORANGE
   return '#ff4d4f'
 }
 
 const getChangeColor = (type: string) => {
   if (type === 'up') return '#00ff88'
-  if (type === 'down') return '#ffaa00'
+  if (type === 'down') return TECH_ORANGE
   if (type === 'success') return '#00ff88'
-  if (type === 'excellent') return '#00d4ff'
-  return '#8aa0b8'
+  if (type === 'excellent') return TECH_CYAN
+  return TEXT_SECONDARY
 }
 
 const getIconByType = (type: string) => {
@@ -599,7 +601,7 @@ function getCoverGradient(type: string): string {
   flex-direction: column;
   padding: 0;
   gap: 0;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* 筛选区 */
@@ -610,7 +612,7 @@ function getCoverGradient(type: string): string {
   padding: 8px 14px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   flex-shrink: 0;
 }
 
@@ -629,7 +631,7 @@ function getCoverGradient(type: string): string {
 
 .filter-label {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
 }
 
@@ -645,7 +647,7 @@ function getCoverGradient(type: string): string {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: linear-gradient(135deg, #00afff 0%, #00d4ff 100%);
+  background: linear-gradient(135deg, var(--tech-blue) 0%, var(--tech-cyan) 100%);
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -656,7 +658,7 @@ function getCoverGradient(type: string): string {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #00d4ff 0%, #00e5ff 100%);
+  background: linear-gradient(135deg, var(--tech-cyan) 0%, #00e5ff 100%);
 }
 
 .btn-secondary {
@@ -667,7 +669,7 @@ function getCoverGradient(type: string): string {
   background: rgba(50, 150, 255, 0.1);
   border: 1px solid rgba(50, 150, 255, 0.3);
   border-radius: 6px;
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -686,7 +688,7 @@ function getCoverGradient(type: string): string {
   background: transparent;
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 6px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -694,7 +696,7 @@ function getCoverGradient(type: string): string {
 
 .btn-outline:hover {
   background: rgba(50, 150, 255, 0.1);
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   border-color: rgba(50, 150, 255, 0.4);
 }
 
@@ -706,7 +708,7 @@ function getCoverGradient(type: string): string {
   background: transparent;
   border: 1px solid rgba(50, 150, 255, 0.25);
   border-radius: 4px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 11px;
   cursor: pointer;
   transition: all 0.3s;
@@ -714,7 +716,7 @@ function getCoverGradient(type: string): string {
 
 .btn-outline-sm:hover {
   background: rgba(50, 150, 255, 0.1);
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   border-color: rgba(50, 150, 255, 0.4);
 }
 
@@ -733,7 +735,7 @@ function getCoverGradient(type: string): string {
   flex-direction: column;
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   border-radius: 0;
   overflow: hidden;
 }
@@ -743,18 +745,18 @@ function getCoverGradient(type: string): string {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .title-text {
   font-size: 14px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .title-count {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .case-list {
@@ -786,20 +788,20 @@ function getCoverGradient(type: string): string {
   padding: 12px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   border-radius: 0;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .case-card:hover {
-  background: rgba(0, 175, 255, 0.04);
-  border-bottom-color: rgba(0, 175, 255, 0.2);
+  background: rgba(var(--tech-blue-rgb), 0.04);
+  border-bottom-color: rgba(var(--tech-blue-rgb), 0.2);
 }
 
 .case-card.active {
-  background: rgba(0, 175, 255, 0.06);
-  border-bottom-color: rgba(0, 212, 255, 0.4);
+  background: rgba(var(--tech-blue-rgb), 0.06);
+  border-bottom-color: rgba(var(--tech-cyan-rgb), 0.4);
 }
 
 .case-cover {
@@ -853,7 +855,7 @@ function getCoverGradient(type: string): string {
 .case-title {
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   margin: 0;
   line-height: 1.4;
   display: -webkit-box;
@@ -880,12 +882,12 @@ function getCoverGradient(type: string): string {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .case-summary {
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   margin: 0;
   line-height: 1.5;
   display: -webkit-box;
@@ -910,14 +912,14 @@ function getCoverGradient(type: string): string {
   background: transparent;
   border: none;
   border-radius: 0;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .action-btn:hover {
-  background: rgba(0, 175, 255, 0.08);
-  color: #e0e6ed;
+  background: rgba(var(--tech-blue-rgb), 0.08);
+  color: var(--tech-text-primary);
 }
 
 .action-btn.favorited {
@@ -940,7 +942,7 @@ function getCoverGradient(type: string): string {
   justify-content: space-between;
   align-items: flex-start;
   padding: 16px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
 .header-left {
@@ -950,7 +952,7 @@ function getCoverGradient(type: string): string {
 .detail-title {
   font-size: 18px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   margin: 0 0 8px 0;
 }
 
@@ -976,14 +978,14 @@ function getCoverGradient(type: string): string {
 
 .meta-score {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .detail-info {
   display: flex;
   gap: 16px;
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .header-actions {
@@ -996,7 +998,7 @@ function getCoverGradient(type: string): string {
   display: flex;
   gap: 0;
   padding: 0 16px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   background: transparent;
 }
 
@@ -1006,21 +1008,21 @@ function getCoverGradient(type: string): string {
   border: none;
   border-bottom: 2px solid transparent;
   border-radius: 0;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .tab-btn:hover {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   background: transparent;
 }
 
 .tab-btn.active {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   background: transparent;
-  border-bottom-color: rgba(0, 212, 255, 0.6);
+  border-bottom-color: rgba(var(--tech-cyan-rgb), 0.6);
 }
 
 /* 页签内容 */
@@ -1045,7 +1047,7 @@ function getCoverGradient(type: string): string {
 .config-section {
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   border-radius: 0;
   padding: 12px;
 }
@@ -1056,7 +1058,7 @@ function getCoverGradient(type: string): string {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #00d4ff;
+  color: var(--tech-cyan);
   margin: 0 0 12px 0;
 }
 
@@ -1074,23 +1076,23 @@ function getCoverGradient(type: string): string {
 
 .item-label {
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .item-value {
   font-size: 12px;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   line-height: 1.5;
 }
 
 .item-value.highlight {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-weight: 500;
 }
 
 .item-value.version {
   font-family: monospace;
-  background: rgba(0, 175, 255, 0.1);
+  background: rgba(var(--tech-blue-rgb), 0.1);
   padding: 2px 6px;
   border-radius: 4px;
   display: inline-block;
@@ -1106,7 +1108,7 @@ function getCoverGradient(type: string): string {
 
 .summary-text {
   font-size: 13px;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   line-height: 1.6;
   margin: 0;
 }
@@ -1114,7 +1116,7 @@ function getCoverGradient(type: string): string {
 .key-findings {
   background: transparent;
   border: none;
-  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   border-radius: 0;
   padding: 12px;
 }
@@ -1122,7 +1124,7 @@ function getCoverGradient(type: string): string {
 .findings-title {
   font-size: 13px;
   font-weight: 600;
-  color: #00d4ff;
+  color: var(--tech-cyan);
   margin: 0 0 10px 0;
 }
 
@@ -1140,7 +1142,7 @@ function getCoverGradient(type: string): string {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .findings-list li svg {
@@ -1160,7 +1162,7 @@ function getCoverGradient(type: string): string {
 .chart-box {
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   border-radius: 0;
   padding: 12px;
 }
@@ -1200,7 +1202,7 @@ function getCoverGradient(type: string): string {
 
 .score-label {
   font-size: 11px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .evaluation-dimensions {
@@ -1225,7 +1227,7 @@ function getCoverGradient(type: string): string {
 
 .dimension-name {
   font-size: 12px;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .dimension-score {
@@ -1248,20 +1250,20 @@ function getCoverGradient(type: string): string {
 
 .dimension-weight {
   font-size: 10px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 /* 关键指标区 */
 .metrics-section {
   padding: 12px 16px;
-  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   background: transparent;
 }
 
 .metrics-title {
   font-size: 12px;
   font-weight: 600;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   margin: 0 0 10px 0;
 }
 
@@ -1278,19 +1280,19 @@ function getCoverGradient(type: string): string {
   padding: 10px;
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   border-radius: 0;
 }
 
 .metric-name {
   font-size: 10px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .metric-value {
   font-size: 16px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .metric-change {
@@ -1304,7 +1306,7 @@ function getCoverGradient(type: string): string {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 16px;
-  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   background: transparent;
 }
 
@@ -1318,7 +1320,7 @@ function getCoverGradient(type: string): string {
 
 :deep(.dark-date-picker .el-input__inner),
 :deep(.dark-select .el-input__inner) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 :deep(.dark-input .el-input__wrapper) {
@@ -1328,23 +1330,23 @@ function getCoverGradient(type: string): string {
 }
 
 :deep(.dark-input .el-input__inner) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 :deep(.el-range-input) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 :deep(.el-range-separator) {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 :deep(.el-date-editor .el-range__icon) {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 :deep(.el-date-editor .el-range-close-icon) {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 :deep(.el-popper) {

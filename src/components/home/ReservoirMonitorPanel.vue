@@ -83,19 +83,19 @@ const emit = defineEmits<{
 }
 
 .metric-label {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   min-width: 52px;
 }
 
 .metric-value {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-weight: 600;
   font-family: 'DIN Alternate', 'Roboto Mono', monospace;
   font-size: 13px;
 }
 
 .metric-unit {
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   font-size: 11px;
 }
 </style>

@@ -60,7 +60,7 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
     <!-- 合并的顶部栏：系统名称 + 导航 + 时间/状态 -->
     <div
       class="h-14 flex items-center px-6 relative z-10"
-      style="background: rgba(6, 20, 42, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 175, 255, 0.12);"
+      style="background: rgba(var(--tech-bg-rgb), 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.12);"
     >
       <!-- 左侧：系统名称 -->
       <div class="flex items-center gap-2.5 shrink-0">
@@ -85,7 +85,7 @@ const handleNavClick = (item: (typeof navItems)[0]) => {
           <div
             v-if="index === activeIndex"
             class="absolute inset-0 rounded-md"
-            style="background: linear-gradient(135deg, rgba(0, 175, 255, 0.2) 0%, rgba(0, 229, 255, 0.1) 100%); border: 1px solid rgba(0, 175, 255, 0.4);"
+            style="background: linear-gradient(135deg, rgba(var(--tech-blue-rgb), 0.2) 0%, rgba(0, 229, 255, 0.1) 100%); border: 1px solid rgba(var(--tech-blue-rgb), 0.4);"
           ></div>
         </button>
       </nav>

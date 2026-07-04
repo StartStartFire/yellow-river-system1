@@ -75,7 +75,7 @@ defineEmits<{
   flex-shrink: 0;
   background: transparent;
   border: none;
-  border-top: 1px solid rgba(0, 175, 255, 0.1);
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   border-radius: 0;
   padding: 10px 16px;
 }
@@ -103,26 +103,26 @@ defineEmits<{
 
 /* 取消按钮 - 默认为灰色 */
 .footer-btn-cancel {
-  color: #8aa0b8 !important;
+  color: var(--tech-text-secondary) !important;
   border-color: rgba(80, 100, 120, 0.3) !important;
 }
 
 .footer-btn-cancel:hover {
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   border-color: rgba(50, 150, 255, 0.4) !important;
-  background: rgba(0, 175, 255, 0.05) !important;
+  background: rgba(var(--tech-blue-rgb), 0.05) !important;
 }
 
 /* 保存按钮 - 青色描边 */
 .footer-btn-save {
-  background: rgba(0, 175, 255, 0.1) !important;
-  border-color: rgba(0, 175, 255, 0.4) !important;
-  color: #00d4ff !important;
+  background: rgba(var(--tech-blue-rgb), 0.1) !important;
+  border-color: rgba(var(--tech-blue-rgb), 0.4) !important;
+  color: var(--tech-cyan) !important;
 }
 
 .footer-btn-save:hover {
-  background: rgba(0, 175, 255, 0.2) !important;
-  border-color: rgba(0, 175, 255, 0.6) !important;
+  background: rgba(var(--tech-blue-rgb), 0.2) !important;
+  border-color: rgba(var(--tech-blue-rgb), 0.6) !important;
   color: #00e5ff !important;
 }
 
@@ -144,18 +144,18 @@ defineEmits<{
 :deep(.el-button) {
   --el-button-bg-color: transparent;
   --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
+  --el-button-text-color: var(--tech-text-regular);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
   --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: #e0e6ed;
+  --el-button-hover-text-color: var(--tech-text-primary);
 }
 
 :deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2);
-  --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7);
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
+  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
   --el-button-hover-text-color: #00e5ff;
 }
 </style>

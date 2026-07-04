@@ -12,7 +12,7 @@ import {
   reservoirNameMap,
 } from '@/mock/modelConfig'
 import { metricsMap, reservoirGroups as basicDataGroups } from '@/mock/basicData'
-import type { MetricCardData } from '@/mock/basicData'
+import type { MetricCardData } from '@/types/reservoir'
 
 const store = useModelConfigStore()
 const router = useRouter()
@@ -120,7 +120,7 @@ const toggleReservoir = (id: string) => {
 const getReservoirStatus = (id: string): { label: string; color: string } => {
   const statusMap: Record<string, { label: string; color: string }> = {
     longyangxia: { label: '正常', color: '#00ff88' }, liujiaxia: { label: '正常', color: '#00ff88' },
-    gongboxia: { label: '关注', color: '#ffaa00' }, jishixia: { label: '正常', color: '#00ff88' },
+    gongboxia: { label: '关注', color: 'var(--tech-orange)' }, jishixia: { label: '正常', color: '#00ff88' },
     qingtongxia: { label: '正常', color: '#00ff88' }, yangqu: { label: '正常', color: '#00ff88' },
     banduo: { label: '正常', color: '#00ff88' }, cihaxia: { label: '正常', color: '#00ff88' },
     maerdang: { label: '正常', color: '#00ff88' }, xiaoxia: { label: '正常', color: '#00ff88' },
@@ -395,7 +395,7 @@ onMounted(() => {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 .main-content {
@@ -422,9 +422,9 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-.section-accent { width: 3px; height: 18px; background: linear-gradient(180deg, #00d4ff, rgba(0, 212, 255, 0.3)); border-radius: 2px; flex-shrink: 0; }
-.section-title { font-size: 15px; font-weight: 600; color: #e0e6ed; }
-.section-hint { font-size: 12px; color: #6e8a9e; margin-left: 4px; }
+.section-accent { width: 3px; height: 18px; background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3)); border-radius: 2px; flex-shrink: 0; }
+.section-title { font-size: 15px; font-weight: 600; color: var(--tech-text-primary); }
+.section-hint { font-size: 12px; color: var(--tech-text-placeholder); margin-left: 4px; }
 
 .selected-badge {
   margin-left: auto;
@@ -432,8 +432,8 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.08);
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.08);
   padding: 2px 10px;
   border-radius: 10px;
 }
@@ -462,12 +462,12 @@ onMounted(() => {
   position: relative;
 }
 
-.group-card:hover { border-color: rgba(0, 175, 255, 0.3); background: rgba(0, 175, 255, 0.04); }
-.group-card.group-selected { border-color: rgba(0, 175, 255, 0.5); background: rgba(0, 175, 255, 0.08); box-shadow: 0 0 16px rgba(0, 175, 255, 0.1); }
+.group-card:hover { border-color: rgba(var(--tech-blue-rgb), 0.3); background: rgba(var(--tech-blue-rgb), 0.04); }
+.group-card.group-selected { border-color: rgba(var(--tech-blue-rgb), 0.5); background: rgba(var(--tech-blue-rgb), 0.08); box-shadow: 0 0 16px rgba(var(--tech-blue-rgb), 0.1); }
 
 .group-check { position: absolute; top: 8px; right: 8px; }
-.group-name { font-size: 15px; font-weight: 600; color: #c0c8d4; }
-.group-selected .group-name { color: #e0e6ed; }
+.group-name { font-size: 15px; font-weight: 600; color: var(--tech-text-regular); }
+.group-selected .group-name { color: var(--tech-text-primary); }
 .group-count { font-size: 12px; color: #5a8abf; }
 
 /* 更多组合水库区域 */
@@ -504,8 +504,8 @@ onMounted(() => {
   transition: all 0.2s;
 }
 
-.reservoir-item:hover { border-color: rgba(0, 175, 255, 0.2); background: rgba(0, 175, 255, 0.03); }
-.reservoir-item.item-checked { border-color: rgba(0, 175, 255, 0.35); background: rgba(0, 175, 255, 0.06); }
+.reservoir-item:hover { border-color: rgba(var(--tech-blue-rgb), 0.2); background: rgba(var(--tech-blue-rgb), 0.03); }
+.reservoir-item.item-checked { border-color: rgba(var(--tech-blue-rgb), 0.35); background: rgba(var(--tech-blue-rgb), 0.06); }
 
 .item-checkbox {
   width: 16px; height: 16px; border-radius: 3px;
@@ -513,9 +513,9 @@ onMounted(() => {
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   transition: all 0.2s;
 }
-.item-checkbox.checkbox-checked { border-color: #00d4ff; background: #00d4ff; }
+.item-checkbox.checkbox-checked { border-color: var(--tech-cyan); background: var(--tech-cyan); }
 
-.item-name { font-size: 12px; font-weight: 600; color: #c0c8d4; white-space: nowrap; }
+.item-name { font-size: 12px; font-weight: 600; color: var(--tech-text-regular); white-space: nowrap; }
 .item-meta { font-size: 10px; color: #5a8abf; white-space: nowrap; }
 .item-status { font-size: 10px; font-weight: 500; margin-left: auto; flex-shrink: 0; }
 
@@ -542,7 +542,7 @@ onMounted(() => {
   gap: 5px;
   font-size: 12px;
   font-weight: 500;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -558,38 +558,38 @@ onMounted(() => {
 
 .date-picker-wrapper { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
 .date-picker-half { flex: 1; min-width: 0; }
-.date-separator { color: #6e8a9e; font-size: 12px; flex-shrink: 0; }
+.date-separator { color: var(--tech-text-placeholder); font-size: 12px; flex-shrink: 0; }
 
 .section-total { margin-left: auto; display: flex; align-items: baseline; gap: 4px; }
-.total-number-sm { font-size: 20px; font-weight: 700; color: #00d4ff; font-variant-numeric: tabular-nums; }
-.total-unit-sm { font-size: 12px; color: #8aa0b8; }
+.total-number-sm { font-size: 20px; font-weight: 700; color: var(--tech-cyan); font-variant-numeric: tabular-nums; }
+.total-unit-sm { font-size: 12px; color: var(--tech-text-secondary); }
 
 /* 弹窗 */
 .confirm-dialog :deep(.el-dialog) { background: rgba(6, 30, 70, 0.98) !important; border: 1px solid rgba(50, 150, 255, 0.4); border-radius: 12px; }
 .confirm-dialog :deep(.el-dialog__header) { border-bottom: 1px solid rgba(50, 150, 255, 0.2); padding: 16px 20px; margin: 0; }
-.confirm-dialog :deep(.el-dialog__title) { color: #e0e6ed; font-size: 15px; font-weight: 600; }
+.confirm-dialog :deep(.el-dialog__title) { color: var(--tech-text-primary); font-size: 15px; font-weight: 600; }
 .confirm-dialog :deep(.el-dialog__body) { padding: 24px 20px; }
 .confirm-dialog :deep(.el-dialog__footer) { border-top: 1px solid rgba(50, 150, 255, 0.1); padding: 12px 20px; }
 .dialog-body { display: flex; align-items: flex-start; gap: 16px; }
 .dialog-icon { flex-shrink: 0; margin-top: 2px; }
 .dialog-text { display: flex; flex-direction: column; gap: 6px; }
-.dialog-title-main { color: #e0e6ed; font-size: 14px; font-weight: 500; }
-.dialog-desc { color: #8aa0b8; font-size: 12px; line-height: 1.5; }
+.dialog-title-main { color: var(--tech-text-primary); font-size: 14px; font-weight: 500; }
+.dialog-desc { color: var(--tech-text-secondary); font-size: 12px; line-height: 1.5; }
 .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
 
 :deep(.el-button) {
   --el-button-bg-color: transparent; --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4; --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5); --el-button-hover-text-color: #e0e6ed;
+  --el-button-text-color: var(--tech-text-regular); --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
+  --el-button-hover-border-color: rgba(50, 150, 255, 0.5); --el-button-hover-text-color: var(--tech-text-primary);
 }
 :deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2); --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff; --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7); --el-button-hover-text-color: #00e5ff;
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2); --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan); --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7); --el-button-hover-text-color: #00e5ff;
 }
 :deep(.el-select) { width: 100%; }
 :deep(.el-date-editor) { background: transparent !important; }
 :deep(.el-input__wrapper) { background: rgba(2, 27, 63, 0.6) !important; box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important; }
-:deep(.el-input__inner) { color: #c0c8d4 !important; font-size: 12px; }
-:deep(.el-input__inner::placeholder) { color: #6e8a9e; }
+:deep(.el-input__inner) { color: var(--tech-text-regular) !important; font-size: 12px; }
+:deep(.el-input__inner::placeholder) { color: var(--tech-text-placeholder); }
 </style>

@@ -64,7 +64,7 @@ const handleClearSelected = () => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 .home-body {
@@ -99,10 +99,10 @@ const handleClearSelected = () => {
   left: calc(-24% - 12px);
   background: linear-gradient(
     90deg,
-    rgba(6, 20, 42, 0.92) 0%,
-    rgba(6, 20, 42, 0.85) 30%,
-    rgba(6, 20, 42, 0.65) 60%,
-    rgba(6, 20, 42, 0.25) 100%
+    rgba(var(--tech-bg-rgb), 0.92) 0%,
+    rgba(var(--tech-bg-rgb), 0.85) 30%,
+    rgba(var(--tech-bg-rgb), 0.65) 60%,
+    rgba(var(--tech-bg-rgb), 0.25) 100%
   );
 }
 
@@ -115,10 +115,10 @@ const handleClearSelected = () => {
   right: calc(-24% - 12px);
   background: linear-gradient(
     270deg,
-    rgba(6, 20, 42, 0.92) 0%,
-    rgba(6, 20, 42, 0.85) 30%,
-    rgba(6, 20, 42, 0.65) 60%,
-    rgba(6, 20, 42, 0.25) 100%
+    rgba(var(--tech-bg-rgb), 0.92) 0%,
+    rgba(var(--tech-bg-rgb), 0.85) 30%,
+    rgba(var(--tech-bg-rgb), 0.65) 60%,
+    rgba(var(--tech-bg-rgb), 0.25) 100%
   );
 }
 
@@ -159,7 +159,7 @@ const handleClearSelected = () => {
   border-radius: 4px 0 0 4px;
   cursor: pointer;
   padding: 8px 0;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   transition: all 0.3s ease;
   user-select: none;
 }
@@ -167,12 +167,12 @@ const handleClearSelected = () => {
 .toggle-btn:hover {
   background: rgba(6, 30, 70, 0.75);
   border-color: rgba(50, 150, 255, 0.3);
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 
 .toggle-btn.active {
-  color: #00d4ff;
-  border-color: rgba(0, 175, 255, 0.25);
+  color: var(--tech-cyan);
+  border-color: rgba(var(--tech-blue-rgb), 0.25);
 }
 
 .toggle-text {
@@ -185,7 +185,7 @@ const handleClearSelected = () => {
 
 .toggle-arrow {
   font-size: 10px;
-  color: #00afff;
+  color: var(--tech-blue);
   line-height: 1;
   transition: transform 0.3s;
 }

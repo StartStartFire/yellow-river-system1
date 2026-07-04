@@ -440,7 +440,7 @@ const getAssessmentColor = (result: string) => {
   flex-direction: column;
   padding: 0;
   gap: 0;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
   overflow: hidden;
 }
 
@@ -452,7 +452,7 @@ const getAssessmentColor = (result: string) => {
   padding: 12px 16px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   border-radius: 0;
   flex-shrink: 0;
 }
@@ -472,7 +472,7 @@ const getAssessmentColor = (result: string) => {
 
 .filter-label {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
 }
 
@@ -489,20 +489,20 @@ const getAssessmentColor = (result: string) => {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .type-btn:hover {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .type-btn.active {
   background: transparent;
-  color: #00d4ff;
-  border-bottom-color: rgba(0, 212, 255, 0.6);
+  color: var(--tech-cyan);
+  border-bottom-color: rgba(var(--tech-cyan-rgb), 0.6);
 }
 
 .filter-actions {
@@ -516,7 +516,7 @@ const getAssessmentColor = (result: string) => {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: linear-gradient(135deg, #00afff 0%, #00d4ff 100%);
+  background: linear-gradient(135deg, var(--tech-blue) 0%, var(--tech-cyan) 100%);
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -527,7 +527,7 @@ const getAssessmentColor = (result: string) => {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #00d4ff 0%, #00e5ff 100%);
+  background: linear-gradient(135deg, var(--tech-cyan) 0%, #00e5ff 100%);
 }
 
 .btn-secondary {
@@ -538,7 +538,7 @@ const getAssessmentColor = (result: string) => {
   background: rgba(50, 150, 255, 0.1);
   border: 1px solid rgba(50, 150, 255, 0.3);
   border-radius: 6px;
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -595,7 +595,7 @@ const getAssessmentColor = (result: string) => {
 .report-section {
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   border-radius: 0;
   overflow: hidden;
 }
@@ -605,8 +605,8 @@ const getAssessmentColor = (result: string) => {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #00d4ff;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  color: var(--tech-cyan);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   background: transparent;
 }
 
@@ -644,7 +644,7 @@ const getAssessmentColor = (result: string) => {
 
 .report-table thead th {
   background: rgba(10, 25, 41, 0.6);
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   font-weight: 500;
   font-size: 11px;
 }
@@ -654,11 +654,11 @@ const getAssessmentColor = (result: string) => {
 }
 
 .report-table tbody tr:hover {
-  background: rgba(0, 175, 255, 0.05);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .report-table tbody td {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .fixed-col {
@@ -671,16 +671,16 @@ const getAssessmentColor = (result: string) => {
 .name-cell {
   text-align: left;
   font-weight: 500;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .total-row {
-  background: rgba(0, 175, 255, 0.05);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .total-row td {
   font-weight: 600;
-  color: #00d4ff;
+  color: var(--tech-cyan);
 }
 
 .assessment-badge {
@@ -700,7 +700,7 @@ const getAssessmentColor = (result: string) => {
 }
 
 :deep(.el-select .el-input__inner) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 :deep(.el-popper) {

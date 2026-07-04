@@ -11,7 +11,7 @@ import {
 } from '@/utils/chart'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import { modelDataMock } from '@/mock/modelConfig'
-import type { MenuGroup, MenuContentMap, PageState } from '@/mock/modelConfig'
+import type { MenuGroup, MenuContentMap, PageState } from '@/types/model'
 
 // ==================== 弹窗状态 ====================
 const saveDialogVisible = ref(false)
@@ -382,7 +382,7 @@ const iconMap: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* ===== 主体区域 ===== */
@@ -452,7 +452,7 @@ const iconMap: Record<string, string> = {
 .sidebar-title {
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   white-space: nowrap;
 }
 
@@ -487,7 +487,7 @@ const iconMap: Record<string, string> = {
 .group-header {
   font-size: 11px;
   font-weight: 500;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   padding: 6px 14px 8px;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -503,18 +503,18 @@ const iconMap: Record<string, string> = {
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 .menu-item:hover {
-  background: rgba(0, 175, 255, 0.08);
-  color: #c0c8d4;
+  background: rgba(var(--tech-blue-rgb), 0.08);
+  color: var(--tech-text-regular);
 }
 
 .menu-item.active {
-  background: rgba(0, 175, 255, 0.15);
-  border: 1px solid rgba(0, 175, 255, 0.4);
-  color: #00d4ff;
+  background: rgba(var(--tech-blue-rgb), 0.15);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.4);
+  color: var(--tech-cyan);
   margin: 0 5px;
   padding: 7px 13px;
 }
@@ -543,7 +543,7 @@ const iconMap: Record<string, string> = {
   padding: 10px 14px;
   border-top: 1px solid rgba(50, 150, 255, 0.15);
   cursor: pointer;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   font-size: 12px;
   transition: all 0.2s;
   margin-top: auto;
@@ -551,8 +551,8 @@ const iconMap: Record<string, string> = {
 }
 
 .collapse-footer:hover {
-  color: #c0c8d4;
-  background: rgba(0, 175, 255, 0.05);
+  color: var(--tech-text-regular);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .collapse-text {
@@ -591,7 +591,7 @@ const iconMap: Record<string, string> = {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   flex-shrink: 0;
 }
 
@@ -608,7 +608,7 @@ const iconMap: Record<string, string> = {
 }
 
 .info-label {
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 .info-divider {
@@ -616,7 +616,7 @@ const iconMap: Record<string, string> = {
 }
 
 .info-value {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   font-weight: 500;
 }
 
@@ -657,7 +657,7 @@ const iconMap: Record<string, string> = {
 .content-title {
   font-size: 14px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 /* ===== 图表 ===== */
@@ -686,7 +686,7 @@ const iconMap: Record<string, string> = {
 
 .data-table :deep(.el-table__header th) {
   background: rgba(2, 27, 63, 0.8) !important;
-  color: #8aa0b8 !important;
+  color: var(--tech-text-secondary) !important;
   font-size: 12px;
   font-weight: 500;
   border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
@@ -694,21 +694,21 @@ const iconMap: Record<string, string> = {
 
 .data-table :deep(.el-table__body td) {
   background: transparent !important;
-  color: #c0c8d4 !important;
+  color: var(--tech-text-regular) !important;
   font-size: 12px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.08) !important;
 }
 
 .data-table :deep(.el-table__row--striped td) {
-  background: rgba(0, 175, 255, 0.03) !important;
+  background: rgba(var(--tech-blue-rgb), 0.03) !important;
 }
 
 .data-table :deep(.el-table__body tr:hover td) {
-  background: rgba(0, 175, 255, 0.08) !important;
+  background: rgba(var(--tech-blue-rgb), 0.08) !important;
 }
 
 .data-table :deep(.el-table__body tr.el-table__row--striped:hover td) {
-  background: rgba(0, 175, 255, 0.1) !important;
+  background: rgba(var(--tech-blue-rgb), 0.1) !important;
 }
 
 .data-table :deep(.el-table__inner-wrapper) {
@@ -725,10 +725,10 @@ const iconMap: Record<string, string> = {
 :deep(.el-button) {
   --el-button-bg-color: transparent;
   --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
+  --el-button-text-color: var(--tech-text-regular);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
   --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: #e0e6ed;
+  --el-button-hover-text-color: var(--tech-text-primary);
 }
 
 /* ===== 弹窗样式 ===== */
@@ -745,7 +745,7 @@ const iconMap: Record<string, string> = {
 }
 
 .confirm-dialog :deep(.el-dialog__title) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 15px;
   font-weight: 600;
 }
@@ -777,13 +777,13 @@ const iconMap: Record<string, string> = {
 }
 
 .dialog-title-main {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 14px;
   font-weight: 500;
 }
 
 .dialog-desc {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -795,11 +795,11 @@ const iconMap: Record<string, string> = {
 }
 
 :deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2);
-  --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7);
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
+  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
   --el-button-hover-text-color: #00e5ff;
 }
 </style>

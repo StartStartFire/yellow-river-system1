@@ -1,92 +1,14 @@
-// 水库监控数据
-export interface ReservoirMonitor {
-  id: string
-  name: string
-  status: 'normal' | 'warning' | 'abnormal'
-  inflow: number // 入库流量 m³/s
-  outflow: number // 出库流量 m³/s
-  forebayLevel: number // 坝前水位 m
-  tailwaterLevel: number // 尾水位 m
-  storage: number // 库容 亿m³
-  turbineFlow: number // 机组过流流量 m³/s
-}
-
-// 水库地图点位
-export interface ReservoirPoint {
-  id: string
-  name: string
-  lat: number
-  lng: number
-  status: 'normal' | 'warning' | 'abnormal'
-  waterLevel: number // 坝前水位 m
-  tailwaterLevel: number // 尾水位 m
-  storage: number // 库容 亿m³
-  storageRate: number // 库容率 %
-  inflow: number // 入库流量 m³/s
-  outflow: number // 出库流量 m³/s
-  turbineFlow: number // 机组过流流量 m³/s
-  updateTime: string // 更新时间
-}
-
-// 发电统计
-export interface PowerStatistic {
-  reservoirName: string
-  dailyPower: number // 日发电量 万kW·h
-  monthlyPower: number // 月发电量 万kW·h
-  yearlyPower: number // 年发电量 万kW·h
-}
-
-// 水位过程线数据
-export interface WaterLevelSeries {
-  xAxis: string[] // 日期
-  series: {
-    name: string
-    data: number[]
-  }[]
-}
-
-// 负荷过程线数据
-export interface LoadSeries {
-  xAxis: string[]
-  activePower: {
-    name: string
-    data: number[]
-  }[]
-  reactivePower: {
-    name: string
-    data: number[]
-  }[]
-}
-
-// 预警信息
-export interface WarningItem {
-  id: string
-  time: string // 预警时间
-  type: string // 预警类型
-  content: string // 预警内容
-  target: string // 影响对象
-  level: 1 | 2 | 3 | 4 // 预警级别
-}
-
-// 通知公告
-export interface Announcement {
-  content: string
-}
-
-// 天气信息
-export interface WeatherInfo {
-  city: string
-  weather: string
-  temperature: string
-  wind: string
-}
-
-// 图层控制
-export interface MapLayer {
-  id: string
-  name: string
-  visible: boolean
-}
+import type {
+  ReservoirMonitor,
+  ReservoirPoint,
+  PowerStatistic,
+  WaterLevelSeries,
+  LoadSeries,
+  WarningItem,
+  Announcement,
+  WeatherInfo,
+  MapLayer,
+} from '@/types/reservoir'
 
 // ==================== Mock 数据（统一 API 响应格式） ====================
 

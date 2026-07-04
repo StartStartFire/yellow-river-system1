@@ -13,7 +13,7 @@ import {
   constraintSummary,
   scenarioModelMap,
 } from '@/mock/modelConfig'
-import type { DispatchModel, OptimizationAlgorithm, AlgorithmParameter, DispatchObjective, ConstraintDetail } from '@/mock/modelConfig'
+import type { DispatchModel, OptimizationAlgorithm, AlgorithmParameter, DispatchObjective, ConstraintDetail } from '@/types/model'
 
 const store = useModelConfigStore()
 const router = useRouter()
@@ -460,7 +460,7 @@ const objectiveIcons: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 .main-content {
@@ -514,8 +514,8 @@ const objectiveIcons: Record<string, string> = {
   flex-shrink: 0;
 }
 
-.model-icon { background: rgba(0, 175, 255, 0.12); color: #00d4ff; }
-.algo-icon { background: rgba(0, 255, 136, 0.12); color: #00ff88; }
+.model-icon { background: rgba(var(--tech-blue-rgb), 0.12); color: var(--tech-cyan); }
+.algo-icon { background: rgba(var(--tech-green-rgb), 0.12); color: #00ff88; }
 .obj-icon { background: rgba(179, 127, 235, 0.12); color: #b37feb; }
 
 .card-title-group {
@@ -528,12 +528,12 @@ const objectiveIcons: Record<string, string> = {
 .card-title {
   font-size: 13px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .card-sub {
   font-size: 10px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
 }
 
 .card-body {
@@ -560,8 +560,8 @@ const objectiveIcons: Record<string, string> = {
   border: 1px solid transparent;
 }
 
-.model-option:hover { background: rgba(0, 175, 255, 0.04); }
-.model-option.active { background: rgba(0, 175, 255, 0.06); border-color: rgba(0, 175, 255, 0.25); }
+.model-option:hover { background: rgba(var(--tech-blue-rgb), 0.04); }
+.model-option.active { background: rgba(var(--tech-blue-rgb), 0.06); border-color: rgba(var(--tech-blue-rgb), 0.25); }
 
 .model-option-dot {
   width: 8px;
@@ -572,12 +572,12 @@ const objectiveIcons: Record<string, string> = {
   transition: all 0.2s;
 }
 
-.model-option-dot.dot-active { border-color: #00d4ff; background: #00d4ff; box-shadow: 0 0 6px rgba(0, 212, 255, 0.4); }
+.model-option-dot.dot-active { border-color: var(--tech-cyan); background: var(--tech-cyan); box-shadow: 0 0 6px rgba(var(--tech-cyan-rgb), 0.4); }
 
 .model-option-info { min-width: 0; }
-.model-option-name { font-size: 11px; font-weight: 600; color: #c0c8d4; }
-.model-option.active .model-option-name { color: #e0e6ed; }
-.model-option-desc { font-size: 9px; color: #6e8a9e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.model-option-name { font-size: 11px; font-weight: 600; color: var(--tech-text-regular); }
+.model-option.active .model-option-name { color: var(--tech-text-primary); }
+.model-option-desc { font-size: 9px; color: var(--tech-text-placeholder); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ===== 算法选择 ===== */
 .param-btn {
@@ -587,16 +587,16 @@ const objectiveIcons: Record<string, string> = {
   margin-left: auto;
   padding: 4px 10px;
   font-size: 10px;
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.08);
-  border: 1px solid rgba(0, 175, 255, 0.25);
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.08);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.25);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
 }
 
-.param-btn:hover { background: rgba(0, 175, 255, 0.15); border-color: rgba(0, 175, 255, 0.4); }
+.param-btn:hover { background: rgba(var(--tech-blue-rgb), 0.15); border-color: rgba(var(--tech-blue-rgb), 0.4); }
 
 .algo-options {
   display: flex;
@@ -615,8 +615,8 @@ const objectiveIcons: Record<string, string> = {
   border: 1px solid transparent;
 }
 
-.algo-option:hover { background: rgba(0, 255, 136, 0.04); }
-.algo-option.active { background: rgba(0, 255, 136, 0.06); border-color: rgba(0, 255, 136, 0.25); }
+.algo-option:hover { background: rgba(var(--tech-green-rgb), 0.04); }
+.algo-option.active { background: rgba(var(--tech-green-rgb), 0.06); border-color: rgba(var(--tech-green-rgb), 0.25); }
 
 .algo-option-dot {
   width: 8px;
@@ -627,12 +627,12 @@ const objectiveIcons: Record<string, string> = {
   transition: all 0.2s;
 }
 
-.algo-option-dot.dot-active { border-color: #00ff88; background: #00ff88; box-shadow: 0 0 6px rgba(0, 255, 136, 0.4); }
+.algo-option-dot.dot-active { border-color: #00ff88; background: #00ff88; box-shadow: 0 0 6px rgba(var(--tech-green-rgb), 0.4); }
 
 .algo-option-info { min-width: 0; }
-.algo-option-name { font-size: 11px; font-weight: 600; color: #c0c8d4; }
-.algo-option.active .algo-option-name { color: #e0e6ed; }
-.algo-option-desc { font-size: 9px; color: #6e8a9e; }
+.algo-option-name { font-size: 11px; font-weight: 600; color: var(--tech-text-regular); }
+.algo-option.active .algo-option-name { color: var(--tech-text-primary); }
+.algo-option-desc { font-size: 9px; color: var(--tech-text-placeholder); }
 
 /* ===== 调度目标 ===== */
 .obj-grid {
@@ -655,12 +655,12 @@ const objectiveIcons: Record<string, string> = {
 .obj-item:hover { background: rgba(179, 127, 235, 0.04); }
 .obj-item.obj-active { background: rgba(179, 127, 235, 0.06); border-color: rgba(179, 127, 235, 0.2); }
 
-.obj-item-icon { width: 16px; height: 16px; color: #6e8a9e; flex-shrink: 0; }
+.obj-item-icon { width: 16px; height: 16px; color: var(--tech-text-placeholder); flex-shrink: 0; }
 .obj-item.obj-active .obj-item-icon { color: #b37feb; }
 .obj-item-info { min-width: 0; flex: 1; }
-.obj-item-name { font-size: 11px; font-weight: 600; color: #c0c8d4; }
-.obj-item.obj-active .obj-item-name { color: #e0e6ed; }
-.obj-item-desc { font-size: 9px; color: #6e8a9e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.obj-item-name { font-size: 11px; font-weight: 600; color: var(--tech-text-regular); }
+.obj-item.obj-active .obj-item-name { color: var(--tech-text-primary); }
+.obj-item-desc { font-size: 9px; color: var(--tech-text-placeholder); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .obj-check {
   width: 18px;
@@ -690,9 +690,9 @@ const objectiveIcons: Record<string, string> = {
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.1);
-  border: 1px solid rgba(0, 175, 255, 0.2);
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.1);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.2);
 }
 
 .group-badge {
@@ -705,7 +705,7 @@ const objectiveIcons: Record<string, string> = {
   align-items: center;
   gap: 4px;
   color: #5a8abf;
-  background: rgba(0, 175, 255, 0.08);
+  background: rgba(var(--tech-blue-rgb), 0.08);
 }
 
 /* ===== 约束条件区域 ===== */
@@ -743,14 +743,14 @@ const objectiveIcons: Record<string, string> = {
   padding: 4px 10px;
   font-size: 10px;
   color: #5a8abf;
-  background: rgba(0, 175, 255, 0.06);
+  background: rgba(var(--tech-blue-rgb), 0.06);
   border: 1px solid rgba(50, 150, 255, 0.2);
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.constraint-edit-btn:hover { background: rgba(0, 175, 255, 0.12); border-color: rgba(0, 175, 255, 0.4); color: #00d4ff; }
+.constraint-edit-btn:hover { background: rgba(var(--tech-blue-rgb), 0.12); border-color: rgba(var(--tech-blue-rgb), 0.4); color: var(--tech-cyan); }
 
 .constraint-icon {
   width: 32px;
@@ -769,8 +769,8 @@ const objectiveIcons: Record<string, string> = {
   gap: 2px;
 }
 
-.constraint-title { font-size: 13px; font-weight: 600; color: #e0e6ed; }
-.constraint-sub { font-size: 10px; color: #6e8a9e; }
+.constraint-title { font-size: 13px; font-weight: 600; color: var(--tech-text-primary); }
+.constraint-sub { font-size: 10px; color: var(--tech-text-placeholder); }
 
 .constraint-grid {
   display: grid;
@@ -805,8 +805,8 @@ const objectiveIcons: Record<string, string> = {
 }
 
 .constraint-dot.dot-on {
-  background: #00d4ff;
-  box-shadow: 0 0 6px rgba(0, 212, 255, 0.4);
+  background: var(--tech-cyan);
+  box-shadow: 0 0 6px rgba(var(--tech-cyan-rgb), 0.4);
 }
 
 .constraint-top {
@@ -818,7 +818,7 @@ const objectiveIcons: Record<string, string> = {
 
 .constraint-name {
   font-size: 11px;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   white-space: nowrap;
 }
 
@@ -838,8 +838,8 @@ const objectiveIcons: Record<string, string> = {
   border-bottom: 1px solid rgba(50, 150, 255, 0.15);
 }
 
-.param-dialog-sub { font-size: 12px; color: #c0c8d4; }
-.param-dialog-hint { font-size: 10px; color: #6e8a9e; }
+.param-dialog-sub { font-size: 12px; color: var(--tech-text-regular); }
+.param-dialog-hint { font-size: 10px; color: var(--tech-text-placeholder); }
 
 .param-dialog-body {
   max-height: 360px;
@@ -870,12 +870,12 @@ const objectiveIcons: Record<string, string> = {
 .param-dialog-name {
   font-size: 11px;
   font-weight: 500;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   white-space: nowrap;
 }
 
-.param-info-icon { color: #6e8a9e; cursor: pointer; flex-shrink: 0; transition: color 0.2s; }
-.param-info-icon:hover { color: #00d4ff; }
+.param-info-icon { color: var(--tech-text-placeholder); cursor: pointer; flex-shrink: 0; transition: color 0.2s; }
+.param-info-icon:hover { color: var(--tech-cyan); }
 
 .param-dialog-center {
   flex: 1;
@@ -892,52 +892,52 @@ const objectiveIcons: Record<string, string> = {
 
 .param-value-input { width: 70px; }
 .param-value-input :deep(.el-input__wrapper) { background: rgba(2, 27, 63, 0.6) !important; box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important; }
-.param-value-input :deep(.el-input__inner) { color: #00d4ff !important; font-size: 12px; font-weight: 600; text-align: center; }
+.param-value-input :deep(.el-input__inner) { color: var(--tech-cyan) !important; font-size: 12px; font-weight: 600; text-align: center; }
 
-.param-range { font-size: 9px; color: #6e8a9e; white-space: nowrap; }
+.param-range { font-size: 9px; color: var(--tech-text-placeholder); white-space: nowrap; }
 
-.highlight { color: #00d4ff; font-weight: 500; }
+.highlight { color: var(--tech-cyan); font-weight: 500; }
 
 /* ===== 弹窗通用 ===== */
 .confirm-dialog :deep(.el-dialog) { background: rgba(6, 30, 70, 0.98) !important; border: 1px solid rgba(50, 150, 255, 0.4); border-radius: 12px; }
 .confirm-dialog :deep(.el-dialog__header) { border-bottom: 1px solid rgba(50, 150, 255, 0.2); padding: 14px 18px; margin: 0; }
-.confirm-dialog :deep(.el-dialog__title) { color: #e0e6ed; font-size: 14px; font-weight: 600; }
+.confirm-dialog :deep(.el-dialog__title) { color: var(--tech-text-primary); font-size: 14px; font-weight: 600; }
 .confirm-dialog :deep(.el-dialog__body) { padding: 18px; }
 .confirm-dialog :deep(.el-dialog__footer) { border-top: 1px solid rgba(50, 150, 255, 0.1); padding: 10px 18px; }
 
 .dialog-body { display: flex; align-items: flex-start; gap: 14px; }
 .dialog-icon { flex-shrink: 0; margin-top: 2px; }
 .dialog-text { display: flex; flex-direction: column; gap: 4px; }
-.dialog-title-main { color: #e0e6ed; font-size: 13px; font-weight: 500; }
-.dialog-desc { color: #8aa0b8; font-size: 11px; line-height: 1.5; }
+.dialog-title-main { color: var(--tech-text-primary); font-size: 13px; font-weight: 500; }
+.dialog-desc { color: var(--tech-text-secondary); font-size: 11px; line-height: 1.5; }
 .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
 
 /* ===== 约束条件弹窗 ===== */
 .constraint-dialog-body { max-height: 400px; overflow-y: auto; }
-.constraint-summary-text { font-size: 12px; color: #c0c8d4; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(50, 150, 255, 0.15); }
+.constraint-summary-text { font-size: 12px; color: var(--tech-text-regular); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(50, 150, 255, 0.15); }
 .constraint-switch-list { display: flex; flex-direction: column; gap: 6px; }
 .constraint-switch-item { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 8px; background: rgba(2, 27, 63, 0.4); border: 1px solid rgba(50, 150, 255, 0.12); transition: all 0.2s; }
 .constraint-switch-item.constraint-disabled { opacity: 0.45; }
 .constraint-switch-top { display: flex; align-items: center; justify-content: space-between; }
 .constraint-switch-left { display: flex; align-items: center; gap: 6px; }
-.constraint-item-icon { color: #00d4ff; flex-shrink: 0; }
-.constraint-item-name { font-size: 12px; font-weight: 500; color: #c0c8d4; }
-.constraint-disabled .constraint-item-name { color: #6e8a9e; }
+.constraint-item-icon { color: var(--tech-cyan); flex-shrink: 0; }
+.constraint-item-name { font-size: 12px; font-weight: 500; color: var(--tech-text-regular); }
+.constraint-disabled .constraint-item-name { color: var(--tech-text-placeholder); }
 .constraint-range-row { display: flex; align-items: center; gap: 8px; padding-left: 22px; }
 .range-item { display: flex; align-items: center; gap: 4px; }
-.range-label { font-size: 10px; color: #6e8a9e; white-space: nowrap; }
-.range-unit { font-size: 11px; color: #6e8a9e; margin-left: 4px; }
+.range-label { font-size: 10px; color: var(--tech-text-placeholder); white-space: nowrap; }
+.range-unit { font-size: 11px; color: var(--tech-text-placeholder); margin-left: 4px; }
 
 :deep(.dark-switch.el-switch.is-checked .el-switch__core) { background: rgba(0,175,255,0.5) !important; border-color: rgba(0,175,255,0.6) !important; }
 :deep(.dark-input-number .el-input__wrapper) { background: rgba(2,27,63,0.8) !important; box-shadow: 0 0 0 1px rgba(50,150,255,0.2) inset !important; }
-:deep(.dark-input-number .el-input__inner) { color: #c0c8d4 !important; }
+:deep(.dark-input-number .el-input__inner) { color: var(--tech-text-regular) !important; }
 
 /* ===== Element Plus 深色覆盖 ===== */
-:deep(.el-button) { --el-button-bg-color: transparent; --el-button-border-color: rgba(50,150,255,0.3); --el-button-text-color: #c0c8d4; --el-button-hover-bg-color: rgba(0,175,255,0.1); --el-button-hover-border-color: rgba(50,150,255,0.5); --el-button-hover-text-color: #e0e6ed; }
-:deep(.el-button--primary) { --el-button-bg-color: rgba(0,175,255,0.2); --el-button-border-color: rgba(0,175,255,0.5); --el-button-text-color: #00d4ff; --el-button-hover-bg-color: rgba(0,175,255,0.3); --el-button-hover-border-color: rgba(0,175,255,0.7); --el-button-hover-text-color: #00e5ff; }
+:deep(.el-button) { --el-button-bg-color: transparent; --el-button-border-color: rgba(50,150,255,0.3); --el-button-text-color: var(--tech-text-regular); --el-button-hover-bg-color: rgba(0,175,255,0.1); --el-button-hover-border-color: rgba(50,150,255,0.5); --el-button-hover-text-color: var(--tech-text-primary); }
+:deep(.el-button--primary) { --el-button-bg-color: rgba(0,175,255,0.2); --el-button-border-color: rgba(0,175,255,0.5); --el-button-text-color: var(--tech-cyan); --el-button-hover-bg-color: rgba(0,175,255,0.3); --el-button-hover-border-color: rgba(0,175,255,0.7); --el-button-hover-text-color: #00e5ff; }
 :deep(.dark-slider .el-slider__runway) { background: rgba(50,150,255,0.15) !important; }
-:deep(.dark-slider .el-slider__bar) { background: linear-gradient(90deg, rgba(0,175,255,0.4), #00d4ff) !important; }
-:deep(.dark-slider .el-slider__button) { border: 2px solid #00d4ff !important; background: rgba(2,27,63,0.9) !important; width: 14px !important; height: 14px !important; }
+:deep(.dark-slider .el-slider__bar) { background: linear-gradient(90deg, rgba(0,175,255,0.4), var(--tech-cyan)) !important; }
+:deep(.dark-slider .el-slider__button) { border: 2px solid var(--tech-cyan) !important; background: rgba(2,27,63,0.9) !important; width: 14px !important; height: 14px !important; }
 :deep(.dark-slider .el-slider__button:hover) { transform: scale(1.15) !important; }
-:deep(.param-tooltip) { background: rgba(6,30,70,0.98) !important; border: 1px solid rgba(50,150,255,0.4) !important; color: #c0c8d4 !important; font-size: 11px !important; line-height: 1.6 !important; max-width: 220px !important; }
+:deep(.param-tooltip) { background: rgba(6,30,70,0.98) !important; border: 1px solid rgba(50,150,255,0.4) !important; color: var(--tech-text-regular) !important; font-size: 11px !important; line-height: 1.6 !important; max-width: 220px !important; }
 </style>

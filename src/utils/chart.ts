@@ -46,6 +46,17 @@ export const WATER_FLOW_COLORS = ['#00afff', '#00e5a0', '#ffaa00', '#b37feb', '#
 /** 通用序列色板（无特定含义时循环使用） */
 export const SERIES_COLORS = ['#00afff', '#00e5a0', '#ffaa00', '#b37feb', '#ff6b6b', '#52c41a', '#e88a3a', '#3aa0c0']
 
+// ==================== 单色常量（用于 JS/ECharts 上下文） ====================
+
+/** 主题蓝（CSS 变量在 ECharts 中不可用，JS 上下文用此常量） */
+export const TECH_BLUE = '#00afff'
+/** 主题青 */
+export const TECH_CYAN = '#00d4ff'
+/** 主题绿 */
+export const TECH_GREEN = '#00e5a0'
+/** 主题橙 */
+export const TECH_ORANGE = '#ffaa00'
+
 // ==================== 文字颜色 ====================
 
 /** 主文字（标题、重要数值） */

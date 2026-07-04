@@ -263,7 +263,7 @@ onUnmounted(() => {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* 筛选区 */
@@ -275,7 +275,7 @@ onUnmounted(() => {
   padding: 10px 16px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.12);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.12);
 }
 
 .filter-left {
@@ -293,7 +293,7 @@ onUnmounted(() => {
 
 .filter-label {
   font-size: 12px;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   white-space: nowrap;
 }
 
@@ -312,7 +312,7 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 13px;
   padding: 8px 20px;
   cursor: pointer;
@@ -321,14 +321,14 @@ onUnmounted(() => {
 }
 
 .tab-btn:hover {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   border-bottom-color: rgba(50, 150, 255, 0.3);
   background: rgba(50, 150, 255, 0.05);
 }
 
 .tab-btn.active {
-  color: #00d4ff;
-  border-bottom-color: rgba(0, 212, 255, 0.6);
+  color: var(--tech-cyan);
+  border-bottom-color: rgba(var(--tech-cyan-rgb), 0.6);
   background: transparent;
   font-weight: 500;
 }
@@ -353,7 +353,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   flex-shrink: 0;
 }
 
@@ -366,7 +366,7 @@ onUnmounted(() => {
 .chart-title {
   font-size: 15px;
   font-weight: 600;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .chart-tools {
@@ -378,7 +378,7 @@ onUnmounted(() => {
 .tool-btn {
   background: none;
   border: none;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   width: 32px;
   height: 32px;
   border-radius: 6px;
@@ -390,8 +390,8 @@ onUnmounted(() => {
 }
 
 .tool-btn:hover {
-  color: #00d4ff;
-  background: rgba(0, 175, 255, 0.08);
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.08);
 }
 
 .chart-container {
@@ -410,15 +410,15 @@ onUnmounted(() => {
 
 :deep(.dark-date-picker .el-input__inner),
 :deep(.dark-select .el-input__inner) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 :deep(.el-range-input) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 :deep(.el-range-separator) {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
 }
 
 :deep(.el-popper) {

@@ -98,7 +98,7 @@ const handleToggleSidebar = () => {
   gap: 0;
   padding: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 .detail-panel {
@@ -116,7 +116,7 @@ const handleToggleSidebar = () => {
   padding: 0 14px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.12);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.12);
 }
 
 .tab-btn {
@@ -126,7 +126,7 @@ const handleToggleSidebar = () => {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 13px;
   padding: 10px 16px;
   cursor: pointer;
@@ -134,12 +134,12 @@ const handleToggleSidebar = () => {
 }
 
 .tab-btn:hover {
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
 }
 
 .tab-btn.active {
-  color: #00d4ff;
-  border-bottom: 2px solid rgba(0, 212, 255, 0.6);
+  color: var(--tech-cyan);
+  border-bottom: 2px solid rgba(var(--tech-cyan-rgb), 0.6);
   font-weight: 500;
 }
 

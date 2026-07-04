@@ -6,7 +6,7 @@ import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue
 import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import { dispatchScenarioCategories } from '@/mock/modelConfig'
-import type { DispatchScenarioCategory, DispatchSubOption } from '@/mock/modelConfig'
+import type { DispatchScenarioCategory, DispatchSubOption } from '@/types/model'
 
 // ==================== 弹窗状态 ====================
 const saveDialogVisible = ref(false)
@@ -354,7 +354,7 @@ const subIconMap: Record<string, string> = {
   padding: 0;
   gap: 0;
   overflow: hidden;
-  background: rgba(6, 20, 42, 0.92);
+  background: rgba(var(--tech-bg-rgb), 0.92);
 }
 
 /* ===== 主体区域 ===== */
@@ -371,9 +371,9 @@ const subIconMap: Record<string, string> = {
   align-items: center;
   gap: 12px;
   padding: 12px 20px;
-  border-bottom: 1px solid rgba(0, 175, 255, 0.1);
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
   flex-shrink: 0;
-  background: rgba(0, 175, 255, 0.02);
+  background: rgba(var(--tech-blue-rgb), 0.02);
 }
 
 .name-row-left {
@@ -384,21 +384,21 @@ const subIconMap: Record<string, string> = {
 }
 
 .name-row-icon {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: rgba(0, 175, 255, 0.1);
+  background: rgba(var(--tech-blue-rgb), 0.1);
   justify-content: center;
 }
 
 .name-row-label {
   font-size: 18px;
   font-weight: 700;
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -416,8 +416,8 @@ const subIconMap: Record<string, string> = {
   font-size: 11px;
   flex-shrink: 0;
   padding: 4px 10px;
-  background: rgba(0, 175, 255, 0.04);
-  border: 1px solid rgba(0, 175, 255, 0.08);
+  background: rgba(var(--tech-blue-rgb), 0.04);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.08);
   border-radius: 6px;
   line-height: 1.4;
 }
@@ -442,12 +442,12 @@ const subIconMap: Record<string, string> = {
 }
 
 .name-input :deep(.el-input__wrapper.is-focus) {
-  border-color: #00d4ff !important;
-  box-shadow: 0 0 12px rgba(0, 175, 255, 0.15) !important;
+  border-color: var(--tech-cyan) !important;
+  box-shadow: 0 0 12px rgba(var(--tech-blue-rgb), 0.15) !important;
 }
 
 .name-input :deep(.el-input__inner) {
-  color: #e0e6ed !important;
+  color: var(--tech-text-primary) !important;
   font-size: 14px;
   font-weight: 500;
 }
@@ -473,15 +473,15 @@ const subIconMap: Record<string, string> = {
   transition: all 0.3s ease;
   overflow: hidden;
   height: 100%;
-  border-right: 1px solid rgba(0, 175, 255, 0.08);
+  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
 }
 
 .scenario-card:hover {
-  background: rgba(0, 175, 255, 0.03);
+  background: rgba(var(--tech-blue-rgb), 0.03);
 }
 
 .scenario-card.card-selected {
-  background: rgba(0, 175, 255, 0.06);
+  background: rgba(var(--tech-blue-rgb), 0.06);
 }
 
 /* ===== 选中标记（右上角） ===== */
@@ -508,15 +508,15 @@ const subIconMap: Record<string, string> = {
   height: 76px;
   margin: 0 auto 14px;
   border-radius: 18px;
-  background: rgba(0, 175, 255, 0.06);
+  background: rgba(var(--tech-blue-rgb), 0.06);
   border: 1px solid rgba(50, 150, 255, 0.2);
   transition: all 0.3s ease;
 }
 
 .card-icon-wrap.icon-selected {
-  background: rgba(0, 175, 255, 0.15);
-  border-color: rgba(0, 175, 255, 0.4);
-  box-shadow: 0 0 20px rgba(0, 175, 255, 0.15);
+  background: rgba(var(--tech-blue-rgb), 0.15);
+  border-color: rgba(var(--tech-blue-rgb), 0.4);
+  box-shadow: 0 0 20px rgba(var(--tech-blue-rgb), 0.15);
 }
 
 .card-icon-svg {
@@ -527,7 +527,7 @@ const subIconMap: Record<string, string> = {
 }
 
 .icon-selected .card-icon-svg {
-  color: #00d4ff;
+  color: var(--tech-cyan);
 }
 
 /* ===== 标题 ===== */
@@ -535,14 +535,14 @@ const subIconMap: Record<string, string> = {
   text-align: center;
   font-size: 17px;
   font-weight: 700;
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   margin-bottom: 10px;
   transition: color 0.3s ease;
   letter-spacing: 0.5px;
 }
 
 .title-selected {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 /* ===== 描述 ===== */
@@ -550,7 +550,7 @@ const subIconMap: Record<string, string> = {
   text-align: center;
   font-size: 12px;
   line-height: 1.7;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   margin-bottom: 16px;
   min-height: 42px;
   display: -webkit-box;
@@ -571,7 +571,7 @@ const subIconMap: Record<string, string> = {
 
 .divider-selected {
   width: 60px;
-  background: linear-gradient(90deg, rgba(0, 175, 255, 0.3), rgba(0, 229, 255, 0.6));
+  background: linear-gradient(90deg, rgba(var(--tech-blue-rgb), 0.3), rgba(0, 229, 255, 0.6));
 }
 
 /* ===== 子选项列表 ===== */
@@ -594,12 +594,12 @@ const subIconMap: Record<string, string> = {
 }
 
 .sub-option-item:hover {
-  background: rgba(0, 175, 255, 0.05);
+  background: rgba(var(--tech-blue-rgb), 0.05);
 }
 
 .sub-option-item.sub-selected {
-  background: rgba(0, 175, 255, 0.08);
-  border-color: rgba(0, 175, 255, 0.25);
+  background: rgba(var(--tech-blue-rgb), 0.08);
+  border-color: rgba(var(--tech-blue-rgb), 0.25);
 }
 
 .sub-option-item.sub-inactive {
@@ -608,7 +608,7 @@ const subIconMap: Record<string, string> = {
 
 .sub-option-item.sub-inactive:hover {
   opacity: 0.75;
-  background: rgba(0, 175, 255, 0.03);
+  background: rgba(var(--tech-blue-rgb), 0.03);
 }
 
 /* ===== radio 圆点 ===== */
@@ -625,15 +625,15 @@ const subIconMap: Record<string, string> = {
 }
 
 .radio-dot.radio-checked {
-  border-color: #00afff;
-  box-shadow: 0 0 6px rgba(0, 175, 255, 0.3);
+  border-color: var(--tech-blue);
+  box-shadow: 0 0 6px rgba(var(--tech-blue-rgb), 0.3);
 }
 
 .radio-inner {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #00afff;
+  background: var(--tech-blue);
   animation: radioPop 0.2s ease;
 }
 
@@ -654,17 +654,17 @@ const subIconMap: Record<string, string> = {
 .sub-name {
   font-size: 13px;
   font-weight: 600;
-  color: #c0c8d4;
+  color: var(--tech-text-regular);
   transition: color 0.2s ease;
 }
 
 .sub-selected .sub-name {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
 }
 
 .sub-desc {
   font-size: 10px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -675,13 +675,13 @@ const subIconMap: Record<string, string> = {
 .sub-icon {
   width: 16px;
   height: 16px;
-  color: #6e8a9e;
+  color: var(--tech-text-placeholder);
   flex-shrink: 0;
   opacity: 0.6;
 }
 
 .sub-selected .sub-icon {
-  color: #00d4ff;
+  color: var(--tech-cyan);
   opacity: 0.8;
 }
 
@@ -699,7 +699,7 @@ const subIconMap: Record<string, string> = {
 }
 
 .confirm-dialog :deep(.el-dialog__title) {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 15px;
   font-weight: 600;
 }
@@ -731,13 +731,13 @@ const subIconMap: Record<string, string> = {
 }
 
 .dialog-title-main {
-  color: #e0e6ed;
+  color: var(--tech-text-primary);
   font-size: 14px;
   font-weight: 500;
 }
 
 .dialog-desc {
-  color: #8aa0b8;
+  color: var(--tech-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -751,18 +751,18 @@ const subIconMap: Record<string, string> = {
 :deep(.el-button) {
   --el-button-bg-color: transparent;
   --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: #c0c8d4;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.1);
+  --el-button-text-color: var(--tech-text-regular);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
   --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: #e0e6ed;
+  --el-button-hover-text-color: var(--tech-text-primary);
 }
 
 :deep(.el-button--primary) {
-  --el-button-bg-color: rgba(0, 175, 255, 0.2);
-  --el-button-border-color: rgba(0, 175, 255, 0.5);
-  --el-button-text-color: #00d4ff;
-  --el-button-hover-bg-color: rgba(0, 175, 255, 0.3);
-  --el-button-hover-border-color: rgba(0, 175, 255, 0.7);
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
+  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
   --el-button-hover-text-color: #00e5ff;
 }
 </style>
