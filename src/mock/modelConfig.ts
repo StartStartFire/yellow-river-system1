@@ -790,7 +790,7 @@ export const scenarioParams = {
         { label: '无', value: 'none' },
         { label: '上线', value: 'upper' },
         { label: '下线', value: 'lower' },
-        { label: '全有', value: 'all' },
+        { label: '上线+下线', value: 'all' },
       ],
     },
     {
@@ -922,6 +922,26 @@ export interface DistributionItem {
 export const reservoirGroupModelMap: Record<string, string[]> = {
   'long-liu': ['lro', 'multi_objective_stress'],
   'long-liu-hei': ['lro', 'multi_objective_dispatch', 'water_sediment_realtime'],
+}
+
+/** 调度场景大类 → 兼容的模型ID列表 */
+export const scenarioModelMap: Record<string, string[]> = {
+  'multi-year': ['lro', 'multi_objective_stress', 'multi_objective_dispatch'],
+  'critical-period': ['multi_objective_stress', 'multi_objective_dispatch'],
+  'realtime': ['water_sediment_realtime'],
+}
+
+/** 调度场景子选项 → 推荐的模型ID */
+export const scenarioSubOptionModelMap: Record<string, string> = {
+  'multi-objective': 'multi_objective_dispatch',
+  'flood': 'multi_objective_stress',
+  'ice': 'multi_objective_stress',
+  'supply': 'lro',
+  'sediment-period': 'multi_objective_dispatch',
+  'ice-sediment': 'water_sediment_realtime',
+  'cross-section': 'water_sediment_realtime',
+  'reach': 'water_sediment_realtime',
+  'multi-energy': 'multi_objective_dispatch',
 }
 
 /** 时间步长 → 建议的算法参数 */

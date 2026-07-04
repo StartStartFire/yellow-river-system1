@@ -30,7 +30,7 @@ const reservoirGroupName = computed(() => {
 })
 
 const scenarioParamLabels: Record<string, Record<string, string>> = {
-  westRoute: { none: '无', upper: '上线', lower: '下线', both: '上下线同引', all: '全有' },
+  westRoute: { none: '无', upper: '上线', lower: '下线', both: '上下线同引', all: '上线+下线' },
   backboneStatus: { normal: '正常运行', limited: '限制运行', maintenance: '检修停运', emergency: '应急运行' },
   ecologicalFlow: { none: '不考虑', plan: '按方案执行', minimum: '最低生态需水', enhanced: '强化生态保障', custom: '自定义' },
 }

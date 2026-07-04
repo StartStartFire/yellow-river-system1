@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
   reservoirGroupModelMap,
+  scenarioModelMap,
+  scenarioSubOptionModelMap,
   timeStepParamSuggestions,
   objectiveRelevantParams,
   modelLabelMap,
@@ -245,7 +247,6 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
    * 从 dispatchScenarioCategories 中查找对应的 linkedObjectives
    */
   const syncObjectivesFromScenario = (subOptionId: string) => {
-    // 动态导入无法在 store 中用，直接使用 mock 数据的映射
     const scenarioObjectiveMap: Record<string, string[]> = {
       'multi-objective': ['flood-control', 'power-generation', 'ecology'],
       'flood': ['flood-control'],
@@ -259,6 +260,31 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     }
     const objectives = scenarioObjectiveMap[subOptionId] || []
     basicConfig.value.selectedObjectives = objectives
+  }
+
+  /**
+   * 根据场景联动模型选择
+   * 从 scenarioModelMap 和 scenarioSubOptionModelMap 中查找兼容模型
+   */
+  const syncModelFromScenario = (categoryId: string, subOptionId: string) => {
+    // 优先使用子选项的推荐模型
+    const recommendedModel = scenarioSubOptionModelMap[subOptionId]
+    if (recommendedModel) {
+      modelAlgorithm.value.selectedModel = recommendedModel
+    } else {
+      // 否则使用大类兼容的模型列表中的第一个
+      const compatibleIds = scenarioModelMap[categoryId] || ['lro']
+      modelAlgorithm.value.selectedModel = compatibleIds[0]
+    }
+
+    // 联动算法：检查当前算法是否与新模型兼容
+    const allModels = dispatchModels.data || []
+    const model = allModels.find(m => m.id === modelAlgorithm.value.selectedModel)
+    if (model && !model.supportedAlgorithms.includes(modelAlgorithm.value.selectedAlgorithm)) {
+      if (model.supportedAlgorithms.length > 0) {
+        modelAlgorithm.value.selectedAlgorithm = model.supportedAlgorithms[0]
+      }
+    }
   }
 
   // ==================== Step 2 操作（调度主体）====================
@@ -398,6 +424,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // Step 1（调度场景）
     setDispatchScenario,
     syncObjectivesFromScenario,
+    syncModelFromScenario,
 
     // Step 2（调度主体）
     setDispatchSubject,
