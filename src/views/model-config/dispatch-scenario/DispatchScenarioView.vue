@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
 import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import ScenarioNameRow from '@/components/model-config/dispatch-scenario/ScenarioNameRow.vue'
+import ScenarioCard from '@/components/model-config/dispatch-scenario/ScenarioCard.vue'
+import ConfirmActionDialog from '@/components/model-config/common/ConfirmActionDialog.vue'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import { dispatchScenarioCategories } from '@/mock/modelConfig'
 import type { DispatchScenarioCategory, DispatchSubOption } from '@/types/model'
@@ -190,97 +193,22 @@ const subIconMap: Record<string, string> = {
     <ModelConfigStepBar :current-step="1" version="new" />
 
     <!-- 方案名称输入行 -->
-    <div class="name-row">
-      <div class="name-row-left">
-        <div class="name-row-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6h18M3 12h15M3 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <span class="name-row-label">方案名称</span>
-      </div>
-      <div class="name-row-center">
-        <el-input
-          v-model="scenarioName"
-          placeholder="请输入本次调度方案名称，例如：2025年龙羊峡-刘家峡联合调度方案"
-          size="default"
-          class="name-input"
-          clearable
-        />
-      </div>
-      <div class="name-row-hint">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span>点击下方卡片选择一个调度场景，每个方案只能选择一个场景</span>
-      </div>
-    </div>
+    <ScenarioNameRow v-model="scenarioName" />
 
     <!-- 主体：3 个大卡片 -->
     <div class="main-content">
       <div class="cards-grid">
-        <div
+        <ScenarioCard
           v-for="cat in categories"
           :key="cat.id"
-          class="scenario-card"
-          :class="{ 'card-selected': selectedCategoryId === cat.id }"
-          @click="handleSelectCategory(cat.id)"
-        >
-          <!-- 选中标记 -->
-          <div v-if="selectedCategoryId === cat.id" class="check-mark">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="8" r="7" fill="rgba(0,175,255,0.2)" stroke="#00afff" stroke-width="1.5"/>
-              <path d="M5 8.5l2 2 4-4.5" stroke="#00afff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-
-          <!-- 图标 -->
-          <div class="card-icon-wrap" :class="{ 'icon-selected': selectedCategoryId === cat.id }">
-            <div class="card-icon-svg" v-html="svgIcons[cat.icon]"></div>
-          </div>
-
-          <!-- 标题 -->
-          <div class="card-title" :class="{ 'title-selected': selectedCategoryId === cat.id }">
-            {{ cat.name }}
-          </div>
-
-          <!-- 描述 -->
-          <div class="card-desc">{{ cat.description }}</div>
-
-          <!-- 分隔线 -->
-          <div class="card-divider" :class="{ 'divider-selected': selectedCategoryId === cat.id }"></div>
-
-          <!-- 子选项列表 -->
-          <div class="sub-options">
-            <div
-              v-for="sub in cat.subOptions"
-              :key="sub.id"
-              class="sub-option-item"
-              :class="{
-                'sub-selected': selectedCategoryId === cat.id && selectedSubOptionId === sub.id,
-                'sub-inactive': selectedCategoryId !== cat.id,
-              }"
-              @click.stop="handleSelectSubOption(cat.id, sub.id)"
-            >
-              <!-- radio 圆点 -->
-              <div class="radio-dot" :class="{
-                'radio-checked': selectedCategoryId === cat.id && selectedSubOptionId === sub.id,
-              }">
-                <div v-if="selectedCategoryId === cat.id && selectedSubOptionId === sub.id" class="radio-inner"></div>
-              </div>
-
-              <!-- 子选项文字 -->
-              <div class="sub-text">
-                <span class="sub-name">{{ sub.name }}</span>
-                <span class="sub-desc">{{ sub.description }}</span>
-              </div>
-
-              <!-- 小图标 -->
-              <div v-if="subIconMap[sub.id]" class="sub-icon" v-html="svgIcons[subIconMap[sub.id] || '']"></div>
-            </div>
-          </div>
-        </div>
+          :category="cat"
+          :selected-category-id="selectedCategoryId"
+          :selected-sub-option-id="selectedSubOptionId"
+          :svg-icons="svgIcons"
+          :sub-icon-map="subIconMap"
+          @select-category="handleSelectCategory"
+          @select-sub-option="handleSelectSubOption"
+        />
       </div>
     </div>
 
@@ -294,56 +222,30 @@ const subIconMap: Record<string, string> = {
   </div>
 
   <!-- 保存确认弹窗 -->
-  <el-dialog
-    v-model="saveDialogVisible"
+  <ConfirmActionDialog
+    v-model:visible="saveDialogVisible"
     title="保存确认"
-    width="400px"
-    :close-on-click-modal="false"
-    class="confirm-dialog"
-  >
-    <div class="dialog-body">
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
-        <circle cx="24" cy="24" r="22" stroke="#00afff" stroke-width="2" fill="rgba(0,175,255,0.1)"/>
-        <path d="M16 24l6 6 10-10" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="dialog-text">
-        <span class="dialog-title-main">确认保存当前调度场景配置？</span>
-        <span class="dialog-desc">保存后所选场景类型和子选项将保留。</span>
-      </div>
-    </div>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button size="small" @click="saveDialogVisible = false">取消</el-button>
-        <el-button type="primary" size="small" @click="confirmSave">确认保存</el-button>
-      </div>
-    </template>
-  </el-dialog>
+    icon-color="#00afff"
+    main-text="确认保存当前调度场景配置？"
+    desc-text="保存后所选场景类型和子选项将保留。"
+    confirm-text="确认保存"
+    cancel-text="取消"
+    @confirm="confirmSave"
+    @cancel="saveDialogVisible = false"
+  />
 
   <!-- 取消确认弹窗 -->
-  <el-dialog
-    v-model="cancelDialogVisible"
+  <ConfirmActionDialog
+    v-model:visible="cancelDialogVisible"
     title="取消确认"
-    width="400px"
-    :close-on-click-modal="false"
-    class="confirm-dialog"
-  >
-    <div class="dialog-body">
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
-        <circle cx="24" cy="24" r="22" stroke="#f0a020" stroke-width="2" fill="rgba(240,160,32,0.1)"/>
-        <path d="M16 16l16 16M32 16l-16 16" stroke="#f0a020" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-      <div class="dialog-text">
-        <span class="dialog-title-main">确认取消当前操作？</span>
-        <span class="dialog-desc">取消后当前页面的更改将不会保存。</span>
-      </div>
-    </div>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button size="small" @click="cancelDialogVisible = false">继续编辑</el-button>
-        <el-button type="warning" size="small" @click="confirmCancel">确认取消</el-button>
-      </div>
-    </template>
-  </el-dialog>
+    icon-color="#f0a020"
+    main-text="确认取消当前操作？"
+    desc-text="取消后当前页面的更改将不会保存。"
+    confirm-text="确认取消"
+    cancel-text="继续编辑"
+    @confirm="confirmCancel"
+    @cancel="cancelDialogVisible = false"
+  />
 </template>
 
 <style scoped>
@@ -365,404 +267,10 @@ const subIconMap: Record<string, string> = {
   padding: 0 12px;
 }
 
-/* ===== 方案名称输入行 ===== */
-.name-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
-  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
-  flex-shrink: 0;
-  background: rgba(var(--tech-blue-rgb), 0.02);
-}
-
-.name-row-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.name-row-icon {
-  color: var(--tech-cyan);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: rgba(var(--tech-blue-rgb), 0.1);
-  justify-content: center;
-}
-
-.name-row-label {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--tech-text-primary);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.name-row-center {
-  flex: 1;
-  max-width: 520px;
-}
-
-.name-row-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #5a8abf;
-  font-size: 11px;
-  flex-shrink: 0;
-  padding: 4px 10px;
-  background: rgba(var(--tech-blue-rgb), 0.04);
-  border: 1px solid rgba(var(--tech-blue-rgb), 0.08);
-  border-radius: 6px;
-  line-height: 1.4;
-}
-
-.name-row-hint svg {
-  color: #4a7a9e;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.name-input :deep(.el-input__wrapper) {
-  background: rgba(6, 30, 70, 0.5) !important;
-  border: 1px solid rgba(50, 150, 255, 0.2) !important;
-  border-radius: 8px !important;
-  padding: 6px 12px !important;
-  height: 40px !important;
-  box-shadow: none !important;
-}
-
-.name-input :deep(.el-input__wrapper:hover) {
-  border-color: rgba(50, 150, 255, 0.4) !important;
-}
-
-.name-input :deep(.el-input__wrapper.is-focus) {
-  border-color: var(--tech-cyan) !important;
-  box-shadow: 0 0 12px rgba(var(--tech-blue-rgb), 0.15) !important;
-}
-
-.name-input :deep(.el-input__inner) {
-  color: var(--tech-text-primary) !important;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.name-input :deep(.el-input__inner::placeholder) {
-  color: #4a6a7e;
-}
-
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   height: 100%;
-}
-
-/* ===== 场景卡片 ===== */
-.scenario-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 28px 22px 22px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  overflow: hidden;
-  height: 100%;
-  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
-}
-
-.scenario-card:hover {
-  background: rgba(var(--tech-blue-rgb), 0.03);
-}
-
-.scenario-card.card-selected {
-  background: rgba(var(--tech-blue-rgb), 0.06);
-}
-
-/* ===== 选中标记（右上角） ===== */
-.check-mark {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  animation: checkPop 0.25s ease;
-}
-
-@keyframes checkPop {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* ===== 图标 ===== */
-.card-icon-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 14px;
-  border-radius: 18px;
-  background: rgba(var(--tech-blue-rgb), 0.06);
-  border: 1px solid rgba(50, 150, 255, 0.2);
-  transition: all 0.3s ease;
-}
-
-.card-icon-wrap.icon-selected {
-  background: rgba(var(--tech-blue-rgb), 0.15);
-  border-color: rgba(var(--tech-blue-rgb), 0.4);
-  box-shadow: 0 0 20px rgba(var(--tech-blue-rgb), 0.15);
-}
-
-.card-icon-svg {
-  width: 56px;
-  height: 56px;
-  color: #5a8abf;
-  transition: color 0.3s ease;
-}
-
-.icon-selected .card-icon-svg {
-  color: var(--tech-cyan);
-}
-
-/* ===== 标题 ===== */
-.card-title {
-  text-align: center;
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--tech-text-secondary);
-  margin-bottom: 10px;
-  transition: color 0.3s ease;
-  letter-spacing: 0.5px;
-}
-
-.title-selected {
-  color: var(--tech-text-primary);
-}
-
-/* ===== 描述 ===== */
-.card-desc {
-  text-align: center;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--tech-text-placeholder);
-  margin-bottom: 16px;
-  min-height: 42px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ===== 分隔线 ===== */
-.card-divider {
-  width: 40px;
-  height: 2px;
-  margin: 0 auto 16px;
-  background: rgba(50, 150, 255, 0.2);
-  border-radius: 1px;
-  transition: all 0.3s ease;
-}
-
-.divider-selected {
-  width: 60px;
-  background: linear-gradient(90deg, rgba(var(--tech-blue-rgb), 0.3), rgba(0, 229, 255, 0.6));
-}
-
-/* ===== 子选项列表 ===== */
-.sub-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.sub-option-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-.sub-option-item:hover {
-  background: rgba(var(--tech-blue-rgb), 0.05);
-}
-
-.sub-option-item.sub-selected {
-  background: rgba(var(--tech-blue-rgb), 0.08);
-  border-color: rgba(var(--tech-blue-rgb), 0.25);
-}
-
-.sub-option-item.sub-inactive {
-  opacity: 0.55;
-}
-
-.sub-option-item.sub-inactive:hover {
-  opacity: 0.75;
-  background: rgba(var(--tech-blue-rgb), 0.03);
-}
-
-/* ===== radio 圆点 ===== */
-.radio-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid rgba(80, 100, 120, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.25s ease;
-}
-
-.radio-dot.radio-checked {
-  border-color: var(--tech-blue);
-  box-shadow: 0 0 6px rgba(var(--tech-blue-rgb), 0.3);
-}
-
-.radio-inner {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--tech-blue);
-  animation: radioPop 0.2s ease;
-}
-
-@keyframes radioPop {
-  0% { transform: scale(0); }
-  100% { transform: scale(1); }
-}
-
-/* ===== 子选项文字 ===== */
-.sub-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.sub-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--tech-text-regular);
-  transition: color 0.2s ease;
-}
-
-.sub-selected .sub-name {
-  color: var(--tech-text-primary);
-}
-
-.sub-desc {
-  font-size: 10px;
-  color: var(--tech-text-placeholder);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.sub-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--tech-text-placeholder);
-  flex-shrink: 0;
-  opacity: 0.6;
-}
-
-.sub-selected .sub-icon {
-  color: var(--tech-cyan);
-  opacity: 0.8;
-}
-
-/* ===== 弹窗样式 ===== */
-.confirm-dialog :deep(.el-dialog) {
-  background: rgba(6, 30, 70, 0.98) !important;
-  border: 1px solid rgba(50, 150, 255, 0.4);
-  border-radius: 12px;
-}
-
-.confirm-dialog :deep(.el-dialog__header) {
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  padding: 16px 20px;
-  margin: 0;
-}
-
-.confirm-dialog :deep(.el-dialog__title) {
-  color: var(--tech-text-primary);
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.confirm-dialog :deep(.el-dialog__body) {
-  padding: 24px 20px;
-}
-
-.confirm-dialog :deep(.el-dialog__footer) {
-  border-top: 1px solid rgba(50, 150, 255, 0.1);
-  padding: 12px 20px;
-}
-
-.dialog-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.dialog-icon {
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.dialog-text {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.dialog-title-main {
-  color: var(--tech-text-primary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.dialog-desc {
-  color: var(--tech-text-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-:deep(.el-button) {
-  --el-button-bg-color: transparent;
-  --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: var(--tech-text-regular);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: var(--tech-text-primary);
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
-  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
-  --el-button-text-color: var(--tech-cyan);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
-  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: var(--tech-cyan-light);
 }
 </style>

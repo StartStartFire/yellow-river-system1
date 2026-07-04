@@ -37,12 +37,14 @@ export interface TableData {
   rows: Record<string, string | number>[]
 }
 
+export interface MenuContent {
+  type: 'chart' | 'table'
+  chartData?: ChartData
+  tableData?: TableData
+}
+
 export interface MenuContentMap {
-  [menuId: string]: {
-    type: 'chart' | 'table'
-    chartData?: ChartData
-    tableData?: TableData
-  }
+  [menuId: string]: MenuContent
 }
 
 export interface PageState {

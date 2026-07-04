@@ -2,9 +2,12 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import BaseChart from '@/components/chart/BaseChart.vue'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
 import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import DataMenuSidebar from '@/components/model-config/model-data/DataMenuSidebar.vue'
+import DataContentToolbar from '@/components/model-config/model-data/DataContentToolbar.vue'
+import DataContentPanel from '@/components/model-config/model-data/DataContentPanel.vue'
+import ConfirmActionDialog from '@/components/model-config/common/ConfirmActionDialog.vue'
 import {
   TEXT_SECONDARY, baseTooltip, baseCategoryXAxis, baseValueYAxis,
   createGrid, createAreaGradient, SERIES_COLORS,
@@ -31,6 +34,7 @@ const pageState = mockData.pageState as PageState
 const router = useRouter()
 const sidebarCollapsed = ref(false)
 const activeMenuId = ref(pageState.activeMenuId)
+
 // ==================== 计算属性 ====================
 
 // 当前选中菜单项
@@ -57,31 +61,14 @@ const currentContent = computed(() => {
   return menuContents[activeMenuId.value]
 })
 
-// 是否为图表类型
-const isChartType = computed(() => currentContent.value?.type === 'chart')
-
-// 是否为表格类型
-const isTableType = computed(() => currentContent.value?.type === 'table')
-
 // 图表标题
 const chartTitle = computed(() => {
-  if (isChartType.value && currentContent.value?.chartData) {
-    return currentContent.value.chartData.title
-  }
-  if (isTableType.value && currentContent.value?.tableData) {
-    return currentContent.value.tableData.title
-  }
+  const c = currentContent.value
+  if (!c) return ''
+  if (c.type === 'chart' && c.chartData) return c.chartData.title
+  if (c.type === 'table' && c.tableData) return c.tableData.title
   return ''
 })
-
-// ==================== 左侧目录切换 ====================
-const handleSelectMenu = (menuId: string) => {
-  activeMenuId.value = menuId
-}
-
-const handleToggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-}
 
 // ==================== 按钮交互 ====================
 const handleUpload = () => {
@@ -197,6 +184,8 @@ const iconMap: Record<string, string> = {
   bar: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="3" height="4" rx="0.5" fill="currentColor"/><rect x="6.5" y="6" width="3" height="8" rx="0.5" fill="currentColor"/><rect x="11" y="3" width="3" height="11" rx="0.5" fill="currentColor"/></svg>',
   table: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 7h12M7 3v10" stroke="currentColor" stroke-width="1.3"/></svg>',
 }
+
+// chartTitle 保留在父组件（内容由 DataContentPanel 内部渲染，此处保留供外部读取）
 </script>
 
 <template>
@@ -207,107 +196,28 @@ const iconMap: Record<string, string> = {
     <!-- 主体：左侧目录 + 右侧内容区 -->
     <div class="main-content">
       <!-- 左侧数据目录 -->
-      <div class="sidebar" :class="{ collapsed: sidebarCollapsed }">
-        <div class="sidebar-inner">
-          <div class="sidebar-title-row">
-            <svg v-if="!sidebarCollapsed" width="16" height="16" viewBox="0 0 16 16" fill="none" class="shrink-0">
-              <rect x="2" y="3" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
-              <rect x="9" y="3" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
-              <rect x="2" y="9.5" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
-              <rect x="9" y="9.5" width="5" height="4" rx="1" stroke="#8aa0b8" stroke-width="1.3"/>
-            </svg>
-            <span v-if="!sidebarCollapsed" class="sidebar-title">数据目录</span>
-          </div>
-
-          <div class="menu-scroll-area">
-            <div v-for="(group, gIdx) in menus" :key="gIdx" class="menu-group">
-              <div v-if="!sidebarCollapsed" class="group-header">{{ group.groupName }}</div>
-              <div
-                v-for="item in group.children"
-                :key="item.id"
-                class="menu-item"
-                :class="{ active: item.id === activeMenuId }"
-                @click="handleSelectMenu(item.id)"
-              >
-                <span class="menu-icon" v-html="iconMap[item.icon] || iconMap.database"></span>
-                <span v-if="!sidebarCollapsed" class="menu-name">{{ item.name }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 收起按钮 -->
-          <div class="collapse-footer" @click="handleToggleSidebar">
-            <svg v-if="!sidebarCollapsed" width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <svg v-else width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span v-if="!sidebarCollapsed" class="collapse-text">收起</span>
-          </div>
-        </div>
-      </div>
+      <DataMenuSidebar
+        v-model:activeMenuId="activeMenuId"
+        v-model:collapsed="sidebarCollapsed"
+        :menus="menus"
+        :icon-map="iconMap"
+      />
 
       <!-- 右侧内容区 -->
       <div class="content-area">
         <!-- 顶部操作栏 -->
-        <div class="toolbar">
-          <div class="toolbar-left">
-            <div class="current-info">
-              <span class="info-label">{{ activeGroupName }}</span>
-              <span class="info-divider">/</span>
-              <span class="info-value">{{ activeMenuItem.name }}</span>
-            </div>
-          </div>
-          <div class="toolbar-right">
-            <el-button type="primary" size="small" @click="handleUpload" class="toolbar-btn-custom">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-                <path d="M8 2v9M4 6l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 12v2h12v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              上传数据
-            </el-button>
-            <el-button size="small" @click="handleDownload" class="toolbar-btn-custom">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="btn-icon">
-                <path d="M8 11V2M4 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 12v2h12v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              下载模板
-            </el-button>
-          </div>
-        </div>
+        <DataContentToolbar
+          :group-name="activeGroupName"
+          :menu-item-name="activeMenuItem.name"
+          @upload="handleUpload"
+          @download="handleDownload"
+        />
 
         <!-- 图表/表格区 -->
-        <div class="content-panel">
-          <!-- 标题 -->
-          <div class="content-header">
-            <span class="content-title">{{ chartTitle }}</span>
-          </div>
-
-          <!-- 图表区 -->
-          <div v-if="isChartType && currentContent?.chartData" class="chart-wrapper">
-            <BaseChart :option="chartOption" class="chart-container" />
-          </div>
-
-          <!-- 表格区 -->
-          <div v-if="isTableType && currentContent?.tableData" class="table-wrapper">
-            <el-table
-              :data="currentContent.tableData.rows"
-              stripe
-              size="small"
-              class="data-table"
-              style="width: 100%"
-            >
-              <el-table-column
-                v-for="col in currentContent.tableData.columns"
-                :key="col.key"
-                :prop="col.key"
-                :label="col.unit ? `${col.label}（${col.unit}）` : col.label"
-                min-width="120"
-              />
-            </el-table>
-          </div>
-        </div>
+        <DataContentPanel
+          :content="currentContent"
+          :chart-option="chartOption"
+        />
       </div>
     </div>
 
@@ -321,57 +231,31 @@ const iconMap: Record<string, string> = {
     />
   </div>
 
-    <!-- 保存确认弹窗 -->
-    <el-dialog
-      v-model="saveDialogVisible"
-      title="保存确认"
-      width="400px"
-      :close-on-click-modal="false"
-      class="confirm-dialog"
-    >
-      <div class="dialog-body">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
-          <circle cx="24" cy="24" r="22" stroke="#00afff" stroke-width="2" fill="rgba(0,175,255,0.1)"/>
-          <path d="M16 24l6 6 10-10" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div class="dialog-text">
-          <span class="dialog-title-main">确认保存当前调度数据配置？</span>
-          <span class="dialog-desc">保存后当前目录选择和时间范围将保留。</span>
-        </div>
-      </div>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button size="small" @click="saveDialogVisible = false">取消</el-button>
-          <el-button type="primary" size="small" @click="confirmSave">确认保存</el-button>
-        </div>
-      </template>
-    </el-dialog>
+  <!-- 保存确认弹窗 -->
+  <ConfirmActionDialog
+    v-model:visible="saveDialogVisible"
+    title="保存确认"
+    icon-type="success"
+    main-text="确认保存当前调度数据配置？"
+    desc-text="保存后当前目录选择和时间范围将保留。"
+    confirm-text="确认保存"
+    cancel-text="取消"
+    confirm-type="primary"
+    @confirm="confirmSave"
+  />
 
-    <!-- 取消确认弹窗 -->
-    <el-dialog
-      v-model="cancelDialogVisible"
-      title="取消确认"
-      width="400px"
-      :close-on-click-modal="false"
-      class="confirm-dialog"
-    >
-      <div class="dialog-body">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
-          <circle cx="24" cy="24" r="22" stroke="#f0a020" stroke-width="2" fill="rgba(240,160,32,0.1)"/>
-          <path d="M16 16l16 16M32 16l-16 16" stroke="#f0a020" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-        <div class="dialog-text">
-          <span class="dialog-title-main">确认取消当前操作？</span>
-          <span class="dialog-desc">取消后当前页面的更改将不会保存。</span>
-        </div>
-      </div>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button size="small" @click="cancelDialogVisible = false">继续编辑</el-button>
-          <el-button type="warning" size="small" @click="confirmCancel">确认取消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+  <!-- 取消确认弹窗 -->
+  <ConfirmActionDialog
+    v-model:visible="cancelDialogVisible"
+    title="取消确认"
+    icon-type="warning"
+    main-text="确认取消当前操作？"
+    desc-text="取消后当前页面的更改将不会保存。"
+    confirm-text="确认取消"
+    cancel-text="继续编辑"
+    confirm-type="warning"
+    @confirm="confirmCancel"
+  />
 </template>
 
 <style scoped>
@@ -393,189 +277,6 @@ const iconMap: Record<string, string> = {
   gap: 0;
 }
 
-/* ===== 左侧目录 ===== */
-.sidebar {
-  width: 200px;
-  min-width: 200px;
-  transition: width 0.25s ease, min-width 0.25s ease;
-  overflow: hidden;
-}
-
-.sidebar.collapsed {
-  width: 48px;
-  min-width: 48px;
-}
-
-.sidebar-inner {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: rgba(6, 30, 70, 0.85);
-  border: 1px solid rgba(50, 150, 255, 0.35);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.menu-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-}
-
-.menu-scroll-area::-webkit-scrollbar {
-  width: 4px;
-}
-
-.menu-scroll-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.menu-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(50, 150, 255, 0.25);
-  border-radius: 2px;
-}
-
-.menu-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: rgba(50, 150, 255, 0.45);
-}
-
-.sidebar-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  flex-shrink: 0;
-}
-
-.sidebar-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--tech-text-primary);
-  white-space: nowrap;
-}
-
-.menu-group {
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
-}
-
-/* 调度输入和原始表格组均固定显示6项高度，超出滚动 */
-.menu-group {
-  max-height: 230px;
-  overflow-y: auto;
-}
-
-.menu-group::-webkit-scrollbar {
-  width: 4px;
-}
-
-.menu-group::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.menu-group::-webkit-scrollbar-thumb {
-  background: rgba(50, 150, 255, 0.25);
-  border-radius: 2px;
-}
-
-.menu-group::-webkit-scrollbar-thumb:hover {
-  background: rgba(50, 150, 255, 0.45);
-}
-
-.group-header {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--tech-text-placeholder);
-  padding: 6px 14px 8px;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  margin: 0 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  color: var(--tech-text-secondary);
-}
-
-.menu-item:hover {
-  background: rgba(var(--tech-blue-rgb), 0.08);
-  color: var(--tech-text-regular);
-}
-
-.menu-item.active {
-  background: rgba(var(--tech-blue-rgb), 0.15);
-  border: 1px solid rgba(var(--tech-blue-rgb), 0.4);
-  color: var(--tech-cyan);
-  margin: 0 5px;
-  padding: 7px 13px;
-}
-
-.menu-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  color: inherit;
-}
-
-.menu-name {
-  font-size: 12px;
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.collapse-footer {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-top: 1px solid rgba(50, 150, 255, 0.15);
-  cursor: pointer;
-  color: var(--tech-text-placeholder);
-  font-size: 12px;
-  transition: all 0.2s;
-  margin-top: auto;
-  flex-shrink: 0;
-}
-
-.collapse-footer:hover {
-  color: var(--tech-text-regular);
-  background: rgba(var(--tech-blue-rgb), 0.05);
-}
-
-.collapse-text {
-  white-space: nowrap;
-}
-
-/* 收起时 */
-.collapsed .menu-item {
-  justify-content: center;
-  padding: 10px 0;
-  margin: 0 4px;
-}
-
-.collapsed .menu-item.active {
-  padding: 9px 0;
-  margin: 0 3px;
-}
-
-.collapsed .collapse-footer {
-  justify-content: center;
-  padding: 10px 0;
-}
-
 /* ===== 右侧内容区 ===== */
 .content-area {
   flex: 1;
@@ -583,223 +284,5 @@ const iconMap: Record<string, string> = {
   flex-direction: column;
   gap: 0;
   min-width: 0;
-}
-
-/* ===== 操作栏 ===== */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
-  flex-shrink: 0;
-}
-
-.toolbar-left {
-  display: flex;
-  align-items: center;
-}
-
-.current-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-}
-
-.info-label {
-  color: var(--tech-text-placeholder);
-}
-
-.info-divider {
-  color: rgba(50, 150, 255, 0.3);
-}
-
-.info-value {
-  color: var(--tech-cyan);
-  font-weight: 500;
-}
-
-.toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.toolbar-btn-custom {
-  font-size: 12px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.btn-icon {
-  flex-shrink: 0;
-}
-
-/* ===== 内容面板 ===== */
-.content-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.content-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  flex-shrink: 0;
-}
-
-.content-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--tech-text-primary);
-}
-
-/* ===== 图表 ===== */
-.chart-wrapper {
-  flex: 1;
-  padding: 8px 16px 16px;
-  min-height: 0;
-}
-
-.chart-container {
-  width: 100%;
-  height: 100%;
-  min-height: 200px;
-}
-
-/* ===== 表格 ===== */
-.table-wrapper {
-  flex: 1;
-  padding: 8px 16px 16px;
-  overflow: auto;
-}
-
-.data-table {
-  width: 100%;
-}
-
-.data-table :deep(.el-table__header th) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  color: var(--tech-text-secondary) !important;
-  font-size: 12px;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
-}
-
-.data-table :deep(.el-table__body td) {
-  background: transparent !important;
-  color: var(--tech-text-regular) !important;
-  font-size: 12px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08) !important;
-}
-
-.data-table :deep(.el-table__row--striped td) {
-  background: rgba(var(--tech-blue-rgb), 0.03) !important;
-}
-
-.data-table :deep(.el-table__body tr:hover td) {
-  background: rgba(var(--tech-blue-rgb), 0.08) !important;
-}
-
-.data-table :deep(.el-table__body tr.el-table__row--striped:hover td) {
-  background: rgba(var(--tech-blue-rgb), 0.1) !important;
-}
-
-.data-table :deep(.el-table__inner-wrapper) {
-  background: transparent !important;
-}
-
-.data-table :deep(.el-table__body-wrapper) {
-  background: transparent !important;
-}
-
-
-
-/* ===== Element Plus 按钮深色覆盖 ===== */
-:deep(.el-button) {
-  --el-button-bg-color: transparent;
-  --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: var(--tech-text-regular);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: var(--tech-text-primary);
-}
-
-/* ===== 弹窗样式 ===== */
-.confirm-dialog :deep(.el-dialog) {
-  background: rgba(6, 30, 70, 0.98) !important;
-  border: 1px solid rgba(50, 150, 255, 0.4);
-  border-radius: 12px;
-}
-
-.confirm-dialog :deep(.el-dialog__header) {
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  padding: 16px 20px;
-  margin: 0;
-}
-
-.confirm-dialog :deep(.el-dialog__title) {
-  color: var(--tech-text-primary);
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.confirm-dialog :deep(.el-dialog__body) {
-  padding: 24px 20px;
-}
-
-.confirm-dialog :deep(.el-dialog__footer) {
-  border-top: 1px solid rgba(50, 150, 255, 0.1);
-  padding: 12px 20px;
-}
-
-.dialog-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.dialog-icon {
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.dialog-text {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.dialog-title-main {
-  color: var(--tech-text-primary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.dialog-desc {
-  color: var(--tech-text-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
-  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
-  --el-button-text-color: var(--tech-cyan);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
-  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: var(--tech-cyan-light);
 }
 </style>
