@@ -1321,7 +1321,7 @@ const pageNumbers = computed(() => {
   --el-button-text-color: var(--tech-cyan);
   --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
   --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: #00e5ff;
+  --el-button-hover-text-color: var(--tech-cyan-light);
 }
 
 /* ===== 弹窗样式 ===== */

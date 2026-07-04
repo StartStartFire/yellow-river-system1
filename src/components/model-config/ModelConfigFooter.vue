@@ -123,7 +123,7 @@ defineEmits<{
 .footer-btn-save:hover {
   background: rgba(var(--tech-blue-rgb), 0.2) !important;
   border-color: rgba(var(--tech-blue-rgb), 0.6) !important;
-  color: #00e5ff !important;
+  color: var(--tech-cyan-light) !important;
 }
 
 /* 上一步按钮 - 默认 */
@@ -156,6 +156,6 @@ defineEmits<{
   --el-button-text-color: var(--tech-cyan);
   --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
   --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: #00e5ff;
+  --el-button-hover-text-color: var(--tech-cyan-light);
 }
 </style>

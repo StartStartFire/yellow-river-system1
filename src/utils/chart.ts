@@ -52,6 +52,8 @@ export const SERIES_COLORS = ['#00afff', '#00e5a0', '#ffaa00', '#b37feb', '#ff6b
 export const TECH_BLUE = '#00afff'
 /** 主题青 */
 export const TECH_CYAN = '#00d4ff'
+/** 主题青亮（hover 高亮色） */
+export const TECH_CYAN_LIGHT = '#00e5ff'
 /** 主题绿 */
 export const TECH_GREEN = '#00e5a0'
 /** 主题橙 */

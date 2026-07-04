@@ -65,6 +65,6 @@ const statsData = powerStatistics.data
 }
 
 .total-row .value-cell {
-  color: #00e5ff;
+  color: var(--tech-cyan-light);
 }
 </style>

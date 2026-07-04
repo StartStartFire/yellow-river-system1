@@ -760,7 +760,7 @@ const objectiveIcons: Record<string, string> = {
   align-items: center;
   justify-content: center;
   background: rgba(0, 229, 255, 0.1);
-  color: #00e5ff;
+  color: var(--tech-cyan-light);
 }
 
 .constraint-title-text {
@@ -934,7 +934,7 @@ const objectiveIcons: Record<string, string> = {
 
 /* ===== Element Plus 深色覆盖 ===== */
 :deep(.el-button) { --el-button-bg-color: transparent; --el-button-border-color: rgba(50,150,255,0.3); --el-button-text-color: var(--tech-text-regular); --el-button-hover-bg-color: rgba(0,175,255,0.1); --el-button-hover-border-color: rgba(50,150,255,0.5); --el-button-hover-text-color: var(--tech-text-primary); }
-:deep(.el-button--primary) { --el-button-bg-color: rgba(0,175,255,0.2); --el-button-border-color: rgba(0,175,255,0.5); --el-button-text-color: var(--tech-cyan); --el-button-hover-bg-color: rgba(0,175,255,0.3); --el-button-hover-border-color: rgba(0,175,255,0.7); --el-button-hover-text-color: #00e5ff; }
+:deep(.el-button--primary) { --el-button-bg-color: rgba(0,175,255,0.2); --el-button-border-color: rgba(0,175,255,0.5); --el-button-text-color: var(--tech-cyan); --el-button-hover-bg-color: rgba(0,175,255,0.3); --el-button-hover-border-color: rgba(0,175,255,0.7); --el-button-hover-text-color: var(--tech-cyan-light); }
 :deep(.dark-slider .el-slider__runway) { background: rgba(50,150,255,0.15) !important; }
 :deep(.dark-slider .el-slider__bar) { background: linear-gradient(90deg, rgba(0,175,255,0.4), var(--tech-cyan)) !important; }
 :deep(.dark-slider .el-slider__button) { border: 2px solid var(--tech-cyan) !important; background: rgba(2,27,63,0.9) !important; width: 14px !important; height: 14px !important; }

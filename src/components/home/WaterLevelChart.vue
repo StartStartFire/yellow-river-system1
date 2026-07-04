@@ -12,6 +12,7 @@ import {
   RESERVOIR_COLORS,
   TEXT_PRIMARY,
   TECH_BLUE,
+  TECH_CYAN_LIGHT,
   createGrid,
 } from '@/utils/chart'
 
@@ -23,7 +24,7 @@ const displaySeries = seriesData.series.filter(
 )
 const colorMap: Record<string, string> = {
   '龙羊峡水库': TECH_BLUE,
-  '刘家峡水库': '#00e5ff',
+  '刘家峡水库': TECH_CYAN_LIGHT,
 }
 
 const chartOption = computed<EChartsOption>(() => ({

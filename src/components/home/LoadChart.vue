@@ -12,6 +12,7 @@ import {
   RESERVOIR_COLORS,
   TEXT_PRIMARY,
   TECH_BLUE,
+  TECH_CYAN_LIGHT,
   createGrid,
 } from '@/utils/chart'
 
@@ -22,7 +23,7 @@ const activeType = ref<'active' | 'reactive'>('active')
 // 只展示龙羊峡和刘家峡
 const colorMap: Record<string, string> = {
   '龙羊峡水库': TECH_BLUE,
-  '刘家峡水库': '#00e5ff',
+  '刘家峡水库': TECH_CYAN_LIGHT,
 }
 
 const chartOption = computed<EChartsOption>(() => {

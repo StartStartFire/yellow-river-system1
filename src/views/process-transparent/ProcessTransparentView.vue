@@ -168,7 +168,7 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
   const tab = activeRightTab.value
   const name = reservoirKey === 'lyx' ? '龙羊峡' : '刘家峡'
   const lineColor = reservoirKey === 'lyx' ? SERIES_COLORS[0] : SERIES_COLORS[1]
-  const dashColor = reservoirKey === 'lyx' ? '#00e5ff' : '#52c41a'
+  const dashColor = reservoirKey === 'lyx' ? TECH_CYAN_LIGHT : '#52c41a'
 
   if (tab === 'water') {
     const d = scenarioData.value.waterLevelData

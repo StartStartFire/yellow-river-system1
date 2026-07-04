@@ -658,7 +658,7 @@ function getCoverGradient(type: string): string {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--tech-cyan) 0%, #00e5ff 100%);
+  background: linear-gradient(135deg, var(--tech-cyan) 0%, var(--tech-cyan-light) 100%);
 }
 
 .btn-secondary {
