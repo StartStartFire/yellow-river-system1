@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import * as echarts from 'echarts'
+import { computed, ref } from 'vue'
+import type { EChartsOption } from 'echarts'
 import PanelCard from '@/components/common/PanelCard.vue'
+import BaseChart from '@/components/chart/BaseChart.vue'
 import { loadSeries } from '@/mock/home'
+import {
+  baseTooltip,
+  baseLegend,
+  baseCategoryXAxis,
+  baseValueYAxis,
+  RESERVOIR_COLORS,
+  createGrid,
+} from '@/utils/chart'
 
 const seriesData = loadSeries.data
 
-const chartRef = ref<HTMLDivElement | null>(null)
 const activeType = ref<'active' | 'reactive'>('active')
-let chart: echarts.ECharts | null = null
-let resizeObserver: ResizeObserver | null = null
 
 // 只展示龙羊峡和刘家峡
 const colorMap: Record<string, string> = {
@@ -17,50 +23,31 @@ const colorMap: Record<string, string> = {
   '刘家峡水库': '#00e5ff',
 }
 
-const initChart = () => {
-  if (!chartRef.value) return
-  if (!chart) {
-    chart = echarts.init(chartRef.value)
-  }
-
+const chartOption = computed<EChartsOption>(() => {
   const rawData = activeType.value === 'active' ? seriesData.activePower : seriesData.reactivePower
   const displayData = rawData.filter(
     s => s.name === '龙羊峡水库' || s.name === '刘家峡水库'
   )
   const unit = activeType.value === 'active' ? '有功 (MW)' : '无功 (Mvar)'
 
-  const option = {
+  return {
     tooltip: {
-      trigger: 'axis' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
+      ...baseTooltip,
       textStyle: { color: '#e0e6ed', fontSize: 12 },
     },
     legend: {
+      ...baseLegend,
       data: displayData.map(s => s.name),
-      textStyle: { color: '#8aa0b8', fontSize: 11 },
       top: 0,
     },
-    grid: {
-      left: 50,
-      right: 20,
-      top: 36,
-      bottom: 30,
-    },
+    grid: createGrid(36, 30, 50, 20),
     xAxis: {
-      type: 'category' as const,
+      ...baseCategoryXAxis,
       data: seriesData.xAxis,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { show: false },
     },
     yAxis: {
-      type: 'value' as const,
+      ...baseValueYAxis,
       name: unit,
-      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
     },
     series: displayData.map(s => ({
       name: s.name,
@@ -71,37 +58,9 @@ const initChart = () => {
       symbolSize: 4,
       lineStyle: { width: 2 },
       itemStyle: {
-        color: colorMap[s.name] || '#00afff',
+        color: colorMap[s.name] || RESERVOIR_COLORS[s.name] || '#00afff',
       },
     })),
-  }
-
-  chart.setOption(option)
-  chart.resize()
-}
-
-watch(activeType, () => {
-  initChart()
-})
-
-onMounted(() => {
-  setTimeout(() => {
-    initChart()
-    if (chartRef.value) {
-      resizeObserver = new ResizeObserver(() => chart?.resize())
-      resizeObserver.observe(chartRef.value)
-    }
-  }, 300)
-})
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-  if (chart) {
-    chart.dispose()
-    chart = null
   }
 })
 </script>
@@ -122,7 +81,7 @@ onUnmounted(() => {
         >无功</button>
       </div>
     </template>
-    <div ref="chartRef" class="chart-container"></div>
+    <BaseChart :option="chartOption" class="chart-container" />
   </PanelCard>
 </template>
 

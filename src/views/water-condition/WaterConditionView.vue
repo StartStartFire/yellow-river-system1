@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
+import BaseChart from '@/components/chart/BaseChart.vue'
+import {
+  baseTooltip,
+  baseLegend,
+  baseCategoryXAxis,
+  baseValueYAxis,
+  TEXT_SECONDARY,
+  createGrid,
+} from '@/utils/chart'
 import {
   reservoirOptions,
   waterConditionTabs,
@@ -15,10 +24,6 @@ const tabs = waterConditionTabs.data
 const dateRange = ref<[string, string]>(['2026-05-15 00:00', '2026-05-16 14:30'])
 const selectedReservoir = ref('longyangxia')
 const activeTabKey = ref('inflow')
-// 当前页签信息
-const activeTabInfo = computed(() => {
-  return tabs.find(t => t.key === activeTabKey.value) || tabs[0]
-})
 
 // 当前图表数据
 const chartData = computed(() => {
@@ -28,24 +33,10 @@ const chartData = computed(() => {
 // 图表标题
 const chartTitle = computed(() => chartData.value.title)
 
-// ==================== ECharts ====================
-const chartRef = ref<HTMLDivElement | null>(null)
-let chart: echarts.ECharts | null = null
-let resizeObserver: ResizeObserver | null = null
-
-const initChart = () => {
-  if (!chartRef.value) return
-  if (!chart) {
-    chart = echarts.init(chartRef.value)
-  }
-  renderChart()
-}
-
-const renderChart = () => {
-  if (!chart) return
+// ==================== ECharts option（纯数据，BaseChart 负责渲染） ====================
+const chartOption = computed<echarts.EChartsOption>(() => {
   const data = chartData.value
 
-  // 构建系列数据
   const seriesData = data.series.map((s, index) => {
     const baseSeries: any = {
       name: s.name,
@@ -62,7 +53,6 @@ const renderChart = () => {
       itemStyle: { color: s.color },
     }
 
-    // 添加面积渐变（仅第一个实线系列）
     if (index === 0 && s.type === 'solid') {
       baseSeries.areaStyle = {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -72,7 +62,6 @@ const renderChart = () => {
       }
     }
 
-    // 添加标记线
     if (data.updateIndex !== undefined && data.updateIndex >= 0 && index === 0) {
       baseSeries.markLine = {
         silent: true,
@@ -87,7 +76,7 @@ const renderChart = () => {
             },
             label: {
               formatter: `{b}\n${data.markLineStyle?.label || '更新节点'}`,
-              color: '#8aa0b8',
+              color: TEXT_SECONDARY,
               fontSize: 11,
               position: 'insideEndTop',
             },
@@ -96,7 +85,6 @@ const renderChart = () => {
       }
     }
 
-    // 添加末端标签
     const lastValue = s.data[s.data.length - 1]
     if (lastValue !== null && lastValue !== undefined) {
       baseSeries.markPoint = {
@@ -120,61 +108,33 @@ const renderChart = () => {
     return baseSeries
   })
 
-  const option: echarts.EChartsOption = {
+  return {
     backgroundColor: 'transparent',
     tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(8, 28, 58, 0.95)',
-      borderColor: 'rgba(0, 175, 255, 0.3)',
-      borderWidth: 1,
-      textStyle: { color: '#e0e6ed', fontSize: 12 },
-      axisPointer: {
-        type: 'cross',
-        crossStyle: { color: '#8aa0b8' },
-      },
+      ...baseTooltip,
+      textStyle: { ...baseTooltip.textStyle, fontSize: 12 },
     },
     legend: {
+      ...baseLegend,
       data: data.legend,
-      textStyle: { color: '#8aa0b8', fontSize: 12 },
-      bottom: 0,
-      itemGap: 24,
+      textStyle: { ...baseLegend.textStyle, fontSize: 12 },
     },
-    grid: {
-      left: 65,
-      right: 80,
-      top: 20,
-      bottom: 45,
-    },
+    grid: createGrid(20, 45, 65, 80),
     xAxis: {
-      type: 'category',
+      ...baseCategoryXAxis,
       data: data.xAxis,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.2)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { show: false },
-      boundaryGap: false,
     },
     yAxis: {
-      type: 'value',
+      ...baseValueYAxis,
       name: data.unit,
       min: data.yAxisMin,
       max: data.yAxisMax,
-      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.08)', type: 'dashed' } },
     },
     series: seriesData,
   }
-
-  chart.setOption(option, true)
-  chart.resize()
-}
+})
 
 // ==================== 交互 ====================
-const handleReservoirChange = () => {
-  renderChart()
-}
-
 const handleTabChange = (key: string) => {
   activeTabKey.value = key
 }
@@ -183,49 +143,23 @@ const handleDownload = () => {
   ElMessage.info('当前为前端原型，暂不支持真实下载')
 }
 
+const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null)
+
 const handleFullscreen = () => {
-  if (chartRef.value) {
-    chartRef.value.requestFullscreen?.()
-  }
+  const el = (baseChartRef.value?.$el as HTMLElement)?.parentElement
+  el?.requestFullscreen?.()
 }
 
-// 全屏变化时重新渲染
 const onFullscreenChange = () => {
-  setTimeout(() => chart?.resize(), 200)
+  setTimeout(() => baseChartRef.value?.resize(), 200)
 }
 
-// ==================== 生命周期 ====================
 onMounted(() => {
-  setTimeout(() => {
-    initChart()
-    if (chartRef.value) {
-      resizeObserver = new ResizeObserver(() => chart?.resize())
-      resizeObserver.observe(chartRef.value)
-    }
-  }, 200)
   document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onUnmounted(() => {
   document.removeEventListener('fullscreenchange', onFullscreenChange)
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-  if (chart) {
-    chart.dispose()
-    chart = null
-  }
-})
-
-// 页签切换时刷新图表
-watch(activeTabKey, () => {
-  setTimeout(() => renderChart(), 50)
-})
-
-// 水库切换时刷新图表
-watch(selectedReservoir, () => {
-  setTimeout(() => renderChart(), 50)
 })
 </script>
 
@@ -256,7 +190,7 @@ watch(selectedReservoir, () => {
             size="small"
             class="dark-select"
             style="width: 160px"
-            @change="handleReservoirChange"
+
           >
             <el-option
               v-for="r in reservoirs"
@@ -316,7 +250,7 @@ watch(selectedReservoir, () => {
           </button>
         </div>
       </div>
-      <div ref="chartRef" class="chart-container"></div>
+      <BaseChart ref="baseChartRef" :option="chartOption" class="chart-container" />
     </div>
   </div>
 </template>

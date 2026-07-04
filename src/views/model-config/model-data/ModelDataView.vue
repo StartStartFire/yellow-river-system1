@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import BaseChart from '@/components/chart/BaseChart.vue'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
 import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import {
+  TEXT_SECONDARY, baseTooltip, baseCategoryXAxis, baseValueYAxis,
+  createGrid, createAreaGradient, SERIES_COLORS,
+} from '@/utils/chart'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import { modelDataMock } from '@/mock/modelConfig'
 import type { MenuGroup, MenuContentMap, PageState } from '@/mock/modelConfig'
@@ -73,8 +77,6 @@ const chartTitle = computed(() => {
 // ==================== 左侧目录切换 ====================
 const handleSelectMenu = (menuId: string) => {
   activeMenuId.value = menuId
-  // 切换后重新渲染图表
-  nextTickInitChart()
 }
 
 const handleToggleSidebar = () => {
@@ -130,59 +132,30 @@ const handleNext = () => {
 }
 
 // ==================== ECharts ====================
-const chartRef = ref<HTMLDivElement | null>(null)
-let chartInstance: echarts.ECharts | null = null
-let resizeObserver: ResizeObserver | null = null
-
-const initChart = () => {
-  if (!chartRef.value) return
-  if (!chartInstance) {
-    chartInstance = echarts.init(chartRef.value)
-  }
-
+const chartOption = computed(() => {
   const chartData = currentContent.value?.chartData
-  if (!chartData) return
+  if (!chartData) return {}
 
-  const option: echarts.EChartsOption = {
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 12 },
-    },
+  return {
+    tooltip: { ...baseTooltip },
     legend: {
       data: ['入库流量 (m³/s)', '水位 (m)'],
-      textStyle: { color: '#8aa0b8', fontSize: 12 },
+      textStyle: { color: TEXT_SECONDARY, fontSize: 12 },
       top: 0,
     },
-    grid: {
-      left: 60,
-      right: 60,
-      top: 40,
-      bottom: 30,
-    },
+    grid: createGrid(40, 30, 60, 60),
     xAxis: {
-      type: 'category',
+      ...baseCategoryXAxis,
       data: chartData.xAxis,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { show: false },
     },
     yAxis: [
       {
-        type: 'value',
+        ...baseValueYAxis,
         name: '入库流量 (m³/s)',
-        nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
-        axisLine: { show: false },
-        axisLabel: { color: '#8aa0b8', fontSize: 11 },
-        splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)', type: 'dashed' } },
       },
       {
-        type: 'value',
+        ...baseValueYAxis,
         name: '水位 (m)',
-        nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
-        axisLine: { show: false },
-        axisLabel: { color: '#8aa0b8', fontSize: 11 },
         splitLine: { show: false },
       },
     ],
@@ -194,14 +167,9 @@ const initChart = () => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { width: 2, color: '#00afff' },
-        itemStyle: { color: '#00afff' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 175, 255, 0.3)' },
-            { offset: 1, color: 'rgba(0, 175, 255, 0.02)' },
-          ]),
-        },
+        lineStyle: { width: 2, color: SERIES_COLORS[0] },
+        itemStyle: { color: SERIES_COLORS[0] },
+        areaStyle: createAreaGradient(SERIES_COLORS[0], 0.3, 0.02),
       },
       {
         name: '水位 (m)',
@@ -211,55 +179,10 @@ const initChart = () => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { width: 2, color: '#00e5a0' },
-        itemStyle: { color: '#00e5a0' },
+        lineStyle: { width: 2, color: SERIES_COLORS[1] },
+        itemStyle: { color: SERIES_COLORS[1] },
       },
     ],
-  }
-
-  chartInstance.setOption(option, true)
-  chartInstance.resize()
-}
-
-const nextTickInitChart = () => {
-  setTimeout(() => {
-    if (isChartType.value) {
-      initChart()
-    } else {
-      // 切换为表格时销毁图表实例（v-if 会移除 DOM，旧实例无法复用）
-      if (chartInstance) {
-        chartInstance.dispose()
-        chartInstance = null
-      }
-    }
-  }, 50)
-}
-
-// 监听 activeMenuId 切换
-watch(activeMenuId, () => {
-  nextTickInitChart()
-})
-
-onMounted(() => {
-  setTimeout(() => {
-    if (isChartType.value) {
-      initChart()
-    }
-    if (chartRef.value) {
-      resizeObserver = new ResizeObserver(() => chartInstance?.resize())
-      resizeObserver.observe(chartRef.value)
-    }
-  }, 300)
-})
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-  if (chartInstance) {
-    chartInstance.dispose()
-    chartInstance = null
   }
 })
 
@@ -363,7 +286,7 @@ const iconMap: Record<string, string> = {
 
           <!-- 图表区 -->
           <div v-if="isChartType && currentContent?.chartData" class="chart-wrapper">
-            <div ref="chartRef" class="chart-container"></div>
+            <BaseChart :option="chartOption" class="chart-container" />
           </div>
 
           <!-- 表格区 -->

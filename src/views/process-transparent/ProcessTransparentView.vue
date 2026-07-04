@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import * as echarts from 'echarts'
+import BaseChart from '@/components/chart/BaseChart.vue'
 import PanelCard from '@/components/common/PanelCard.vue'
+import {
+  TEXT_SECONDARY, baseTooltip, baseCategoryXAxis, baseValueYAxis,
+  createGrid, createAreaGradient, SERIES_COLORS,
+} from '@/utils/chart'
 import {
   processPageState as pageState,
   scenarioOptions,
@@ -88,43 +92,33 @@ const handleTerminate = () => {
 }
 
 // ══════════════════════════════════════
-//  ECharts 图表 — 新布局：左40% + 右60%
+//  ECharts 图表 — 使用 BaseChart + computed
 // ══════════════════════════════════════
 
-// ── 左侧图表 refs ──
-const convergenceChartRef = ref<HTMLDivElement | null>(null)
-const objectiveChartRef = ref<HTMLDivElement | null>(null)
-
-let convergenceChart: echarts.ECharts | null = null
-let objectiveChart: echarts.ECharts | null = null
-
-let resizeObserver: ResizeObserver | null = null
+// ── 右侧 Tab 配置 ──
+const rightTabOptions = [
+  { key: 'water', label: '水位变化' },
+  { key: 'discharge', label: '下泄流量变化' },
+  { key: 'power', label: '出力变化' },
+]
+const activeRightTab = ref('water')
 
 // ──────────── 左侧：算法收敛曲线 ────────────
-const buildConvergenceOption = () => {
+const convergenceOption = computed(() => {
   const d = scenarioData.value.convergenceData
   return {
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
-    },
-    grid: { left: 46, right: 12, top: 30, bottom: 20 },
+    tooltip: { ...baseTooltip },
+    grid: createGrid(30, 20, 46, 12),
     xAxis: {
-      type: 'category',
+      ...baseCategoryXAxis,
       data: d.iterations,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 9 },
-      splitLine: { show: false },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
     yAxis: {
-      type: 'value',
+      ...baseValueYAxis,
       name: '适应度值',
-      nameTextStyle: { color: '#8aa0b8', fontSize: 9 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 9 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+      nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
     series: [{
       name: '当前最优适应度',
@@ -132,176 +126,113 @@ const buildConvergenceOption = () => {
       data: d.fitness,
       smooth: true,
       symbol: 'none',
-      lineStyle: { width: 2, color: '#00afff' },
-      areaStyle: {
-        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: 'rgba(0, 175, 255, 0.3)' },
-          { offset: 1, color: 'rgba(0, 175, 255, 0.02)' },
-        ]),
-      },
+      lineStyle: { width: 2, color: SERIES_COLORS[0] },
+      areaStyle: createAreaGradient(SERIES_COLORS[0], 0.3, 0.02),
     }],
   }
-}
+})
 
 // ──────────── 左侧：最优目标值变化趋势 ────────────
-const buildObjectiveOption = () => {
+const objectiveOption = computed(() => {
   const d = scenarioData.value.objectiveTrendData
   return {
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
-    },
+    tooltip: { ...baseTooltip },
     legend: {
-      data:['总目标值','防洪目标','发电目标','生态目标'],
-      textStyle: { color: '#8aa0b8', fontSize: 9 },
+      data: ['总目标值', '防洪目标', '发电目标', '生态目标'],
+      textStyle: { color: TEXT_SECONDARY, fontSize: 9 },
       top: 0,
     },
-    grid: { left: 46, right: 12, top: 32, bottom: 20 },
+    grid: createGrid(32, 20, 46, 12),
     xAxis: {
-      type: 'category',
+      ...baseCategoryXAxis,
       data: d.iterations,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 9 },
-      splitLine: { show: false },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
     yAxis: {
-      type: 'value',
+      ...baseValueYAxis,
       name: '目标值',
-      nameTextStyle: { color: '#8aa0b8', fontSize: 9 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 9 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+      nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
     series: [
-      { name:'总目标值', type:'line', data:d.total, smooth:true, symbol:'none', lineStyle:{width:2,color:'#00afff'} },
-      { name:'防洪目标', type:'line', data:d.flood, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ff6b6b'} },
-      { name:'发电目标', type:'line', data:d.power, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ffaa00'} },
-      { name:'生态目标', type:'line', data:d.ecology, smooth:true, symbol:'none', lineStyle:{width:2,color:'#00e5a0'} },
+      { name: '总目标值', type: 'line', data: d.total, smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[0] } },
+      { name: '防洪目标', type: 'line', data: d.flood, smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[4] } },
+      { name: '发电目标', type: 'line', data: d.power, smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[2] } },
+      { name: '生态目标', type: 'line', data: d.ecology, smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[1] } },
     ],
   }
-}
+})
 
-// ══════════════════════════════════════
-//  右侧：一个大图表，Tab 切换指标，同时展示龙羊峡+刘家峡
-// ══════════════════════════════════════
-
-const rightTabOptions = [
-  { key: 'water', label: '水位变化' },
-  { key: 'discharge', label: '下泄流量变化' },
-  { key: 'power', label: '出力变化' },
-]
-const activeRightTab = ref('water')
-const rightLYXChartRef = ref<HTMLDivElement | null>(null)
-const rightLJXChartRef = ref<HTMLDivElement | null>(null)
-let rightLYXChart: echarts.ECharts | null = null
-let rightLJXChart: echarts.ECharts | null = null
-
+// ──────────── 右侧：水库运行响应 ────────────
 const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
   const tab = activeRightTab.value
   const name = reservoirKey === 'lyx' ? '龙羊峡' : '刘家峡'
-  const lineColor = reservoirKey === 'lyx' ? '#00afff' : '#00e5a0'
+  const lineColor = reservoirKey === 'lyx' ? SERIES_COLORS[0] : SERIES_COLORS[1]
   const dashColor = reservoirKey === 'lyx' ? '#00e5ff' : '#52c41a'
 
   if (tab === 'water') {
     const d = scenarioData.value.waterLevelData
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
-      tooltip: { trigger:'axis', backgroundColor:'rgba(6,30,70,0.9)', borderColor:'rgba(50,150,255,0.4)', textStyle:{color:'#e0e6ed',fontSize:11} },
-      title: { text: name, left:'center', top:2, textStyle:{color:'#8aa0b8',fontSize:11,fontWeight:600} },
-      legend: { data:['当前优化方案','入库预报','历史运行'], textStyle:{color:'#8aa0b8',fontSize:9}, top:18 },
-      grid: { left:42, right:8, top:42, bottom:18 },
-      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{show:false} },
-      yAxis: { type:'value', name:'水位（m）', nameTextStyle:{color:'#8aa0b8',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
+      tooltip: { ...baseTooltip },
+      title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
+      legend: { data: ['当前优化方案', '入库预报', '历史运行'], textStyle: { color: TEXT_SECONDARY, fontSize: 9 }, top: 18 },
+      grid: createGrid(42, 18, 42, 8),
+      xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      yAxis: { ...baseValueYAxis, name: '水位（m）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       series: [
-        { name:'当前优化方案', type:'line', data:r.optimal, smooth:true, symbol:'none', lineStyle:{width:2,color:lineColor} },
-        { name:'入库预报', type:'line', data:r.forecast, smooth:true, symbol:'none', lineStyle:{width:2,color:dashColor,type:'dashed'} },
-        { name:'历史运行', type:'line', data:r.history, smooth:true, symbol:'none', lineStyle:{width:1.5,color:'rgba(255,255,255,0.25)'} },
+        { name: '当前优化方案', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
+        { name: '入库预报', type: 'line', data: r.forecast, smooth: true, symbol: 'none', lineStyle: { width: 2, color: dashColor, type: 'dashed' } },
+        { name: '历史运行', type: 'line', data: r.history, smooth: true, symbol: 'none', lineStyle: { width: 1.5, color: 'rgba(255,255,255,0.25)' } },
       ],
     }
   } else if (tab === 'discharge') {
     const d = scenarioData.value.dischargeData
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
-      tooltip: { trigger:'axis', backgroundColor:'rgba(6,30,70,0.9)', borderColor:'rgba(50,150,255,0.4)', textStyle:{color:'#e0e6ed',fontSize:11} },
-      title: { text: name, left:'center', top:2, textStyle:{color:'#8aa0b8',fontSize:11,fontWeight:600} },
-      legend: { data:['优化下泄流量','历史下泄流量','最小生态流量'], textStyle:{color:'#8aa0b8',fontSize:9}, top:18 },
-      grid: { left:46, right:8, top:42, bottom:18 },
-      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{show:false} },
-      yAxis: { type:'value', name:'流量（m³/s）', nameTextStyle:{color:'#8aa0b8',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
+      tooltip: { ...baseTooltip },
+      title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
+      legend: { data: ['优化下泄流量', '历史下泄流量', '最小生态流量'], textStyle: { color: TEXT_SECONDARY, fontSize: 9 }, top: 18 },
+      grid: createGrid(42, 18, 46, 8),
+      xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      yAxis: { ...baseValueYAxis, name: '流量（m³/s）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       series: [
-        { name:'优化下泄流量', type:'line', data:r.optimal, smooth:true, symbol:'none', lineStyle:{width:2,color:lineColor} },
-        { name:'历史下泄流量', type:'line', data:r.schedule, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ffaa00'} },
-        { name:'最小生态流量', type:'line', data:r.minDischarge, smooth:true, symbol:'none', lineStyle:{width:1.5,color:'#ff6b6b',type:'dashed'} },
+        { name: '优化下泄流量', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
+        { name: '历史下泄流量', type: 'line', data: r.schedule, smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[2] } },
+        { name: '最小生态流量', type: 'line', data: r.minDischarge, smooth: true, symbol: 'none', lineStyle: { width: 1.5, color: SERIES_COLORS[4], type: 'dashed' } },
       ],
     }
   } else {
     const d = scenarioData.value.powerOutputData
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
-      tooltip: { trigger:'axis', backgroundColor:'rgba(6,30,70,0.9)', borderColor:'rgba(50,150,255,0.4)', textStyle:{color:'#e0e6ed',fontSize:11} },
-      title: { text: name, left:'center', top:2, textStyle:{color:'#8aa0b8',fontSize:11,fontWeight:600} },
-      legend: { data:['优化出力','历史出力','装机容量'], textStyle:{color:'#8aa0b8',fontSize:9}, top:18 },
-      grid: { left:46, right:8, top:42, bottom:18 },
-      xAxis: { type:'category', data:d.dates, axisLine:{lineStyle:{color:'rgba(50,150,255,0.3)'}}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{show:false} },
-      yAxis: { type:'value', name:'出力（MW）', nameTextStyle:{color:'#8aa0b8',fontSize:9}, axisLine:{show:false}, axisLabel:{color:'#8aa0b8',fontSize:9}, splitLine:{lineStyle:{color:'rgba(50,150,255,0.1)'}} },
+      tooltip: { ...baseTooltip },
+      title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
+      legend: { data: ['优化出力', '历史出力', '装机容量'], textStyle: { color: TEXT_SECONDARY, fontSize: 9 }, top: 18 },
+      grid: createGrid(42, 18, 46, 8),
+      xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      yAxis: { ...baseValueYAxis, name: '出力（MW）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       series: [
-        { name:'优化出力', type:'line', data:r.optimal, smooth:true, symbol:'none', lineStyle:{width:2,color:lineColor} },
-        { name:'历史出力', type:'line', data:r.schedule, smooth:true, symbol:'none', lineStyle:{width:2,color:'#ffaa00'} },
-        { name:'装机容量', type:'line', data:r.capacity ? d.dates.map(()=>r.capacity) : [], smooth:true, symbol:'none', lineStyle:{width:2,color:'#ff6b6b',type:'dashed'} },
+        { name: '优化出力', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
+        { name: '历史出力', type: 'line', data: r.schedule, smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[2] } },
+        { name: '装机容量', type: 'line', data: r.capacity ? d.dates.map(() => r.capacity) : [], smooth: true, symbol: 'none', lineStyle: { width: 2, color: SERIES_COLORS[4], type: 'dashed' } },
       ],
     }
   }
 }
 
-// ── 渲染全部图表 ──
-const renderCharts = () => {
-  nextTick(() => {
-    if (convergenceChartRef.value) {
-      if (!convergenceChart) convergenceChart = echarts.init(convergenceChartRef.value)
-      convergenceChart.setOption(buildConvergenceOption(), true)
-      convergenceChart.resize()
-    }
-    if (objectiveChartRef.value) {
-      if (!objectiveChart) objectiveChart = echarts.init(objectiveChartRef.value)
-      objectiveChart.setOption(buildObjectiveOption(), true)
-      objectiveChart.resize()
-    }
-    if (rightLYXChartRef.value) {
-      if (!rightLYXChart) rightLYXChart = echarts.init(rightLYXChartRef.value)
-      rightLYXChart.setOption(buildReservoirOption('lyx'), true)
-      rightLYXChart.resize()
-    }
-    if (rightLJXChartRef.value) {
-      if (!rightLJXChart) rightLJXChart = echarts.init(rightLJXChartRef.value)
-      rightLJXChart.setOption(buildReservoirOption('ljx'), true)
-      rightLJXChart.resize()
-    }
-  })
-}
-
-const initResizeObserver = () => {
-  if (resizeObserver) resizeObserver.disconnect()
-  resizeObserver = new ResizeObserver(() => {
-    convergenceChart?.resize()
-    objectiveChart?.resize()
-    rightLYXChart?.resize()
-    rightLJXChart?.resize()
-  })
-  const container = document.querySelector('.process-transparent-view')
-  if (container) resizeObserver.observe(container)
-}
+const lyxOption = computed(() => buildReservoirOption('lyx'))
+const ljxOption = computed(() => buildReservoirOption('ljx'))
 
 // ── 日志追加模拟 ──
 let logTimer: ReturnType<typeof setInterval> | null = null
 const startLogSimulation = () => {
   const logMessages = [
-    { level:'INFO', message:'迭代 450/2000，当前最优适应度：1.4521E-03，平均适应度：2.0158E-02' },
-    { level:'INFO', message:'龙羊峡水位约束满足率：100%，刘家峡水位约束满足率：100%' },
-    { level:'INFO', message:'防洪目标满足，生态下泄满足，发电目标优化中...' },
-    { level:'INFO', message:'种群多样性指数：0.4235，搜索范围收敛正常' },
-    { level:'INFO', message:'迭代 500/2000，当前最优适应度：1.3856E-03，平均适应度：1.9523E-02' },
+    { level: 'INFO', message: '迭代 450/2000，当前最优适应度：1.4521E-03，平均适应度：2.0158E-02' },
+    { level: 'INFO', message: '龙羊峡水位约束满足率：100%，刘家峡水位约束满足率：100%' },
+    { level: 'INFO', message: '防洪目标满足，生态下泄满足，发电目标优化中...' },
+    { level: 'INFO', message: '种群多样性指数：0.4235，搜索范围收敛正常' },
+    { level: 'INFO', message: '迭代 500/2000，当前最优适应度：1.3856E-03，平均适应度：1.9523E-02' },
   ]
   let logIndex = 0
   if (logTimer) clearInterval(logTimer)
@@ -312,7 +243,7 @@ const startLogSimulation = () => {
     }
     const msg = logMessages[logIndex % logMessages.length]
     const now = new Date()
-    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`
+    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
     logsDisplay.value.unshift({ time, ...msg })
     if (logsDisplay.value.length > 20) logsDisplay.value = logsDisplay.value.slice(0, 20)
     logIndex++
@@ -322,12 +253,6 @@ const startLogSimulation = () => {
 // ── watch ──
 watch(activeScenarioId, () => {
   logsDisplay.value = [...logs.value]
-  renderCharts()
-})
-
-watch(activeRightTab, () => {
-  if (rightLYXChart) rightLYXChart.setOption(buildReservoirOption('lyx'), true)
-  if (rightLJXChart) rightLJXChart.setOption(buildReservoirOption('ljx'), true)
 })
 
 // ── 生命周期 ──
@@ -335,17 +260,11 @@ onMounted(() => {
   logsDisplay.value = [...logs.value]
   startProgressSimulation()
   startLogSimulation()
-  setTimeout(() => {
-    renderCharts()
-    initResizeObserver()
-  }, 300)
 })
 
 onUnmounted(() => {
   if (progressTimer) clearInterval(progressTimer)
   if (logTimer) clearInterval(logTimer)
-  if (resizeObserver) resizeObserver.disconnect()
-  ;[convergenceChart, objectiveChart, rightLYXChart, rightLJXChart].forEach(c => c?.dispose())
 })
 </script>
 
@@ -411,11 +330,11 @@ onUnmounted(() => {
         <div class="left-charts">
           <div class="chart-card">
             <div class="chart-card-header"><span class="chart-label">算法收敛曲线</span></div>
-            <div ref="convergenceChartRef" class="chart-container-sm"></div>
+            <BaseChart :option="convergenceOption" class="chart-container-sm" />
           </div>
           <div class="chart-card">
             <div class="chart-card-header"><span class="chart-label">最优目标值变化趋势</span></div>
-            <div ref="objectiveChartRef" class="chart-container-sm"></div>
+            <BaseChart :option="objectiveOption" class="chart-container-sm" />
           </div>
         </div>
       </div>
@@ -437,10 +356,10 @@ onUnmounted(() => {
         <!-- 两个竖排图表：龙羊峡 + 刘家峡 -->
         <div class="right-charts-col">
           <div class="right-chart-wrap">
-            <div ref="rightLYXChartRef" class="chart-container-md"></div>
+            <BaseChart :option="lyxOption" class="chart-container-md" />
           </div>
           <div class="right-chart-wrap">
-            <div ref="rightLJXChartRef" class="chart-container-md"></div>
+            <BaseChart :option="ljxOption" class="chart-container-md" />
           </div>
         </div>
       </div>

@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import * as echarts from 'echarts'
+import { computed } from 'vue'
+import type { EChartsOption } from 'echarts'
 import PanelCard from '@/components/common/PanelCard.vue'
+import BaseChart from '@/components/chart/BaseChart.vue'
 import { waterLevelSeries } from '@/mock/home'
+import {
+  baseTooltip,
+  baseLegend,
+  baseCategoryXAxis,
+  baseValueYAxis,
+  RESERVOIR_COLORS,
+  createGrid,
+} from '@/utils/chart'
 
 const seriesData = waterLevelSeries.data
-
-const chartRef = ref<HTMLDivElement | null>(null)
-let chart: echarts.ECharts | null = null
-let resizeObserver: ResizeObserver | null = null
 
 // 只展示龙羊峡和刘家峡
 const displaySeries = seriesData.series.filter(
@@ -19,89 +24,43 @@ const colorMap: Record<string, string> = {
   '刘家峡水库': '#00e5ff',
 }
 
-const initChart = () => {
-  if (!chartRef.value) return
-  if (!chart) {
-    chart = echarts.init(chartRef.value)
-  }
-
-  const option = {
-    tooltip: {
-      trigger: 'axis' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 12 },
+const chartOption = computed<EChartsOption>(() => ({
+  tooltip: {
+    ...baseTooltip,
+    textStyle: { color: '#e0e6ed', fontSize: 12 },
+  },
+  legend: {
+    ...baseLegend,
+    data: displaySeries.map(s => s.name),
+    top: 0,
+  },
+  grid: createGrid(36, 30, 50, 20),
+  xAxis: {
+    ...baseCategoryXAxis,
+    data: seriesData.xAxis,
+  },
+  yAxis: {
+    ...baseValueYAxis,
+    name: 'm',
+  },
+  series: displaySeries.map(s => ({
+    name: s.name,
+    type: 'line' as const,
+    data: s.data,
+    smooth: true,
+    symbol: 'circle',
+    symbolSize: 4,
+    lineStyle: { width: 2 },
+    itemStyle: {
+      color: colorMap[s.name] || RESERVOIR_COLORS[s.name] || '#00afff',
     },
-    legend: {
-      data: displaySeries.map(s => s.name),
-      textStyle: { color: '#8aa0b8', fontSize: 11 },
-      top: 0,
-    },
-    grid: {
-      left: 50,
-      right: 20,
-      top: 36,
-      bottom: 30,
-    },
-    xAxis: {
-      type: 'category' as const,
-      data: seriesData.xAxis,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { show: false },
-    },
-    yAxis: {
-      type: 'value' as const,
-      name: 'm',
-      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
-    },
-    series: displaySeries.map(s => ({
-      name: s.name,
-      type: 'line' as const,
-      data: s.data,
-      smooth: true,
-      symbol: 'circle',
-      symbolSize: 4,
-      lineStyle: { width: 2 },
-      itemStyle: {
-        color: colorMap[s.name] || '#00afff',
-      },
-    })),
-  }
-
-  chart.setOption(option)
-  chart.resize()
-}
-
-onMounted(() => {
-  // 延迟初始化确保 flex 布局完成
-  setTimeout(() => {
-    initChart()
-    if (chartRef.value) {
-      resizeObserver = new ResizeObserver(() => chart?.resize())
-      resizeObserver.observe(chartRef.value)
-    }
-  }, 300)
-})
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-  if (chart) {
-    chart.dispose()
-    chart = null
-  }
-})
+  })),
+}))
 </script>
 
 <template>
   <PanelCard title="水位过程线" unit="单位：m">
-    <div ref="chartRef" class="chart-container"></div>
+    <BaseChart :option="chartOption" class="chart-container" />
   </PanelCard>
 </template>
 

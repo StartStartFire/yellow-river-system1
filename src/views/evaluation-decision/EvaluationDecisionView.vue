@@ -1,7 +1,25 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
+import BaseChart from '@/components/chart/BaseChart.vue'
+import {
+  PLAN_COLORS,
+  SANKEY_NODE_COLORS,
+  WATER_FLOW_COLORS,
+  TEXT_PRIMARY,
+  TEXT_REGULAR,
+  TEXT_SECONDARY,
+  AXIS_LINE_COLOR,
+  SPLIT_LINE_COLOR,
+  baseTooltip,
+  baseItemTooltip,
+  baseLegend,
+  baseCategoryXAxis,
+  baseValueYAxis,
+  baseValueXAxis,
+  createGrid,
+} from '@/utils/chart'
 import {
   evaluationDecisionState as pageState,
   planOptions,
@@ -44,39 +62,15 @@ const selectedPlanLabels = computed(() => {
   return selectedComparePlans.value.map(v => planLabelMap[v]).filter(Boolean)
 })
 
-// ========== ECharts refs ==========
-const radarChartRef = ref<HTMLDivElement | null>(null)
-const sankeyChartRef = ref<HTMLDivElement | null>(null)
-const paretoChartRef = ref<HTMLDivElement | null>(null)
-const processChartRef = ref<HTMLDivElement | null>(null)
-const waterFlowChartRef = ref<HTMLDivElement | null>(null)
-
-let radarChart: echarts.ECharts | null = null
-let sankeyChart: echarts.ECharts | null = null
-let paretoChart: echarts.ECharts | null = null
-let processChart: echarts.ECharts | null = null
-let waterFlowChart: echarts.ECharts | null = null
-
-let resizeObserver: ResizeObserver | null = null
-
-// ========== 图表颜色 ==========
-const planColors: Record<string, string> = {
-  '方案一': '#00afff',
-  '方案二': '#00e5a0',
-  '方案三': '#ffaa00',
-  '方案四': '#b37feb',
-}
-
-// 桑基图节点色板（不同色相，每个节点不同颜色）
-const nodeColors = [
-  '#4a90d9', '#50b8a0', '#e88a3a', '#7a5cc0', '#d45a7a',
-  '#3aa0c0', '#8ab84a', '#c07040', '#5a8ab8', '#b070a0',
-  '#c05040', '#40a080', '#8a6ab0', '#d0a040', '#5090b0',
-  '#b08060', '#60a0a0', '#a06080',
-]
+// ========== BaseChart refs（用于 Tab 切换后手动 resize） ==========
+const radarBaseChart = ref<InstanceType<typeof BaseChart> | null>(null)
+const sankeyBaseChart = ref<InstanceType<typeof BaseChart> | null>(null)
+const paretoBaseChart = ref<InstanceType<typeof BaseChart> | null>(null)
+const processBaseChart = ref<InstanceType<typeof BaseChart> | null>(null)
+const waterFlowBaseChart = ref<InstanceType<typeof BaseChart> | null>(null)
 
 // ========== 雷达图 ==========
-const buildRadarOption = () => {
+const radarOption = computed<echarts.EChartsOption>(() => {
   const data = radarData.data
   const filteredPlans = data.plans.filter(p => selectedPlanLabels.value.includes(p.plan))
 
@@ -85,17 +79,14 @@ const buildRadarOption = () => {
       text: '多方案评价雷达图',
       right: 12,
       top: 4,
-      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
-      trigger: 'item' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
+      ...baseItemTooltip,
     },
     legend: {
+      ...baseLegend,
       data: filteredPlans.map(p => p.plan),
-      textStyle: { color: '#8aa0b8', fontSize: 11 },
       bottom: 2,
     },
     radar: {
@@ -106,7 +97,7 @@ const buildRadarOption = () => {
       center: ['50%', '52%'],
       radius: '56%',
       axisName: {
-        color: '#c0c8d4',
+        color: TEXT_REGULAR,
         fontSize: 11,
       },
       splitArea: {
@@ -116,12 +107,12 @@ const buildRadarOption = () => {
       },
       axisLine: {
         lineStyle: {
-          color: 'rgba(50, 150, 255, 0.25)',
+          color: AXIS_LINE_COLOR,
         },
       },
       splitLine: {
         lineStyle: {
-          color: 'rgba(50, 150, 255, 0.15)',
+          color: SPLIT_LINE_COLOR,
         },
       },
     },
@@ -130,21 +121,21 @@ const buildRadarOption = () => {
       data: filteredPlans.map(p => ({
         name: p.plan,
         value: p.values,
-        lineStyle: { width: 2, color: planColors[p.plan] },
+        lineStyle: { width: 2, color: PLAN_COLORS[p.plan] },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: planColors[p.plan] + '30' },
-            { offset: 1, color: planColors[p.plan] + '05' },
+            { offset: 0, color: PLAN_COLORS[p.plan] + '30' },
+            { offset: 1, color: PLAN_COLORS[p.plan] + '05' },
           ]),
         },
-        itemStyle: { color: planColors[p.plan] },
+        itemStyle: { color: PLAN_COLORS[p.plan] },
       })),
     }],
   }
-}
+})
 
 // ========== 评价指标桑基图 ==========
-const buildSankeyOption = () => {
+const sankeyOption = computed<echarts.EChartsOption>(() => {
   const data = evaluationSankeyData.data
 
   return {
@@ -152,14 +143,11 @@ const buildSankeyOption = () => {
       text: '多方案评价指标',
       right: 12,
       top: 6,
-      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
-      trigger: 'item' as const,
+      ...baseItemTooltip,
       triggerOn: 'mousemove' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
     },
     series: [{
       type: 'sankey',
@@ -176,7 +164,7 @@ const buildSankeyOption = () => {
       data: data.nodes.map((n, i) => ({
         ...n,
         itemStyle: {
-          color: nodeColors[i % nodeColors.length],
+          color: SANKEY_NODE_COLORS[i % SANKEY_NODE_COLORS.length],
           borderColor: 'rgba(255,255,255,0.15)',
           borderWidth: 1,
         },
@@ -206,10 +194,10 @@ const buildSankeyOption = () => {
       },
     }],
   }
-}
+})
 
 // ========== 帕累托曲线 ==========
-const buildParetoOption = () => {
+const paretoOption = computed<echarts.EChartsOption>(() => {
   const data = paretoData.data
   const filteredData = data.filter(d => selectedPlanLabels.value.includes(d.plan))
 
@@ -218,35 +206,28 @@ const buildParetoOption = () => {
       text: '帕累托曲线',
       right: 12,
       top: 4,
-      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
-      trigger: 'axis' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
+      ...baseTooltip,
     },
     legend: {
+      ...baseLegend,
       data: filteredData.map(d => d.plan),
-      textStyle: { color: '#8aa0b8', fontSize: 11 },
       top: 22,
     },
-    grid: { left: 50, right: 16, top: 48, bottom: 22 },
+    grid: createGrid(48, 22, 50, 16),
     xAxis: {
-      type: 'value',
+      ...baseValueXAxis,
       name: '最优投影值',
-      nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 9 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+      nameTextStyle: { color: TEXT_SECONDARY, fontSize: 10 },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
     yAxis: {
-      type: 'value',
+      ...baseValueYAxis,
       name: '综合优选指数',
-      nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 9 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+      nameTextStyle: { color: TEXT_SECONDARY, fontSize: 10 },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
     series: filteredData.map(d => ({
       name: d.plan,
@@ -255,12 +236,12 @@ const buildParetoOption = () => {
       smooth: true,
       symbol: 'circle',
       symbolSize: 6,
-      lineStyle: { width: 2, color: planColors[d.plan] },
-      itemStyle: { color: planColors[d.plan] },
+      lineStyle: { width: 2, color: PLAN_COLORS[d.plan] },
+      itemStyle: { color: PLAN_COLORS[d.plan] },
       connectNulls: false,
     })),
   }
-}
+})
 
 // ========== 评价算法排名表格 ==========
 // 使用模板中的 el-table 直接渲染（见模板部分）
@@ -269,7 +250,7 @@ const buildParetoOption = () => {
 // 直接在模板中渲染
 
 // ========== 决策分析-过程曲线 ==========
-const buildProcessOption = () => {
+const processOption = computed<echarts.EChartsOption>(() => {
   const tab = activeProcessTab.value
 
   if (tab === 'water') {
@@ -279,34 +260,26 @@ const buildProcessOption = () => {
         text: '水位变化过程线',
         right: 12,
         top: 2,
-        textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+        textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
       },
-      tooltip: {
-        trigger: 'axis' as const,
-        backgroundColor: 'rgba(6, 30, 70, 0.9)',
-        borderColor: 'rgba(50, 150, 255, 0.4)',
-        textStyle: { color: '#e0e6ed', fontSize: 11 },
-      },
+      tooltip: { ...baseTooltip },
       legend: {
+        ...baseLegend,
         data: ['龙羊峡水库', '刘家峡水库', '汛限水位', '正常蓄水位'],
-        textStyle: { color: '#8aa0b8', fontSize: 10 },
+        textStyle: { color: TEXT_SECONDARY, fontSize: 10 },
         top: 18,
       },
-      grid: { left: 42, right: 8, top: 46, bottom: 16 },
+      grid: createGrid(46, 16, 42, 8),
       xAxis: {
-        type: 'category',
+        ...baseCategoryXAxis,
         data: d.dates,
-        axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#8aa0b8', fontSize: 9 },
-        splitLine: { show: false },
+        axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
       },
       yAxis: {
-        type: 'value',
+        ...baseValueYAxis,
         name: '水位（m）',
-        nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
-        axisLine: { show: false },
-        axisLabel: { color: '#8aa0b8', fontSize: 9 },
-        splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+        nameTextStyle: { color: TEXT_SECONDARY, fontSize: 10 },
+        axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
       },
       series: [
         {
@@ -362,34 +335,26 @@ const buildProcessOption = () => {
         text: '流量变化过程线',
         right: 12,
         top: 2,
-        textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+        textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
       },
-      tooltip: {
-        trigger: 'axis' as const,
-        backgroundColor: 'rgba(6, 30, 70, 0.9)',
-        borderColor: 'rgba(50, 150, 255, 0.4)',
-        textStyle: { color: '#e0e6ed', fontSize: 11 },
-      },
+      tooltip: { ...baseTooltip },
       legend: {
+        ...baseLegend,
         data: ['龙羊峡水库', '刘家峡水库'],
-        textStyle: { color: '#8aa0b8', fontSize: 10 },
+        textStyle: { color: TEXT_SECONDARY, fontSize: 10 },
         top: 18,
       },
-      grid: { left: 42, right: 8, top: 46, bottom: 16 },
+      grid: createGrid(46, 16, 42, 8),
       xAxis: {
-        type: 'category',
+        ...baseCategoryXAxis,
         data: d.dates,
-        axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#8aa0b8', fontSize: 9 },
-        splitLine: { show: false },
+        axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
       },
       yAxis: {
-        type: 'value',
+        ...baseValueYAxis,
         name: '流量（m³/s）',
-        nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
-        axisLine: { show: false },
-        axisLabel: { color: '#8aa0b8', fontSize: 9 },
-        splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+        nameTextStyle: { color: TEXT_SECONDARY, fontSize: 10 },
+        axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
       },
       series: [
         {
@@ -417,34 +382,26 @@ const buildProcessOption = () => {
         text: '出力变化过程线',
         right: 12,
         top: 2,
-        textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+        textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
       },
-      tooltip: {
-        trigger: 'axis' as const,
-        backgroundColor: 'rgba(6, 30, 70, 0.9)',
-        borderColor: 'rgba(50, 150, 255, 0.4)',
-        textStyle: { color: '#e0e6ed', fontSize: 11 },
-      },
+      tooltip: { ...baseTooltip },
       legend: {
+        ...baseLegend,
         data: ['龙羊峡水库', '刘家峡水库', '龙羊峡装机容量', '刘家峡装机容量'],
-        textStyle: { color: '#8aa0b8', fontSize: 10 },
+        textStyle: { color: TEXT_SECONDARY, fontSize: 10 },
         top: 18,
       },
-      grid: { left: 42, right: 8, top: 46, bottom: 16 },
+      grid: createGrid(46, 16, 42, 8),
       xAxis: {
-        type: 'category',
+        ...baseCategoryXAxis,
         data: d.dates,
-        axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-        axisLabel: { color: '#8aa0b8', fontSize: 9 },
-        splitLine: { show: false },
+        axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
       },
       yAxis: {
-        type: 'value',
+        ...baseValueYAxis,
         name: '出力（MW）',
-        nameTextStyle: { color: '#8aa0b8', fontSize: 10 },
-        axisLine: { show: false },
-        axisLabel: { color: '#8aa0b8', fontSize: 9 },
-        splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
+        nameTextStyle: { color: TEXT_SECONDARY, fontSize: 10 },
+        axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
       },
       series: [
         {
@@ -482,21 +439,19 @@ const buildProcessOption = () => {
       ],
     }
   }
-}
+})
 
 // ========== 水量使用流向图 ==========
-const buildWaterFlowOption = () => {
+const waterFlowOption = computed<echarts.EChartsOption>(() => {
   const data = decisionPlanData.value.waterUsage
   const totalValue = data.reduce((sum: number, d: any) => sum + d.value, 0)
   const sourceName = `最终来水量\n${totalValue.toFixed(2)} 亿m³`
-
-  const colors = ['#00afff', '#00e5a0', '#ffaa00', '#b37feb', '#ff6b6b', '#52c41a']
 
   const nodes = [
     { name: sourceName, itemStyle: { color: '#0088cc' } },
     ...data.map((d: any, i: number) => ({
       name: `${d.name}\n${d.value} 亿m³（${d.percent}%）`,
-      itemStyle: { color: colors[i % colors.length] },
+      itemStyle: { color: WATER_FLOW_COLORS[i % WATER_FLOW_COLORS.length] },
     })),
   ]
 
@@ -511,14 +466,11 @@ const buildWaterFlowOption = () => {
       text: '水量使用流向图',
       right: 12,
       top: 6,
-      textStyle: { color: '#8aa0b8', fontSize: 13, fontWeight: 600 },
+      textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
     },
     tooltip: {
-      trigger: 'item' as const,
+      ...baseItemTooltip,
       triggerOn: 'mousemove' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 11 },
       formatter: (params: any) => {
         if (params.dataType === 'edge') {
           return `${params.data.source} → ${params.data.target}<br/>水量：${params.data.value} 亿m³`
@@ -549,78 +501,33 @@ const buildWaterFlowOption = () => {
       },
       label: {
         show: true,
-        color: '#e0e6ed',
+        color: TEXT_PRIMARY,
         fontSize: 10,
         position: 'right',
       },
     }],
   }
-}
-
-// ========== 渲染图表 ==========
-const renderCharts = () => {
-  nextTick(() => {
-    // 雷达图
-    if (radarChartRef.value) {
-      if (!radarChart) radarChart = echarts.init(radarChartRef.value)
-      radarChart.setOption(buildRadarOption(), true)
-      radarChart.resize()
-    }
-    // 桑基图
-    if (sankeyChartRef.value) {
-      if (!sankeyChart) sankeyChart = echarts.init(sankeyChartRef.value)
-      sankeyChart.setOption(buildSankeyOption(), true)
-      sankeyChart.resize()
-    }
-    // 帕累托曲线
-    if (paretoChartRef.value) {
-      if (!paretoChart) paretoChart = echarts.init(paretoChartRef.value)
-      paretoChart.setOption(buildParetoOption(), true)
-      paretoChart.resize()
-    }
-    // 过程曲线（决策分析）
-    if (processChartRef.value) {
-      if (!processChart) processChart = echarts.init(processChartRef.value)
-      processChart.setOption(buildProcessOption(), true)
-      processChart.resize()
-    }
-    // 水量使用流向图
-    if (waterFlowChartRef.value) {
-      if (!waterFlowChart) waterFlowChart = echarts.init(waterFlowChartRef.value)
-      waterFlowChart.setOption(buildWaterFlowOption(), true)
-      waterFlowChart.resize()
-    }
-  })
-}
-
-const initResizeObserver = () => {
-  if (resizeObserver) resizeObserver.disconnect()
-  resizeObserver = new ResizeObserver(() => {
-    radarChart?.resize()
-    sankeyChart?.resize()
-    paretoChart?.resize()
-    processChart?.resize()
-    waterFlowChart?.resize()
-  })
-  const container = document.querySelector('.evaluation-decision-view')
-  if (container) resizeObserver.observe(container)
-}
+})
 
 // ========== 交互事件 ==========
 
 const handleTabSwitch = (tab: string) => {
   activeTab.value = tab
+  // 二次 resize 确保 display 变化后 ECharts 获取正确尺寸
   setTimeout(() => {
-    renderCharts()
-    // 二次 resize 确保 display 变化后 ECharts 获取正确尺寸
-    setTimeout(() => {
-      radarChart?.resize()
-      sankeyChart?.resize()
-      paretoChart?.resize()
-      processChart?.resize()
-      waterFlowChart?.resize()
-    }, 200)
-  }, 100)
+    radarBaseChart.value?.resize()
+    sankeyBaseChart.value?.resize()
+    paretoBaseChart.value?.resize()
+    processBaseChart.value?.resize()
+    waterFlowBaseChart.value?.resize()
+  }, 200)
+  setTimeout(() => {
+    radarBaseChart.value?.resize()
+    sankeyBaseChart.value?.resize()
+    paretoBaseChart.value?.resize()
+    processBaseChart.value?.resize()
+    waterFlowBaseChart.value?.resize()
+  }, 400)
 }
 
 // 导出方案
@@ -635,34 +542,18 @@ watch(selectedComparePlans, (val, oldVal) => {
     nextTick(() => { selectedComparePlans.value = ['plan-1'] })
     return
   }
-  renderCharts()
+  // BaseChart 自动响应 computed option 变化，无需手动 renderCharts
 })
 
-watch(currentDecisionPlan, () => {
-  renderCharts()
-})
-
-watch(activeProcessTab, () => {
-  if (processChart) {
-    processChart.setOption(buildProcessOption(), true)
-  }
-})
-
+// activeTab 变化时需要手动 resize（v-show display 切换后容器尺寸变化）
 watch(activeTab, () => {
-  setTimeout(() => renderCharts(), 100)
-})
-
-// ========== 生命周期 ==========
-onMounted(() => {
   setTimeout(() => {
-    renderCharts()
-    initResizeObserver()
+    radarBaseChart.value?.resize()
+    sankeyBaseChart.value?.resize()
+    paretoBaseChart.value?.resize()
+    processBaseChart.value?.resize()
+    waterFlowBaseChart.value?.resize()
   }, 300)
-})
-
-onUnmounted(() => {
-  if (resizeObserver) resizeObserver.disconnect()
-  ;[radarChart, sankeyChart, paretoChart, processChart, waterFlowChart].forEach(c => c?.dispose())
 })
 </script>
 
@@ -709,17 +600,17 @@ onUnmounted(() => {
       <!-- 第一行图表：雷达图 + 评价指标桑基图 -->
       <div class="charts-row">
         <div class="chart-box chart-box-left">
-          <div ref="radarChartRef" class="chart-container chart-container-eva"></div>
+          <BaseChart ref="radarBaseChart" :option="radarOption" class="chart-container chart-container-eva" />
         </div>
         <div class="chart-box chart-box-right">
-          <div ref="sankeyChartRef" class="chart-container chart-container-eva"></div>
+          <BaseChart ref="sankeyBaseChart" :option="sankeyOption" class="chart-container chart-container-eva" />
         </div>
       </div>
 
       <!-- 第二行图表：帕累托曲线 + 评价算法排名分析 -->
       <div class="charts-row">
         <div class="chart-box chart-box-left">
-          <div ref="paretoChartRef" class="chart-container chart-container-eva-sm"></div>
+          <BaseChart ref="paretoBaseChart" :option="paretoOption" class="chart-container chart-container-eva-sm" />
         </div>
         <div class="chart-box chart-box-right">
           <div class="ranking-table-wrap eva-ranking-table">
@@ -843,14 +734,14 @@ onUnmounted(() => {
                 @click="activeProcessTab = tab.key"
               >{{ tab.label }}</button>
             </div>
-            <div ref="processChartRef" class="chart-container chart-container-process"></div>
+            <BaseChart ref="processBaseChart" :option="processOption" class="chart-container chart-container-process" />
           </div>
         </div>
 
         <!-- 右列：水量使用流向图 -->
         <div class="decision-col decision-col-right">
           <div class="sub-chart-box">
-            <div ref="waterFlowChartRef" class="chart-container"></div>
+            <BaseChart ref="waterFlowBaseChart" :option="waterFlowOption" class="chart-container" />
           </div>
         </div>
       </div>

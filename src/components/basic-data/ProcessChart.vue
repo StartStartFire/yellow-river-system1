@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import * as echarts from 'echarts'
+import { computed } from 'vue'
+import type { EChartsOption } from 'echarts'
 import PanelCard from '@/components/common/PanelCard.vue'
+import BaseChart from '@/components/chart/BaseChart.vue'
+import {
+  baseTooltip,
+  baseLegend,
+  baseCategoryXAxis,
+  baseValueYAxis,
+  SERIES_COLORS,
+  createGrid,
+} from '@/utils/chart'
 
 interface ProcessSeries {
   name: string
@@ -15,96 +24,47 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const chartRef = ref<HTMLDivElement | null>(null)
-let chart: echarts.ECharts | null = null
-let resizeObserver: ResizeObserver | null = null
-
 const colorMap: Record<string, string> = {
   waterLevel: '#00AFFF',
   inflow: '#00E5FF',
   outflow: '#00ff88',
 }
 
-const initChart = () => {
-  if (!chartRef.value) return
-  if (!chart) {
-    chart = echarts.init(chartRef.value)
-  }
-
-  const option: echarts.EChartsOption = {
-    tooltip: {
-      trigger: 'axis' as const,
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 12 },
-    },
-    legend: {
-      data: props.series.map(s => s.name),
-      textStyle: { color: '#8aa0b8', fontSize: 11 },
-      top: 0,
-    },
-    grid: {
-      left: 50,
-      right: 20,
-      top: 30,
-      bottom: 30,
-    },
-    xAxis: {
-      type: 'category' as const,
-      data: props.xAxis,
-      axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.3)' } },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { show: false },
-    },
-    yAxis: {
-      type: 'value' as const,
-      name: 'm',
-      nameTextStyle: { color: '#8aa0b8', fontSize: 11 },
-      axisLine: { show: false },
-      axisLabel: { color: '#8aa0b8', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.1)' } },
-    },
-    series: props.series.map(s => ({
-      name: s.name,
-      type: 'line' as const,
-      data: s.data,
-      smooth: true,
-      symbol: 'circle',
-      symbolSize: 4,
-      lineStyle: { width: 2 },
-      itemStyle: { color: colorMap[s.name] || '#00AFFF' },
-    })),
-  }
-
-  chart.setOption(option)
-  chart.resize()
-}
-
-onMounted(() => {
-  setTimeout(() => {
-    initChart()
-    if (chartRef.value) {
-      resizeObserver = new ResizeObserver(() => chart?.resize())
-      resizeObserver.observe(chartRef.value)
-    }
-  }, 200)
-})
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-  if (chart) {
-    chart.dispose()
-    chart = null
-  }
-})
+const chartOption = computed<EChartsOption>(() => ({
+  tooltip: {
+    ...baseTooltip,
+    textStyle: { color: '#e0e6ed', fontSize: 12 },
+  },
+  legend: {
+    ...baseLegend,
+    data: props.series.map(s => s.name),
+    top: 0,
+  },
+  grid: createGrid(30, 30, 50, 20),
+  xAxis: {
+    ...baseCategoryXAxis,
+    data: props.xAxis,
+  },
+  yAxis: {
+    ...baseValueYAxis,
+    name: 'm',
+  },
+  series: props.series.map((s, i) => ({
+    name: s.name,
+    type: 'line' as const,
+    data: s.data,
+    smooth: true,
+    symbol: 'circle',
+    symbolSize: 4,
+    lineStyle: { width: 2 },
+    itemStyle: { color: colorMap[s.name] || SERIES_COLORS[i % SERIES_COLORS.length] },
+  })),
+}))
 </script>
 
 <template>
   <PanelCard title="水情过程线">
-    <div ref="chartRef" class="chart-container"></div>
+    <BaseChart :option="chartOption" class="chart-container" />
   </PanelCard>
 </template>
 

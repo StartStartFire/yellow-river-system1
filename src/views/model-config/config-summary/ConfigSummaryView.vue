@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import BaseChart from '@/components/chart/BaseChart.vue'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import { TEXT_PRIMARY, baseItemTooltip, SERIES_COLORS } from '@/utils/chart'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import {
   configPlanList,
@@ -125,86 +126,54 @@ const detailDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const detailPlan = ref<ConfigPlan | null>(null)
 
-// ==================== 图表 ref ====================
-const modelChartRef = ref<HTMLDivElement | null>(null)
-const algoChartRef = ref<HTMLDivElement | null>(null)
-let modelChart: echarts.ECharts | null = null
-let algoChart: echarts.ECharts | null = null
-let modelResizeObserver: ResizeObserver | null = null
-let algoResizeObserver: ResizeObserver | null = null
+// ==================== 图表 computed ====================
+const modelChartOption = computed(() => ({
+  tooltip: {
+    ...baseItemTooltip,
+    formatter: (params: any) => `${params.name}<br/>数量: ${params.value}个 (${params.percent}%)`,
+  },
+  series: [{
+    type: 'pie',
+    radius: ['45%', '70%'],
+    center: ['35%', '50%'],
+    avoidLabelOverlap: false,
+    padAngle: 2,
+    itemStyle: { borderRadius: 4 },
+    label: { show: false },
+    emphasis: { label: { show: true, fontSize: 13, fontWeight: 'bold', color: TEXT_PRIMARY } },
+    data: modelDist.map((d, i) => ({
+      value: d.value,
+      name: d.name,
+      itemStyle: { color: SERIES_COLORS[i % SERIES_COLORS.length] },
+    })),
+  }],
+}))
 
-const DONUT_COLORS = ['#00afff', '#00e5a0', '#f0a020', '#ff6b6b']
-const DONUT_COLORS_ALGO = ['#00d4ff', '#00ff88', '#ffaa00', '#a855f7']
-
-// ==================== 图表初始化 ====================
-const initDonutChart = (
-  el: HTMLDivElement,
-  data: DistributionItem[],
-  colors: string[]
-): echarts.ECharts => {
-  const chart = echarts.init(el)
-  const option: echarts.EChartsOption = {
-    tooltip: {
-      trigger: 'item',
-      backgroundColor: 'rgba(6, 30, 70, 0.9)',
-      borderColor: 'rgba(50, 150, 255, 0.4)',
-      textStyle: { color: '#e0e6ed', fontSize: 12 },
-      formatter: (params: any) => {
-        return `${params.name}<br/>数量: ${params.value}个 (${params.percent}%)`
-      },
-    },
-    series: [
-      {
-        type: 'pie',
-        radius: ['45%', '70%'],
-        center: ['35%', '50%'],
-        avoidLabelOverlap: false,
-        padAngle: 2,
-        itemStyle: {
-          borderRadius: 4,
-        },
-        label: { show: false },
-        emphasis: {
-          label: { show: true, fontSize: 13, fontWeight: 'bold', color: '#e0e6ed' },
-        },
-        data: data.map((d, i) => ({
-          value: d.value,
-          name: d.name,
-          itemStyle: { color: colors[i % colors.length] },
-        })),
-      },
-    ],
-  }
-  chart.setOption(option, true)
-  return chart
-}
-
-const initAllCharts = () => {
-  if (modelChartRef.value) {
-    if (modelChart) modelChart.dispose()
-    modelChart = initDonutChart(modelChartRef.value, modelDist, DONUT_COLORS)
-    modelResizeObserver = new ResizeObserver(() => modelChart?.resize())
-    modelResizeObserver.observe(modelChartRef.value)
-  }
-  if (algoChartRef.value) {
-    if (algoChart) algoChart.dispose()
-    algoChart = initDonutChart(algoChartRef.value, algoDist, DONUT_COLORS_ALGO)
-    algoResizeObserver = new ResizeObserver(() => algoChart?.resize())
-    algoResizeObserver.observe(algoChartRef.value)
-  }
-}
+const algoChartOption = computed(() => ({
+  tooltip: {
+    ...baseItemTooltip,
+    formatter: (params: any) => `${params.name}<br/>数量: ${params.value}个 (${params.percent}%)`,
+  },
+  series: [{
+    type: 'pie',
+    radius: ['45%', '70%'],
+    center: ['35%', '50%'],
+    avoidLabelOverlap: false,
+    padAngle: 2,
+    itemStyle: { borderRadius: 4 },
+    label: { show: false },
+    emphasis: { label: { show: true, fontSize: 13, fontWeight: 'bold', color: TEXT_PRIMARY } },
+    data: algoDist.map((d, i) => ({
+      value: d.value,
+      name: d.name,
+      itemStyle: { color: SERIES_COLORS[i % SERIES_COLORS.length] },
+    })),
+  }],
+}))
 
 onMounted(() => {
   // 从 Store 当前配置重建方案列表，确保前四步最新配置已同步
   plansList.value = buildPlanList()
-  setTimeout(initAllCharts, 300)
-})
-
-onUnmounted(() => {
-  modelResizeObserver?.disconnect()
-  algoResizeObserver?.disconnect()
-  modelChart?.dispose()
-  algoChart?.dispose()
 })
 
 // 监听搜索，重置到第一页
@@ -532,10 +501,10 @@ const pageNumbers = computed(() => {
           </div>
           <div class="card-body">
             <div class="chart-legend-row">
-              <div ref="modelChartRef" class="mini-donut"></div>
+              <BaseChart :option="modelChartOption" class="mini-donut" />
               <div class="legend-list">
                 <div v-for="(item, i) in modelDist" :key="item.name" class="legend-item">
-                  <span class="legend-dot" :style="{ background: DONUT_COLORS[i] }"></span>
+                  <span class="legend-dot" :style="{ background: SERIES_COLORS[i % SERIES_COLORS.length] }"></span>
                   <span class="legend-name">{{ item.name }}</span>
                   <span class="legend-detail">{{ item.value }}个（{{ item.percent }}%）</span>
                 </div>
@@ -557,10 +526,10 @@ const pageNumbers = computed(() => {
           </div>
           <div class="card-body">
             <div class="chart-legend-row">
-              <div ref="algoChartRef" class="mini-donut"></div>
+              <BaseChart :option="algoChartOption" class="mini-donut" />
               <div class="legend-list">
                 <div v-for="(item, i) in algoDist" :key="item.name" class="legend-item">
-                  <span class="legend-dot" :style="{ background: DONUT_COLORS_ALGO[i] }"></span>
+                  <span class="legend-dot" :style="{ background: SERIES_COLORS[i % SERIES_COLORS.length] }"></span>
                   <span class="legend-name">{{ item.name }}</span>
                   <span class="legend-detail">{{ item.value }}个（{{ item.percent }}%）</span>
                 </div>

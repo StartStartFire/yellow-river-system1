@@ -1,9 +1,19 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed } from 'vue'
+import type { EChartsOption } from 'echarts'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import BaseChart from '@/components/chart/BaseChart.vue'
 import PanelCard from '@/components/common/PanelCard.vue'
+import {
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  baseTooltip,
+  baseCategoryXAxis,
+  baseValueYAxis,
+  createGrid,
+  createAreaGradient,
+} from '@/utils/chart'
 import { caseList, caseDetail, caseTypeOptions, reservoirOptions } from '@/mock/caseLibrary'
 
 const router = useRouter()
@@ -72,112 +82,92 @@ const handleReproduce = () => {
   router.push('/model-config/model-data')
 }
 
-const waterLevelChartRef = ref<HTMLElement>()
-const outflowChartRef = ref<HTMLElement>()
-const powerChartRef = ref<HTMLElement>()
-
-let waterLevelChart: echarts.ECharts | null = null
-let outflowChart: echarts.ECharts | null = null
-let powerChart: echarts.ECharts | null = null
-
-const chartBaseOption = {
-  backgroundColor: 'transparent',
-  grid: { top: 35, right: 15, bottom: 25, left: 50 },
-  tooltip: {
-    trigger: 'axis',
-    backgroundColor: 'rgba(6, 30, 70, 0.9)',
-    borderColor: 'rgba(0, 175, 255, 0.3)',
-    textStyle: { color: '#e0e6ed', fontSize: 11 },
-  },
-  xAxis: {
-    type: 'category',
-    axisLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.2)' } },
-    axisLabel: { color: '#8aa0b8', fontSize: 10 },
-    splitLine: { show: false },
-  },
-  yAxis: {
-    type: 'value',
-    axisLine: { show: false },
-    axisLabel: { color: '#8aa0b8', fontSize: 10 },
-    splitLine: { lineStyle: { color: 'rgba(50, 150, 255, 0.08)' } },
-  },
-  series: [{
-    type: 'line',
-    smooth: true,
-    symbol: 'circle',
-    symbolSize: 6,
-    lineStyle: { width: 2 },
-    areaStyle: { opacity: 0.2 },
-  }],
-}
-
-const initCharts = async () => {
-  await nextTick()
-  if (!currentCase.value || activeTab.value !== 'process-preview') return
-
-  const charts = [
-    { el: waterLevelChartRef.value, chart: waterLevelChart, key: 'waterLevel', color: '#00d4ff' },
-    { el: outflowChartRef.value, chart: outflowChart, key: 'outflow', color: '#00ff88' },
-    { el: powerChartRef.value, chart: powerChart, key: 'power', color: '#b37feb' },
-  ]
-
-  charts.forEach(({ el, chart, key, color }) => {
-    if (!el) return
-    const data = currentCase.value.processCharts[key as keyof typeof currentCase.value.processCharts]
-    
-    if (chart) {
-      chart.dispose()
-    }
-    
-    const newChart = echarts.init(el)
-    newChart.setOption({
-      ...chartBaseOption,
-      title: {
-        text: data.title,
-        textStyle: { color: '#e0e6ed', fontSize: 12, fontWeight: 500 },
-        left: 0, top: 0,
-      },
-      xAxis: { ...chartBaseOption.xAxis, data: data.times },
-      yAxis: { ...chartBaseOption.yAxis, name: data.unit },
-      series: [{
-        ...chartBaseOption.series[0],
-        data: data.data,
-        lineStyle: { color },
-        itemStyle: { color },
-        areaStyle: { 
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: color + '4d' },
-            { offset: 1, color: color + '00' },
-          ]) 
-        },
-      }],
-    })
-    
-    if (key === 'waterLevel') waterLevelChart = newChart
-    else if (key === 'outflow') outflowChart = newChart
-    else powerChart = newChart
-  })
-}
-
 const handleTabChange = (tab: string) => {
   activeTab.value = tab
-  if (tab === 'process-preview') {
-    initCharts()
-  }
 }
 
-watch(activeTab, (newTab) => {
-  if (newTab === 'process-preview') {
-    setTimeout(() => initCharts(), 100)
+const waterLevelOption = computed<EChartsOption>(() => {
+  if (!currentCase.value) return {}
+  const data = currentCase.value.processCharts.waterLevel
+  const color = '#00d4ff'
+  return {
+    backgroundColor: 'transparent',
+    title: {
+      text: data.title,
+      textStyle: { color: TEXT_PRIMARY, fontSize: 12, fontWeight: 500 },
+      left: 0, top: 0,
+    },
+    grid: createGrid(35, 25, 50, 15),
+    tooltip: { ...baseTooltip },
+    xAxis: { ...baseCategoryXAxis, data: data.times },
+    yAxis: { ...baseValueYAxis, name: data.unit },
+    series: [{
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 6,
+      data: data.data,
+      lineStyle: { color, width: 2 },
+      itemStyle: { color },
+      areaStyle: createAreaGradient(color, 0.3, 0),
+    }],
   }
 })
 
-onMounted(() => {
-  window.addEventListener('resize', () => {
-    waterLevelChart?.resize()
-    outflowChart?.resize()
-    powerChart?.resize()
-  })
+const outflowOption = computed<EChartsOption>(() => {
+  if (!currentCase.value) return {}
+  const data = currentCase.value.processCharts.outflow
+  const color = '#00ff88'
+  return {
+    backgroundColor: 'transparent',
+    title: {
+      text: data.title,
+      textStyle: { color: TEXT_PRIMARY, fontSize: 12, fontWeight: 500 },
+      left: 0, top: 0,
+    },
+    grid: createGrid(35, 25, 50, 15),
+    tooltip: { ...baseTooltip },
+    xAxis: { ...baseCategoryXAxis, data: data.times },
+    yAxis: { ...baseValueYAxis, name: data.unit },
+    series: [{
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 6,
+      data: data.data,
+      lineStyle: { color, width: 2 },
+      itemStyle: { color },
+      areaStyle: createAreaGradient(color, 0.3, 0),
+    }],
+  }
+})
+
+const powerOption = computed<EChartsOption>(() => {
+  if (!currentCase.value) return {}
+  const data = currentCase.value.processCharts.power
+  const color = '#b37feb'
+  return {
+    backgroundColor: 'transparent',
+    title: {
+      text: data.title,
+      textStyle: { color: TEXT_PRIMARY, fontSize: 12, fontWeight: 500 },
+      left: 0, top: 0,
+    },
+    grid: createGrid(35, 25, 50, 15),
+    tooltip: { ...baseTooltip },
+    xAxis: { ...baseCategoryXAxis, data: data.times },
+    yAxis: { ...baseValueYAxis, name: data.unit },
+    series: [{
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 6,
+      data: data.data,
+      lineStyle: { color, width: 2 },
+      itemStyle: { color },
+      areaStyle: createAreaGradient(color, 0.3, 0),
+    }],
+  }
 })
 
 const getScoreColor = (score: number) => {
@@ -265,7 +255,7 @@ const getIconByType = (type: string) => {
         </div>
       </div>
       <div class="filter-actions">
-        <button class="btn-primary" @click="initCharts">查询</button>
+        <button class="btn-primary">查询</button>
         <button class="btn-secondary" @click="handleReset">重置</button>
         <button class="btn-outline" @click="ElMessage.info('高级筛选功能开发中')">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -505,13 +495,19 @@ const getIconByType = (type: string) => {
           <div v-if="activeTab === 'process-preview'" class="tab-content">
             <div class="preview-charts">
               <div class="chart-box">
-                <div ref="waterLevelChartRef" class="chart-container"></div>
+                <div class="chart-container">
+                  <BaseChart :option="waterLevelOption" />
+                </div>
               </div>
               <div class="chart-box">
-                <div ref="outflowChartRef" class="chart-container"></div>
+                <div class="chart-container">
+                  <BaseChart :option="outflowOption" />
+                </div>
               </div>
               <div class="chart-box">
-                <div ref="powerChartRef" class="chart-container"></div>
+                <div class="chart-container">
+                  <BaseChart :option="powerOption" />
+                </div>
               </div>
             </div>
           </div>
