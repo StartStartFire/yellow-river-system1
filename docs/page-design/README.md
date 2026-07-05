@@ -15,14 +15,18 @@
 
 ## 通用组件
 
-- 分区面板（SectionPanel，由原 PanelCard 改造，去除卡片背景/边框/圆角，改用 title + divider）
-- 发光分割线（h-divider / v-divider，`linear-gradient` 渐变分割线）
-- 行内 Tab 按钮（tab-pill，下划线高亮风格，不再使用圆角矩形边框）
+> 详见 `AGENTS.md` 第 21 章「代码复用强化策略」和第 21.2 节复用决策树。新增 UI 块前必须先查阅公共组件清单，优先复用，禁止复制粘贴相似组件。
+
+- **分区面板 `PanelCard`**（`src/components/common/PanelCard.vue`）：统一面板容器，支持 `accent` 强调条 + `header-icon` / `header-actions` 插槽。所有卡片场景优先使用，禁止再手写 `.card-flat` / `.card-header`。
+- **状态标签 `StatusTag`**（`src/components/common/StatusTag.vue`）：统一状态指示，支持 `status` 预设（normal/warning/abnormal）或 `label`+`color`+`pulse` 自定义。禁止再写 `.status-dot` / `.status-badge`。
+- **图表包装 `BaseChart`**（`src/components/chart/BaseChart.vue`）：ECharts 统一包装组件，通过 `option` prop 传入配置。配合 `src/utils/chart.ts` 配置工厂使用。
+- 发光分割线（`.h-divider` / `.v-divider`，`linear-gradient` 渐变分割线）
+- 行内 Tab 按钮（`.tab-pill`，下划线高亮风格，不再使用圆角矩形边框）
 - 筛选区
-- 图表容器
-- 状态标签
-- 数据表格
+- 数据表格（统一使用 `.dark-table` 类名复用全局表格样式）
 - 折叠面板
+
+> 全局样式类清单见 `AGENTS.md` 第 21.4 节；格式化工具清单见第 21.5 节。
 
 ## 全局风格
 
@@ -226,7 +230,7 @@ background: linear-gradient(
 
 当前为前端原型开发阶段，地图采用：
 
-```text
+
 Leaflet（开源 JavaScript 地图库）
 ```
 
@@ -310,7 +314,9 @@ ECharts
 
 ## 数据状态体系
 
-### 正常
+> 优先使用 `StatusTag` 组件的预设状态渲染（`status` prop），自定义场景使用 `label`+`color`+`pulse` 模式。详见 AGENTS.md 第 21 章。
+
+### 正常（StatusTag status="normal"）
 
 ```css
 #00FF88
@@ -326,7 +332,7 @@ ECharts
 
 ------
 
-### 预警
+### 预警（StatusTag status="warning"）
 
 ```css
 #FFAA00
@@ -342,7 +348,7 @@ ECharts
 
 ------
 
-### 异常
+### 异常（StatusTag status="abnormal"）
 
 ```css
 #FF4D4F
@@ -416,13 +422,25 @@ Element Plus
 
 #### 状态标签
 
+统一使用 `StatusTag` 组件（`src/components/common/StatusTag.vue`）：
+
+```text
+预设模式：status="normal" / "warning" / "abnormal"
+自定义模式：label="运行中" color="#00ff88" :pulse="true"
+```
+
 用于：
 
 ```text
 正常
 预警
 异常
+运行中
+已完成
+已终止
 ```
+
+禁止再手写 `.status-dot` / `.status-badge` 等自定义状态样式。
 
 ------
 

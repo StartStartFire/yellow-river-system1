@@ -35,7 +35,7 @@ npm run dev
 
 ---
 
-## �📊 模块完成状态
+## � 模块完成状态
 
 | 序号 | 模块 | 状态 | 说明 |
 |------|------|:----:|------|
@@ -95,6 +95,8 @@ npm run dev
 
 | 文件 | 用途 |
 |------|------|
+| `docs/page-design/README.md` | 全局设计规范（颜色、布局、通用组件、状态体系） |
+| `docs/page-design/pages-reference.md` | 页面速查表（路由映射、状态颜色、联动规则、格式化函数） |
 | `src/components/common/PanelCard.vue` | 统一面板容器，支持 `accent` 强调条 + `header-icon` / `header-actions` 插槽 |
 | `src/components/common/StatusTag.vue` | 统一状态标签，支持 `status` 预设或 `label`+`color`+`pulse` 自定义 |
 | `src/components/chart/BaseChart.vue` | ECharts 包装组件 |
@@ -172,6 +174,7 @@ npm run dev
 | StatusTag 扩展 label/color/pulse | 统一状态指示，替代 `.status-dot` | 3 处使用 |
 | SelectCard 系列不迁 PanelCard | header 结构差异大，强迁破坏布局 | ModelSelectCard / AlgorithmSelectCard / ObjectiveSelectCard |
 | 删除 `legacyBasicConfig` | 旧字段已迁移到 `step2State`，避免双轨 | 3 个组件 |
+| 设计文档合并为速查表 | 页面原型已完成，14 个独立文档维护成本高且易与代码不一致 | `docs/page-design/pages-reference.md` + 删除 14 文件 |
 
 ### 验证流程
 

@@ -4,6 +4,132 @@
 
 ---
 
+## 2026-07-05（第三十次） — 设计文档合并为页面速查表
+
+### 完成内容
+
+```text
+背景：页面原型已全部开发完成，后续主要是修修改改样式。
+     14 个独立的页面设计文档维护成本高，且容易与代码不一致，
+     AI 新会话读 8 个大文档反成噪点。
+
+方案 B 执行：
+  1. 创建 docs/page-design/pages-reference.md （548 行详细速查表）
+     包含：
+     - 全站路由映射表（14 个路由 → View 文件）
+     - 8 个主页面速查（文件索引、子组件清单、公共组件使用、状态颜色映射、交互说明）
+     - 模型配置 6 步流程 + Store 字段速查 + Mock 目录 + 跨步骤联动规则
+     - 全站状态颜色速查表（10 种业务状态 → 颜色 → StatusTag 用法）
+     - 常用格式化函数速查（8 个函数 + 示例）
+     - 跨页面业务流程图
+
+  2. 删除 14 个旧页面设计文档 + 04-model-config/README.md
+     包括：
+     - 01-home.md / 02-basic-data.md / 03-water-condition.md
+     - 04-model-config/ 下 8 个文件（README + 7 步骤文档）
+     - 05-process-transparent.md / 06-evaluation-decision.md
+     - 07-case-library.md / 08-report-statistics.md
+
+  3. 更新 AGENTS.md 第 9 章
+     从"页面设计引用规则（逐页文档）"改为"页面开发参考（代码即真相 + README + 速查表）"
+
+  4. 更新 AGENTS.md 第 20 章
+     新会话启动指引第 3 步改为指向 pages-reference.md
+
+  5. 同步更新 AI-WORKLOG.md
+     公共能力（必读）新增 pages-reference.md 和 README.md 的索引
+     核心决策记录新增"设计文档合并为速查表"
+```
+
+### 修改文件
+
+```text
+docs/page-design/pages-reference.md           — 新建（548 行）
+AGENTS.md                                      — 更新第 9 章、第 20 章
+docs/development/AI-WORKLOG.md                 — 更新关键文件索引 + 核心决策记录
+docs/page-design/ 下 14 个旧文件                — 全部删除
+```
+
+### 验证
+
+```text
+文档更新不涉及代码改动，无需构建验证。
+已验证 AGENTS.md 章节编号连续、引用路径有效。
+```
+
+---
+
+## 2026-07-05（第二十九次） — 架构原则文档升级 + 过程透明页面 bug 修复
+
+### 完成内容
+
+```text
+本次会话分两个阶段：架构文档升级 + 运行时 bug 修复。
+
+阶段一：AGENTS.md 规则升级 + AI-WORKLOG.md 同步
+  围绕"模块化 / 低耦合 / 可持续维护 / 可复用"四项要求，更新 AGENTS.md：
+
+  1. 第 4 章新增第 12、13 条总原则（四项要求 + 修改前先读文件）
+  2. 新增第 5 章「代码质量与架构原则」，分四小节明确：
+     - 5.1 模块化（400/600 行阈值、step{n}State 分组、View ≤300 行）
+     - 5.2 低耦合（props/emit、直接 import 子模块、禁止跨模块 import）
+     - 5.3 可持续维护（样式集中、format.ts、CSS 变量、双重验证）
+     - 5.4 可复用性（PanelCard/StatusTag/BaseChart 优先复用）
+  3. 第 7 章目录结构对齐实际项目（6 步子目录、mock 子模块拆分、element-dark.css、format.ts）
+  4. 第 11 章 mock 约束新增 400 行拆分阈值、直接 import 子模块、linkage.ts
+  5. 第 12 章 ELP 约束新增 element-dark.css 集中管理、.dark-table 复用、禁止散落 :deep()
+  6. 第 16 章状态管理新增 step{n}State 分组示例和 return 语义化别名约定
+  7. 第 18 章 AI 输出要求新增"验证"段，强制 vue-tsc + vite build 双重验证
+  8. 第 20 章新会话启动指引新增第 5 条（查阅公共组件/format/variables）
+  9. 新增第 21 章「代码复用强化策略」：通用组件清单、复用决策树、扩展而非复制、
+     全局样式类清单、格式化工具清单
+
+  同步更新 docs/development/AI-WORKLOG.md：
+  - 新增「📋 近期重构成果」章节，表格列出 6 项重构成果
+  - 「🎨 当前设计规范」颜色改为变量形式，新增 CSS 变量集中定义、ELP 深色覆盖两行
+  - 「🧭 关键文件索引」新增「公共能力（必读）」分组，模型配置按 6 步拆分列出 7 个 mock 子模块
+  - 新增「🏗️ 架构原则与核心决策」章节，9 条核心决策记录 + 验证流程
+
+阶段二：过程透明页面 bug 修复
+  现象：点击"过程透明"页面打不开，再点其他页面其他页面也不显示。
+
+  根本原因：
+  ProcessTransparentView.vue 第 180 行使用了 TECH_CYAN_LIGHT 常量，
+  但第 9-11 行 import 语句漏掉了这个常量。
+  buildReservoirOption 在 computed 中被调用，组件渲染时抛出
+  ReferenceError: TECH_CYAN_LIGHT is not defined，导致组件渲染失败，
+  错误冒泡到路由层面使后续路由切换也无法渲染。
+
+  修复：
+  1. import 语句补充 TECH_CYAN_LIGHT
+  2. status 初始值 'running'（英文）→ '运行中'（中文），与 statusColor 判断逻辑一致
+  3. 修复 PanelCard 重构遗留的 :deep() 选择器：
+     .panel-header / .panel-title / .panel-body → .section-header / .section-title / .section-body
+     让底部 5 个卡片的紧凑样式重新生效
+
+  反思：
+  vue-tsc 这次居然没报错（TS 对未导入变量检测不完全可靠），
+  印证了 AGENTS.md 第 18 章双重验证的必要性。
+  后续涉及 import 改动时，应在浏览器实际打开页面验证渲染正常。
+```
+
+### 修改文件
+
+```text
+AGENTS.md                                              — 新增第 5、21 章，更新第 4/7/11/12/16/18/20 章
+docs/development/AI-WORKLOG.md                         — 新增重构成果、架构原则章节，更新设计规范和文件索引
+src/views/process-transparent/ProcessTransparentView.vue — 修复 TECH_CYAN_LIGHT 未导入 bug + status 初始值 + :deep() 选择器
+```
+
+### 验证
+
+```text
+npx vue-tsc --noEmit   ✅ 通过
+npx vite build         ✅ 通过（12.94s）
+```
+
+---
+
 ## 2026-07-03（第二十八次） — 全局字体颜色全面提亮
 
 ### 完成内容
@@ -94,123 +220,4 @@
 
 ---
 
-## 2026-07-01 ~ 2026-07-02（第二十五次） — 全局 UI 风格升级
-
-### 完成内容
-
-```text
-全局 UI 风格升级 — 从"浮动独立卡片"迁移为"统一面板 + 发光分割线"：
-
-1. 背景图方案：
-   - 新增 public/background/background.png 作为全局系统背景图
-   - html 元素设置 background-image: url('/background/background.png')，fixed + cover
-   - 顶部导航栏改为半透明玻璃态（background: rgba(6,20,42,0.72); backdrop-filter: blur(20px)）
-
-2. PanelCard 组件重构：
-   - 从"半透明圆角边框卡片"改为"分区面板"（SectionPanel）
-   - 标题改为小写大写标签风格（text-transform: uppercase, letter-spacing）
-   - 新增 divider prop 提供发光渐变分割线
-
-3. 全局样式系统新增（src/styles/index.css）：
-   - .page-panel：页面级统一面板
-   - .h-divider / .v-divider：发光渐变分割线
-   - .tab-pill：行内下划线 Tab 按钮，替代圆角矩形按钮风格
-   - Element Plus 卡片全局透明化（el-card background: transparent）
-   - 输入框边框统一为低透明度发光线
-   - 所有 Element Plus CSS 变量背景/边框透明度调低
-
-4. 所有 8 个页面 + 模型配置 6 个子页面样式升级：
-   - 移除所有独立卡片背景、边框、圆角、阴影
-   - 卡片间 gap 改为 0，改用分割线分隔
-   - Tab 按钮全部改为下划线高亮风格
-
-5. 首页（HomeView）特例保留：
-   - 继续使用全屏地图背景
-   - 左右浮层面板保留玻璃态，但 gap 改为 0
-   - 面板内卡片间使用分割线
-
-6. 顶部导航栏优化：
-   - 高度 h-12 → h-14
-   - 标题 text-sm → text-base + font-bold + tracking-wide
-   - 导航按钮 text-xs → text-sm，px-4 → px-5，py-1.5 → py-2
-
-7. 文档更新：
-   - docs/page-design/README.md — 面板风格、卡片风格、边框风格全部更新为统一面板+分割线体系
-   - docs/development/AI-WORKLOG.md — 本记录
-```
-
-### 修改文件
-
-```text
-src/components/common/PanelCard.vue                    — 重构为 SectionPanel
-src/styles/index.css                                    — 新增 .page-panel/.h-divider/.v-divider/.tab-pill
-src/layouts/MainLayout.vue                              — 顶部栏半透明玻璃态 + 标题/导航字号增大
-src/views/home/HomeView.vue                             — 面板 gap→0
-src/components/home/ReservoirMonitorPanel.vue           — 去除子卡片边框
-src/views/basic-data/BasicDataView.vue                  — 统一面板+分割线
-src/components/basic-data/ReservoirSidebar.vue          — 统一面板+分割线
-src/views/water-condition/WaterConditionView.vue        — 统一面板+分割线
-src/views/process-transparent/ProcessTransparentView.vue — 统一面板+分割线
-src/views/evaluation-decision/EvaluationDecisionView.vue — 统一面板+分割线
-src/views/case-library/CaseLibraryView.vue              — 统一面板+分割线
-src/views/report-statistics/ReportStatisticsView.vue    — 统一面板+分割线
-src/views/model-config/model-data/ModelDataView.vue     — 统一面板+分割线
-src/views/model-config/model-algorithm/ModelAlgorithmView.vue — 统一面板+分割线
-src/views/model-config/dispatch-subject/DispatchSubjectView.vue — 统一面板+分割线
-src/views/model-config/dispatch-scenario/DispatchScenarioView.vue — 统一面板+分割线
-src/views/model-config/config-summary/ConfigSummaryView.vue — 统一面板+分割线
-src/views/model-config/scenario-constraint/ScenarioConstraintView.vue — 统一面板+分割线
-public/background/background.png                       — 新增系统背景图
-docs/page-design/README.md                              — 设计规范全面更新
-docs/development/AI-WORKLOG.md                           — 本记录
-```
-
----
-
-## 2026-06-28（第二十七次） — 水调水情页面 + 水库扩展 + 评价决策重构
-
-### 完成内容
-
-```text
-1. 水调水情页面修改：
-   - 删除查询和重置按钮（筛选区仅保留时间范围、水库选择）
-   - 指标页签从"水位/流量/出力"改为"入流/水位/出力/出流"
-   - 水库下拉框宽度增加至 160px
-   - 删除水库下拉框右侧竖线分隔符
-   - 指标页签移至筛选栏最右侧（margin-left: auto）
-   - 删除图表标题右侧的单位标签
-
-2. 模型配置调度主体弹窗水库扩展：
-   - allReservoirs 从 5 个扩展到 13 个（与基础数据一致）
-   - 弹窗中水库按区域分为三组展示（龙羊峡以上、龙羊峡—刘家峡、刘家峡以下）
-   - metricsMap 补充 8 个水库的水位/入库流量数据
-   - 龙刘黑组合修正为龙羊峡+刘家峡+黑山峡
-
-3. 评价决策页面重构：
-   - 从"两个可折叠卡片"改为"Tab 导航切换"
-   - 新增 Tab 导航栏（评价分析 / 决策分析）
-   - 决策分析三个卡片高度自适应铺满
-   - 目标满足列表改为 space-evenly 均匀分布
-
-4. 文档全面更新：
-   - docs/page-design/02-basic-data.md — 水库列表更新为 13 座
-   - docs/page-design/03-water-condition.md — 删除查询重置、页签改为入流/水位/出力/出流
-   - docs/page-design/06-evaluation-decision.md — 改为 Tab 导航结构
-   - docs/requirements/system-requirements.md — 模型配置更新为 6 步流程，评价决策改为 Tab 结构
-   - docs/development/AI-WORKLOG.md — 本记录
-```
-
-### 修改文件
-
-```text
-src/views/water-condition/WaterConditionView.vue              — 删除查询重置，页签改为入流/水位/出力/出流
-src/views/model-config/dispatch-subject/DispatchSubjectView.vue — 水库分组展示，13个水库
-src/views/evaluation-decision/EvaluationDecisionView.vue       — 改折叠卡片为Tab导航
-src/mock/modelConfig.ts                                         — allReservoirs扩展到13个
-src/mock/basicData.ts                                           — metricsMap补充8个水库
-docs/page-design/02-basic-data.md                               — 水库列表更新
-docs/page-design/03-water-condition.md                          — 删除查询重置，页签更新
-docs/page-design/06-evaluation-decision.md                      — Tab导航结构
-docs/requirements/system-requirements.md                        — 模型配置6步、评价决策Tab
-docs/development/AI-WORKLOG.md                                  — 本记录
 ```

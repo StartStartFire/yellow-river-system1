@@ -378,32 +378,18 @@ project-root/
 
 ---
 
-## 9. 页面设计引用规则
+## 9. 页面开发参考
 
-开发页面时，必须参考对应页面设计文档。
-
-对应关系如下：
+页面原型已开发完成。修修改改样式时，参考以下资源：
 
 ```text
-首页 → docs/page-design/01-home.md
-基础数据 → docs/page-design/02-basic-data.md
-水调水情 → docs/page-design/03-water-condition.md
-模型配置 → docs/page-design/04-model-config/具体文档.md
-过程透明 → docs/page-design/05-process-transparent.md
-评价决策 → docs/page-design/06-evaluation-decision.md
-案例库 → docs/page-design/07-case-library.md
-报表统计 → docs/page-design/08-report-statistics.md
+1. 代码即真相：以实际 .vue 源码文件为准，不要凭空想象页面结构。
+2. 全局设计规范：docs/page-design/README.md（颜色、布局、通用组件、状态体系）。
+3. 页面速查表：docs/page-design/pages-reference.md（路由映射、状态颜色、联动规则）。
+4. 所有 mock 数据：src/mock/ 目录，按页面/子模块拆分。
 ```
 
-例如，开发模型配置页面时，允许参考：
-
-```text
-docs/page-design/README.md
-docs/page-design/04-model-config/具体文档.md
-src/mock/modelConfig.ts
-```
-
-不允许同时开发其他页面。
+不再使用逐页的独立设计文档（已删除）。开发时不允许凭记忆猜测页面结构，必须先读实际代码。
 
 ---
 
@@ -809,7 +795,7 @@ camelCase，例如 reservoir.ts
 2. 如需追溯近期改动原因，按需打开 docs/development/SESSIONS.md
    → 查看最近 5 次会话记录（完成内容 + 修改文件列表）
 
-3. 如需了解具体页面设计细节，阅读 docs/page-design/ 下对应页面的设计文档
+3. 如需了解页面结构、路由映射、状态颜色、联动规则，查阅 docs/page-design/pages-reference.md
 
 4. 所有页面数据来自 src/mock/，所有业务计算均为前端模拟
 
