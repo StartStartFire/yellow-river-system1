@@ -39,3 +39,18 @@ Thumbs.db
 logs/
 *.log
 npm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Vite cache
+.vite/
+
+# Editor local config
+.history/
+
+# Test coverage
+coverage/
+
+# Optional local notes (避免 AI 会话临时笔记误提交)
+*.local.md
