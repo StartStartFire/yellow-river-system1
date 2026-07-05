@@ -7,7 +7,7 @@ import PanelCard from '@/components/common/PanelCard.vue'
 import StatusTag from '@/components/common/StatusTag.vue'
 import {
   TEXT_SECONDARY, baseTooltip, baseCategoryXAxis, baseValueYAxis,
-  createGrid, createAreaGradient, SERIES_COLORS,
+  createGrid, createAreaGradient, SERIES_COLORS, TECH_CYAN_LIGHT,
 } from '@/utils/chart'
 import {
   processPageState as pageState,
@@ -22,7 +22,7 @@ const scenarios = scenarioOptions.data
 const activeScenarioId = ref('flood-priority')
 
 // ── 页面状态（含进度模拟） ──
-const status = ref('running')
+const status = ref('运行中')
 const progress = ref(26.2)
 const elapsedTime = ref('00:08:24')
 const remainingTime = ref('00:22:36')
@@ -660,17 +660,17 @@ onUnmounted(() => {
 .bottom-card:last-child {
   border-right: none;
 }
-.bottom-card :deep(.panel-header) {
+.bottom-card :deep(.section-header) {
   padding: 1px 6px;
   border-bottom: 1px solid rgba(50, 150, 255, 0.12);
 }
-.bottom-card :deep(.panel-title) {
+.bottom-card :deep(.section-title) {
   font-size: 10px;
   font-weight: 600;
   color: var(--tech-text-secondary);
   letter-spacing: 0;
 }
-.bottom-card :deep(.panel-body) { padding: 2px 6px; }
+.bottom-card :deep(.section-body) { padding: 2px 6px; }
 .log-card { flex: 1.2; }
 .log-list { display: flex; flex-direction: column; gap: 1px; }
 .log-entry {
