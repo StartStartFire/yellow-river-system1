@@ -114,6 +114,59 @@ AI 编程必须遵守以下原则：
 9. 页面数据优先使用 src/mock/ 中的模拟数据。
 10. 页面开发必须参考 docs/page-design/ 中对应页面说明。
 11. 优先跑通页面闭环，再逐步补充细节。
+12. 任何改动都必须满足模块化、低耦合、可持续维护、可复用四项要求。
+13. 修改前先读相关文件，理解上下文；不允许凭名称猜测结构。
+```
+
+---
+
+## 5. 代码质量与架构原则
+
+所有代码必须同时满足以下四项要求。每次开发或重构前先对照检查，开发后自查。
+
+### 5.1 模块化
+
+```text
+1. 每个文件只承担一个明确职责，禁止"上帝文件"。
+2. 单文件超过 400 行必须考虑拆分；超过 600 行强制拆分。
+3. mock 文件按业务子模块拆分，使用目录聚合，禁止 999 行单文件聚合。
+4. store 按业务流程分组（如 step1State / step2State），不要把所有字段平铺。
+5. 页面视图（views）只负责编排，业务逻辑下沉到组件或 utils。
+6. 复杂视图拆分为子组件目录，单 View 文件控制在 300 行以内。
+```
+
+### 5.2 低耦合
+
+```text
+1. 组件之间通过 props 向下传递，通过 emit 向上通知，禁止直接修改父组件状态。
+2. 跨组件共享状态走 Pinia store，禁止通过 provide/inject 传递业务数据。
+3. mock 数据按页面或子流程拆分文件，引用方直接 import 子模块，不依赖聚合入口。
+4. 不允许跨业务模块互相 import 内部组件，公共能力放到 components/common/。
+5. 不允许在组件内硬编码其他模块的字段名或枚举值，通过类型或常量导出。
+6. store 的 return 保留语义化 key，避免破坏外部引用。
+```
+
+### 5.3 可持续维护
+
+```text
+1. 重复样式必须抽取为全局类（如 .card-header / .header-title-row），禁止散落 :deep() 覆盖。
+2. Element Plus 深色主题覆盖集中到 src/styles/element-dark.css，禁止在业务组件内重复 :deep()。
+3. 数值格式化逻辑统一调用 src/utils/format.ts，禁止散落 toFixed / toLocaleString。
+4. CSS 变量集中定义在 src/styles/variables.css，禁止硬编码 rgba(6,20,42,...) / #8aa0b8 等颜色。
+5. 业务组件删除字段前，先全局搜索引用，确认无遗留调用。
+6. 每次重构后必须运行 vue-tsc --noEmit 和 vite build 双重验证。
+7. 重构成果同步更新 docs/development/AI-WORKLOG.md，记录关键决策与文件索引。
+```
+
+### 5.4 可复用性
+
+```text
+1. 通用 UI 容器统一使用 src/components/common/PanelCard.vue，新增卡片优先复用。
+2. 状态标签统一使用 src/components/common/StatusTag.vue，禁止再写 .status-dot / .status-badge。
+3. 图表统一使用 src/components/chart/BaseChart.vue + src/utils/chart.ts 配置工厂。
+4. 新增组件前先在 components/common/ 查找是否已有可复用实现。
+5. 复用组件如需扩展，优先通过 props / slot 扩展，不复制粘贴相似组件。
+6. SelectCard 系列（带 icon + subtitle + badge）保留 .card-base 结构，不强迁到 PanelCard。
 ```
 
 ---
@@ -186,8 +239,8 @@ project-root/
 │  │  └─ system-requirements.md
 │  │
 │  ├─ development/
-│  │  ├─ AI-WORKLOG.md
-│  │  └─ SESSIONS.md
+│  │  ├─ AI-WORKLOG.md                  # 项目快照，新会话必读
+│  │  └─ SESSIONS.md                    # 开发流水账，滚动保留近 5 次
 │  │
 │  └─ page-design/
 │     ├─ README.md
@@ -195,45 +248,66 @@ project-root/
 │     ├─ 02-basic-data.md
 │     ├─ 03-water-condition.md
 │     ├─ 04-model-config/
-│     │  ├─ README.md                    # 模型配置模块总说明，只写五步流程关系
-│     │  ├─ 01-model-data.md             # Step 1 模型数据
-│     │  ├─ 02-basic-config.md           # Step 2 基础配置
-│     │  ├─ 03-model-algorithm.md        # Step 3 模型算法
-│     │  ├─ 04-scenario-constraint.md    # Step 4 场景约束
-│     │  └─ 05-config-summary.md         # Step 5 配置汇总
+│     │  ├─ README.md                    # 模型配置模块总说明，只写六步流程关系
+│     │  ├─ 01-dispatch-scenario.md      # Step 1 调度场景
+│     │  ├─ 02-dispatch-subject.md       # Step 2 调度主体
+│     │  ├─ 03-model-data.md             # Step 3 模型数据
+│     │  ├─ 04-model-algorithm.md        # Step 4 模型算法
+│     │  ├─ 05-scenario-constraint.md    # Step 5 场景约束
+│     │  └─ 06-config-summary.md         # Step 6 配置汇总
 │     ├─ 05-process-transparent.md
 │     ├─ 06-evaluation-decision.md
 │     ├─ 07-case-library.md
 │     └─ 08-report-statistics.md
 │
 ├─ public/
-│  └─ map/
+│  ├─ map/
+│  └─ background/                        # 全局背景图
 │
 └─ src/
    ├─ main.ts
    ├─ App.vue
    │
    ├─ router/
-   │  └─ index.ts
+   │  └─ index.ts                        # 8 主页面 + 6 模型配置子页面
    │
    ├─ stores/
-   │  ├─ app.ts
-   │  └─ task.ts
+   │  ├─ app.ts                          # 全局导航 / 当前水库
+   │  └─ modelConfig.ts                  # 模型配置 6 步流程状态（step1State ~ step6State）
    │
    ├─ layouts/
    │  └─ MainLayout.vue
    │
    ├─ components/
-   │  ├─ common/
+   │  ├─ common/                         # 跨模块复用组件
+   │  │  ├─ PanelCard.vue                # 统一面板容器（accent / header-actions 插槽）
+   │  │  └─ StatusTag.vue                # 统一状态标签（preset / label+color / pulse）
    │  ├─ chart/
-   │  ├─ map/
-   │  └─ panel/
+   │  │  └─ BaseChart.vue                # ECharts 包装组件
+   │  ├─ home/                           # 首页专用子组件
+   │  ├─ basic-data/                     # 基础数据专用子组件
+   │  ├─ model-config/                   # 模型配置专用子组件
+   │  │  ├─ common/                      # 模型配置模块内复用（ConfirmActionDialog）
+   │  │  ├─ dispatch-scenario/
+   │  │  ├─ dispatch-subject/            # 注：实际目录在 views，组件可放此处
+   │  │  ├─ model-data/
+   │  │  ├─ model-algorithm/
+   │  │  ├─ scenario-constraint/
+   │  │  └─ config-summary/
+   │  ├─ evaluation-decision/
+   │  └─ case-library/
    │
    ├─ views/
    │  ├─ home/
    │  ├─ basic-data/
    │  ├─ water-condition/
-   │  ├─ model-config/
+   │  ├─ model-config/                   # 6 个子路由视图，每个独立目录
+   │  │  ├─ dispatch-scenario/
+   │  │  ├─ dispatch-subject/
+   │  │  ├─ model-data/
+   │  │  ├─ model-algorithm/
+   │  │  ├─ scenario-constraint/
+   │  │  └─ config-summary/
    │  ├─ process-transparent/
    │  ├─ evaluation-decision/
    │  ├─ case-library/
@@ -243,7 +317,14 @@ project-root/
    │  ├─ home.ts
    │  ├─ basicData.ts
    │  ├─ waterCondition.ts
-   │  ├─ modelConfig.ts
+   │  ├─ model-config/                   # 模型配置 mock 按子模块拆分
+   │  │  ├─ dispatchScenario.ts
+   │  │  ├─ dispatchSubject.ts
+   │  │  ├─ modelData.ts
+   │  │  ├─ modelAlgorithm.ts
+   │  │  ├─ scenarioConstraint.ts
+   │  │  ├─ configSummary.ts
+   │  │  └─ linkage.ts                   # 跨步骤联动映射
    │  ├─ processTransparent.ts
    │  ├─ evaluationDecision.ts
    │  ├─ caseLibrary.ts
@@ -257,14 +338,15 @@ project-root/
    │  └─ evaluation.ts
    │
    ├─ styles/
-   │  ├─ index.css
-   │  ├─ variables.css
-   │  └─ theme.css
+   │  ├─ index.css                       # Tailwind 入口 + 全局卡片/分割线类
+   │  ├─ variables.css                   # CSS 变量集中定义（颜色 / rgb 三元组）
+   │  └─ element-dark.css                # Element Plus 深色主题统一覆盖
    │
    └─ utils/
-      ├─ chart.ts
-      ├─ date.ts
-      └─ format.ts
+      ├─ chart.ts                        # ECharts 配置工厂（tooltip / axis / grid / 系列）
+      ├─ format.ts                       # 数值格式化（formatNumber / formatLevel / ...）
+      ├─ evaluationCharts.ts             # 评价决策图表专用配置
+      └─ caseLibrary.ts                  # 案例库专用辅助
 ```
 
 ---
@@ -373,9 +455,35 @@ src/mock/
 4. 地图点位数据必须从 mock 文件读取。
 5. mock 数据字段要接近未来接口字段。
 6. mock 数据要方便后期替换成接口调用。
+7. 单个 mock 文件超过 400 行必须按子模块拆分到目录。
+8. 拆分后引用方直接 import 子模块文件，不再保留聚合入口。
+9. 跨子模块的联动映射放到单独的 linkage.ts 文件。
 ```
 
-示例：
+mock 拆分示例（模型配置模块）：
+
+```text
+src/mock/model-config/
+├─ dispatchScenario.ts      # Step 1 数据
+├─ dispatchSubject.ts       # Step 2 数据
+├─ modelData.ts             # Step 3 数据
+├─ modelAlgorithm.ts        # Step 4 数据
+├─ scenarioConstraint.ts    # Step 5 数据
+├─ configSummary.ts         # Step 6 数据
+└─ linkage.ts               # 跨步骤联动映射（水库组合→模型 等）
+```
+
+引用方式：
+
+```ts
+// ✅ 正确：直接 import 子模块
+import { dispatchModels } from '@/mock/model-config/modelAlgorithm'
+
+// ❌ 禁止：通过聚合入口引入
+import { dispatchModels } from '@/mock/modelConfig'  // 不再使用
+```
+
+数据示例：
 
 ```ts
 export const reservoirOverviewMock = {
@@ -434,6 +542,9 @@ el-tooltip
 2. 不允许直接使用普通白色后台风格。
 3. 表格、表单、弹窗要与系统深色风格统一。
 4. 按钮颜色以蓝青色为主。
+5. 深色主题覆盖集中到 src/styles/element-dark.css，分类管理（Dialog / Button / Input / Select / Table / DatePicker / Popper）。
+6. 业务组件内禁止散落 :deep() 重复覆盖通用样式；仅允许写组件特有的 :deep() 微调。
+7. 表格统一使用 .dark-table 类名复用全局表格样式。
 ```
 
 ---
@@ -563,6 +674,42 @@ Pinia 只做轻量状态管理。
 4. 大量业务数据缓存
 ```
 
+状态分组约定（以 modelConfig store 为例）：
+
+```ts
+// ✅ 推荐：按业务流程分组
+const step1State = ref({
+  categoryId: '',
+  subOptionId: '',
+  scenarioName: '',
+})
+
+const step2State = ref({
+  startTime: '',
+  endTime: '',
+  selectedReservoirIds: [] as string[],
+})
+
+// ❌ 禁止：所有字段平铺，难维护
+const categoryId = ref('')
+const subOptionId = ref('')
+const scenarioName = ref('')
+const startTime = ref('')
+const endTime = ref('')
+```
+
+return 时保留语义化 key 供外部使用：
+
+```ts
+return {
+  currentStep,
+  step1State,
+  step2State,
+  // 语义化别名（向后兼容）
+  scenarioName: computed(() => step1State.value.scenarioName),
+}
+```
+
 ---
 
 ## 17. 命名规范
@@ -619,12 +766,25 @@ camelCase，例如 reservoir.ts
 
 -
 
+## 验证
+
+-
+
 ## 下一步建议
 
 -
 ```
 
 不允许只给代码、不说明修改内容。
+
+涉及代码改动的任务必须运行验证：
+
+```text
+1. 类型检查：npx vue-tsc --noEmit
+2. 生产构建：npx vite build
+```
+
+两者均通过才算任务完成。任一失败必须修复后再次输出"修改文件"和"验证"。
 
 ---
 
@@ -652,4 +812,85 @@ camelCase，例如 reservoir.ts
 3. 如需了解具体页面设计细节，阅读 docs/page-design/ 下对应页面的设计文档
 
 4. 所有页面数据来自 src/mock/，所有业务计算均为前端模拟
+
+5. 涉及公共组件 / 格式化 / 样式时，先查阅 src/components/common/、src/utils/format.ts、src/styles/variables.css
 ```
+
+---
+
+## 21. 代码复用强化策略
+
+为提升可复用性，以下公共能力已建立，新增代码必须优先复用。
+
+### 21.1 通用组件清单
+
+| 组件 | 路径 | 用途 | 扩展点 |
+|------|------|------|--------|
+| PanelCard | `src/components/common/PanelCard.vue` | 统一面板容器 | `accent` 强调条 / `header-icon` / `header-actions` 插槽 |
+| StatusTag | `src/components/common/StatusTag.vue` | 状态标签 | `status` 预设（normal/warning/abnormal）或 `label`+`color`+`pulse` 自定义 |
+| BaseChart | `src/components/chart/BaseChart.vue` | ECharts 包装 | 通过 `option` prop 传入完整配置 |
+
+### 21.2 复用决策树
+
+新增 UI 块时按以下顺序判断：
+
+```text
+1. 是面板容器吗？→ 用 PanelCard
+2. 含状态指示（圆点 + 文字）吗？→ 用 StatusTag
+3. 是图表吗？→ 用 BaseChart + utils/chart.ts 配置工厂
+4. 是表格吗？→ 用 el-table + .dark-table 全局类
+5. 是 SelectCard（icon + subtitle + badge）吗？→ 用 .card-base + .card-header 全局类
+6. 以上都不是？→ 新建组件，放到对应业务子目录
+```
+
+### 21.3 扩展而非复制
+
+复用组件如需新能力，优先扩展 props / slot，禁止复制粘贴相似组件。
+
+```vue
+<!-- ✅ 正确：通过插槽扩展 PanelCard -->
+<PanelCard accent title="配置汇总">
+  <template #header-actions>
+    <el-button>新增</el-button>
+  </template>
+  <Table />
+</PanelCard>
+
+<!-- ❌ 禁止：复制一份 PanelCard 改名 ConfigCard -->
+```
+
+### 21.4 全局样式类清单
+
+以下类已定义在 `src/styles/index.css`，禁止在业务组件内重复定义：
+
+```text
+.page-panel            # 页面级统一面板
+.section-label         # 分区标题
+.h-divider / .v-divider  # 发光分割线
+.card-base             # 带边框卡片容器
+.card-flat             # 不带边框卡片容器
+.card-header           # 卡片头部行
+.header-title-row      # 带强调色条的标题行
+.header-accent-line    # 强调色条
+.header-title          # 卡片标题
+.inline-bar            # 行内 Tab/筛选条
+.tab-pill              # 行内 Tab 按钮
+```
+
+### 21.5 格式化工具清单
+
+以下函数已定义在 `src/utils/format.ts`，禁止散落 `toFixed` / `toLocaleString`：
+
+```text
+formatNumber(value, digits, fallback)       # 通用数字格式化
+formatThousands(value, digits, fallback)    # 千分位
+formatPercent(value, digits, fallback)      # 百分比
+formatWithUnit(value, unit, digits)         # 带单位
+formatLevel(value)                          # 水位（2位小数）
+formatFlow(value)                           # 流量（1位小数）
+formatStorage(value)                        # 库容（2位小数）
+formatPower(value)                          # 发电量（千分位整数）
+formatScore(value)                          # 评价得分（3位小数）
+```
+
+---
