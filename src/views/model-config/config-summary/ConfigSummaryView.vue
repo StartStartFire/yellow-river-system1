@@ -13,9 +13,8 @@ import {
   configPlanList,
   modelDistribution,
   algorithmDistribution,
-  modelLabelMap,
-  algorithmLabelMap,
-} from '@/mock/modelConfig'
+} from '@/mock/model-config/configSummary'
+import { modelLabelMap, algorithmLabelMap } from '@/mock/model-config/linkage'
 import type { ConfigPlan, DistributionItem } from '@/types/model'
 
 // ==================== Store ====================

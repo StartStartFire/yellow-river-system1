@@ -8,9 +8,8 @@ import {
   objectiveRelevantParams,
   modelLabelMap,
   algorithmLabelMap,
-  dispatchModels,
-  optimizationAlgorithms,
-} from '@/mock/modelConfig'
+} from '@/mock/model-config/linkage'
+import { dispatchModels, optimizationAlgorithms } from '@/mock/model-config/modelAlgorithm'
 
 /**
  * 模型配置 Pinia Store

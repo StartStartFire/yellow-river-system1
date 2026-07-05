@@ -8,7 +8,7 @@ import ScenarioNameRow from '@/components/model-config/dispatch-scenario/Scenari
 import ScenarioCard from '@/components/model-config/dispatch-scenario/ScenarioCard.vue'
 import ConfirmActionDialog from '@/components/model-config/common/ConfirmActionDialog.vue'
 import { useModelConfigStore } from '@/stores/modelConfig'
-import { dispatchScenarioCategories } from '@/mock/modelConfig'
+import { dispatchScenarioCategories } from '@/mock/model-config/dispatchScenario'
 import type { DispatchScenarioCategory, DispatchSubOption } from '@/types/model'
 
 // ==================== 弹窗状态 ====================

@@ -10,7 +10,7 @@ import {
   scenarioToSubjectDefaults,
   scenarioCategoryConstraints,
   reservoirNameMap,
-} from '@/mock/modelConfig'
+} from '@/mock/model-config/dispatchSubject'
 import { metricsMap, reservoirGroups as basicDataGroups } from '@/mock/basicData'
 import type { MetricCardData } from '@/types/reservoir'
 

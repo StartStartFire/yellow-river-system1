@@ -13,7 +13,7 @@ import {
   createGrid, createAreaGradient, SERIES_COLORS,
 } from '@/utils/chart'
 import { useModelConfigStore } from '@/stores/modelConfig'
-import { modelDataMock } from '@/mock/modelConfig'
+import { modelDataMock } from '@/mock/model-config/modelData'
 import type { MenuGroup, MenuContentMap, PageState } from '@/types/model'
 
 // ==================== 弹窗状态 ====================

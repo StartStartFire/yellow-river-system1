@@ -9,8 +9,8 @@ import {
   scenarioConstraintState,
   scenarioTypeOptions,
   scenarioParams,
-  dispatchObjectives,
-} from '@/mock/modelConfig'
+} from '@/mock/model-config/scenarioConstraint'
+import { dispatchObjectives } from '@/mock/model-config/modelAlgorithm'
 import type { ScenarioParam } from '@/types/model'
 
 // ==================== Store ====================

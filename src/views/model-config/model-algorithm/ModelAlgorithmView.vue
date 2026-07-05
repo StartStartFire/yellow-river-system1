@@ -17,8 +17,8 @@ import {
   algorithmParameters,
   dispatchObjectives,
   constraintSummary,
-  scenarioModelMap,
-} from '@/mock/modelConfig'
+} from '@/mock/model-config/modelAlgorithm'
+import { scenarioModelMap } from '@/mock/model-config/linkage'
 import type { DispatchModel, OptimizationAlgorithm, AlgorithmParameter, ConstraintDetail } from '@/types/model'
 
 const store = useModelConfigStore()
