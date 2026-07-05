@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import PanelCard from '@/components/common/PanelCard.vue'
 import { TECH_BLUE } from '@/utils/chart'
+import { formatNumber } from '@/utils/format'
 import type { MetricCardData } from '@/types/reservoir'
 
 interface Props {
@@ -28,7 +29,7 @@ const getKey = (label: string) => {
 
 const formatChange = computed(() => (c: number) => {
   const sign = c >= 0 ? '+' : ''
-  return `${sign}${c.toFixed(c % 1 === 0 ? 0 : 2)}`
+  return `${sign}${formatNumber(c, c % 1 === 0 ? 0 : 2)}`
 })
 
 const changeColor = (card: MetricCardData) => {
@@ -46,7 +47,7 @@ const changeColor = (card: MetricCardData) => {
       <div class="card-content">
         <div class="card-label">{{ card.label }}</div>
         <div class="card-value">
-          {{ card.value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+          {{ formatNumber(card.value, 2) }}
           <span class="card-unit">{{ card.unit }}</span>
         </div>
         <div class="card-change" :style="{ color: changeColor(card) }">

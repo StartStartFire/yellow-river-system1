@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PanelCard from '@/components/common/PanelCard.vue'
 import { powerStatistics } from '@/mock/home'
+import { formatPower } from '@/utils/format'
 
 const statsData = powerStatistics.data
 </script>
@@ -20,9 +21,9 @@ const statsData = powerStatistics.data
         <tr v-for="item in statsData" :key="item.reservoirName"
           :class="{ 'total-row': item.reservoirName === '合计' }">
           <td>{{ item.reservoirName }}</td>
-          <td class="text-right value-cell">{{ item.dailyPower.toLocaleString() }}</td>
-          <td class="text-right value-cell">{{ item.monthlyPower.toLocaleString() }}</td>
-          <td class="text-right value-cell">{{ item.yearlyPower.toLocaleString() }}</td>
+          <td class="text-right value-cell">{{ formatPower(item.dailyPower) }}</td>
+          <td class="text-right value-cell">{{ formatPower(item.monthlyPower) }}</td>
+          <td class="text-right value-cell">{{ formatPower(item.yearlyPower) }}</td>
         </tr>
       </tbody>
     </table>

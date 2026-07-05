@@ -10,6 +10,7 @@
 import { ref } from 'vue'
 import * as echarts from 'echarts'
 import BaseChart from '@/components/chart/BaseChart.vue'
+import { formatPercent } from '@/utils/format'
 
 interface PlanOption {
   label: string
@@ -134,7 +135,7 @@ defineExpose({
                     :style="{ width: Math.min(target.rate, 100) + '%' }"
                   ></div>
                 </div>
-                <span class="target-rate">{{ target.rate.toFixed(1) }}%</span>
+                <span class="target-rate">{{ formatPercent(target.rate, 1) }}</span>
               </div>
             </div>
           </div>

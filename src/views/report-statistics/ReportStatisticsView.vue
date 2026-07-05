@@ -10,6 +10,12 @@ import {
   monthlyPowerData,
   yearlySummaryData,
 } from '@/mock/reportStatistics'
+import { formatNumber, formatThousands } from '@/utils/format'
+
+// 2 位小数格式化（含空值回退）
+const fmt = (v: number | null | undefined) => formatNumber(v, 2)
+// 千分位整数格式化
+const fmtInt = (v: number | null | undefined) => formatThousands(v, 0)
 
 const reportType = ref<'monthly' | 'yearly'>('monthly')
 const selectedYear = ref('2025')
@@ -231,24 +237,24 @@ const getAssessmentColor = (result: string) => {
               <tbody>
                 <tr v-for="row in filteredOperationData" :key="row.reservoirName" :class="{ 'total-row': row.reservoirName === '合计' }">
                   <td class="fixed-col name-cell">{{ row.reservoirName }}</td>
-                  <td>{{ row.initialLevel?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.finalLevel?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.maxLevel?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.minLevel?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.initialStorage?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.finalStorage?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.maxStorage?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.minStorage?.toFixed(2) ?? '-' }}</td>
-                  <td>{{ row.inflowMonth.toFixed(2) }}</td>
-                  <td>{{ row.inflowYear.toFixed(2) }}</td>
-                  <td>{{ row.totalOutflowMonth.toFixed(2) }}</td>
-                  <td>{{ row.totalOutflowYear.toFixed(2) }}</td>
-                  <td>{{ row.powerReleaseMonth.toFixed(2) }}</td>
-                  <td>{{ row.powerReleaseYear.toFixed(2) }}</td>
-                  <td>{{ row.ecologicalReleaseMonth.toFixed(2) }}</td>
-                  <td>{{ row.ecologicalReleaseYear.toFixed(2) }}</td>
-                  <td>{{ row.abandonedWaterMonth.toFixed(2) }}</td>
-                  <td>{{ row.abandonedWaterYear.toFixed(2) }}</td>
+                  <td>{{ fmt(row.initialLevel) }}</td>
+                  <td>{{ fmt(row.finalLevel) }}</td>
+                  <td>{{ fmt(row.maxLevel) }}</td>
+                  <td>{{ fmt(row.minLevel) }}</td>
+                  <td>{{ fmt(row.initialStorage) }}</td>
+                  <td>{{ fmt(row.finalStorage) }}</td>
+                  <td>{{ fmt(row.maxStorage) }}</td>
+                  <td>{{ fmt(row.minStorage) }}</td>
+                  <td>{{ fmt(row.inflowMonth) }}</td>
+                  <td>{{ fmt(row.inflowYear) }}</td>
+                  <td>{{ fmt(row.totalOutflowMonth) }}</td>
+                  <td>{{ fmt(row.totalOutflowYear) }}</td>
+                  <td>{{ fmt(row.powerReleaseMonth) }}</td>
+                  <td>{{ fmt(row.powerReleaseYear) }}</td>
+                  <td>{{ fmt(row.ecologicalReleaseMonth) }}</td>
+                  <td>{{ fmt(row.ecologicalReleaseYear) }}</td>
+                  <td>{{ fmt(row.abandonedWaterMonth) }}</td>
+                  <td>{{ fmt(row.abandonedWaterYear) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -296,18 +302,18 @@ const getAssessmentColor = (result: string) => {
                   <td>{{ row.installedCapacityTotal }}</td>
                   <td>{{ row.installedCapacityInService }}</td>
                   <td>{{ row.installedCapacityNew }}</td>
-                  <td>{{ row.annualDesignPower.toFixed(2) }}</td>
+                  <td>{{ fmt(row.annualDesignPower) }}</td>
                   <td>{{ row.averageRunoff }}</td>
-                  <td>{{ row.currentYearRunoff.toFixed(2) }}</td>
-                  <td>{{ row.waterUseMonth.toFixed(2) }}</td>
-                  <td>{{ row.waterUseYear.toFixed(2) }}</td>
-                  <td>{{ row.utilizationRateMonth.toFixed(2) }}</td>
-                  <td>{{ row.utilizationRateYear.toFixed(2) }}</td>
-                  <td>{{ row.waterSupplyMonth.toFixed(2) }}</td>
-                  <td>{{ row.waterSupplyYear.toFixed(2) }}</td>
-                  <td>{{ row.floodStorageDesign.toFixed(2) }}</td>
-                  <td>{{ row.floodStorageCurrent.toFixed(2) }}</td>
-                  <td>{{ row.floodStandard.toLocaleString() }}</td>
+                  <td>{{ fmt(row.currentYearRunoff) }}</td>
+                  <td>{{ fmt(row.waterUseMonth) }}</td>
+                  <td>{{ fmt(row.waterUseYear) }}</td>
+                  <td>{{ fmt(row.utilizationRateMonth) }}</td>
+                  <td>{{ fmt(row.utilizationRateYear) }}</td>
+                  <td>{{ fmt(row.waterSupplyMonth) }}</td>
+                  <td>{{ fmt(row.waterSupplyYear) }}</td>
+                  <td>{{ fmt(row.floodStorageDesign) }}</td>
+                  <td>{{ fmt(row.floodStorageCurrent) }}</td>
+                  <td>{{ fmtInt(row.floodStandard) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -347,19 +353,19 @@ const getAssessmentColor = (result: string) => {
               <tbody>
                 <tr v-for="row in filteredPowerData" :key="row.reservoirName">
                   <td class="fixed-col name-cell">{{ row.reservoirName }}</td>
-                  <td>{{ row.powerMonth.toFixed(2) }}</td>
-                  <td>{{ row.powerYear.toFixed(2) }}</td>
-                  <td>{{ row.planCompletionRate.toFixed(2) }}%</td>
-                  <td>{{ row.waterConsumptionMonth.toFixed(2) }}</td>
-                  <td>{{ row.waterConsumptionYear.toFixed(2) }}</td>
-                  <td>≤ {{ row.waterConsumptionAssessment.toFixed(2) }}</td>
+                  <td>{{ fmt(row.powerMonth) }}</td>
+                  <td>{{ fmt(row.powerYear) }}</td>
+                  <td>{{ fmt(row.planCompletionRate) }}%</td>
+                  <td>{{ fmt(row.waterConsumptionMonth) }}</td>
+                  <td>{{ fmt(row.waterConsumptionYear) }}</td>
+                  <td>≤ {{ fmt(row.waterConsumptionAssessment) }}</td>
                   <td>
                     <span class="assessment-badge" :style="{ color: getAssessmentColor(row.assessmentResult), borderColor: getAssessmentColor(row.assessmentResult) + '40' }">
                       {{ row.assessmentResult }}
                     </span>
                   </td>
-                  <td>{{ row.gridPowerMonth.toFixed(2) }}</td>
-                  <td>{{ row.gridPowerYear.toFixed(2) }}</td>
+                  <td>{{ fmt(row.gridPowerMonth) }}</td>
+                  <td>{{ fmt(row.gridPowerYear) }}</td>
                   <td>{{ row.utilizationHoursMonth }}</td>
                   <td>{{ row.utilizationHoursYear }}</td>
                   <td>{{ row.remark }}</td>
@@ -403,20 +409,20 @@ const getAssessmentColor = (result: string) => {
               <tbody>
                 <tr v-for="row in filteredYearlyData" :key="row.reservoirName">
                   <td class="fixed-col name-cell">{{ row.reservoirName }}</td>
-                  <td>{{ row.initialYearLevel.toFixed(2) }}</td>
-                  <td>{{ row.finalYearLevel.toFixed(2) }}</td>
-                  <td>{{ row.averageYearLevel.toFixed(2) }}</td>
-                  <td>{{ row.maxYearLevel.toFixed(2) }}</td>
-                  <td>{{ row.minYearLevel.toFixed(2) }}</td>
-                  <td>{{ row.totalYearInflow.toFixed(2) }}</td>
-                  <td>{{ row.totalYearOutflow.toFixed(2) }}</td>
-                  <td>{{ row.yearPowerWater.toFixed(2) }}</td>
-                  <td>{{ row.yearAbandonedWater.toFixed(2) }}</td>
-                  <td>{{ row.yearWaterSupply.toFixed(2) }}</td>
-                  <td>{{ row.yearPower.toFixed(2) }}</td>
-                  <td>{{ row.yearAverageConsumption.toFixed(2) }}</td>
-                  <td>{{ row.yearAverageOutput.toFixed(2) }}</td>
-                  <td>{{ row.yearUtilizationHours.toLocaleString() }}</td>
+                  <td>{{ fmt(row.initialYearLevel) }}</td>
+                  <td>{{ fmt(row.finalYearLevel) }}</td>
+                  <td>{{ fmt(row.averageYearLevel) }}</td>
+                  <td>{{ fmt(row.maxYearLevel) }}</td>
+                  <td>{{ fmt(row.minYearLevel) }}</td>
+                  <td>{{ fmt(row.totalYearInflow) }}</td>
+                  <td>{{ fmt(row.totalYearOutflow) }}</td>
+                  <td>{{ fmt(row.yearPowerWater) }}</td>
+                  <td>{{ fmt(row.yearAbandonedWater) }}</td>
+                  <td>{{ fmt(row.yearWaterSupply) }}</td>
+                  <td>{{ fmt(row.yearPower) }}</td>
+                  <td>{{ fmt(row.yearAverageConsumption) }}</td>
+                  <td>{{ fmt(row.yearAverageOutput) }}</td>
+                  <td>{{ fmtInt(row.yearUtilizationHours) }}</td>
                   <td>
                     <span class="assessment-badge" :style="{ color: getAssessmentColor(row.assessmentResult), borderColor: getAssessmentColor(row.assessmentResult) + '40' }">
                       {{ row.assessmentResult }}

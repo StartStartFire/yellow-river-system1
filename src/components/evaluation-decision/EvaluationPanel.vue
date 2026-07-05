@@ -8,6 +8,7 @@
 import { ref, computed } from 'vue'
 import * as echarts from 'echarts'
 import BaseChart from '@/components/chart/BaseChart.vue'
+import { formatScore, formatPercent } from '@/utils/format'
 
 interface Props {
   /** 雷达图 option */
@@ -88,11 +89,11 @@ defineExpose({
             <el-table-column v-for="score in rankingColumns" :key="score.plan" :label="score.plan" min-width="100">
               <template #default="{ row }">
                 <div class="score-cell">
-                  <span class="score-value">{{ row.scores.find((s: any) => s.plan === score.plan)?.value.toFixed(3) }}</span>
+                  <span class="score-value">{{ formatScore(row.scores.find((s: any) => s.plan === score.plan)?.value) }}</span>
                   <div class="score-bar-bg">
                     <div
                       class="score-bar-fill"
-                      :style="{ width: (row.scores.find((s: any) => s.plan === score.plan)?.value * 100).toFixed(1) + '%' }"
+                      :style="{ width: formatPercent(row.scores.find((s: any) => s.plan === score.plan)?.value, 1) }"
                     ></div>
                   </div>
                 </div>
