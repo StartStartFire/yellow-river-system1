@@ -5,10 +5,9 @@ import type {
   MetricCardData,
   ReservoirSection,
   BaseInfoGroup,
-  TurbineItem,
-  GateItem,
-  EngineeringSummary,
+  EngineeringInfo,
   KeyCurvesData,
+  ReservoirProcessData,
 } from '@/types/reservoir'
 
 // ==================== Mock 数据（统一 API 响应格式） ====================
@@ -614,7 +613,7 @@ const baseInfoMap: Record<string, BaseInfoGroup[]> = {
 }
 
 // 各水库水情过程数据
-const processDataMap: Record<string, { dates: string[]; levels: number[]; inflows: number[]; outflows: number[] }> = {
+const processDataMap: Record<string, ReservoirProcessData> = {
   longyangxia: {
     dates: ['05-10', '05-11', '05-12', '05-13', '05-14', '05-15', '05-16'],
     levels: [2470.15, 2470.82, 2471.20, 2471.58, 2471.95, 2472.10, 2472.35],
@@ -648,7 +647,7 @@ const processDataMap: Record<string, { dates: string[]; levels: number[]; inflow
 }
 
 // 各水库工情信息
-const engineeringMap: Record<string, { summary: EngineeringSummary; turbines: TurbineItem[]; gates: GateItem[] }> = {
+const engineeringMap: Record<string, EngineeringInfo> = {
   longyangxia: {
     summary: { turbineTotal: 4, turbineRunning: 3, gateTotal: 6, gateOpen: 2, totalOutput: 960000 },
     turbines: [
@@ -776,7 +775,7 @@ export function getBaseInfo(reservoirId: string): ApiResponse<BaseInfoGroup[]> {
   }
 }
 
-export function getProcessData(reservoirId: string): ApiResponse<{ dates: string[]; levels: number[]; inflows: number[]; outflows: number[] }> {
+export function getProcessData(reservoirId: string): ApiResponse<ReservoirProcessData> {
   return {
     code: 200,
     message: 'success',
@@ -784,7 +783,7 @@ export function getProcessData(reservoirId: string): ApiResponse<{ dates: string
   }
 }
 
-export function getEngineeringInfo(reservoirId: string): ApiResponse<{ summary: EngineeringSummary; turbines: TurbineItem[]; gates: GateItem[] }> {
+export function getEngineeringInfo(reservoirId: string): ApiResponse<EngineeringInfo> {
   return {
     code: 200,
     message: 'success',

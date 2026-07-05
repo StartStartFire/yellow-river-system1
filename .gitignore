@@ -3,7 +3,9 @@ node_modules/
 .pnp
 .pnp.js
 
+
 public/static/river_network.pmtiles
+
 # Build output
 dist/
 dist-ssr/
@@ -27,6 +29,11 @@ Thumbs.db
 
 # Claude Code personal config
 .claude/
+
+.trae/
+
+.uploads/
+
 
 # Logs
 logs/

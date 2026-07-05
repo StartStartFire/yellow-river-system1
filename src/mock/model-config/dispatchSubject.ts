@@ -3,9 +3,15 @@
  *
  * 包含水库列表、预设组合、场景到调度主体的预填映射、场景约束。
  */
+import type { ReservoirNameMap, ReservoirIdName } from '@/types/reservoir'
+import type {
+  SubjectReservoirGroup,
+  ScenarioToSubjectDefault,
+  ScenarioCategoryConstraint,
+} from '@/types/model'
 
 /** 水库ID → 显示名称映射 */
-export const reservoirNameMap: Record<string, string> = {
+export const reservoirNameMap: ReservoirNameMap = {
   longyangxia: '龙羊峡水库',
   liujiaxia: '刘家峡水库',
   qingtongxia: '青铜峡水库',
@@ -22,7 +28,7 @@ export const reservoirNameMap: Record<string, string> = {
 }
 
 /** 所有可选水库列表 */
-export const allReservoirs: { id: string; name: string }[] = [
+export const allReservoirs: ReservoirIdName[] = [
   { id: 'longyangxia', name: '龙羊峡水库' },
   { id: 'liujiaxia', name: '刘家峡水库' },
   { id: 'qingtongxia', name: '青铜峡水库' },
@@ -39,7 +45,7 @@ export const allReservoirs: { id: string; name: string }[] = [
 ]
 
 /** 预设水库组合（含"全部水库"） */
-export const subjectReservoirGroups = [
+export const subjectReservoirGroups: SubjectReservoirGroup[] = [
   {
     id: 'long-liu',
     name: '龙刘组合',
@@ -61,13 +67,7 @@ export const subjectReservoirGroups = [
 ]
 
 /** Step 1 场景 → Step 2 调度主体预填映射 */
-export const scenarioToSubjectDefaults: Record<string, {
-  startTime: string
-  endTime: string
-  timeStep: string
-  scheduleFrequency: string
-  reservoirIds: string[]
-}> = {
+export const scenarioToSubjectDefaults: Record<string, ScenarioToSubjectDefault> = {
   'multi-objective': {
     startTime: '2025-01-01', endTime: '2025-12-31',
     timeStep: '每月', scheduleFrequency: '每月一次',
@@ -116,11 +116,7 @@ export const scenarioToSubjectDefaults: Record<string, {
 }
 
 /** 场景大类ID → 时间/步长约束 */
-export const scenarioCategoryConstraints: Record<string, {
-  maxDays: number
-  allowedTimeSteps: string[]
-  defaultTimeStep: string
-}> = {
+export const scenarioCategoryConstraints: Record<string, ScenarioCategoryConstraint> = {
   'multi-year': { maxDays: 365 * 5, allowedTimeSteps: ['每旬', '每月'], defaultTimeStep: '每月' },
   'critical-period': { maxDays: 365, allowedTimeSteps: ['每旬', '每月'], defaultTimeStep: '每月' },
   'realtime': { maxDays: 31, allowedTimeSteps: ['每日'], defaultTimeStep: '每日' },

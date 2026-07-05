@@ -14,6 +14,12 @@ export interface ReservoirBrief {
   status: ReservoirStatus
 }
 
+/** 水库简选项（仅 id + name，用于纯展示列表） */
+export interface ReservoirIdName {
+  id: string
+  name: string
+}
+
 export interface ReservoirGroup {
   name: string
   items: ReservoirBrief[]

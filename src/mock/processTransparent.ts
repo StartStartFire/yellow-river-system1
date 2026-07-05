@@ -1,7 +1,21 @@
 // ==================== 过程透明页面 Mock 数据 ====================
+import type { ApiResponse } from '@/types/common'
+import type {
+  ProcessPageState,
+  ScenarioOption,
+  ProcessSummary,
+  ProcessLog,
+  ConvergenceData,
+  ObjectiveTrendData,
+  DiversityData,
+  WaterLevelProcessData,
+  DischargeProcessData,
+  PowerOutputProcessData,
+  ScenarioDataBundle,
+} from '@/types/process'
 
 // ── 页面状态 ──
-export const processPageState = {
+export const processPageState: ApiResponse<ProcessPageState> = {
   code: 200,
   message: 'success',
   data: {
@@ -16,7 +30,7 @@ export const processPageState = {
 }
 
 // ── 方案情景 ──
-export const scenarioOptions = {
+export const scenarioOptions: ApiResponse<ScenarioOption[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -27,7 +41,7 @@ export const scenarioOptions = {
 }
 
 // ── 底部摘要 ──
-export const processSummary = {
+export const processSummary: ApiResponse<ProcessSummary> = {
   code: 200,
   message: 'success',
   data: {
@@ -53,7 +67,7 @@ export const processSummary = {
 }
 
 // ── 运行日志 ──
-export const processLogs = {
+export const processLogs: ApiResponse<ProcessLog[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -64,7 +78,7 @@ export const processLogs = {
 }
 
 // ── 算法收敛曲线 ──
-export const convergenceData = {
+export const convergenceData: ApiResponse<ConvergenceData> = {
   code: 200,
   message: 'success',
   data: {
@@ -81,7 +95,7 @@ export const convergenceData = {
 }
 
 // ── 最优目标值变化趋势 ──
-export const objectiveTrendData = {
+export const objectiveTrendData: ApiResponse<ObjectiveTrendData> = {
   code: 200,
   message: 'success',
   data: {
@@ -118,7 +132,7 @@ export const objectiveTrendData = {
 }
 
 // ── 种群多样性变化 ──
-export const diversityData = {
+export const diversityData: ApiResponse<DiversityData> = {
   code: 200,
   message: 'success',
   data: {
@@ -134,7 +148,7 @@ export const diversityData = {
 }
 
 // ── 水位过程线 ──
-export const waterLevelData = {
+export const waterLevelData: ApiResponse<WaterLevelProcessData> = {
   code: 200,
   message: 'success',
   data: {
@@ -177,7 +191,7 @@ export const waterLevelData = {
 }
 
 // ── 下泄流量过程线 ──
-export const dischargeData = {
+export const dischargeData: ApiResponse<DischargeProcessData> = {
   code: 200,
   message: 'success',
   data: {
@@ -220,7 +234,7 @@ export const dischargeData = {
 }
 
 // ── 出力过程线 ──
-export const powerOutputData = {
+export const powerOutputData: ApiResponse<PowerOutputProcessData> = {
   code: 200,
   message: 'success',
   data: {
@@ -255,7 +269,7 @@ export const powerOutputData = {
 }
 
 // ── 各方案的过程摘要映射（方案切换时图表数据同步切换） ──
-export const scenarioDataMap: Record<string, any> = {
+export const scenarioDataMap: Record<string, ScenarioDataBundle> = {
   'flood-priority': {
     convergenceData: convergenceData.data,
     objectiveTrendData: objectiveTrendData.data,
@@ -322,6 +336,6 @@ export const scenarioDataMap: Record<string, any> = {
   },
 }
 
-export function getScenarioData(scenarioId: string) {
+export function getScenarioData(scenarioId: string): ScenarioDataBundle {
   return scenarioDataMap[scenarioId] || scenarioDataMap['flood-priority']
 }

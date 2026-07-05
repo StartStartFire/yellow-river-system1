@@ -1,4 +1,15 @@
-export const caseLibraryPageState = {
+// ==================== 案例库页面 Mock 数据 ====================
+import type { ApiResponse } from '@/types/common'
+import type {
+  CaseLibraryPageState,
+  CaseItem,
+  CaseDetail,
+  CaseTypeOption,
+  CaseReservoirOption,
+} from '@/types/caseLibrary'
+
+// ── 页面状态 ──
+export const caseLibraryPageState: ApiResponse<CaseLibraryPageState> = {
   code: 200,
   message: 'success',
   data: {
@@ -13,7 +24,8 @@ export const caseLibraryPageState = {
   },
 }
 
-export const caseList = {
+// ── 案例列表 ──
+export const caseList: ApiResponse<CaseItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -80,7 +92,8 @@ export const caseList = {
   ],
 }
 
-export const caseDetail = {
+// ── 案例详情 ──
+export const caseDetail: ApiResponse<Record<string, CaseDetail>> = {
   code: 200,
   message: 'success',
   data: {
@@ -391,7 +404,8 @@ export const caseDetail = {
   },
 }
 
-export const caseTypeOptions = [
+// ── 选项 ──
+export const caseTypeOptions: CaseTypeOption[] = [
   { label: '全部', value: 'all' },
   { label: '连丰', value: '连丰' },
   { label: '连枯', value: '连枯' },
@@ -402,7 +416,7 @@ export const caseTypeOptions = [
   { label: '兴利调度', value: '兴利调度' },
 ]
 
-export const reservoirOptions = [
+export const reservoirOptions: CaseReservoirOption[] = [
   { label: '全部', value: 'all' },
   { label: '龙羊峡水库', value: '龙羊峡水库' },
   { label: '刘家峡水库', value: '刘家峡水库' },

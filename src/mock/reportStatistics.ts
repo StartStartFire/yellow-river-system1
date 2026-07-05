@@ -1,4 +1,18 @@
-export const reportStatisticsPageState = {
+// ==================== 报表统计页面 Mock 数据 ====================
+import type { ApiResponse } from '@/types/common'
+import type {
+  ReportStatisticsPageState,
+  MonthlyOperationItem,
+  MonthlyEconomicItem,
+  MonthlyPowerItem,
+  YearlySummaryItem,
+  YearOption,
+  MonthOption,
+  ReportReservoirOption,
+} from '@/types/reportStatistics'
+
+// ── 页面状态 ──
+export const reportStatisticsPageState: ApiResponse<ReportStatisticsPageState> = {
   code: 200,
   message: 'success',
   data: {
@@ -9,7 +23,8 @@ export const reportStatisticsPageState = {
   },
 }
 
-export const yearOptions = [
+// ── 选项 ──
+export const yearOptions: YearOption[] = [
   { label: '2025年', value: '2025' },
   { label: '2024年', value: '2024' },
   { label: '2023年', value: '2023' },
@@ -17,7 +32,7 @@ export const yearOptions = [
   { label: '2021年', value: '2021' },
 ]
 
-export const monthOptions = [
+export const monthOptions: MonthOption[] = [
   { label: '1月', value: '1' },
   { label: '2月', value: '2' },
   { label: '3月', value: '3' },
@@ -32,7 +47,7 @@ export const monthOptions = [
   { label: '12月', value: '12' },
 ]
 
-export const reservoirOptions = [
+export const reservoirOptions: ReportReservoirOption[] = [
   { label: '全部水库', value: 'all' },
   { label: '龙羊峡水库', value: 'longyangxia' },
   { label: '刘家峡水库', value: 'liujiaxia' },
@@ -41,7 +56,8 @@ export const reservoirOptions = [
   { label: '拉西瓦水库', value: 'laxiwa' },
 ]
 
-export const monthlyOperationData = {
+// ── 月度运行情况 ──
+export const monthlyOperationData: ApiResponse<MonthlyOperationItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -174,7 +190,8 @@ export const monthlyOperationData = {
   ],
 }
 
-export const monthlyEconomicData = {
+// ── 月度主要经济指标 ──
+export const monthlyEconomicData: ApiResponse<MonthlyEconomicItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -271,7 +288,8 @@ export const monthlyEconomicData = {
   ],
 }
 
-export const monthlyPowerData = {
+// ── 月度发电量及考核情况 ──
+export const monthlyPowerData: ApiResponse<MonthlyPowerItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -353,7 +371,8 @@ export const monthlyPowerData = {
   ],
 }
 
-export const yearlySummaryData = {
+// ── 年度汇总 ──
+export const yearlySummaryData: ApiResponse<YearlySummaryItem[]> = {
   code: 200,
   message: 'success',
   data: [

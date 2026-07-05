@@ -6,22 +6,31 @@
  * - 水库组合、场景、子选项与模型的兼容关系
  * - 时间步长建议、目标关联参数
  */
+import type {
+  ReservoirGroupModelMap,
+  ScenarioModelMap,
+  ScenarioSubOptionModelMap,
+  TimeStepParamSuggestions,
+  ObjectiveRelevantParams,
+  ModelLabelMap,
+  AlgorithmLabelMap,
+} from '@/types/model'
 
 /** 水库组合 → 兼容的模型ID列表 */
-export const reservoirGroupModelMap: Record<string, string[]> = {
+export const reservoirGroupModelMap: ReservoirGroupModelMap = {
   'long-liu': ['lro', 'multi_objective_stress'],
   'long-liu-hei': ['lro', 'multi_objective_dispatch', 'water_sediment_realtime'],
 }
 
 /** 调度场景大类 → 兼容的模型ID列表 */
-export const scenarioModelMap: Record<string, string[]> = {
+export const scenarioModelMap: ScenarioModelMap = {
   'multi-year': ['lro', 'multi_objective_stress', 'multi_objective_dispatch'],
   'critical-period': ['multi_objective_stress', 'multi_objective_dispatch'],
   'realtime': ['water_sediment_realtime'],
 }
 
 /** 调度场景子选项 → 推荐的模型ID */
-export const scenarioSubOptionModelMap: Record<string, string> = {
+export const scenarioSubOptionModelMap: ScenarioSubOptionModelMap = {
   'multi-objective': 'multi_objective_dispatch',
   'flood': 'multi_objective_stress',
   'ice': 'multi_objective_stress',
@@ -34,14 +43,14 @@ export const scenarioSubOptionModelMap: Record<string, string> = {
 }
 
 /** 时间步长 → 建议的算法参数 */
-export const timeStepParamSuggestions: Record<string, Partial<Record<string, number>>> = {
+export const timeStepParamSuggestions: TimeStepParamSuggestions = {
   '每日': { iterationCount: 500, populationSize: 200 },
   '每旬': { iterationCount: 300, populationSize: 150 },
   '每月': { iterationCount: 200, populationSize: 100 },
 }
 
 /** 调度目标 → 关联的场景参数ID */
-export const objectiveRelevantParams: Record<string, string[]> = {
+export const objectiveRelevantParams: ObjectiveRelevantParams = {
   'flood-control': [],
   'power-generation': [],
   'ecology': ['ecologicalFlow', 'sedimentRequirement'],
@@ -50,7 +59,7 @@ export const objectiveRelevantParams: Record<string, string[]> = {
 }
 
 /** 模型ID → 中文显示名称 */
-export const modelLabelMap: Record<string, string> = {
+export const modelLabelMap: ModelLabelMap = {
   lro: '水库群优化调度模型（LRO）',
   multi_objective_stress: '多目标协同胁迫模型',
   multi_objective_dispatch: '多目标优化调度模型',
@@ -58,7 +67,7 @@ export const modelLabelMap: Record<string, string> = {
 }
 
 /** 算法ID → 中文显示名称 */
-export const algorithmLabelMap: Record<string, string> = {
+export const algorithmLabelMap: AlgorithmLabelMap = {
   nsga2: 'NSGA-II 多目标遗传算法',
   pso: 'PSO 粒子群优化算法',
   paem: 'PAEM 逐步逼近评价方法',

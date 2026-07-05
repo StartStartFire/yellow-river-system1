@@ -1,7 +1,22 @@
 // ==================== 评价决策页面 Mock 数据 ====================
+import type { ApiResponse, OptionItem } from '@/types/common'
+import type { DistributionItem } from '@/types/model'
+import type {
+  EvaluationDecisionState,
+  RadarData,
+  EvaluationSankeyData,
+  ParetoPlanItem,
+  RankingItem,
+  DecisionTarget,
+  DecisionWaterLevelData,
+  DecisionFlowData,
+  DecisionPowerData,
+  DecisionPlanDataBundle,
+  PlanLabelMap,
+} from '@/types/evaluation'
 
 // ── 页面状态 ──
-export const evaluationDecisionState = {
+export const evaluationDecisionState: ApiResponse<EvaluationDecisionState> = {
   code: 200,
   message: 'success',
   data: {
@@ -13,7 +28,7 @@ export const evaluationDecisionState = {
 }
 
 // ── 方案选项 ──
-export const planOptions = {
+export const planOptions: ApiResponse<OptionItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -24,7 +39,7 @@ export const planOptions = {
   ],
 }
 
-export const planLabelMap: Record<string, string> = {
+export const planLabelMap: PlanLabelMap = {
   'plan-1': '方案一',
   'plan-2': '方案二',
   'plan-3': '方案三',
@@ -32,7 +47,7 @@ export const planLabelMap: Record<string, string> = {
 }
 
 // ── 雷达图数据 ──
-export const radarData = {
+export const radarData: ApiResponse<RadarData> = {
   code: 200,
   message: 'success',
   data: {
@@ -51,7 +66,7 @@ export const radarData = {
 }
 
 // ── 评价指标桑基图数据 ──
-export const evaluationSankeyData = {
+export const evaluationSankeyData: ApiResponse<EvaluationSankeyData> = {
   code: 200,
   message: 'success',
   data: {
@@ -130,7 +145,7 @@ export const evaluationSankeyData = {
 }
 
 // ── 帕累托曲线数据 ──
-export const paretoData = {
+export const paretoData: ApiResponse<ParetoPlanItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -195,7 +210,7 @@ export const paretoData = {
 }
 
 // ── 评价算法排名数据 ──
-export const rankingData = {
+export const rankingData: ApiResponse<RankingItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -248,7 +263,7 @@ export const rankingData = {
 }
 
 // ── 决策分析-目标满足情况 ──
-export const decisionTargets = {
+export const decisionTargets: ApiResponse<DecisionTarget[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -262,7 +277,7 @@ export const decisionTargets = {
 }
 
 // ── 决策分析-过程曲线（水位） ──
-export const processWaterLevelData = {
+export const processWaterLevelData: ApiResponse<DecisionWaterLevelData> = {
   code: 200,
   message: 'success',
   data: {
@@ -283,7 +298,7 @@ export const processWaterLevelData = {
 }
 
 // ── 决策分析-过程曲线（流量） ──
-export const processFlowData = {
+export const processFlowData: ApiResponse<DecisionFlowData> = {
   code: 200,
   message: 'success',
   data: {
@@ -302,7 +317,7 @@ export const processFlowData = {
 }
 
 // ── 决策分析-过程曲线（出力） ──
-export const processPowerData = {
+export const processPowerData: ApiResponse<DecisionPowerData> = {
   code: 200,
   message: 'success',
   data: {
@@ -323,7 +338,7 @@ export const processPowerData = {
 }
 
 // ── 水量使用流向图 ──
-export const waterUsageFlow = {
+export const waterUsageFlow: ApiResponse<DistributionItem[]> = {
   code: 200,
   message: 'success',
   data: [
@@ -337,7 +352,7 @@ export const waterUsageFlow = {
 }
 
 // ── 各方案数据映射（方案切换时图表联动） ──
-export const decisionPlanDataMap: Record<string, any> = {
+export const decisionPlanDataMap: Record<string, DecisionPlanDataBundle> = {
   'plan-1': {
     targets: decisionTargets.data,
     waterLevel: processWaterLevelData.data,
@@ -346,7 +361,7 @@ export const decisionPlanDataMap: Record<string, any> = {
     waterUsage: waterUsageFlow.data,
   },
   'plan-2': {
-    targets: decisionTargets.data.map((t: any) => ({
+    targets: decisionTargets.data.map((t) => ({
       ...t,
       rate: t.rate + (Math.random() * 4 - 2),
     })),
@@ -356,28 +371,28 @@ export const decisionPlanDataMap: Record<string, any> = {
     waterUsage: waterUsageFlow.data,
   },
   'plan-3': {
-    targets: decisionTargets.data.map((t: any) => ({
+    targets: decisionTargets.data.map((t) => ({
       ...t,
       rate: t.rate + (Math.random() * 6 - 3),
     })),
     waterLevel: processWaterLevelData.data,
     flow: processFlowData.data,
     power: processPowerData.data,
-    waterUsage: waterUsageFlow.data.map((u: any) => ({
+    waterUsage: waterUsageFlow.data.map((u) => ({
       ...u,
       value: parseFloat((u.value + Math.random() * 4 - 2).toFixed(1)),
       percent: parseFloat((u.percent + Math.random() * 4 - 2).toFixed(1)),
     })),
   },
   'plan-4': {
-    targets: decisionTargets.data.map((t: any) => ({
+    targets: decisionTargets.data.map((t) => ({
       ...t,
       rate: t.rate + (Math.random() * 8 - 4),
     })),
     waterLevel: processWaterLevelData.data,
     flow: processFlowData.data,
     power: processPowerData.data,
-    waterUsage: waterUsageFlow.data.map((u: any) => ({
+    waterUsage: waterUsageFlow.data.map((u) => ({
       ...u,
       value: parseFloat((u.value + Math.random() * 6 - 3).toFixed(1)),
       percent: parseFloat((u.percent + Math.random() * 6 - 3).toFixed(1)),
@@ -385,6 +400,6 @@ export const decisionPlanDataMap: Record<string, any> = {
   },
 }
 
-export function getDecisionPlanData(planId: string) {
+export function getDecisionPlanData(planId: string): DecisionPlanDataBundle {
   return decisionPlanDataMap[planId] || decisionPlanDataMap['plan-2']
 }
