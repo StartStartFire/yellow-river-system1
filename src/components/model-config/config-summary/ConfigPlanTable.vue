@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import PanelCard from '@/components/common/PanelCard.vue'
 import type { ConfigPlan } from '@/types/model'
 
 interface Props {
@@ -64,42 +65,35 @@ const pageNumbers = computed(() => {
 
 <template>
   <div class="table-section">
-    <div class="card-flat table-card">
-      <!-- 标题 + 操作栏 -->
-      <div class="card-header">
-        <div class="header-title-row">
-          <div class="header-accent-line"></div>
-          <span class="header-title">配置汇总</span>
-        </div>
-        <div class="toolbar-actions">
-          <el-button size="small" type="primary" class="toolbar-btn" @click="emit('add')">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="btn-icon-sm">
-              <path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <PanelCard accent title="配置汇总" class="table-card">
+      <template #header-actions>
+        <el-button size="small" type="primary" class="toolbar-btn" @click="emit('add')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="btn-icon-sm">
+            <path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          新增
+        </el-button>
+        <el-button size="small" class="toolbar-btn" @click="emit('filter')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="btn-icon-sm">
+            <path d="M1 2h10L7 6.5V10L5 11V6.5L1 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+          筛选
+        </el-button>
+        <el-input
+          v-model="localSearch"
+          placeholder="搜索方案名、模型、算法或场景"
+          size="small"
+          clearable
+          class="search-input"
+        >
+          <template #prefix>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="search-icon">
+              <circle cx="6" cy="6" r="4" stroke="#6e8a9e" stroke-width="1.3"/>
+              <path d="M9.5 9.5L13 13" stroke="#6e8a9e" stroke-width="1.3" stroke-linecap="round"/>
             </svg>
-            新增
-          </el-button>
-          <el-button size="small" class="toolbar-btn" @click="emit('filter')">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="btn-icon-sm">
-              <path d="M1 2h10L7 6.5V10L5 11V6.5L1 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
-            </svg>
-            筛选
-          </el-button>
-          <el-input
-            v-model="localSearch"
-            placeholder="搜索方案名、模型、算法或场景"
-            size="small"
-            clearable
-            class="search-input"
-          >
-            <template #prefix>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="search-icon">
-                <circle cx="6" cy="6" r="4" stroke="#6e8a9e" stroke-width="1.3"/>
-                <path d="M9.5 9.5L13 13" stroke="#6e8a9e" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-            </template>
-          </el-input>
-        </div>
-      </div>
+          </template>
+        </el-input>
+      </template>
 
       <!-- 表格 -->
       <div class="table-wrapper">
@@ -156,7 +150,7 @@ const pageNumbers = computed(() => {
           <button class="page-btn" :disabled="currentPage >= totalPages" @click="goPage(currentPage + 1)">›</button>
         </div>
       </div>
-    </div>
+    </PanelCard>
   </div>
 </template>
 
@@ -176,11 +170,11 @@ const pageNumbers = computed(() => {
   min-height: 0;
 }
 
-.toolbar-actions {
-  margin-left: auto;
+/* 表格卡片去掉 section-body 内边距，让表格和分页栏贴边 */
+.table-card :deep(.section-body) {
+  padding: 0;
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
 }
 
 .toolbar-btn {

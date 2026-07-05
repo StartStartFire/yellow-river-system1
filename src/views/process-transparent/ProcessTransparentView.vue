@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import BaseChart from '@/components/chart/BaseChart.vue'
 import PanelCard from '@/components/common/PanelCard.vue'
+import StatusTag from '@/components/common/StatusTag.vue'
 import {
   TEXT_SECONDARY, baseTooltip, baseCategoryXAxis, baseValueYAxis,
   createGrid, createAreaGradient, SERIES_COLORS,
@@ -26,6 +27,14 @@ const progress = ref(26.2)
 const elapsedTime = ref('00:08:24')
 const remainingTime = ref('00:22:36')
 const period = ref('2025-05-16 08:00 ~ 2025-05-26 08:00（241时段）')
+
+// 任务状态对应颜色（供 StatusTag 使用）
+const statusColor = computed(() => {
+  if (status.value === '运行中') return '#00ff88'
+  if (status.value === '已完成') return 'var(--tech-blue)'
+  if (status.value === '已终止') return '#ff4d4f'
+  return '#8aa0b8'
+})
 
 let progressTimer: ReturnType<typeof setInterval> | null = null
 
@@ -295,9 +304,11 @@ onUnmounted(() => {
       <div class="status-fields">
         <div class="status-field">
           <span class="field-label">任务状态</span>
-          <span class="field-value" :class="{ 'status-running': status === '运行中', 'status-done': status === '已完成', 'status-terminated': status === '已终止' }">
-            <span class="status-dot"></span>{{ status }}
-          </span>
+          <StatusTag
+            :label="status"
+            :color="statusColor"
+            :pulse="status === '运行中'"
+          />
         </div>
         <div class="status-field">
           <span class="field-label">调度周期</span>
@@ -515,14 +526,6 @@ onUnmounted(() => {
 .status-field { display: flex; align-items: center; gap: 4px; }
 .field-label { font-size: 11px; color: var(--tech-text-secondary); white-space: nowrap; }
 .field-value { font-size: 12px; color: var(--tech-text-regular); display: flex; align-items: center; gap: 4px; }
-.status-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #00ff88; display: inline-block; animation: pulse-dot 2s infinite;
-}
-@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.status-running .status-dot { background: #00ff88; }
-.status-done .status-dot { background: var(--tech-blue); animation: none; }
-.status-terminated .status-dot { background: #ff4d4f; animation: none; }
 .progress-field { flex: 1; min-width: 200px; }
 .progress-wrapper { display: flex; align-items: center; gap: 8px; flex: 1; }
 .progress-bar { flex:1; height:6px; background:rgba(50,150,255,0.15); border-radius:3px; overflow:hidden; min-width:80px; }

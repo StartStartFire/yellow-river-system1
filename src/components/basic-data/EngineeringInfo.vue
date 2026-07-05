@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PanelCard from '@/components/common/PanelCard.vue'
-import { TEXT_SECONDARY, TECH_ORANGE } from '@/utils/chart'
+import StatusTag from '@/components/common/StatusTag.vue'
 import type { TurbineItem, GateItem, EngineeringSummary } from '@/types/reservoir'
 
 interface Props {
@@ -11,10 +11,11 @@ interface Props {
 
 defineProps<Props>()
 
+// 机组/闸门状态映射（用于 StatusTag 自定义模式）
 const statusMap: Record<string, { label: string; color: string }> = {
-  running:  { label: '运行',   color: '#00FF88' },
-  stop:     { label: '停机',   color: TEXT_SECONDARY },
-  maintenance: { label: '检修', color: TECH_ORANGE },
+  running:     { label: '运行', color: '#00FF88' },
+  stop:        { label: '停机', color: '#8aa0b8' },
+  maintenance: { label: '检修', color: '#f0a020' },
 }
 </script>
 
@@ -66,9 +67,10 @@ const statusMap: Record<string, { label: string; color: string }> = {
             <td class="cell-id">{{ t.id }}</td>
             <td>{{ t.name }}</td>
             <td>
-              <span class="status-badge" :style="{ background: statusMap[t.status].color + '22', color: statusMap[t.status].color }">
-                {{ statusMap[t.status].label }}
-              </span>
+              <StatusTag
+                :label="statusMap[t.status].label"
+                :color="statusMap[t.status].color"
+              />
             </td>
             <td class="cell-num">{{ t.output }}</td>
             <td class="cell-num">{{ t.flow }}</td>
@@ -201,14 +203,6 @@ const statusMap: Record<string, { label: string; color: string }> = {
 .cell-num {
   font-family: 'DIN Alternate', 'Roboto Mono', monospace;
   text-align: right;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
 }
 
 .cell-gate {
