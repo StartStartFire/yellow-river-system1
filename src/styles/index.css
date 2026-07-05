@@ -74,6 +74,58 @@
   );
 }
 
+/* ═══════════════════════════════════════════════
+   通用卡片容器 / 卡片头部
+   ═══════════════════════════════════════════════ */
+
+/* 带边框、圆角、半透明背景的卡片容器（SelectCard 系列使用） */
+.card-base {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(50, 150, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(10, 25, 41, 0.4);
+  overflow: hidden;
+}
+
+/* 不带边框的卡片容器（Table/InfoPanel 等内嵌卡片使用） */
+.card-flat {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 卡片头部行 */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* 带强调色条 + 标题的头部行（ConfigPlanTable 使用） */
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-accent-line {
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3));
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tech-text-primary);
+}
+
 /* 行内Tab/筛选条 */
 .inline-bar {
   display: flex;

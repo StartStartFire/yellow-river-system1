@@ -18,7 +18,7 @@ const selectModel = (id: string) => emit('update:modelId', id)
 </script>
 
 <template>
-  <div class="card model-card">
+  <div class="card-base model-card">
     <div class="card-header">
       <div class="card-icon-box model-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -55,24 +55,6 @@ const selectModel = (id: string) => emit('update:modelId', id)
 </template>
 
 <style scoped>
-.card {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid rgba(50, 150, 255, 0.12);
-  border-radius: 10px;
-  background: rgba(10, 25, 41, 0.4);
-  overflow: hidden;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
-  flex-shrink: 0;
-}
-
 .card-icon-box {
   width: 32px;
   height: 32px;

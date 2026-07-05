@@ -20,7 +20,7 @@ defineProps<Props>()
 <template>
   <div class="info-section">
     <!-- 时间预估 -->
-    <div class="card info-card">
+    <div class="card-flat info-card">
       <div class="card-header info-card-header">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
           <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/>
@@ -35,7 +35,7 @@ defineProps<Props>()
     </div>
 
     <!-- 方案数量 -->
-    <div class="card info-card">
+    <div class="card-flat info-card">
       <div class="card-header info-card-header">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
           <rect x="2" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/>
@@ -55,7 +55,7 @@ defineProps<Props>()
     </div>
 
     <!-- 模型分布 -->
-    <div class="card info-card chart-card">
+    <div class="card-flat info-card chart-card">
       <div class="card-header info-card-header">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
           <rect x="2" y="10" width="3" height="4" rx="0.5" fill="currentColor"/>
@@ -79,7 +79,7 @@ defineProps<Props>()
     </div>
 
     <!-- 算法分布 -->
-    <div class="card info-card chart-card">
+    <div class="card-flat info-card chart-card">
       <div class="card-header info-card-header">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="card-icon">
           <path d="M2 12l4-6 3 3 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -127,21 +127,6 @@ defineProps<Props>()
 .info-section::-webkit-scrollbar-thumb {
   background: rgba(50, 150, 255, 0.2);
   border-radius: 2px;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  flex-shrink: 0;
 }
 
 .card-icon {

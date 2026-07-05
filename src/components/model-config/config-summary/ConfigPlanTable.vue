@@ -64,7 +64,7 @@ const pageNumbers = computed(() => {
 
 <template>
   <div class="table-section">
-    <div class="card table-card">
+    <div class="card-flat table-card">
       <!-- 标题 + 操作栏 -->
       <div class="card-header">
         <div class="header-title-row">
@@ -169,46 +169,11 @@ const pageNumbers = computed(() => {
   border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  flex-shrink: 0;
-}
-
 .table-card {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-.header-title-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-accent-line {
-  width: 3px;
-  height: 18px;
-  background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3));
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.header-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--tech-text-primary);
 }
 
 .toolbar-actions {
