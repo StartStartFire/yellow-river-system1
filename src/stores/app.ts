@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { ReservoirBrief } from '@/types/reservoir'
 
 export type NavModule =
   | 'home'
@@ -11,21 +12,12 @@ export type NavModule =
   | 'case-library'
   | 'report-statistics'
 
-export interface Reservoir {
-  id: string
-  name: string
-  waterLevel: number
-  inflow: number
-  outflow: number
-  storage: number
-}
-
 export const useAppStore = defineStore('app', () => {
   // 当前导航模块
   const activeModule = ref<NavModule>('home')
 
   // 当前选中的水库
-  const selectedReservoir = ref<Reservoir | null>(null)
+  const selectedReservoir = ref<ReservoirBrief | null>(null)
 
   // 当前选中的方案
   const selectedScenario = ref<string>('')
@@ -36,7 +28,7 @@ export const useAppStore = defineStore('app', () => {
   }
 
   // 设置当前选中的水库
-  const setSelectedReservoir = (reservoir: Reservoir | null) => {
+  const setSelectedReservoir = (reservoir: ReservoirBrief | null) => {
     selectedReservoir.value = reservoir
   }
 
