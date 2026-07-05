@@ -30,7 +30,8 @@ const reservoirGroupName = computed(() => {
     'long-liu-gong': '龙刘公组合',
     all: '全部水库组合',
   }
-  return map[props.store.basicConfig.selectedReservoirGroup] || props.store.basicConfig.selectedReservoirGroup
+  const groupId = props.store.dispatchSubject.selectedGroupId
+  return map[groupId] || groupId || '龙刘组合'
 })
 
 const scenarioParamLabels: Record<string, Record<string, string>> = {
@@ -82,16 +83,16 @@ const scenarioParamLabel = (key: string) => {
         <div class="summary-fields">
           <el-descriptions :column="2" size="small" border class="dark-descriptions">
             <el-descriptions-item label="方案名称">
-              {{ store.basicConfig.schemeName || '（未命名）' }}
+              {{ store.dispatchScenario.scenarioName || '（未命名）' }}
             </el-descriptions-item>
             <el-descriptions-item label="水库组合">
               {{ reservoirGroupName }}
             </el-descriptions-item>
             <el-descriptions-item label="调度周期">
-              {{ store.basicConfig.timeStep }}
+              {{ store.dispatchSubject.timeStep }}
             </el-descriptions-item>
             <el-descriptions-item label="调度频率">
-              {{ store.basicConfig.scheduleFrequency }}
+              {{ store.dispatchSubject.scheduleFrequency }}
             </el-descriptions-item>
           </el-descriptions>
         </div>

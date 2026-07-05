@@ -40,7 +40,7 @@ const visibleParams = computed(() => {
   return paramDefs.filter(p => currentAlgorithm.value!.paramIds.includes(p.id))
 })
 
-const selectedObjectives = ref<string[]>([...store.basicConfig.selectedObjectives])
+const selectedObjectives = ref<string[]>([...store.modelAlgorithm.selectedObjectives])
 const editingConstraints = ref<ConstraintDetail[]>(constraintData.constraints.map(c => ({ ...c })))
 const constraintEnabledMap = ref<Record<string, boolean>>(
   Object.fromEntries(constraintData.constraints.map(c => [c.name, true]))
@@ -61,7 +61,6 @@ const currentGroupName = computed(() => {
     { id: 'all', name: '全部水库' },
   ]
   return groups.find(g => g.id === store.dispatchSubject.selectedGroupId)?.name
-    || groups.find(g => g.id === store.basicConfig.selectedReservoirGroup)?.name
     || '龙刘组合'
 })
 
@@ -138,16 +137,24 @@ const constraintEnabledArray = computed(() =>
 const handleNext = () => {
   if (!selectedModelId.value || !selectedAlgorithmId.value) { ElMessage.warning('请选择调度模型和优化算法'); return }
   if (selectedObjectives.value.length === 0) { ElMessage.warning('请至少选择一个调度目标'); return }
-  store.setModelAlgorithm({ selectedModel: selectedModelId.value, selectedAlgorithm: selectedAlgorithmId.value, parameters: { ...paramValues.value } })
-  store.setBasicConfig({ selectedObjectives: [...selectedObjectives.value], constraintEnabled: [...constraintEnabledArray.value] })
+  store.setModelAlgorithm({
+    selectedModel: selectedModelId.value,
+    selectedAlgorithm: selectedAlgorithmId.value,
+    selectedObjectives: [...selectedObjectives.value],
+    parameters: { ...paramValues.value },
+  })
   store.markStepCompleted(4)
   router.push('/model-config/scenario-constraint')
 }
 
 const confirmSave = () => {
   saveDialogVisible.value = false
-  store.setModelAlgorithm({ selectedModel: selectedModelId.value, selectedAlgorithm: selectedAlgorithmId.value, parameters: { ...paramValues.value } })
-  store.setBasicConfig({ selectedObjectives: [...selectedObjectives.value], constraintEnabled: [...constraintEnabledArray.value] })
+  store.setModelAlgorithm({
+    selectedModel: selectedModelId.value,
+    selectedAlgorithm: selectedAlgorithmId.value,
+    selectedObjectives: [...selectedObjectives.value],
+    parameters: { ...paramValues.value },
+  })
   ElMessage.success('模型算法配置已保存')
 }
 

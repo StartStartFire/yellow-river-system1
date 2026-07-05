@@ -4,7 +4,6 @@ import {
   reservoirGroupModelMap,
   scenarioModelMap,
   scenarioSubOptionModelMap,
-  timeStepParamSuggestions,
   objectiveRelevantParams,
   modelLabelMap,
   algorithmLabelMap,
@@ -13,21 +12,27 @@ import { dispatchModels, optimizationAlgorithms } from '@/mock/model-config/mode
 
 /**
  * 模型配置 Pinia Store
- * 串联五个步骤的配置数据，支持跨步骤联动
+ *
+ * 串联 6 个步骤的配置数据，支持跨步骤联动：
+ *   Step 1 调度场景 → Step 2 调度主体 → Step 3 调度数据
+ *   → Step 4 模型算法 → Step 5 场景约束 → Step 6 配置汇总
+ *
+ * 状态分组使用 step{n}State 形式，return 时保留语义化 key 供外部使用。
  */
 export const useModelConfigStore = defineStore('modelConfig', () => {
-  // ==================== 当前步骤 ====================
+  // ==================== 全局步骤状态 ====================
   const currentStep = ref(1)
+  const stepCompleted = ref<boolean[]>([false, false, false, false, false, false])
 
-  // ==================== Step 1: 调度场景（新） ====================
-  const dispatchScenario = ref({
+  // ==================== Step 1: 调度场景 ====================
+  const step1State = ref({
     categoryId: '',    // 选中的大类ID: 'multi-year' | 'critical-period' | 'realtime'
     subOptionId: '',   // 选中的子选项ID
     scenarioName: '',  // 方案名称
   })
 
-  // ==================== Step 2: 调度主体（新） ====================
-  const dispatchSubject = ref({
+  // ==================== Step 2: 调度主体 ====================
+  const step2State = ref({
     startTime: '',
     endTime: '',
     timeStep: '每日',
@@ -36,30 +41,19 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     selectedGroupId: '',  // 预设组合ID，空=自定义
   })
 
-  // ==================== Step 1: 调度数据 ====================
-  const modelData = ref({
+  // ==================== Step 3: 调度数据 ====================
+  const step3State = ref({
     activeMenuId: 'inflow-level',
     dateRange: ['2025-05-19', '2025-05-25'] as [string, string],
     // 预留：后续改为勾选参与计算的数据项
     selectedDataIds: [] as string[],
   })
 
-  // ==================== Step 2: 基础配置 ====================
-  const basicConfig = ref({
-    startTime: '2025-05-16',
-    endTime: '2025-05-26',
-    timeStep: '每日',
-    scheduleFrequency: '每月一次',
-    schemeName: '',
-    selectedReservoirGroup: 'long-liu',
-    selectedObjectives: ['flood-control'] as string[],
-    constraintEnabled: [] as boolean[],
-  })
-
-  // ==================== Step 3: 模型算法 ====================
-  const modelAlgorithm = ref({
+  // ==================== Step 4: 模型算法 ====================
+  const step4State = ref({
     selectedModel: 'lro',
     selectedAlgorithm: 'nsga2',
+    selectedObjectives: ['flood-control'] as string[],
     parameters: {
       populationSize: 200,
       iterationCount: 500,
@@ -70,8 +64,8 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     } as Record<string, number>,
   })
 
-  // ==================== Step 4: 场景约束 ====================
-  const scenarioConstraint = ref({
+  // ==================== Step 5: 场景约束 ====================
+  const step5State = ref({
     scenarioType: 'typical',
     scenarioDescription: '',
     params: {
@@ -83,9 +77,6 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     } as Record<string, string>,
   })
 
-  // ==================== 步骤完成状态 ====================
-  const stepCompleted = ref<boolean[]>([false, false, false, false, false, false])
-
   // ==================== 计算属性 ====================
 
   /** 已完成步骤数 */
@@ -96,50 +87,22 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   /** 当前步骤标题（新 6 步流程） */
   const stepTitles = ['调度场景', '调度主体', '调度数据', '模型算法', '场景配置', '配置汇总']
-
-  /** 旧 5 步流程标题（兼容旧页面） */
-  const oldStepTitles = ['调度数据', '基础配置', '模型算法', '场景配置', '配置汇总']
-
   const currentStepTitle = computed(() => stepTitles[currentStep.value - 1] || '')
 
   // ==================== 步骤间联动计算属性 ====================
 
-  /** 当前水库组合兼容的模型ID列表（Step 2 → Step 3） */
-  const compatibleModelIds = computed(() => {
-    const groupId = basicConfig.value.selectedReservoirGroup
-    return reservoirGroupModelMap[groupId] || ['lro']
-  })
-
-  /** 当前水库组合兼容的模型选项列表（带名称） */
+  /** 当前水库组合兼容的模型选项列表（Step 2 → Step 4） */
   const compatibleModels = computed(() => {
+    const groupId = step2State.value.selectedGroupId
+    const compatibleIds = reservoirGroupModelMap[groupId] || ['lro']
     const allModels = dispatchModels.data || []
-    const ids = compatibleModelIds.value
-    return allModels.filter(m => ids.includes(m.id))
+    return allModels.filter(m => compatibleIds.includes(m.id))
   })
 
-  /** 当前模型兼容的算法列表（Step 3 内部联动） */
-  const compatibleAlgorithms = computed(() => {
-    const allAlgos = optimizationAlgorithms.data || []
-    const models = dispatchModels.data || []
-    const model = models.find(m => m.id === modelAlgorithm.value.selectedModel)
-    if (!model) return allAlgos
-    return allAlgos.filter(a => model.supportedAlgorithms.includes(a.id))
-  })
-
-  /** 当前算法是否与模型兼容 */
-  const isAlgorithmCompatible = computed(() => {
-    return compatibleAlgorithms.value.some(a => a.id === modelAlgorithm.value.selectedAlgorithm)
-  })
-
-  /** 根据时间步长建议的参数值（Step 2 → Step 3） */
-  const suggestedParamsByTimeStep = computed(() => {
-    return timeStepParamSuggestions[basicConfig.value.timeStep] || timeStepParamSuggestions['每日']
-  })
-
-  /** 当前调度目标关联的场景参数ID（Step 2 → Step 4） */
+  /** 当前调度目标关联的场景参数ID（Step 4 → Step 5） */
   const relevantScenarioParamIds = computed(() => {
     const ids = new Set<string>()
-    basicConfig.value.selectedObjectives.forEach(objId => {
+    step4State.value.selectedObjectives.forEach(objId => {
       const relevant = objectiveRelevantParams[objId]
       if (relevant) relevant.forEach(id => ids.add(id))
     })
@@ -148,12 +111,12 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   /** 模型中文名 */
   const modelDisplayName = computed(() => {
-    return modelLabelMap[modelAlgorithm.value.selectedModel] || modelAlgorithm.value.selectedModel
+    return modelLabelMap[step4State.value.selectedModel] || step4State.value.selectedModel
   })
 
   /** 算法中文名 */
   const algorithmDisplayName = computed(() => {
-    return algorithmLabelMap[modelAlgorithm.value.selectedAlgorithm] || modelAlgorithm.value.selectedAlgorithm
+    return algorithmLabelMap[step4State.value.selectedAlgorithm] || step4State.value.selectedAlgorithm
   })
 
   // ==================== 步骤操作 ====================
@@ -177,68 +140,10 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     stepCompleted.value = [false, false, false, false, false, false]
   }
 
-  // ==================== 步骤间联动方法 ====================
-
-  /** 从 Step 1 调度数据同步时间范围到 Step 2 */
-  const syncBasicConfigFromModelData = () => {
-    if (modelData.value.dateRange && modelData.value.dateRange.length === 2) {
-      basicConfig.value.startTime = modelData.value.dateRange[0]
-      basicConfig.value.endTime = modelData.value.dateRange[1]
-    }
-  }
-
-  /** 切换水库组合时，确保当前选中的模型仍然兼容，否则自动切换到第一个兼容模型 */
-  const ensureCompatibleModelOnGroupChange = (newGroupId: string) => {
-    const oldGroupId = basicConfig.value.selectedReservoirGroup
-    basicConfig.value.selectedReservoirGroup = newGroupId
-
-    // 检查当前模型是否兼容新组合
-    const compatibleIds = reservoirGroupModelMap[newGroupId] || ['lro']
-    if (!compatibleIds.includes(modelAlgorithm.value.selectedModel)) {
-      // 自动切换到第一个兼容模型
-      modelAlgorithm.value.selectedModel = compatibleIds[0]
-    }
-
-    // 检查算法兼容性
-    const models = dispatchModels.data || []
-    const model = models.find(m => m.id === modelAlgorithm.value.selectedModel)
-    if (model && !model.supportedAlgorithms.includes(modelAlgorithm.value.selectedAlgorithm)) {
-      if (model.supportedAlgorithms.length > 0) {
-        modelAlgorithm.value.selectedAlgorithm = model.supportedAlgorithms[0]
-      }
-    }
-  }
-
-  /** 切换调度目标时，返回受影响场景参数ID列表 */
-  const getAffectedScenarioParamIds = () => {
-    const ids = new Set<string>()
-    basicConfig.value.selectedObjectives.forEach(objId => {
-      const relevant = objectiveRelevantParams[objId]
-      if (relevant) relevant.forEach(id => ids.add(id))
-    })
-    return Array.from(ids)
-  }
-
-  /** 切换时间步长时，返回建议的参数调整 */
-  const getSuggestedParamsForTimeStep = (newTimeStep: string) => {
-    return timeStepParamSuggestions[newTimeStep] || null
-  }
-
-  /** 应用时间步长建议参数到 Step 3 */
-  const applyTimeStepToAlgorithmParams = (newTimeStep: string) => {
-    const suggestions = timeStepParamSuggestions[newTimeStep]
-    if (suggestions) {
-      Object.entries(suggestions).forEach(([key, value]) => {
-        if (key in modelAlgorithm.value.parameters) {
-          modelAlgorithm.value.parameters[key] = value
-        }
-      })
-    }
-  }
-
   // ==================== Step 1 操作（调度场景）====================
-  const setDispatchScenario = (data: Partial<typeof dispatchScenario.value>) => {
-    Object.assign(dispatchScenario.value, data)
+
+  const setDispatchScenario = (data: Partial<typeof step1State.value>) => {
+    Object.assign(step1State.value, data)
   }
 
   /**
@@ -258,7 +163,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       'multi-energy': ['multi-energy'],
     }
     const objectives = scenarioObjectiveMap[subOptionId] || []
-    basicConfig.value.selectedObjectives = objectives
+    step4State.value.selectedObjectives = objectives
   }
 
   /**
@@ -269,69 +174,66 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // 优先使用子选项的推荐模型
     const recommendedModel = scenarioSubOptionModelMap[subOptionId]
     if (recommendedModel) {
-      modelAlgorithm.value.selectedModel = recommendedModel
+      step4State.value.selectedModel = recommendedModel
     } else {
       // 否则使用大类兼容的模型列表中的第一个
       const compatibleIds = scenarioModelMap[categoryId] || ['lro']
-      modelAlgorithm.value.selectedModel = compatibleIds[0]
+      step4State.value.selectedModel = compatibleIds[0]
     }
 
     // 联动算法：检查当前算法是否与新模型兼容
     const allModels = dispatchModels.data || []
-    const model = allModels.find(m => m.id === modelAlgorithm.value.selectedModel)
-    if (model && !model.supportedAlgorithms.includes(modelAlgorithm.value.selectedAlgorithm)) {
+    const model = allModels.find(m => m.id === step4State.value.selectedModel)
+    if (model && !model.supportedAlgorithms.includes(step4State.value.selectedAlgorithm)) {
       if (model.supportedAlgorithms.length > 0) {
-        modelAlgorithm.value.selectedAlgorithm = model.supportedAlgorithms[0]
+        step4State.value.selectedAlgorithm = model.supportedAlgorithms[0]
       }
     }
   }
 
   // ==================== Step 2 操作（调度主体）====================
-  const setDispatchSubject = (data: Partial<typeof dispatchSubject.value>) => {
-    Object.assign(dispatchSubject.value, data)
+
+  const setDispatchSubject = (data: Partial<typeof step2State.value>) => {
+    Object.assign(step2State.value, data)
   }
 
-  // ==================== Step 1 操作（调度场景）====================
-  const setModelData = (data: Partial<typeof modelData.value>) => {
-    Object.assign(modelData.value, data)
+  // ==================== Step 3 操作（调度数据）====================
+
+  const setModelData = (data: Partial<typeof step3State.value>) => {
+    Object.assign(step3State.value, data)
   }
 
-  // ==================== Step 2 操作 ====================
-  const setBasicConfig = (data: Partial<typeof basicConfig.value>) => {
-    Object.assign(basicConfig.value, data)
-  }
+  // ==================== Step 4 操作（模型算法）====================
 
-  const setConstraintEnabled = (enabled: boolean[]) => {
-    basicConfig.value.constraintEnabled = enabled
-  }
-
-  // ==================== Step 3 操作 ====================
-  const setModelAlgorithm = (data: Partial<typeof modelAlgorithm.value>) => {
-    Object.assign(modelAlgorithm.value, data)
+  const setModelAlgorithm = (data: Partial<typeof step4State.value>) => {
+    Object.assign(step4State.value, data)
   }
 
   const setAlgorithmParam = (key: string, value: number) => {
-    modelAlgorithm.value.parameters[key] = value
+    step4State.value.parameters[key] = value
   }
 
-  // ==================== Step 4 操作 ====================
-  const setScenarioConstraint = (data: Partial<typeof scenarioConstraint.value>) => {
-    Object.assign(scenarioConstraint.value, data)
+  // ==================== Step 5 操作（场景约束）====================
+
+  const setScenarioConstraint = (data: Partial<typeof step5State.value>) => {
+    Object.assign(step5State.value, data)
   }
 
   const setScenarioParam = (key: string, value: string) => {
-    scenarioConstraint.value.params[key] = value
+    step5State.value.params[key] = value
   }
 
   // ==================== 重置 ====================
+
   /** 重置所有配置 */
   const resetAll = () => {
     currentStep.value = 1
-    dispatchScenario.value = {
+    step1State.value = {
       categoryId: '',
       subOptionId: '',
+      scenarioName: '',
     }
-    dispatchSubject.value = {
+    step2State.value = {
       startTime: '',
       endTime: '',
       timeStep: '每日',
@@ -339,24 +241,15 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       selectedReservoirIds: [],
       selectedGroupId: '',
     }
-    modelData.value = {
+    step3State.value = {
       activeMenuId: 'inflow-level',
       dateRange: ['2025-05-19', '2025-05-25'],
       selectedDataIds: [],
     }
-    basicConfig.value = {
-      startTime: '2025-05-16',
-      endTime: '2025-05-26',
-      timeStep: '每日',
-      scheduleFrequency: '每月一次',
-      schemeName: '',
-      selectedReservoirGroup: 'long-liu',
-      selectedObjectives: ['flood-control'],
-      constraintEnabled: [],
-    }
-    modelAlgorithm.value = {
+    step4State.value = {
       selectedModel: 'lro',
       selectedAlgorithm: 'nsga2',
+      selectedObjectives: ['flood-control'],
       parameters: {
         populationSize: 200,
         iterationCount: 500,
@@ -366,7 +259,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
         crowdingFactor: 2.0,
       },
     }
-    scenarioConstraint.value = {
+    step5State.value = {
       scenarioType: 'typical',
       scenarioDescription: '',
       params: {
@@ -381,29 +274,23 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   }
 
   return {
-    // 状态
+    // 状态（return key 保留语义化命名，避免破坏外部引用）
     currentStep,
-    dispatchScenario,
-    dispatchSubject,
-    modelData,
-    basicConfig,
-    modelAlgorithm,
-    scenarioConstraint,
     stepCompleted,
+    dispatchScenario: step1State,
+    dispatchSubject: step2State,
+    modelData: step3State,
+    modelAlgorithm: step4State,
+    scenarioConstraint: step5State,
 
     // 计算属性
     completedCount,
     allCompleted,
     currentStepTitle,
     stepTitles,
-    oldStepTitles,
 
     // 步骤间联动计算属性
-    compatibleModelIds,
     compatibleModels,
-    compatibleAlgorithms,
-    isAlgorithmCompatible,
-    suggestedParamsByTimeStep,
     relevantScenarioParamIds,
     modelDisplayName,
     algorithmDisplayName,
@@ -413,13 +300,6 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     markStepCompleted,
     resetSteps,
 
-    // 步骤间联动方法
-    syncBasicConfigFromModelData,
-    ensureCompatibleModelOnGroupChange,
-    getAffectedScenarioParamIds,
-    getSuggestedParamsForTimeStep,
-    applyTimeStepToAlgorithmParams,
-
     // Step 1（调度场景）
     setDispatchScenario,
     syncObjectivesFromScenario,
@@ -428,18 +308,14 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // Step 2（调度主体）
     setDispatchSubject,
 
-    // Step 1（调度数据）
+    // Step 3（调度数据）
     setModelData,
 
-    // Step 2
-    setBasicConfig,
-    setConstraintEnabled,
-
-    // Step 3
+    // Step 4（模型算法）
     setModelAlgorithm,
     setAlgorithmParam,
 
-    // Step 4
+    // Step 5（场景约束）
     setScenarioConstraint,
     setScenarioParam,
 

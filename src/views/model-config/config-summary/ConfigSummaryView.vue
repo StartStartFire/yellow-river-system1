@@ -32,14 +32,14 @@ const scenarioParamLabel = (key: string) => {
   return scenarioParamLabels[key]?.[value] || value
 }
 
-/** 根据 Store 当前配置生成方案名称（与 Step 2 逻辑一致） */
+/** 根据 Store 当前配置生成方案名称（与 Step 1 逻辑一致） */
 const currentPlanName = computed(() => {
-  const name = store.basicConfig.schemeName?.trim()
+  const name = store.dispatchScenario.scenarioName?.trim()
   if (name) return name
-  const objectives = store.basicConfig.selectedObjectives
+  const objectives = store.modelAlgorithm.selectedObjectives
   const objNames: Record<string, string> = { 'flood-control': '防洪', 'power-generation': '兴利', 'ecology': '生态' }
   const tag = objectives.map(o => objNames[o] || o).join('')
-  return `${tag}调度方案_${store.basicConfig.startTime || 'today'}`
+  return `${tag}调度方案_${store.dispatchSubject.startTime || 'today'}`
 })
 
 /** 根据 Store 当前配置生成场景描述 */
