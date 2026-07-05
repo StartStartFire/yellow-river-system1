@@ -158,11 +158,8 @@ defineExpose({
   overflow: auto;
   padding: 4px;
 }
-:deep(.el-table) {
-  --el-table-border-color: transparent;
-  background: transparent;
-  border: none;
-}
+
+/* 表头行高与单元格 padding（组件特有，全局未定义） */
 :deep(.el-table thead tr) {
   height: 28px;
 }

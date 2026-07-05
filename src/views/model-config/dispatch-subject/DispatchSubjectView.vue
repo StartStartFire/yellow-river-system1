@@ -564,12 +564,6 @@ onMounted(() => {
 .total-number-sm { font-size: 20px; font-weight: 700; color: var(--tech-cyan); font-variant-numeric: tabular-nums; }
 .total-unit-sm { font-size: 12px; color: var(--tech-text-secondary); }
 
-/* 弹窗 */
-.confirm-dialog :deep(.el-dialog) { background: rgba(6, 30, 70, 0.98) !important; border: 1px solid rgba(50, 150, 255, 0.4); border-radius: 12px; }
-.confirm-dialog :deep(.el-dialog__header) { border-bottom: 1px solid rgba(50, 150, 255, 0.2); padding: 16px 20px; margin: 0; }
-.confirm-dialog :deep(.el-dialog__title) { color: var(--tech-text-primary); font-size: 15px; font-weight: 600; }
-.confirm-dialog :deep(.el-dialog__body) { padding: 24px 20px; }
-.confirm-dialog :deep(.el-dialog__footer) { border-top: 1px solid rgba(50, 150, 255, 0.1); padding: 12px 20px; }
 .dialog-body { display: flex; align-items: flex-start; gap: 16px; }
 .dialog-icon { flex-shrink: 0; margin-top: 2px; }
 .dialog-text { display: flex; flex-direction: column; gap: 6px; }
@@ -577,19 +571,6 @@ onMounted(() => {
 .dialog-desc { color: var(--tech-text-secondary); font-size: 12px; line-height: 1.5; }
 .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
 
-:deep(.el-button) {
-  --el-button-bg-color: transparent; --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: var(--tech-text-regular); --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5); --el-button-hover-text-color: var(--tech-text-primary);
-}
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2); --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
-  --el-button-text-color: var(--tech-cyan); --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
-  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7); --el-button-hover-text-color: var(--tech-cyan-light);
-}
-:deep(.el-select) { width: 100%; }
+/* 日期选择器外层透明背景（组件特有，全局未定义） */
 :deep(.el-date-editor) { background: transparent !important; }
-:deep(.el-input__wrapper) { background: rgba(2, 27, 63, 0.6) !important; box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important; }
-:deep(.el-input__inner) { color: var(--tech-text-regular) !important; font-size: 12px; }
-:deep(.el-input__inner::placeholder) { color: var(--tech-text-placeholder); }
 </style>

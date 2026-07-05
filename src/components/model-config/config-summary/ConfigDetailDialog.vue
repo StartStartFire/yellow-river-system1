@@ -155,33 +155,6 @@ const scenarioParamLabel = (key: string) => {
 </template>
 
 <style scoped>
-.confirm-dialog :deep(.el-dialog) {
-  background: rgba(6, 30, 70, 0.98) !important;
-  border: 1px solid rgba(50, 150, 255, 0.4);
-  border-radius: 12px;
-}
-
-.confirm-dialog :deep(.el-dialog__header) {
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
-  padding: 16px 20px;
-  margin: 0;
-}
-
-.confirm-dialog :deep(.el-dialog__title) {
-  color: var(--tech-text-primary);
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.confirm-dialog :deep(.el-dialog__body) {
-  padding: 24px 20px;
-}
-
-.confirm-dialog :deep(.el-dialog__footer) {
-  border-top: 1px solid rgba(50, 150, 255, 0.1);
-  padding: 12px 20px;
-}
-
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
@@ -279,24 +252,5 @@ const scenarioParamLabel = (key: string) => {
 
 :deep(.dark-descriptions .el-descriptions__content) {
   color: var(--tech-text-regular) !important;
-}
-
-/* Element Plus 深色覆盖 */
-:deep(.el-button) {
-  --el-button-bg-color: transparent;
-  --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: var(--tech-text-regular);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: var(--tech-text-primary);
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
-  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
-  --el-button-text-color: var(--tech-cyan);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
-  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: var(--tech-cyan-light);
 }
 </style>

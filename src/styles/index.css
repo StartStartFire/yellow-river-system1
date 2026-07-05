@@ -1,4 +1,5 @@
 @import './variables.css';
+@import './element-dark.css';
 
 @tailwind base;
 @tailwind components;
@@ -103,71 +104,4 @@
 .tab-pill.active {
   color: var(--tech-cyan);
   background: rgba(var(--tech-blue-rgb), 0.1);
-}
-
-/* Element Plus 深色主题覆盖 */
-@layer components {
-  .el-button {
-    @apply text-tech-text;
-    background: rgba(var(--tech-blue-rgb), 0.08);
-    border: 1px solid rgba(var(--tech-blue-rgb), 0.2);
-  }
-
-  .el-button--primary {
-    @apply text-white;
-    background: rgba(var(--tech-blue-rgb), 0.25);
-    border: 1px solid rgba(var(--tech-blue-rgb), 0.4);
-  }
-
-  .el-card {
-    @apply text-tech-text;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  .el-table {
-    @apply text-tech-text;
-    background: transparent !important;
-  }
-
-  .el-table--striped .el-table__body tr.el-table__row--striped td {
-    background: rgba(var(--tech-blue-rgb), 0.03) !important;
-  }
-
-  .el-tabs__item {
-    @apply text-tech-muted;
-  }
-
-  .el-tabs__item.is-active {
-    @apply text-tech-primary;
-  }
-
-  .el-input__wrapper {
-    @apply bg-transparent text-tech-text;
-    box-shadow: 0 0 0 1px rgba(var(--tech-blue-rgb), 0.2) !important;
-    border: none !important;
-    background-color: transparent !important;
-  }
-
-  .el-input__wrapper.is-focus {
-    box-shadow: 0 0 0 1px rgba(var(--tech-blue-rgb), 0.5) !important;
-  }
-
-  .el-input__wrapper:hover {
-    box-shadow: 0 0 0 1px rgba(var(--tech-blue-rgb), 0.35) !important;
-  }
-
-  .el-input__inner {
-    @apply bg-transparent text-tech-text;
-  }
-
-  .el-dialog {
-    background: rgba(var(--tech-bg-rgb), 0.96) !important;
-    border: 1px solid rgba(var(--tech-blue-rgb), 0.15);
-  }
-
-  .el-dialog__title {
-    @apply text-tech-text;
-  }
 }

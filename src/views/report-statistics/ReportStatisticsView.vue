@@ -692,24 +692,4 @@ const getAssessmentColor = (result: string) => {
   font-weight: 500;
 }
 
-/* Element Plus 深色主题覆盖 */
-:deep(.el-select .el-input__wrapper) {
-  background: transparent;
-  border: 1px solid rgba(50, 150, 255, 0.25);
-  box-shadow: none;
-}
-
-:deep(.el-select .el-input__inner) {
-  color: var(--tech-text-primary);
-}
-
-:deep(.el-popper) {
-  background: #112536;
-  border-color: rgba(50, 150, 255, 0.25);
-}
-
-:deep(.el-popper__arrow::before) {
-  background: #112536;
-  border-color: rgba(50, 150, 255, 0.25);
-}
 </style>

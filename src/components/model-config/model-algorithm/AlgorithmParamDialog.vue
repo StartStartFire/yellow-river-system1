@@ -159,6 +159,7 @@ const close = () => {
 }
 
 .param-value-input { width: 70px; }
+/* 参数输入框：cyan 文字色 + 居中加粗（组件特有，与全局默认不同） */
 .param-value-input :deep(.el-input__wrapper) { background: rgba(2, 27, 63, 0.6) !important; box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.2) inset !important; }
 .param-value-input :deep(.el-input__inner) { color: var(--tech-cyan) !important; font-size: 12px; font-weight: 600; text-align: center; }
 
@@ -166,16 +167,7 @@ const close = () => {
 
 .highlight { color: var(--tech-cyan); font-weight: 500; }
 
-/* ===== 弹窗通用 ===== */
-.confirm-dialog :deep(.el-dialog) { background: rgba(6, 30, 70, 0.98) !important; border: 1px solid rgba(50, 150, 255, 0.4); border-radius: 12px; }
-.confirm-dialog :deep(.el-dialog__header) { border-bottom: 1px solid rgba(50, 150, 255, 0.2); padding: 14px 18px; margin: 0; }
-.confirm-dialog :deep(.el-dialog__title) { color: var(--tech-text-primary); font-size: 14px; font-weight: 600; }
-.confirm-dialog :deep(.el-dialog__body) { padding: 18px; }
-.confirm-dialog :deep(.el-dialog__footer) { border-top: 1px solid rgba(50, 150, 255, 0.1); padding: 10px 18px; }
-
 /* ===== Element Plus 深色覆盖 ===== */
-:deep(.el-button) { --el-button-bg-color: transparent; --el-button-border-color: rgba(50,150,255,0.3); --el-button-text-color: var(--tech-text-regular); --el-button-hover-bg-color: rgba(0,175,255,0.1); --el-button-hover-border-color: rgba(50,150,255,0.5); --el-button-hover-text-color: var(--tech-text-primary); }
-
 :deep(.dark-slider .el-slider__runway) { background: rgba(50,150,255,0.15) !important; }
 :deep(.dark-slider .el-slider__bar) { background: linear-gradient(90deg, rgba(0,175,255,0.4), var(--tech-cyan)) !important; }
 :deep(.dark-slider .el-slider__button) { border: 2px solid var(--tech-cyan) !important; background: rgba(2,27,63,0.9) !important; width: 14px !important; height: 14px !important; }

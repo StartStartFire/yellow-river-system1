@@ -249,49 +249,6 @@ const pageNumbers = computed(() => {
   height: 100%;
 }
 
-.dark-table :deep(.el-table__header th) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  color: var(--tech-text-secondary) !important;
-  font-size: 11px;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
-}
-
-.dark-table :deep(.el-table__body td) {
-  background: transparent !important;
-  color: var(--tech-text-regular) !important;
-  font-size: 11px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.06) !important;
-}
-
-.dark-table :deep(.el-table__row--striped td) {
-  background: rgba(var(--tech-blue-rgb), 0.02) !important;
-}
-
-.dark-table :deep(.el-table__body tr:hover td) {
-  background: rgba(var(--tech-blue-rgb), 0.06) !important;
-}
-
-.dark-table :deep(.el-table__inner-wrapper) {
-  height: 100%;
-  background: transparent !important;
-}
-
-.dark-table :deep(.el-table__body-wrapper) {
-  background: transparent !important;
-  overflow-y: auto !important;
-}
-
-.dark-table :deep(.el-checkbox__inner) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  border-color: rgba(50, 150, 255, 0.3) !important;
-}
-
-.dark-table :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background: rgba(var(--tech-blue-rgb), 0.5) !important;
-  border-color: var(--tech-cyan) !important;
-}
-
 .action-btns {
   display: flex;
   gap: 2px;
@@ -374,36 +331,4 @@ const pageNumbers = computed(() => {
   cursor: default;
 }
 
-/* Element Plus 深色覆盖（按钮 / 输入框） */
-:deep(.el-button) {
-  --el-button-bg-color: transparent;
-  --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: var(--tech-text-regular);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: var(--tech-text-primary);
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
-  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
-  --el-button-text-color: var(--tech-cyan);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
-  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: var(--tech-cyan-light);
-}
-
-:deep(.el-input__wrapper) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
-}
-
-:deep(.el-input__inner) {
-  color: var(--tech-text-regular) !important;
-  font-size: 12px;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: var(--tech-text-placeholder);
-}
 </style>

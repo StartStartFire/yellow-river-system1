@@ -62,7 +62,8 @@ const handleChange = (val: string[]) => {
   display: flex;
   gap: 8px;
 }
-/* 自定义复选框样式覆盖 */
+
+/* 自定义复选框样式覆盖（独立 checkbox，非 .dark-table 内） */
 :deep(.el-checkbox) {
   margin-right: 0;
   height: 20px;
@@ -82,6 +83,7 @@ const handleChange = (val: string[]) => {
   width: 12px;
   height: 12px;
 }
+
 .checkbox-label-text {
   font-size: 11px;
 }

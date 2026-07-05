@@ -195,33 +195,6 @@ defineExpose({
   color: var(--tech-text-secondary);
   white-space: nowrap;
 }
-:deep(.el-select) {
-  --el-select-input-focus-border-color: var(--tech-blue);
-}
-:deep(.el-select .el-input__wrapper) {
-  background: rgba(6, 30, 70, 0.6);
-  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25);
-}
-:deep(.el-select .el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px var(--tech-blue);
-}
-:deep(.el-select .el-input__inner) {
-  color: var(--tech-text-regular);
-}
-:deep(.el-select-dropdown) {
-  background: #0f1f33;
-  border: 1px solid rgba(50, 150, 255, 0.3);
-}
-:deep(.el-select-dropdown__item) {
-  color: var(--tech-text-regular);
-}
-:deep(.el-select-dropdown__item.hover) {
-  background: rgba(var(--tech-blue-rgb), 0.1);
-  color: var(--tech-blue);
-}
-:deep(.el-select-dropdown__item.selected) {
-  color: var(--tech-blue);
-}
 
 /* 导出按钮 */
 .export-btn {

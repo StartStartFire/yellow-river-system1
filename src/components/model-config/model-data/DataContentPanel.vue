@@ -52,7 +52,7 @@ const contentTitle = computed(() => {
         :data="content.tableData.rows"
         stripe
         size="small"
-        class="data-table"
+        class="dark-table"
         style="width: 100%"
       >
         <el-table-column
@@ -110,42 +110,7 @@ const contentTitle = computed(() => {
   overflow: auto;
 }
 
-.data-table {
+.dark-table {
   width: 100%;
-}
-
-.data-table :deep(.el-table__header th) {
-  background: rgba(2, 27, 63, 0.8) !important;
-  color: var(--tech-text-secondary) !important;
-  font-size: 12px;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
-}
-
-.data-table :deep(.el-table__body td) {
-  background: transparent !important;
-  color: var(--tech-text-regular) !important;
-  font-size: 12px;
-  border-bottom: 1px solid rgba(50, 150, 255, 0.08) !important;
-}
-
-.data-table :deep(.el-table__row--striped td) {
-  background: rgba(var(--tech-blue-rgb), 0.03) !important;
-}
-
-.data-table :deep(.el-table__body tr:hover td) {
-  background: rgba(var(--tech-blue-rgb), 0.08) !important;
-}
-
-.data-table :deep(.el-table__body tr.el-table__row--striped:hover td) {
-  background: rgba(var(--tech-blue-rgb), 0.1) !important;
-}
-
-.data-table :deep(.el-table__inner-wrapper) {
-  background: transparent !important;
-}
-
-.data-table :deep(.el-table__body-wrapper) {
-  background: transparent !important;
 }
 </style>

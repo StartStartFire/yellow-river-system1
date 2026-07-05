@@ -109,6 +109,7 @@ const inputValue = computed({
   margin-top: 1px;
 }
 
+/* 名称输入框：大尺寸圆角样式（组件特有，与全局默认差异大） */
 .name-input :deep(.el-input__wrapper) {
   background: rgba(6, 30, 70, 0.5) !important;
   border: 1px solid rgba(50, 150, 255, 0.2) !important;

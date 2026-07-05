@@ -502,23 +502,4 @@ void handleSave
 .btn-icon {
   flex-shrink: 0;
 }
-
-/* ===== Element Plus 深色覆盖（底部按钮） ===== */
-:deep(.el-button) {
-  --el-button-bg-color: transparent;
-  --el-button-border-color: rgba(50, 150, 255, 0.3);
-  --el-button-text-color: var(--tech-text-regular);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
-  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
-  --el-button-hover-text-color: var(--tech-text-primary);
-}
-
-:deep(.el-button--primary) {
-  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
-  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
-  --el-button-text-color: var(--tech-cyan);
-  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
-  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
-  --el-button-hover-text-color: var(--tech-cyan-light);
-}
 </style>

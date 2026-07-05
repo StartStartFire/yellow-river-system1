@@ -1,0 +1,252 @@
+/**
+ * Element Plus 深色主题覆盖（集中管理）
+ *
+ * 替代各组件中重复的 :deep() 样式块。
+ * 此处为全局样式，无需 :deep()，直接使用类选择器即可。
+ *
+ * 覆盖策略：
+ * 1. 优先使用 Element Plus 提供的 CSS 变量（--el-button-* 等）
+ * 2. 必须直接覆盖属性时，使用 !important 确保优先级
+ *
+ * 如组件有特殊样式需求（如不同背景色），可在组件 scoped 样式中
+ * 用 :deep() 单独覆盖，不必在此处堆积特殊场景。
+ */
+
+/* ════════════════════════════════════════════
+   Dialog 弹窗
+   ════════════════════════════════════════════ */
+.el-dialog {
+  background: rgba(6, 30, 70, 0.98) !important;
+  border: 1px solid rgba(50, 150, 255, 0.4);
+  border-radius: 12px;
+}
+
+.el-dialog__header {
+  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
+  padding: 16px 20px;
+  margin: 0;
+}
+
+.el-dialog__title {
+  color: var(--tech-text-primary);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.el-dialog__body {
+  padding: 24px 20px;
+}
+
+.el-dialog__footer {
+  border-top: 1px solid rgba(50, 150, 255, 0.1);
+  padding: 12px 20px;
+}
+
+/* ════════════════════════════════════════════
+   Button 按钮（通过 ELP CSS 变量覆盖）
+   ════════════════════════════════════════════ */
+.el-button {
+  --el-button-bg-color: transparent;
+  --el-button-border-color: rgba(50, 150, 255, 0.3);
+  --el-button-text-color: var(--tech-text-regular);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.1);
+  --el-button-hover-border-color: rgba(50, 150, 255, 0.5);
+  --el-button-hover-text-color: var(--tech-text-primary);
+}
+
+.el-button--primary {
+  --el-button-bg-color: rgba(var(--tech-blue-rgb), 0.2);
+  --el-button-border-color: rgba(var(--tech-blue-rgb), 0.5);
+  --el-button-text-color: var(--tech-cyan);
+  --el-button-hover-bg-color: rgba(var(--tech-blue-rgb), 0.3);
+  --el-button-hover-border-color: rgba(var(--tech-blue-rgb), 0.7);
+  --el-button-hover-text-color: var(--tech-cyan-light);
+}
+
+.el-button--warning {
+  --el-button-bg-color: rgba(240, 160, 32, 0.15);
+  --el-button-border-color: rgba(240, 160, 32, 0.5);
+  --el-button-text-color: #f0a020;
+  --el-button-hover-bg-color: rgba(240, 160, 32, 0.25);
+  --el-button-hover-border-color: rgba(240, 160, 32, 0.7);
+  --el-button-hover-text-color: #f5b840;
+}
+
+/* ════════════════════════════════════════════
+   Input 输入框
+   ════════════════════════════════════════════ */
+.el-input__wrapper {
+  background-color: rgba(2, 27, 63, 0.8) !important;
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
+}
+
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.35) inset !important;
+}
+
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.5) inset !important;
+}
+
+.el-input__inner {
+  color: var(--tech-text-regular) !important;
+  font-size: 12px;
+}
+
+.el-input__inner::placeholder {
+  color: var(--tech-text-placeholder);
+}
+
+/* 带特定类名的输入框（更高 specificity，文字色加亮） */
+.dark-input .el-input__inner,
+.dark-date-picker .el-input__inner,
+.dark-select .el-input__inner {
+  color: var(--tech-text-primary);
+}
+
+/* ════════════════════════════════════════════
+   Select 下拉选择器
+   ════════════════════════════════════════════ */
+.el-select {
+  --el-select-input-focus-border-color: var(--tech-blue);
+}
+
+.el-select .el-input__wrapper {
+  background-color: rgba(6, 30, 70, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) !important;
+}
+
+.el-select .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--tech-blue) !important;
+}
+
+.el-select .el-input__inner {
+  color: var(--tech-text-regular);
+}
+
+.el-select-dropdown {
+  background: #0f1f33;
+  border: 1px solid rgba(50, 150, 255, 0.3);
+}
+
+.el-select-dropdown__item {
+  color: var(--tech-text-regular);
+}
+
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background: rgba(var(--tech-blue-rgb), 0.1);
+  color: var(--tech-blue);
+}
+
+.el-select-dropdown__item.selected {
+  color: var(--tech-blue);
+}
+
+/* ════════════════════════════════════════════
+   Table 表格（.dark-table 类）
+   ════════════════════════════════════════════ */
+.dark-table .el-table__header th {
+  background: rgba(2, 27, 63, 0.8) !important;
+  color: var(--tech-text-secondary) !important;
+  font-size: 11px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.2) !important;
+}
+
+.dark-table .el-table__body td {
+  background: transparent !important;
+  color: var(--tech-text-regular) !important;
+  font-size: 11px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.06) !important;
+}
+
+.dark-table .el-table__row--striped td {
+  background: rgba(var(--tech-blue-rgb), 0.02) !important;
+}
+
+.dark-table .el-table__body tr:hover td {
+  background: rgba(var(--tech-blue-rgb), 0.06) !important;
+}
+
+.dark-table .el-table__inner-wrapper {
+  height: 100%;
+  background: transparent !important;
+}
+
+.dark-table .el-table__body-wrapper {
+  background: transparent !important;
+  overflow-y: auto !important;
+}
+
+.dark-table .el-checkbox__inner {
+  background: rgba(2, 27, 63, 0.8) !important;
+  border-color: rgba(50, 150, 255, 0.3) !important;
+}
+
+.dark-table .el-checkbox__input.is-checked .el-checkbox__inner {
+  background: rgba(var(--tech-blue-rgb), 0.5) !important;
+  border-color: var(--tech-cyan) !important;
+}
+
+/* ════════════════════════════════════════════
+   DatePicker 日期范围选择器
+   ════════════════════════════════════════════ */
+.el-range-input {
+  color: var(--tech-text-primary);
+}
+
+.el-range-separator {
+  color: var(--tech-text-secondary);
+}
+
+.el-date-editor .el-range__icon,
+.el-date-editor .el-range-close-icon {
+  color: var(--tech-text-secondary);
+}
+
+/* ════════════════════════════════════════════
+   Popper 弹出层（用于下拉、日期选择器等弹出层）
+   ════════════════════════════════════════════ */
+.el-popper {
+  background: #112536;
+  border-color: rgba(50, 150, 255, 0.25);
+}
+
+.el-popper__arrow::before {
+  background: #112536;
+  border-color: rgba(50, 150, 255, 0.25);
+}
+
+/* ════════════════════════════════════════════
+   Card 卡片（项目使用面板系统，card 透明无边框）
+   ════════════════════════════════════════════ */
+.el-card {
+  color: var(--tech-text-regular);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ════════════════════════════════════════════
+   Table 表格（通用透明背景）
+   ════════════════════════════════════════════ */
+.el-table {
+  color: var(--tech-text-regular);
+  background: transparent !important;
+}
+
+.el-table--striped .el-table__body tr.el-table__row--striped td {
+  background: rgba(var(--tech-blue-rgb), 0.03) !important;
+}
+
+/* ════════════════════════════════════════════
+   Tabs 标签页
+   ════════════════════════════════════════════ */
+.el-tabs__item {
+  color: var(--tech-text-muted);
+}
+
+.el-tabs__item.is-active {
+  color: var(--tech-blue);
+}
