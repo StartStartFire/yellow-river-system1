@@ -1,0 +1,159 @@
+@import './variables.css';
+@import './element-dark.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply text-tech-text;
+    background-color: var(--tech-bg-base);
+    background-image: url('/background/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  body {
+    @apply m-0 min-h-screen subpixel-antialiased;
+    background: transparent;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   统一面板系统 — 替代浮动卡片
+   ═══════════════════════════════════════════════ */
+
+/* 页面级统一面板：每个页面最外层使用 */
+.page-panel {
+  background: rgba(var(--tech-bg-rgb), 0.92);
+  border-radius: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 面板内部分区标题 */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tech-text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* 分区发光分割线 — 水平 */
+.h-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--tech-blue-rgb), 0.15) 15%,
+    rgba(var(--tech-cyan-rgb), 0.3) 50%,
+    rgba(var(--tech-blue-rgb), 0.15) 85%,
+    transparent 100%
+  );
+}
+
+/* 分区发光分割线 — 垂直 */
+.v-divider {
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(var(--tech-blue-rgb), 0.15) 15%,
+    rgba(var(--tech-cyan-rgb), 0.3) 50%,
+    rgba(var(--tech-blue-rgb), 0.15) 85%,
+    transparent 100%
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   通用卡片容器 / 卡片头部
+   ═══════════════════════════════════════════════ */
+
+/* 带边框、圆角、半透明背景的卡片容器（SelectCard 系列使用） */
+.card-base {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(50, 150, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(10, 25, 41, 0.4);
+  overflow: hidden;
+}
+
+/* 不带边框的卡片容器（Table/InfoPanel 等内嵌卡片使用） */
+.card-flat {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 卡片头部行 */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* 带强调色条 + 标题的头部行（ConfigPlanTable 使用） */
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-accent-line {
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3));
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tech-text-primary);
+}
+
+/* 行内Tab/筛选条 */
+.inline-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* 行内Tab按钮 */
+.tab-pill {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tech-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-pill:hover {
+  color: var(--tech-text-regular);
+  background: rgba(var(--tech-blue-rgb), 0.06);
+}
+
+.tab-pill.active {
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.1);
+}

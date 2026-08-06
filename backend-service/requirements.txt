@@ -1,0 +1,33 @@
+# ========================================
+# 黄河上游梯级水库多目标优化调度模型 — Web 服务依赖
+# 使用方式（conda 环境）：
+#   conda create -n yellow-river-web python=3.11 -c conda-forge
+#   conda activate yellow-river-web
+#   pip install -r backend-service/requirements.txt
+# ========================================
+
+# --- FastAPI 生态 ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+websockets==14.1
+
+# --- 科学计算 ---
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
+openpyxl==3.1.5          # pandas Excel 读写
+matplotlib==3.10.0       # evaluation_system 图表输出
+
+# --- MATLAB Engine（需本地安装 MATLAB R2024a）---
+# 版本对照表：
+#   matlabengine 24.1.x → MATLAB R2024a
+#   matlabengine 24.2.x → MATLAB R2024b
+#   matlabengine 25.x   → MATLAB R2025a
+#   matlabengine 26.x   → MATLAB R2026a
+# 如果自动安装失败，可手动安装对应版本：
+#   pip install matlabengine==24.1.4
+# 或从 MATLAB 安装目录安装：
+#   cd "C:\Program Files\MATLAB\R2024a\extern\engines\python"
+#   python setup.py install
+matlabengine==24.1.4

@@ -1,0 +1,10 @@
+name: yellow-river-web
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # pip 安装的依赖统一通过 requirements.txt 管理（单一数据源）
+  - pip:
+    - -r backend-service/requirements.txt

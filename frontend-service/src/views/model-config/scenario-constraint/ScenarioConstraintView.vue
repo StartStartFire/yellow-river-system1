@@ -1,0 +1,593 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
+import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
+import { useModelConfigStore } from '@/stores/modelConfig'
+import {
+  scenarioConstraintState,
+  scenarioTypeOptions,
+  scenarioParams,
+} from '@/mock/model-config/scenarioConstraint'
+import { dispatchObjectives } from '@/mock/model-config/modelAlgorithm'
+import type { ScenarioParam } from '@/types/model'
+
+// ==================== Store ====================
+const store = useModelConfigStore()
+
+// ==================== Mock 数据 ====================
+const stateData = scenarioConstraintState.data
+const typeOptions = scenarioTypeOptions.data
+const paramsDef = scenarioParams.data as ScenarioParam[]
+const objectives = dispatchObjectives.data
+
+// ==================== 响应式状态 ====================
+const router = useRouter()
+
+// 场景类型
+const scenarioType = ref(stateData.scenarioType)
+
+// 场景描述
+const scenarioDescription = ref(stateData.scenarioDescription)
+
+// 场景参数值 - 以 id 为 key
+const paramValues = ref<Record<string, string>>({ ...stateData.params })
+
+/** 当前阶段只显示西线调水和调沙流量两个参数 */
+const activeParamIds = ['westRoute', 'sedimentFlow']
+const filteredParamsDef = computed(() => paramsDef.filter(p => activeParamIds.includes(p.id)))
+
+// 弹窗状态
+const saveDialogVisible = ref(false)
+const cancelDialogVisible = ref(false)
+
+// ==================== 计算属性 ====================
+
+// 字数统计
+const descLength = computed(() => scenarioDescription.value.length)
+
+// 当前调度目标关联的场景参数ID集合（联动 Step 2）
+const relevantParamIds = computed(() => {
+  return new Set(store.relevantScenarioParamIds)
+})
+
+// ==================== 交互 ====================
+
+// 步骤条点击
+const handleStepClick = (step: number) => {
+  if (step === 1) router.push('/model-config/dispatch-scenario')
+  if (step === 2) router.push('/model-config/dispatch-subject')
+  if (step === 3) router.push('/model-config/model-data')
+  if (step === 4) router.push('/model-config/model-algorithm')
+}
+
+// 场景类型切换
+const handleTypeSwitch = (type: string) => {
+  scenarioType.value = type
+}
+
+// 参数值更新
+const handleParamChange = (paramId: string, value: string) => {
+  paramValues.value[paramId] = value
+}
+
+// 底部操作
+const handleCancel = () => { cancelDialogVisible.value = true }
+const handleSave = () => { saveDialogVisible.value = true }
+const handlePrev = () => { router.push('/model-config/model-algorithm') }
+const handleNext = () => {
+  if (!scenarioDescription.value.trim()) {
+    ElMessage.warning('请填写场景描述')
+    return
+  }
+  // 写入 Store（联动 Step 5 配置汇总）
+  store.setScenarioConstraint({
+    scenarioType: scenarioType.value,
+    scenarioDescription: scenarioDescription.value,
+    params: { ...paramValues.value },
+  })
+  router.push('/model-config/config-summary')
+}
+
+const confirmSave = () => {
+  saveDialogVisible.value = false
+  // 写入 Store
+  store.setScenarioConstraint({
+    scenarioType: scenarioType.value,
+    scenarioDescription: scenarioDescription.value,
+    params: { ...paramValues.value },
+  })
+  ElMessage.success('场景约束配置已保存')
+}
+
+const confirmCancel = () => {
+  cancelDialogVisible.value = false
+  ElMessage.info('已取消，未保存任何更改')
+}
+
+// ==================== SVG 图标 ====================
+const paramIcons: Record<string, string> = {
+  westRoute: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10h12M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12v1.5h12V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+  sedimentFlow: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6C4 4 6 6 8 6s4-2 6 0" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2 9C4 7 6 9 8 9s4-2 6 0" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2 12c2-2 4 0 6 0s4-2 6 0" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>`,
+  sedimentRequirement: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+  ecologicalFlow: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2C8 2 4 6.5 4 9.5C4 11.7 5.8 13.5 8 13.5S12 11.7 12 9.5C12 6.5 8 2 8 2Z" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6.5 9.5C6.5 10.3 7.2 11 8 11" stroke="currentColor" stroke-width="1.2"/></svg>`,
+  icePreventionFlow: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 5l3 3-3 3M11 5l-3 3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+}
+
+</script>
+
+<template>
+  <div class="scenario-constraint-view">
+    <!-- 步骤条 -->
+    <ModelConfigStepBar :current-step="5" version="new" @step-click="handleStepClick" />
+
+    <!-- 主体内容 -->
+    <div class="main-content">
+      <!-- 场景配置标题区 + 类型切换 -->
+      <div class="card header-card">
+        <div class="card-header">
+          <div class="header-title-row">
+            <div class="header-accent-line"></div>
+            <span class="header-title">场景配置</span>
+          </div>
+        </div>
+
+        <!-- 场景类型切换 -->
+        <div class="switch-row">
+          <div
+            v-for="opt in typeOptions"
+            :key="opt.id"
+            class="switch-btn"
+            :class="{ 'switch-active': scenarioType === opt.id }"
+            @click="handleTypeSwitch(opt.id)"
+          >
+            <svg v-if="opt.id === 'typical'" width="14" height="14" viewBox="0 0 16 16" fill="none" class="switch-icon">
+              <circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <svg v-else width="14" height="14" viewBox="0 0 16 16" fill="none" class="switch-icon">
+              <path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            <span>{{ opt.name }}</span>
+          </div>
+        </div>
+
+        <!-- 场景描述 -->
+        <div class="description-section">
+          <div class="desc-header">
+            <span class="desc-label">场景描述</span>
+          </div>
+          <el-input
+            v-model="scenarioDescription"
+            type="textarea"
+            :rows="3"
+            maxlength="300"
+            placeholder="请输入场景描述..."
+            class="dark-textarea"
+          />
+          <div class="char-count">{{ descLength }} / 300</div>
+        </div>
+      </div>
+
+      <!-- 下部：场景参数配置（全宽） -->
+      <div class="card params-card full-width-card">
+          <div class="card-header">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="card-icon">
+              <circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="11" cy="12" r="2" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M5 6v6M11 4v2" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            <span class="card-title">场景参数配置</span>
+          </div>
+          <div class="card-body params-body">
+            <div
+              v-for="param in filteredParamsDef"
+              :key="param.id"
+              class="param-row"
+              :class="{ 'param-relevant': relevantParamIds.has(param.id) }"
+            >
+              <div class="param-label-row">
+                <span class="param-icon" v-html="paramIcons[param.id] || ''"></span>
+                <span class="param-name">{{ param.name }}</span>
+                <span v-if="relevantParamIds.has(param.id)" class="param-tag">关联</span>
+              </div>
+              <div class="param-control">
+                <el-select
+                  :model-value="paramValues[param.id]"
+                  size="small"
+                  class="dark-select param-select"
+                  @update:model-value="(val: string) => handleParamChange(param.id, val)"
+                >
+                  <el-option
+                    v-for="opt in param.options"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
+                </el-select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+    <!-- 底部操作栏 -->
+    <ModelConfigFooter
+      :step="5"
+      @cancel="handleCancel"
+      @save="handleSave"
+      @prev="handlePrev"
+      @next="handleNext"
+    />
+
+    <!-- ===== 保存确认弹窗 ===== -->
+    <el-dialog
+      v-model="saveDialogVisible"
+      title="保存确认"
+      width="400px"
+      :close-on-click-modal="false"
+      class="confirm-dialog"
+    >
+      <div class="dialog-body">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
+          <circle cx="24" cy="24" r="22" stroke="#00afff" stroke-width="2" fill="rgba(0,175,255,0.1)"/>
+          <path d="M16 24l6 6 10-10" stroke="#00afff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="dialog-text">
+          <span class="dialog-title-main">确认保存当前场景约束配置？</span>
+          <span class="dialog-desc">保存后场景参数和约束配置将保留。</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="saveDialogVisible = false">取消</el-button>
+          <el-button type="primary" size="small" @click="confirmSave">确认保存</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- ===== 取消确认弹窗 ===== -->
+    <el-dialog
+      v-model="cancelDialogVisible"
+      title="取消确认"
+      width="400px"
+      :close-on-click-modal="false"
+      class="confirm-dialog"
+    >
+      <div class="dialog-body">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="dialog-icon">
+          <circle cx="24" cy="24" r="22" stroke="#f0a020" stroke-width="2" fill="rgba(240,160,32,0.1)"/>
+          <path d="M16 16l16 16M32 16l-16 16" stroke="#f0a020" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="dialog-text">
+          <span class="dialog-title-main">确认取消当前操作？</span>
+          <span class="dialog-desc">取消后当前页面的更改将不会保存。</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="cancelDialogVisible = false">继续编辑</el-button>
+          <el-button type="warning" size="small" @click="confirmCancel">确认取消</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<style scoped>
+.scenario-constraint-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  background: rgba(var(--tech-bg-rgb), 0.92);
+}
+
+/* ===== 主体内容 ===== */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 14px;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(50, 150, 255, 0.25);
+  border-radius: 2px;
+}
+
+/* ===== 通用卡片 ===== */
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.card-icon {
+  color: var(--tech-cyan);
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tech-text-primary);
+}
+
+.card-body {
+  padding: 14px 16px;
+  flex: 1;
+}
+
+/* ===== 标题区卡片 ===== */
+.header-card.card {
+  overflow: visible;
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
+}
+
+.header-card .card-header {
+  border-bottom: none;
+  padding-bottom: 6px;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-accent-line {
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(180deg, var(--tech-cyan), rgba(var(--tech-cyan-rgb), 0.3));
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tech-text-primary);
+}
+
+/* ===== 场景类型切换 ===== */
+.switch-row {
+  display: flex;
+  gap: 24px;
+  padding: 2px 16px 0;
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
+}
+
+.switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--tech-text-secondary);
+}
+
+.switch-btn:hover {
+  color: var(--tech-text-regular);
+}
+
+.switch-btn.switch-active {
+  background: transparent;
+  border-bottom-color: var(--tech-blue);
+  color: var(--tech-cyan);
+}
+
+.switch-icon {
+  flex-shrink: 0;
+}
+
+/* ===== 联动上下文提示 ===== */
+.linkage-context {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 16px 10px;
+  padding: 6px 10px;
+  background: rgba(var(--tech-blue-rgb), 0.05);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.12);
+  border-radius: 6px;
+}
+
+.linkage-icon {
+  color: var(--tech-cyan);
+  flex-shrink: 0;
+}
+
+.linkage-text {
+  font-size: 11px;
+  color: var(--tech-text-secondary);
+  line-height: 1.4;
+}
+
+/* ===== 关联参数高亮 ===== */
+.param-row.param-relevant {
+  background: rgba(var(--tech-blue-rgb), 0.06);
+  border-radius: 6px;
+  margin: 0 -8px;
+  padding: 10px 8px;
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.15);
+}
+
+.param-tag {
+  font-size: 10px;
+  color: var(--tech-cyan);
+  background: rgba(var(--tech-blue-rgb), 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* ===== 场景描述 ===== */
+.description-section {
+  padding: 0 16px 14px;
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
+}
+
+.desc-header {
+  margin-bottom: 8px;
+}
+
+.desc-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tech-text-secondary);
+}
+
+.char-count {
+  font-size: 11px;
+  color: var(--tech-text-placeholder);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ===== 场景参数（全宽） ===== */
+.params-card {
+  flex: 1;
+}
+
+.full-width-card {
+  flex: 1;
+  min-height: 0;
+}
+
+.params-body {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.param-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(50, 150, 255, 0.08);
+}
+
+.param-row:last-child {
+  border-bottom: none;
+}
+
+.param-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.param-icon {
+  color: var(--tech-cyan);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.param-name {
+  font-size: 13px;
+  color: var(--tech-text-regular);
+  white-space: nowrap;
+}
+
+.param-control {
+  flex-shrink: 0;
+}
+
+.param-select {
+  width: 170px;
+}
+
+/* ===== Element Plus 深色覆盖 ===== */
+
+/* textarea */
+:deep(.dark-textarea .el-textarea__inner) {
+  background: rgba(2, 27, 63, 0.8) !important;
+  box-shadow: 0 0 0 1px rgba(50, 150, 255, 0.25) inset !important;
+  border: none !important;
+  color: var(--tech-text-regular) !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  resize: none;
+}
+
+:deep(.dark-textarea .el-textarea__inner::placeholder) {
+  color: var(--tech-text-placeholder);
+}
+
+:deep(.dark-textarea .el-textarea__inner:focus) {
+  box-shadow: 0 0 0 1px rgba(var(--tech-blue-rgb), 0.5) inset !important;
+}
+
+.dialog-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dialog-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dialog-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialog-title-main {
+  color: var(--tech-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dialog-desc {
+  color: var(--tech-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+</style>
