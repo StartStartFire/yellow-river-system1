@@ -47,12 +47,10 @@ matlab-model/
 ├── *.m                          # 核心 MATLAB 源文件
 ├── data.xlsx                    # 输入数据文件（含所有实测/规划数据）
 ├── NSGA2_progress.jsonl         # NSGA-II 进化过程日志（JSON Lines格式）
-├── json_logs/                   # PAEM 运行时生成的初始化种群日志目录
 ├── docs/                        # 技术文档
 │   ├── model-specification.md   # 模型技术规格
 │   ├── project-analysis.md      # 本分析文档
-│   ├── scheduling-rules.md      # 调度规则
-│   └── technical-roadmap.md     # Web 服务化技术方案
+│   └── scheduling-rules.md      # 调度规则
 └── .git/                        # Git 仓库
 ```
 

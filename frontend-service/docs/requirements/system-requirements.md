@@ -98,7 +98,7 @@
 - **Step 5 场景配置**：典型/自定义场景切换，配置西线调水、冲沙流量、生态流量等场景参数（参数高亮由 Step 4 调度目标联动）
 - **Step 6 配置汇总**：方案列表表格 + 预计计算信息，详情弹窗读取 Store 前 5 步配置摘要，一键运行跳转过程透明
 
-数据来源：`src/mock/model-config/`（7 个子模块）。Store：`src/stores/modelConfig.ts`（step1State ~ step5State）。
+数据来源：`src/mock/model-config/`（6 个子模块）。Store：`src/stores/modelConfig.ts`（step1State ~ step5State）。
 
 ### 3.5 过程透明
 

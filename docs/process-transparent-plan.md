@@ -1,9 +1,12 @@
 # 过程透明化系统 — 分步实施计划
 
-> ⬜ **待实施** — 本文档为详细实施计划，尚未开始执行
+> 📋 **实施状态跟踪** — 本文档记录了过程透明化全链路的实施计划
 >
-> **前置条件**：原型阶段（Step 1-6）已全部完成 ✅
-> **预计实施顺序**：Phase E → F → G
+> **前置条件**：核心开发（Step 1-6）已全部完成 ✅
+> **当前状态**：
+> - Phase E（MATLAB 改造）：✅ **已完成**
+> - Phase F（后端改造）：✅ **已完成**
+> - Phase G（前端改造）：✅ **已完成**
 
 ---
 
@@ -567,7 +570,7 @@ export async function getProcessData(jobId: string): Promise<ProcessDataResponse
 | E4 | `PAEM_para.m` | **重写回调** | 同上 |
 | E5 | `nsga_2_para.m` + `PAEM_para.m` | 修改 | 去掉 `i` 参数 |
 | F1 | `backend-service/app/schemas/callback.py` | 修改 | 扩展 ProgressData，新增 ProcessDataPayload |
-| F2 | `backend-service/app/job_manager.py` | 修改 | JobRecord 加 process_data |
+| F2 | `backend-service/app/core/job_manager.py` | 修改 | JobRecord 加 process_data |
 | F3 | `backend-service/app/api/callback.py` | 修改 | /cb 区分两种 type |
 | F4 | `backend-service/app/api/jobs.py` | **新增端点** | GET /process/{job_id} |
 | G1 | `types/process.ts` | 修改 | 新增类型 |

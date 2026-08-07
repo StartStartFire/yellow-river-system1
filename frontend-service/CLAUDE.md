@@ -148,7 +148,7 @@ AI 编程必须遵守以下原则：
 4. CSS 变量集中定义在 src/styles/variables.css，禁止硬编码 rgba(6,20,42,...) / #8aa0b8 等颜色。
 5. 业务组件删除字段前，先全局搜索引用，确认无遗留调用。
 6. 每次重构后必须运行 vue-tsc --noEmit 和 vite build 双重验证。
-7. 重构成果同步更新 docs/development/AI-WORKLOG.md，记录关键决策与文件索引。
+7. 重构成果同步更新 docs/development/SNAPSHOT.md，记录关键决策与文件索引。
 ```
 
 ### 5.4 可复用性
@@ -206,13 +206,13 @@ docs/requirements/system-requirements.md
 说明系统总体初步功能需求。
 
 ```text
-docs/development/AI-WORKLOG.md
+docs/development/SNAPSHOT.md
 docs/development/SESSIONS.md
 ```
 
 说明：
 
-- `AI-WORKLOG.md` — 项目快照（模块状态/设计规范/关键文件），新会话必读
+- `SNAPSHOT.md` — 项目快照（模块状态/设计规范/关键文件），新会话必读
 - `SESSIONS.md` — 开发流水账，每次会话记录，滚动保留近 5 次，按需查阅
 
 ---
@@ -233,7 +233,7 @@ project-root/
 │  │  └─ system-requirements.md
 │  │
 │  ├─ development/
-│  │  ├─ AI-WORKLOG.md                  # 项目快照，新会话必读
+│  │  ├─ SNAPSHOT.md                  # 项目快照，新会话必读
 │  │  └─ SESSIONS.md                    # 开发流水账，滚动保留近 5 次
 │  │
 │  └─ page-design/
@@ -281,9 +281,8 @@ project-root/
    │  ├─ home/                           # 首页专用子组件
    │  ├─ basic-data/                     # 基础数据专用子组件
    │  ├─ model-config/                   # 模型配置专用子组件
-   │  │  ├─ common/                      # 模型配置模块内复用（ConfirmActionDialog）
+   │  │  ├─ common/                      # ConfirmActionDialog
    │  │  ├─ dispatch-scenario/
-   │  │  ├─ dispatch-subject/            # 注：实际目录在 views，组件可放此处
    │  │  ├─ model-data/
    │  │  ├─ model-algorithm/
    │  │  ├─ scenario-constraint/
@@ -323,11 +322,13 @@ project-root/
    │  └─ reportStatistics.ts
    │
    ├─ types/
-   │  ├─ common.ts
-   │  ├─ reservoir.ts
-   │  ├─ model.ts
-   │  ├─ process.ts
-   │  └─ evaluation.ts
+   │  ├─ model.ts                # 模型配置相关类型（核心）
+   │  ├─ reservoir.ts            # 水库相关类型
+   │  ├─ common.ts               # 通用类型（ApiResponse 等）
+   │  ├─ process.ts              # 过程透明化类型
+   │  ├─ evaluation.ts           # 评价决策类型
+   │  ├─ caseLibrary.ts          # 案例库类型
+   │  └─ reportStatistics.ts     # 报表统计类型
    │
    ├─ api/
    │  └─ index.ts                        # HTTP API 调用封装（fetch + 类型定义）
@@ -774,7 +775,7 @@ camelCase，例如 reservoir.ts
 每次新开 AI 会话时，AI 应先执行以下步骤恢复上下文：
 
 ```text
-1. 阅读 docs/development/AI-WORKLOG.md（如存在）
+1. 阅读 docs/development/SNAPSHOT.md（如存在）
    → 了解项目当前快照：模块状态、设计规范参数、关键文件索引、核心设计决策
 
 2. 阅读 docs/evaluation-data-specification.md
@@ -814,12 +815,15 @@ camelCase，例如 reservoir.ts
 
 | 方法 | 路径 | 说明 | 前端调用 |
 |------|------|------|---------|
+| GET | `/health` | 健康检查 | `healthCheck()` |
 | POST | `/run` | 提交优化任务 → 返回 job_id | `postRun()` |
 | GET | `/status/{job_id}` | 查询任务状态 | `getJobStatus()` |
+| GET | `/jobs` | 任务列表 | — |
 | GET | `/results/{job_id}` | 获取结果（chromosome + evaluating） | `getResults()` |
 | GET | `/process/{job_id}` | 获取最新过程数据 | `getProcessData()` |
 | POST | `/evaluate` | 运行评价（body: {job_id, method}） | `postEvaluate()` |
 | GET | `/evaluate/{job_id}` | 获取已缓存的评价结果 | `getEvaluateResult()` |
+| POST | `/cb` | MATLAB 回调接收 | — |
 | WS | `/ws/{job_id}` | 实时推送 progress + process_data | `connectWebSocket()` |
 
 ### 21.3 前端 API 调用规范
@@ -827,7 +831,7 @@ camelCase，例如 reservoir.ts
 - 所有 HTTP 调用集中在 `src/api/index.ts`，通过 `fetch` 实现
 - 每个 API 函数必须导出对应的 TypeScript 接口（请求/响应类型）
 - 错误处理：检查 `res.ok`，失败时抛出 `Error`，业务代码 catch 后展示 `ElMessage.error`
-- API_BASE 硬编码为 `http://127.0.0.1:18080`（原型阶段可接受）
+- API_BASE 硬编码为 `http://127.0.0.1:18080`（系统集成阶段可接受）
 
 ### 21.4 job_id 传递路径
 

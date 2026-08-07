@@ -29,7 +29,7 @@
 ## [9] Web 服务模块化重构 + 评价系统集成
 
 **日期**: 2026-07-16
-**原因**: 原型阶段功能扩展，提升服务架构质量，增加方案评价排名能力
+**原因**: 系统集成阶段功能扩展，提升服务架构质量，增加方案评价排名能力
 **涉及文件**:
 - `backend-service/app/` — **重构**：扁平 7 文件结构拆分为 `api/`（5 路由）、`core/`（5 核心模块）、`schemas/`（5 Pydantic 模型）、`services/`（MATLAB Engine 封装）
 - `evaluation-model/` — **新增**：独立评价系统模块，含 NMF/PP/AHP_FUZZY 三种算法 + RankSumTheory 序号总和整合
@@ -37,9 +37,9 @@
 - `backend-service/app/config.py` — **修改**：新增 CORS origins 配置
 - `backend-service/app/api/evaluate.py` — **新增**：POST /evaluate、GET /evaluate/{job_id} 端点
 - `backend-service/app/schemas/evaluate.py` — **新增**：EvaluateRequest/EvaluateResponse Pydantic 模型
-- `docs/api-reference.md` — **新增**：完整 API 参考文档
-- `docs/backend-architecture.md` — **新增**：后端架构梳理文档
-- `docs/evaluation-data-specification.md` — **新增**：评价系统数据产出规格文档
+- `backend-service/docs/api-reference.md` — **新增**：完整 API 参考文档
+- `backend-service/docs/backend-architecture.md` — **新增**：后端架构梳理文档
+- `evaluation-model/docs/evaluation-data-specification.md` — **新增**：评价系统数据产出规格文档
 
 **验证**:
 - /health 返回 engine=ready ✓

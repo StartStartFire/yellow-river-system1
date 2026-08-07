@@ -6,13 +6,14 @@
 > **当前实现状态**：
 > - ✅ MATLAB → JSONL 文件（每代写入，已完成）
 > - ✅ MATLAB → POST /cb type='progress'（每 10 代推送汇总指标，已完成）
-> - ⬜ MATLAB → POST /cb type='process_data'（阶段 E 待实施）
+> - ✅ MATLAB → POST /cb type='process_data'（每 10 代推送过程数据，已完成）
 > - ✅ 后端 /cb 端点接收（已完成）
+> - ✅ 后端 /cb 区分两种 type 分别处理（已完成）
+> - ✅ 后端 process_data 存储供 GET /process 补拉（已完成）
 > - ✅ WebSocket 广播（已完成）
-> - ⬜ 后端 /cb 区分两种 type 分别处理（阶段 F 待实施）
-> - ⬜ 前端 WS 接收 process_data 并更新图表（阶段 G 待实施）
+> - ✅ 前端 WS 接收 process_data 并更新图表（已完成）
 >
-> 具体实施计划见 [process-transparent-plan.md](process-transparent-plan.md)。
+> 具体实施细节见 [process-transparent-plan.md](process-transparent-plan.md)。
 
 ---
 
@@ -48,60 +49,26 @@ MATLAB (nsga_2_para.m / PAEM_para.m)
 
 ### 2.1 MATLAB 侧（nsga_2_para.m）
 
-```matlab
-summary_data.iteration = i;                    % 当前代数
-summary_data.timestamp = '2026-07-11 12:00';  % 时间戳
-summary_data.progress_percent = 50.0;          % 进度百分比
+MATLAB 每 10 代从当前种群计算汇总指标，通过 `http_callback_push('progress', summary_data)` 推送。`summary_data` 包含：
 
-% 汇总统计
-summary_data.best_objectives = [0.5, 450];     % [缺水量最小, 发电量最小(负值)]
-summary_data.avg_objectives = [1.2, 430];      % [缺水量平均, 发电量平均]
-summary_data.objective_std = [0.3, 25];        % [缺水量标准差, 发电量标准差]
-summary_data.pareto_size = 8;                  % Pareto 前沿个体数
+| 字段 | 说明 |
+|------|------|
+| `iteration` | 当前代数 |
+| `timestamp` | 时间戳 |
+| `progress_percent` | 进度百分比 |
+| `best_objectives` | 最优个体各目标值 |
+| `avg_objectives` | 种群各目标均值 |
+| `objective_std` | 种群各目标标准差 |
+| `pareto_size` | Pareto 前沿个体数 |
+| `pareto_objectives` | 所有 Pareto 解目标值矩阵 |
 
-% Pareto 前沿个体目标值（用于前端绘制实时 Pareto 散点图）
-summary_data.pareto_objectives = [
-  [0.5, 450],
-  [0.6, 445],
-  ...
-];
-```
+### 2.2 后端处理
 
-### 2.2 后端处理（main.py /cb 端点）
+后端 `/cb` 端点收到 `type='progress'` 消息后，打包为信封格式写入 `asyncio.Queue`，由 `broadcast_loop` 后台协程消费并广播到 WebSocket。
 
-```python
-if payload.type == 'progress':
-    envelope = build_envelope(payload, job_id=cb_job_id)
-    await callback_queue.put(envelope)
-    # → broadcast_loop → WebSocket 推送
-```
+### 2.3 前端消费
 
-### 2.3 前端消费（ProcessTransparentView.vue）
-
-```javascript
-// 处理 progress 消息
-const handleWsMessage = (msg: any) => {
-  if (msg.type === 'progress' && msg.payload) {
-    const d = msg.payload
-    progress.value = d.progress_percent
-
-    // 收敛曲线数据
-    convergenceData.value.iterations.push(d.iteration)
-    convergenceData.value.fitness.push(d.best_objectives[0])  // 缺水量收敛
-
-    // 目标趋势数据
-    objectiveTrendData.value.iterations.push(d.iteration)
-    objectiveTrendData.value.flood.push(d.best_objectives[0])
-    objectiveTrendData.value.power.push(d.best_objectives[1])
-
-    // 运行日志
-    logsDisplay.value.unshift({
-      time, level: 'INFO',
-      message: `代 ${d.iteration}，最优: [${d.best_objectives}], 前沿: ${d.pareto_size} 个`,
-    })
-  }
-}
-```
+前端 `ProcessTransparentView.vue` 通过 WebSocket 接收 `progress` 消息，更新进度条、收敛曲线、目标趋势和运行日志。
 
 ### 2.4 数据对应关系
 
@@ -120,81 +87,33 @@ const handleWsMessage = (msg: any) => {
 
 ### 3.1 MATLAB 侧（nsga_2_para.m）
 
-```matlab
-% 选代表性最优解（Pareto 前沿上拥挤度最大的个体）
-best_idx = find_representative_solution(chromosome, pop, V, M);
-best_x = chromosome(best_idx, 1:V);
+MATLAB 每 10 代选出代表性最优解（Pareto 前沿上拥挤度最大的个体），调用 `evaluate_objective_NSGA2` 获取完整过程变量，通过 `http_callback_push('process_data', process_data)` 推送。`process_data` 包含：
 
-% 调用 evaluate 获取 results（含过程变量）
-[~, results] = evaluate_objective_NSGA2(best_x, V, M, Q_sediment);
+| 字段 | 来源 | 说明 |
+|------|------|------|
+| `iteration` | 当前代数 | — |
+| `longyang_level` | 决策变量前 V/2 列 | 龙羊峡逐时段水位 |
+| `liujia_level` | 决策变量后 V/2 列 | 刘家峡逐时段水位 |
+| `longyang_outflow` | `results.Long.Qout` | 龙羊峡出库流量 |
+| `liujia_outflow` | `results.Liu.Qout` | 刘家峡出库流量 |
+| `longyang_power` | `results.N.Ntii_long` | 龙羊峡出力 |
+| `liujia_power` | `results.N.Ntii_liu` | 刘家峡出力 |
+| `total_power` | `results.N.Etii_longliu` | 梯级总出力 |
+| `water_shortage` | `results.liuzhou.Qshortage` | 兰州断面缺水量 |
 
-% 只取最近 10 年
-n_years = min(10, Y);
-year_start = Y - n_years + 1;
+### 3.2 后端处理
 
-process_data.iteration = i;                    % 当前代数
-process_data.timestamp = current_time;         % 时间戳
-
-% 决策变量直接提取（前 V/2 = 龙羊峡, 后 V/2 = 刘家峡）
-process_data.longyang_level = long_x(sidx:eidx)';   % 龙羊峡水位
-process_data.liujia_level = liu_x(sidx:eidx)';      % 刘家峡水位
-
-% 从 results 结构体提取过程变量（取最近 n_years 年）
-process_data.longyang_outflow = reshape(results.Long.Qout(yr, :)', 1, []);
-process_data.liujia_outflow = reshape(results.Liu.Qout(yr, :)', 1, []);
-process_data.longyang_power = reshape(results.N.Ntii_long(yr, :)', 1, []);
-process_data.liujia_power = reshape(results.N.Ntii_liu(yr, :)', 1, []);
-process_data.total_power = reshape(results.N.Etii_longliu(yr, :)', 1, []);
-process_data.water_shortage = reshape(results.liuzhou.Qshortage(yr, :)', 1, []);
-```
-
-### 3.2 后端处理（main.py /cb 端点）
-
-```python
-elif payload.type == 'process_data':
-    # 存储到后端供补拉
-    if job_manager and cb_job_id:
-        record = job_manager.get_status(cb_job_id)
-        if record:
-            record.process_data = payload.data
-    # 同时也推送到 WebSocket
-    envelope = build_envelope(payload, job_id=cb_job_id)
-    await callback_queue.put(envelope)
-```
+后端 `/cb` 端点收到 `type='process_data'` 消息后，同时执行两个动作：
+1. 存储到 `JobRecord.process_data` 供 `GET /process/{job_id}` 补拉
+2. 打包为信封格式写入 `asyncio.Queue`，广播到 WebSocket
 
 ### 3.3 前端消费 — WebSocket（实时）
 
-```javascript
-if (msg.type === 'process_data' && msg.payload) {
-  const pd = msg.payload
-  // 更新时间标签
-  const labels = pd.longyang_level.map((_, i) => `时段${i + 1}`)
-
-  // 水位图（optimal 线）
-  waterLevelData.value = {
-    dates: labels,
-    longyang: { optimal: pd.longyang_level, forecast: [], history: [] },
-    liujia: { optimal: pd.liujia_level, forecast: [], history: [] },
-  }
-  // 流量图
-  dischargeData.value = { ... }
-  // 出力图
-  powerOutputData.value = { ... }
-}
-```
+前端收到 `process_data` 消息后，更新水位图、流量图、出力图等图表数据。
 
 ### 3.4 前端消费 — GET /process 补拉（页面初始化）
 
-```javascript
-// 页面加载时补拉（针对 WebSocket 连接晚于第一次推送的情况）
-const fetchProcessData = async () => {
-  const res = await fetch(`http://127.0.0.1:18080/process/${jobId}`)
-  const data = await res.json()
-  if (data.process_data) {
-    // 更新水位、流量、出力数据（同上）
-  }
-}
-```
+页面加载时调用 `GET /process/{job_id}` 补拉最新过程数据，防止因 WebSocket 连接较晚而丢失初始推送。
 
 ### 3.5 数据对应关系
 
@@ -244,16 +163,7 @@ export async function getResults(jobId: string): Promise<ResultResponse> {
 
 ### 4.3 Pydantic 模型定义
 
-```python
-class ResultResponse(BaseModel):
-    job_id: str
-    status: str
-    algorithm: str
-    chromosome: list[list[float | None]] | None = None
-    objective_names: list[str] = ["缺水量", "发电量", "协同度"]
-    message: str | None = None
-    generated_at: str | None = None
-```
+后端 `schemas/result.py` 中定义 `ResultResponse` 模型，详见 [api-reference.md](../backend-service/docs/api-reference.md#4-获取优化结果)。
 
 ---
 
@@ -294,9 +204,9 @@ class ResultResponse(BaseModel):
 | MATLAB 工具 | `matlab-model/find_representative_solution.m` | 选代表性最优解 |
 | MATLAB 工具 | `matlab-model/http_callback_push.m` | webwrite POST 封装 |
 | 后端接收 | `backend-service/app/api/callback.py` | /cb 端点区分两种 type |
-| 后端存储 | `backend-service/app/job_manager.py:31` | JobRecord.process_data |
+| 后端存储 | `backend-service/app/core/job_manager.py` | JobRecord.process_data |
 | 后端查询 | `backend-service/app/api/jobs.py` | GET /process/{job_id} |
-| 后端推送 | `backend-service/app/websocket.py` | broadcast_loop |
+| 后端推送 | `backend-service/app/core/websocket.py` | broadcast_loop |
 | 后端模型 | `backend-service/app/schemas/callback.py` | CallbackPayload, CallbackResponse |
 | 模型评估 | `matlab-model/evaluate_objective_NSGA2.m` | `if nargout>1` 返回 results |
 | 模型评估 | `matlab-model/evaluate_objective_PAEM.m` | 同上 |

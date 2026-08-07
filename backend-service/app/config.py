@@ -1,7 +1,7 @@
 """全局配置（dataclass 单例）
 
 所有可变参数收拢到此文件。
-原型阶段直接修改本文件即可变更配置。
+系统集成阶段直接修改本文件即可变更配置。
 """
 
 from dataclasses import dataclass

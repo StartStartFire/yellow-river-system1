@@ -116,7 +116,7 @@ npm run dev
 | `src/mock/model-config/modelData.ts` | Step 3 模型数据 mock |
 | `src/mock/model-config/modelAlgorithm.ts` | Step 4 模型算法 mock |
 | `src/mock/model-config/scenarioConstraint.ts` | Step 5 场景约束 mock |
-| `src/mock/model-config/configSummary.ts` | Step 6 配置汇总 mock |
+| `src/mock/model-config/` | Step 6 配置汇总（Mock 已删除，改用真实 API） |
 | `src/mock/model-config/linkage.ts` | 跨步骤联动映射（水库组合→模型 等） |
 | `src/components/model-config/ModelConfigFooter.vue` | 底部公用操作栏（取消/保存/下一步） |
 | `src/components/model-config/ModelConfigStepBar.vue` | 步骤条组件（支持 5/6 步切换） |

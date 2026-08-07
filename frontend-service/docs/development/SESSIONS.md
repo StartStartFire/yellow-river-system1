@@ -36,7 +36,7 @@
   4. 更新 AGENTS.md 第 20 章
      新会话启动指引第 3 步改为指向 pages-reference.md
 
-  5. 同步更新 AI-WORKLOG.md
+  5. 同步更新 SNAPSHOT.md
      公共能力（必读）新增 pages-reference.md 和 README.md 的索引
      核心决策记录新增"设计文档合并为速查表"
 ```
@@ -46,7 +46,7 @@
 ```text
 docs/page-design/pages-reference.md           — 新建（548 行）
 AGENTS.md                                      — 更新第 9 章、第 20 章
-docs/development/AI-WORKLOG.md                 — 更新关键文件索引 + 核心决策记录
+docs/development/SNAPSHOT.md                 — 更新关键文件索引 + 核心决策记录
 docs/page-design/ 下 14 个旧文件                — 全部删除
 ```
 
@@ -66,7 +66,7 @@ docs/page-design/ 下 14 个旧文件                — 全部删除
 ```text
 本次会话分两个阶段：架构文档升级 + 运行时 bug 修复。
 
-阶段一：AGENTS.md 规则升级 + AI-WORKLOG.md 同步
+阶段一：AGENTS.md 规则升级 + SNAPSHOT.md 同步
   围绕"模块化 / 低耦合 / 可持续维护 / 可复用"四项要求，更新 AGENTS.md：
 
   1. 第 4 章新增第 12、13 条总原则（四项要求 + 修改前先读文件）
@@ -84,7 +84,7 @@ docs/page-design/ 下 14 个旧文件                — 全部删除
   9. 新增第 21 章「代码复用强化策略」：通用组件清单、复用决策树、扩展而非复制、
      全局样式类清单、格式化工具清单
 
-  同步更新 docs/development/AI-WORKLOG.md：
+  同步更新 docs/development/SNAPSHOT.md：
   - 新增「📋 近期重构成果」章节，表格列出 6 项重构成果
   - 「🎨 当前设计规范」颜色改为变量形式，新增 CSS 变量集中定义、ELP 深色覆盖两行
   - 「🧭 关键文件索引」新增「公共能力（必读）」分组，模型配置按 6 步拆分列出 7 个 mock 子模块
@@ -117,7 +117,7 @@ docs/page-design/ 下 14 个旧文件                — 全部删除
 
 ```text
 AGENTS.md                                              — 新增第 5、21 章，更新第 4/7/11/12/16/18/20 章
-docs/development/AI-WORKLOG.md                         — 新增重构成果、架构原则章节，更新设计规范和文件索引
+docs/development/SNAPSHOT.md                         — 新增重构成果、架构原则章节，更新设计规范和文件索引
 src/views/process-transparent/ProcessTransparentView.vue — 修复 TECH_CYAN_LIGHT 未导入 bug + status 初始值 + :deep() 选择器
 ```
 

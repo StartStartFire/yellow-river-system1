@@ -2,10 +2,8 @@
  * API 客户端
  *
  * 封装 HTTP 请求，base URL 指向后端 FastAPI 服务。
- * 原型阶段使用 fetch，后续可替换为 axios。
+ * 系统集成阶段使用 fetch，后续可替换为 axios。
  */
-import type { ResultResponse } from '@/types/common'
-import type { ProcessDataResponse } from '@/types/process'
 
 const API_BASE = 'http://127.0.0.1:18080'
 
@@ -49,46 +47,6 @@ export async function postRun(config: RunRequestPayload): Promise<RunResponse> {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
     throw new Error(err.detail || `提交失败 (${res.status})`)
   }
-  return res.json()
-}
-
-/**
- * 查询任务状态
- * GET /status/{job_id}
- */
-export async function getJobStatus(jobId: string): Promise<RunResponse> {
-  const res = await fetch(`${API_BASE}/status/${jobId}`)
-  if (!res.ok) throw new Error(`查询状态失败 (${res.status})`)
-  return res.json()
-}
-
-/**
- * 获取优化结果
- * GET /results/{job_id}
- */
-export async function getResults(jobId: string): Promise<ResultResponse> {
-  const res = await fetch(`${API_BASE}/results/${jobId}`)
-  if (!res.ok) throw new Error(`获取结果失败 (${res.status})`)
-  return res.json()
-}
-
-/**
- * 健康检查
- * GET /health
- */
-export async function healthCheck(): Promise<{ status: string; engine: string; version: string }> {
-  const res = await fetch(`${API_BASE}/health`)
-  if (!res.ok) throw new Error(`健康检查失败 (${res.status})`)
-  return res.json()
-}
-
-/**
- * 获取最新过程数据
- * GET /process/{job_id}
- */
-export async function getProcessData(jobId: string): Promise<ProcessDataResponse> {
-  const res = await fetch(`${API_BASE}/process/${jobId}`)
-  if (!res.ok) throw new Error(`获取过程数据失败 (${res.status})`)
   return res.json()
 }
 

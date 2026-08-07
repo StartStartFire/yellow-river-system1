@@ -6,7 +6,7 @@
 
 基于 FastAPI 构建，通过 `matlab.engine` 调用 MATLAB 优化模型（NSGA-II / PAEM），提供 HTTP API 和 WebSocket 实时推送。
 
-**当前阶段：原型开发** — 优先保证能运行起来，但代码结构要满足模块化、低耦合、可持续维护、可复用的要求，不为原型期遗留技术债。
+**当前阶段：系统集成阶段** — 核心功能开发已全部完成，当前重点为前后端联调、过程透明化实施、以及剩余页面的 API 对接。
 
 ---
 
@@ -19,7 +19,6 @@ backend-service/
 ├── CLAUDE.md                  # 本文件 — Web 服务开发规范
 │
 ├── app/
-│   ├── __init__.py
 │   ├── main.py                # FastAPI 入口 — 只做组装（app 创建 + 生命周期 + 注册路由）
 │   ├── config.py              # 全局配置单例（dataclass，所有可变参数收拢到此文件）
 │   │
@@ -126,7 +125,7 @@ class JobRecord:
     job_id: str
     status: str  # queued | running | completed | failed
 
-# ✅ 可选：内部变量可从简（原型阶段）
+# ✅ 可选：内部变量可从简 注释写明类型即可
 chromo = self._extract_chromosome(result)  # type: list
 ```
 
@@ -308,7 +307,9 @@ class Config:
     host: str = "127.0.0.1"
     port: int = 18080
     cors_origins: list[str] = None  # 默认 localhost:3000/3001
-    matlab_root: str = "F:/Model/yellow_river_project/matlab-model"
+    @property
+    def matlab_root(self) -> str:
+        return str(_PROJECT_ROOT / "matlab-model")
     data_file: str = "data.xlsx"
     callback_timeout: float = 1.0   # webwrite 超时，单位秒
     default_pop: int = 15
@@ -325,7 +326,7 @@ class Config:
 
 | 阶段 | 方法 | 工具 |
 |------|------|------|
-| 当前（原型） | 手动 curl | `curl` |
+| 当前（系统集成）   | 手动 curl + pytest     | `curl`, `pytest` |
 | 后续 | 单元测试 + 集成测试 | pytest + httpx |
 
 测试文件放在 `tests/` 目录下，按被测试模块组织：

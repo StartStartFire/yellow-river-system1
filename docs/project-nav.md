@@ -57,8 +57,6 @@ F:\Model\yellow_river_project\
 ├── docs/                      # 跨项目文档
 │   ├── project-nav.md         # ← 本文档（项目目录导航）
 │   ├── work-log.md            # AI 工作日志
-│   ├── development-steps.md   # 分步实施计划（原始 6 步 ✅）
-│   ├── technical-roadmap.md   # Web 服务化技术方案
 │   ├── model-run-integration.md   # ⬜ 模型运行对接方案
 │   ├── process-transparent-plan.md # ⬜ 过程透明化方案
 │   ├── data-flow.md           # ⬜ 全过程数据流向（目标设计）
@@ -73,31 +71,19 @@ F:\Model\yellow_river_project\
 
 ## 二、MATLAB 模型 (`matlab-model/`)
 
-### 2.1 文件清单与职责
+### 2.1 主要文件
 
-| 文件 | 行数 | 职责 | 关键细节 |
-|------|------|------|----------|
-| `main.m` | ~15 | 程序入口 | 调用 `load_data` + `nsga_2_para` 或 `PAEM_para` |
-| `nsga_2_para.m` | ~110 | **NSGA-II 主循环** | 接收 `(pop, iterate, M, Q_sediment)`；硬编码 `mu=20, mum=20`；每5代写JSONL+回调 |
-| `PAEM_para.m` | ~130 | **PAEM 主循环** | 接收 `(pop, iterate, K_mut, M, Q_sediment)`；硬编码 `mu=20, mum=20`；最终做一次精确评价 |
-| `load_data.m` | ~115 | **数据加载** | 读取 data.xlsx 的 17 个 sheet → 设置 ~20 个全局变量；`flag_xixian` 控制西线调水 |
-| `evaluate_objective.m` | ~550 | **基础目标函数** | 四大约束：水量平衡、出力保证、生态流量、泥沙冲沙；起调水位 2580/1720 硬编码 |
-| `evaluate_objective_NSGA2.m` | ~550 | NSGA-II 专用评估 | 同上，多加防凌流量处理逻辑（Qmin 硬编码） |
-| `evaluate_objective_PAEM.m` | ~550 | PAEM 专用评估 | 同上，多加 PAEM 近似评价逻辑（K_mut 参数） |
-| `initialize_population.m` | ~80 | 种群初始化 | 在 VarMin~VarMax 间均匀随机生成；汛期水位上升趋势修正 |
-| `genetic_operator.m` | ~117 | **遗传操作** | SBX 交叉（Pc=0.9 硬编码）+ 多项式变异（Pm 隐式）；`mu`, `mum` 参数传入 |
-| `non_domination_sort_mod.m` | - | 非支配排序 | 快速非支配排序 + 拥挤距离计算 |
-| `tournament_selection.m` | ~115 | 锦标赛选择 | pool_size/2, tour=2；按 rank（小优先）→ crowding distance（大优先） |
-| `replace_chromosome.m` | - | 种群替换 | 从合并种群中保留前 pop 个个体 |
-| `mutation_one_variable.m` | ~13 | 单变量变异 | 多项式变异的一个变量版本 |
-| `chz1.m` | - | 约束处理1 | 与出库流量相关的修正逻辑 |
-| `chz2.m` | - | 约束处理2 | 与水库水位相关的修正逻辑 |
-| `find_nondominated_solution.m` | - | 非支配解提取 | 从最终种群中提取 rank=1 的解 |
-| `initialize_population.m` | - | 种群初始化 | 已在上方列出 |
-| `write_json_log.m` | - | JSONL 日志写入 | 封装 `jsonencode` + `fflush` |
-| `init_log_file.m` | - | 日志文件初始化 | 打开文件句柄 |
-| `http_callback_push.m` | ~35 | **回调推送** | `persistent` 读取 callback_config.txt → `webwrite` POST → try-catch 静默降级，Timeout=1s |
-| `preprocess_results_for_json.m` | ~25 | 结果预处理 | 递归处理 NaN/Inf → 字符串 |
+MATLAB 模型共 22 个 `.m` 文件，核心文件如下（完整列表见目录树上方）：
+
+| 类别 | 文件 | 说明 |
+|------|------|------|
+| 入口 | `nsga_2_para.m`, `PAEM_para.m` | NSGA-II / PAEM 主循环，直接由 Python 后端调用 |
+| 数据 | `load_data.m`, `data.xlsx` | 加载 Excel 数据 → 全局变量 |
+| 评价 | `evaluate_objective*.m` (4个) | 目标函数评估：基础版、NSGA2版、PAEM版、带过程数据版 |
+| 遗传 | `initialize_population.m`, `genetic_operator.m`, `tournament_selection.m`, `replace_chromosome.m`, `non_domination_sort_mod.m` | 种群初始化、SBX交叉+多项式变异、锦标赛选择、精英替换、非支配排序 |
+| 工具 | `chz1.m`, `chz2.m`, `mutation_one_variable.m`, `find_nondominated_solution.m`, `find_representative_solution.m` | 插值、PAEM变异、非支配解提取、代表性解选择 |
+| 日志 | `write_json_log.m`, `init_log_file.m`, `preprocess_results_for_json.m` | JSONL 文件写入和管理 |
+| 回调 | `http_callback_push.m`, `callback_config.txt` | HTTP POST 推送进度到 Web 服务 |
 
 ### 2.2 数据流
 
@@ -190,18 +176,20 @@ http_callback_push.m → POST → Web 服务 /cb
 
 ### 3.2 API 端点
 
-| 方法 | 路径 | 请求/响应 | 说明 |
-|------|------|-----------|------|
-| GET | `/health` | `HealthResponse` | 健康检查 + Engine 状态 |
-| POST | `/run` | `RunRequest` → `JobStatusResponse` | 提交优化任务，返回 job_id（含约束参数） |
-| GET | `/status/{job_id}` | `JobStatusResponse` | 查询任务状态 |
-| GET | `/jobs` | `list[JobSummary]` | 任务列表，可按 `?status=` 过滤 |
-| GET | `/results/{job_id}` | `ResultResponse` | 获取 Pareto 解集 + evaluating 评价指标 |
-| GET | `/process/{job_id}` | `{process_data}` | 补拉最新过程数据 🚧（MATLAB 侧未推送） |
-| POST | `/evaluate` | `EvaluateRequest` → `EvaluateResponse` | 运行评价算法（NMF/PP/AHP_FUZZY/ALL） |
-| GET | `/evaluate/{job_id}` | `EvaluateResponse` | 获取评价缓存结果 |
-| POST | `/cb` | `CallbackPayload` → `CallbackResponse` | MATLAB 回调接收 |
-| WS | `/ws/{job_id}` | — | WebSocket 实时订阅 |
+完整 API 文档见 `backend-service/docs/api-reference.md`，所有端点汇总如下：
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/health` | 健康检查 |
+| POST | `/run` | 提交优化任务 |
+| GET | `/status/{job_id}` | 查询任务状态 |
+| GET | `/jobs` | 任务列表 |
+| GET | `/results/{job_id}` | 获取 Pareto 解集 |
+| GET | `/process/{job_id}` | 补拉过程数据 🚧 |
+| POST | `/evaluate` | 运行评价算法 |
+| GET | `/evaluate/{job_id}` | 获取评价缓存 |
+| POST | `/cb` | MATLAB 回调接收 |
+| WS | `/ws/{job_id}` | 实时订阅 |
 
 ### 3.3 通信链路
 
@@ -366,51 +354,34 @@ Step 4 目标 → Step 5 场景（关联约束参数）
 |-------------|-----------|------------------|----------|
 | `populationSize` | 200 | `pop` 入参 | ✅ 可直接对应 |
 | `iterationCount` | 500 | `iterate` 入参 | ✅ 可直接对应 |
-| `crossoverRate` | 0.9 | `genetic_operator.m` 硬编码 0.9 | ⚠️ 模型目前硬编码 |
+| `crossoverRate` | 0.9 | `genetic_operator.m` 已支持 Pc 参数传入 | ✅ 已实现参数化 |
 | `mutationRate` | 0.1 | 无显式参数（由 `mu`, `mum` 控制） | ❌ 概念不匹配 |
 | `eliteRate` | 0.05 | 无此参数（NSGA-II 用 `replace_chromosome`） | ❌ 不存在 |
 | `crowdingFactor` | 2.0 | 无此参数 | ❌ 不存在 |
 
 ### 5.5 当前状态
 
-- **API 集成**: 前端目前**未接入**真实 API 调用（所有数据来自 Mock）
+- **API 集成**: 部分页面已接入真实 API，部分仍使用 Mock 数据：
+  - ✅ 配置汇总页 → `POST /run` 提交任务
+  - ✅ 过程透明页 → WebSocket 接收 progress + process_data 实时推送
+  - ✅ 评价决策页 → `POST /evaluate` + `GET /evaluate/{job_id}`
+  - ⬜ 模型配置 Step 1-5 展示 → 仍使用 Mock 数据
+  - ⬜ 案例库、报表统计 → 仍使用 Mock 数据
 - **运行端口**: 前端 dev server → `:3000`，后端 API → `:18080`
-- **前后端对应关系**: 6 步流程的配置数据理论上应组装为 `RunRequest` POST 到 `/run`，但该链路尚未实现
+- **前后端对应关系**: 模型配置 Step 6（配置汇总）可组装 `RunRequest` 调用 `POST /run`，完成后跳转到过程透明页
 
 ---
 
-## 六、关键配置差距（前端 ↔ 后端 ↔ 模型）
+## 六、前后端配置对齐
 
-### 6.1 算法参数（最突出的差距）
+前端（Vue3）和后端（FastAPI）之间存在参数名、默认值和模型能力的差异。详细的对齐方案和分步实施计划见 [model-run-integration.md](model-run-integration.md)。
 
-| 前端传参 | 模型实际接收 | 差距说明 |
-|----------|-------------|----------|
-| `populationSize` | `pop` | ✅ 一致，但默认值不同（前端 200 vs 后端 15） |
-| `iterationCount` | `iterate` | ✅ 一致，但默认值不同（前端 500 vs 后端 20） |
-| `crossoverRate` | 硬编码 `0.9` | ⚠️ 前端可调但模型不支持 |
-| `mutationRate` | 无直接参数 | ❌ 前端可调但模型概念不同 |
-| `eliteRate` | 无此参数 | ❌ |
-| `crowdingFactor` | 无此参数 | ❌ |
-| `mu` (SBX 指数) | 硬编码 `20` | ❌ 前端未暴露，模型硬编码 |
-| `mum` (变异指数) | 硬编码 `20` | ❌ 前端未暴露，模型硬编码 |
-
-### 6.2 场景约束参数
-
-| 前端约束 | 模型对应 | 状态 |
-|----------|----------|------|
-| 西线调水 (`westRoute`) | `flag_xixian` (全无/全有/有上无下/有下无上) | ✅ 概念对应，但选项名不同 |
-| 调沙流量 (`sedimentFlow`) | `Q_sediment` | ✅ 概念一致 |
-| 生态流量 (`ecologicalFlow`) | `Q_eco`（从 Excel 读取） | ⚠️ 模型用 Excel 数据，前端是用户配置 |
-| 防凌流量 (`icePreventionFlow`) | `Qmin` 硬编码 | ❌ 前端可配但模型硬编码 |
-
-### 6.3 前端未覆盖的模型配置
-
-- 起调水位（硬编码 2580/1720）
-- 防凌流量硬编码 [610,420,420,420,420]
-- 保证出力（龙羊峡 58.7 / 刘家峡 40 万kW）
-- 装机容量（龙羊峡 128 / 刘家峡 122.5 万kW）
-- 时段转换系数 `xishu`、天数 `t`
-- Excel 数据文件选择
+**主要差距：**
+- 前端参数名（`populationSize`/`iterationCount`/`crossoverRate`）vs 后端模型参数（`pop`/`iterate`/`Pc`）
+- 前端默认值（200/500）vs 后端默认值（15/20）
+- 前端可调的 `mutationRate`/`eliteRate`/`crowdingFactor` 在模型中无对应参数
+- 约束参数（起调水位、防凌流量）在模型中硬编码，但后端已支持动态注入
+- 西线调水前端选项名与模型 `flag_xixian` 取值不完全一致
 
 ---
 
@@ -427,7 +398,7 @@ data.xlsx 17 sheets → load_data.m (20 全局变量)
 
 ### 7.2 想修改模型参数
 - 算法参数（pop, iterate, M, Q_sediment, K_mut）→ `nsga_2_para.m`/`PAEM_para.m` 函数签名
-- 遗传算子参数（mu, mum, Pc）→ `genetic_operator.m` + 调用处的硬编码
+- 遗传算子参数（mu, mum）→ `genetic_operator.m` + 调用处的硬编码（Pc 已参数化，通过函数入参传入）
 - 约束参数（起调水位、防凌流量、保证出力）→ `evaluate_objective*.m`
 - 数据文件 / 西线调水 → `load_data.m`
 
@@ -451,6 +422,6 @@ data.xlsx 17 sheets → load_data.m (20 全局变量)
 1. 前端 `types/model.ts` 定义配置结构
 2. 前端 `stores/modelConfig.ts` 管理 6 步配置状态
 3. 后端 `schemas/job.py` `RunRequest` 接收运行参数
-4. 模型 `nsga_2_para.m` 函数签名只接收 4 个参数
+4. 模型 `nsga_2_para.m` 函数签名接收 5 个参数（`pop, iterate, M, Q_sediment, Pc`）
 5. 模型另有大量硬编码参数（mu, mum, Pc, 起调水位等）
 6. 前后端配置参数名和默认值均不一致

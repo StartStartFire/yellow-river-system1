@@ -121,18 +121,20 @@ backend-service/
 
 ## 4. API 端点汇总
 
-| 端点 | 方法 | 用途 | 备注 |
-|------|------|------|------|
-| `/health` | GET | 健康检查 | 返回 `{status, engine, version}` |
-| `/run` | POST | 提交优化任务 | 请求体含 algorithm/pop/iterate/M/Q_sediment/crossover_rate/flag_xixian/year_start/year_end/initial_water_level_*/ice_prevention_flows |
-| `/status/{job_id}` | GET | 查询任务状态 | 返回 `{job_id, status, progress_percent, ...}` |
-| `/jobs` | GET | 列出所有任务 | 支持 `?status=` 过滤 |
-| `/results/{job_id}` | GET | 获取优化结果 | 返回 chromosome + evaluating 双矩阵 |
-| `/process/{job_id}` | GET | 获取过程数据 | 补拉最新水位/流量/出力过程数据 |
-| `/evaluate` | POST | 运行评价算法 | 请求体含 job_id + method (NMF/PP/AHP_FUZZY/ALL) |
-| `/evaluate/{job_id}` | GET | 获取评价缓存 | 已评价时返回 detailed 结果 |
-| `/ws/{job_id}` | WS | 实时进度推送 | 逐帧推送 progress/process_data 消息 |
-| `/cb` | POST | MATLAB 回调 | 仅 127.0.0.1 可访问 |
+完整 API 文档（含请求/响应示例、字段说明、错误码）见 [api-reference.md](api-reference.md)。
+
+| 方法 | 路径 | 用途 |
+|------|------|------|
+| GET | `/health` | 健康检查 |
+| POST | `/run` | 提交优化任务 |
+| GET | `/status/{job_id}` | 查询任务状态 |
+| GET | `/jobs` | 任务列表 |
+| GET | `/results/{job_id}` | 获取优化结果 |
+| GET | `/process/{job_id}` | 补拉过程数据 🚧 |
+| POST | `/evaluate` | 运行评价算法 |
+| GET | `/evaluate/{job_id}` | 获取评价缓存 |
+| WS | `/ws/{job_id}` | 实时进度推送 |
+| POST | `/cb` | MATLAB 回调接收 |
 
 ---
 
