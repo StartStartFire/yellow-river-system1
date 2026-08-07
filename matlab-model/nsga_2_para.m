@@ -94,84 +94,9 @@ for i = 1 : iterate
 
     % 每 10 代推送一次汇总指标 + 过程数据
     if ~mod(i, 10) || i == iterate
-        obj_values = abs(chromosome(:, (V + 1):(V + M)));
-
-        % ===== 汇总指标（progress，走 WebSocket） =====
-        summary_data = struct();
-        summary_data.iteration = i;
-        summary_data.timestamp = current_time;
-        summary_data.progress_percent = json_data.progress_percent;
-        summary_data.best_objectives = min(obj_values, [], 1);
-        summary_data.avg_objectives = mean(obj_values, 1);
-        summary_data.objective_std = std(obj_values, 0, 1);
-        summary_data.pareto_size = sum(chromosome(:, V+M+1) == 1);
-        summary_data.avg_crowding_distance = mean(chromosome(:, V+M+2));
-
-        pareto_mask = (chromosome(:, V+M+1) == 1);
-        if any(pareto_mask)
-            summary_data.pareto_objectives = obj_values(pareto_mask, :);
-        else
-            summary_data.pareto_objectives = [];
-        end
-
-        http_callback_push('progress', summary_data);
-
-        % ===== 过程数据（process_data，WS + 后端存储） =====
-        best_idx = find_representative_solution(chromosome, pop, V, M);
-        best_x = chromosome(best_idx, 1:V);
-
-        [~, results] = evaluate_objective_NSGA2(best_x, V, M, Q_sediment);
-
-        n_years = min(10, Y);
-        year_start = Y - n_years + 1;
-
-        process_data = struct();
-        process_data.iteration = i;
-        process_data.timestamp = current_time;
-        process_data.start_year = year_start + BASE_YEAR - 1;  % 数据起始年份
-
-        sidx = (year_start - 1) * 20 + 1;
-        eidx = Y * 20;
-
-        % 龙羊峡水位（决策变量前 V/2 列）
-        long_x = best_x(1:V/2);
-        process_data.longyang_level = long_x(sidx:eidx)';
-
-        % 刘家峡水位（决策变量后 V/2 列）
-        liu_x = best_x(V/2+1:V);
-        process_data.liujia_level = liu_x(sidx:eidx)';
-
-        % 过程数据（用 results 中存储的完整矩阵，取最近 n_years 年）
-        yr = year_start:Y;
-        process_data.longyang_outflow = reshape(results.Long.Qout(yr, :)', 1, []);
-        process_data.liujia_outflow = reshape(results.Liu.Qout(yr, :)', 1, []);
-        process_data.longyang_power = reshape(results.N.Ntii_long(yr, :)', 1, []);
-        process_data.liujia_power = reshape(results.N.Ntii_liu(yr, :)', 1, []);
-        process_data.total_power = reshape(results.N.Etii_longliu(yr, :)', 1, []);
-        process_data.water_shortage = reshape(results.liuzhou.Qshortage(yr, :)', 1, []);
-
-        % 子系统协调度（多年平均有序度）
-        process_data.coordination = struct();
-        process_data.coordination.h_water = mean(results.coordination.h_water);
-        process_data.coordination.h_ele = mean(results.coordination.h_ele);
-        process_data.coordination.h_sed = mean(results.coordination.h_sed);
-        process_data.coordination.h_eco = mean(results.coordination.h_eco);
-
-        % 约束满足率（基于最优个体的全系列统计）
-        Qs = results.liuzhou.Qshortage;
-        water_guarantee = mean(sum(Qs == 0, 2) / 20);
-        eco_guarantee = mean(results.ecology.eco_rate);
-        power_ok_long = sum(results.N.Ntii_long(:) >= 58.7 | results.N.Ntii_long(:) < 0.1) / numel(results.N.Ntii_long);
-        power_ok_liu = sum(results.N.Ntii_liu(:) >= 40 | results.N.Ntii_liu(:) < 0.1) / numel(results.N.Ntii_liu);
-        combined = (water_guarantee + eco_guarantee + power_ok_long + power_ok_liu) / 4;
-
-        process_data.constraint = struct();
-        process_data.constraint.water_guarantee = round(water_guarantee * 100, 1);
-        process_data.constraint.eco_guarantee = round(eco_guarantee * 100, 1);
-        process_data.constraint.power_guarantee = round((power_ok_long + power_ok_liu) / 2 * 100, 1);
-        process_data.constraint.combined_rate = round(combined * 100, 1);
-
-        http_callback_push('process_data', process_data);
+        push_callback_data('all', chromosome, pop, V, M, ...
+            i, current_time, json_data.progress_percent, ...
+            @evaluate_objective_NSGA2, {Q_sediment});
     end
 end
 

@@ -3,8 +3,6 @@ function f = genetic_operator(parent_chromosome, M, V, mu, mum, l_limit, u_limit
 
 [N,~] = size(parent_chromosome);
 p = 1;
-% Flags used to set if crossover and mutation were actually performed. 
-% was_crossover = 1 or was_mutation = 1;
 child_chromosome = zeros(2*N,V+M);
 for i = 1 : N
     if rand(1) < Pc
@@ -20,8 +18,7 @@ for i = 1 : N
             parent_2 = 1;
         end
         % Make sure both the parents are not the same.
-        %while isequal(parent_chromosome(parent_1,:),parent_chromosome(parent_2,:))
-        while parent_1 == parent_2    
+        while parent_1 == parent_2
             parent_2 = round(N*rand(1));
             if parent_2 == 0
                 parent_2 = 1;
@@ -32,10 +29,10 @@ for i = 1 : N
         parent_1 = parent_chromosome(parent_1,1:V);
         parent_2 = parent_chromosome(parent_2,1:V);
         % Perform corssover for each decision variable in the chromosome.
-        child_1 = zeros(1,V+M);   
+        child_1 = zeros(1,V+M);
         child_2 = zeros(1,V+M);
         u = zeros(1,V);
-        bq = zeros(1,V);          
+        bq = zeros(1,V);
         for j = 1 : V
             % SBX (Simulated Binary Crossover).
             % For more information about SBX refer the enclosed pdf file.
@@ -65,9 +62,8 @@ for i = 1 : N
         end
 
         was_crossover = 1;
-        was_mutation = 0;
     else
-    
+
         parent_3 = round(N*rand(1));
         if parent_3 == 0
             parent_3 = 1;
@@ -75,10 +71,10 @@ for i = 1 : N
         % Get the chromosome information for the randomly selected parent.
         parent_3 = parent_chromosome(parent_3,1:V);
         % Perform mutation on eact element of the selected parent.
-        
-        child_3 = zeros(1,V + M);   
+
+        child_3 = zeros(1,V + M);
         r = zeros(1,V);
-        delta = zeros(1,V);        
+        delta = zeros(1,V);
         for j = 1 : V
             r(j) = rand(1);
             if r(j) < 0.5
@@ -87,7 +83,7 @@ for i = 1 : N
                 delta(j) = 1 - (2*(1 - r(j)))^(1/(mum+1));
             end
             % Generate the corresponding child element.
-            child_3(j) = parent_3(j) + delta(j) * (u_limit(j) - l_limit(j));     
+            child_3(j) = parent_3(j) + delta(j) * (u_limit(j) - l_limit(j));
             % Make sure that the generated element is within the decision
             % space.
             if child_3(j) > u_limit(j)
@@ -96,16 +92,15 @@ for i = 1 : N
                 child_3(j) = l_limit(j);
             end
         end
-       
-        was_mutation = 1;
+
         was_crossover = 0;
     end
-    
+
     if was_crossover
         child_chromosome(p,:) = child_1;
         child_chromosome(p+1,:) = child_2;
         p = p + 2;
-    elseif was_mutation
+    else
         child_chromosome(p,:) = child_3;
         p = p + 1;
     end

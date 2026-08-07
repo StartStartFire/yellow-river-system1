@@ -6,14 +6,13 @@ flag=1;
 if x<A(1,2)
     y=A(1,1);
     flag=0;
-else if x>A(r,2)
-        y=A(r,1);
-        flag=0;
-    else 
-        for i=1:(r-1)
-            if A(i,2)<=x&&x<=A(i+1,2)
-               y=A(i,1)+(A(i+1,1)-A(i,1))/(A(i+1,2)-A(i,2))*(x-A(i,2));
-            end
+elseif x > A(r, 2)
+    y = A(r, 1);
+    flag = 0;
+else
+    for i = 1 : (r - 1)
+        if A(i, 2) <= x && x <= A(i + 1, 2)
+            y = A(i, 1) + (A(i + 1, 1) - A(i, 1)) / (A(i + 1, 2) - A(i, 2)) * (x - A(i, 2));
         end
     end
 end

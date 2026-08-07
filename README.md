@@ -112,7 +112,7 @@ F:\Model\yellow_river_project\
 │   ├── evaluate_objective*.m  # 目标函数评估
 │   ├── load_data.m         # 数据加载（Excel → 全局变量）
 │   ├── data.xlsx           # 输入数据（17 个 sheet）
-│   ├── callback_config.txt # 回调地址配置
+│   ├── http_callback_push.m # HTTP 回调推送
 │   └── docs/               # 模型专属文档
 │
 ├── backend-service/        # Python FastAPI Web 服务

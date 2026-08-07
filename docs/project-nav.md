@@ -15,7 +15,7 @@ F:\Model\yellow_river_project\
 │   ├── evaluate_objective*.m  # 4 个评价函数（含 save_info 版本）
 │   ├── *.m                    # 20 个辅助函数
 │   ├── data.xlsx              # 输入数据（17 个 sheet）
-│   ├── callback_config.txt    # 回调地址配置
+│   ├── http_callback_push.m    # HTTP 回调推送（webwrite POST）
 │   └── docs/                  # 专属文档
 │       ├── model-specification.md
 │       ├── scheduling-rules.md
@@ -83,7 +83,7 @@ MATLAB 模型共 22 个 `.m` 文件，核心文件如下（完整列表见目录
 | 遗传 | `initialize_population.m`, `genetic_operator.m`, `tournament_selection.m`, `replace_chromosome.m`, `non_domination_sort_mod.m` | 种群初始化、SBX交叉+多项式变异、锦标赛选择、精英替换、非支配排序 |
 | 工具 | `chz1.m`, `chz2.m`, `mutation_one_variable.m`, `find_nondominated_solution.m`, `find_representative_solution.m` | 插值、PAEM变异、非支配解提取、代表性解选择 |
 | 日志 | `write_json_log.m`, `init_log_file.m`, `preprocess_results_for_json.m` | JSONL 文件写入和管理 |
-| 回调 | `http_callback_push.m`, `callback_config.txt` | HTTP POST 推送进度到 Web 服务 |
+| 回调 | `http_callback_push.m` | HTTP POST 推送进度到 Web 服务 |
 
 ### 2.2 数据流
 
@@ -133,7 +133,6 @@ http_callback_push.m → POST → Web 服务 /cb
   - 生态/频率：`Q_eco`, `P`
   - 水位边界：`LONGLIU-BOUND`
   - 物理参数：`CANSHU`
-- **`callback_config.txt`** — 一行 URL：`http://127.0.0.1:18080/cb`
 
 ### 2.5 重要约束（目标函数内）
 

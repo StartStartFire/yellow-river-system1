@@ -38,7 +38,7 @@ F:\Model\NSGA2\
 │   ├── http_callback_push.m # HTTP 回调推送（新增 — 唯一侵入点）
 │   ├── main.m               # 程序入口
 │   ├── data.xlsx            # 输入数据（17 个 sheet）
-│   ├── callback_config.txt  # 回调地址配置
+│   ├── http_callback_push.m # HTTP 回调推送
 │   ├── NSGA2_progress.jsonl # NSGA-II 进化日志
 │   ├── *.jsonl / *.json     # PAEM 日志
 │   └── .git\                # Git 仓库
@@ -227,7 +227,7 @@ F:\Model\NSGA2\
 1. **唯一通信方式**：MATLAB 调用 `http_callback_push.m` → `webwrite` → HTTP POST → FastAPI `/cb` 端点
 2. **不使用 `py.` 桥接**：MATLAB 嵌入式 Python 与宿主 Python 位于不同进程，无法共享内存对象
 3. **数据格式**：MATLAB 的 `struct` 通过 `webwrite` 发送时自动转为 JSON，Python 侧按收到的 JSON 解析
-4. **回调地址配置**：写入 `matlab-model/callback_config.txt`，MATLAB 启动时读取，不改代码即可变更
+4. **回调推送**：`http_callback_push.m` 写死回调地址 `127.0.0.1:18080/cb`，无需外部配置
 5. **回调端口**：固定 `127.0.0.1:18080`，仅本地监听，不对外开放
 
 ## 常见注意事项

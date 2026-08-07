@@ -118,7 +118,7 @@ for i=1:Y %Y�������������¿�ʼ���㲿��
             Qqs_long(i,j)=Qlongout(i,j)-Ntii_long(i,j) *10000/8.6/(Hlong(i,j)- 0);%��ˮ����
         elseif Ntii_long(i,j) <58.7 && Vlong(i,j)>100
             for  n=1:100
-                Qlongout(i,j)=Qlongout(i,j)+10*n; %��10Ϊһ����������������Ͽ����������ֱ�����㱣֤����Ҫ��
+                Qlongout(i,j)=Qlongout(i,j)+10*n; %以10为一个步长逐渐增大龙羊峡出库流量，直至满足保证出力要求
                 Vlong(i,j+1)=(LONG_IN(i,j)-Qlongout(i,j))*xishu(j)+Vlong(i,j);
                 if Vlong(i,j+1) < 42.63%С��������
                     Vlong(i,j+1) = 42.63;
@@ -181,7 +181,7 @@ for i=1:Y %Y�������������¿�ʼ���㲿��
             Qqs_liu(i,j)=Qliuout(i,j)-Ntii_liu(i,j)*10000/8.6/(Hliu(i,j)- 0);
         elseif Ntii_liu(i,j) <40
             for n=1:100
-                Qliuout(i,j)= Qliuout(i,j)+10*n; %��10Ϊ�������������������ֱ�����㱣֤����Ҫ��
+                Qliuout(i,j)= Qliuout(i,j)+10*n; %以10为步长逐渐增大出库流量，直至满足保证出力要求
                 Vliu(i,j+1)=(Qlongout(i,j)+LONG_LIU(i,j)-Qliuout(i,j))*xishu(j)+Vliu(i,j);
                 if Vliu(i,j+1) < 6.223%С��������
                     Vliu(i,j+1) = 6.223;

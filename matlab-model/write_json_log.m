@@ -27,22 +27,6 @@ function write_json_log(log_data, log_fid, preprocess_data)
         preprocess_data = true;
     end
 
-    % 基本校验
-    if nargin < 2
-        error('write_json_log:NotEnoughInputs', ...
-            '至少需要提供 log_data 和 log_fid 两个参数。');
-    end
-
-    if ~isstruct(log_data)
-        error('write_json_log:InvalidInputType', ...
-            'log_data 必须是结构体。');
-    end
-
-    if ~isscalar(log_fid) || log_fid < 1
-        error('write_json_log:InvalidFileId', ...
-            'log_fid 必须是有效的文件标识符。');
-    end
-
     % 复制，避免修改原始数据
     processed_data = log_data;
 
