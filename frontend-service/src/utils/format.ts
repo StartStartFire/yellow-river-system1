@@ -65,38 +65,7 @@ export function formatPercent(
   return `${percent.toFixed(digits)}%`
 }
 
-/**
- * 带单位的格式化
- *
- * @example
- *   formatWithUnit(2486.35, 'm', 2)   // '2486.35 m'
- *   formatWithUnit(null, 'm')         // '-'
- */
-export function formatWithUnit(
-  value: number | null | undefined,
-  unit: string,
-  digits: number = 2,
-  fallback: string = '-',
-): string {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return fallback
-  }
-  return `${value.toFixed(digits)} ${unit}`
-}
-
 // ==================== 业务领域专用快捷函数 ====================
-
-/** 水位格式化（保留 2 位小数，单位 m） */
-export const formatLevel = (value: number | null | undefined): string =>
-  formatNumber(value, 2)
-
-/** 流量格式化（保留 1 位小数，单位 m³/s） */
-export const formatFlow = (value: number | null | undefined): string =>
-  formatNumber(value, 1)
-
-/** 库容格式化（保留 2 位小数，单位 亿m³） */
-export const formatStorage = (value: number | null | undefined): string =>
-  formatNumber(value, 2)
 
 /** 发电量格式化（千分位整数，单位 kWh） */
 export const formatPower = (value: number | null | undefined): string =>

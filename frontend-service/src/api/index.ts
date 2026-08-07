@@ -4,6 +4,7 @@
  * 封装 HTTP 请求，base URL 指向后端 FastAPI 服务。
  * 系统集成阶段使用 fetch，后续可替换为 axios。
  */
+import type { RadarData } from '@/types/evaluation'
 
 const API_BASE = 'http://127.0.0.1:18080'
 
@@ -100,21 +101,6 @@ export interface RankingAlgorithm {
   ranks: number[]
   scores: number[] | null
   execution_time: number | null
-}
-
-export interface RadarIndicator {
-  name: string
-  max: number
-}
-
-export interface RadarPlan {
-  plan: string
-  values: number[]
-}
-
-export interface RadarData {
-  indicators: RadarIndicator[]
-  plans: RadarPlan[]
 }
 
 /** GET /evaluate/{job_id} 响应 */

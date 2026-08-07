@@ -1,12 +1,5 @@
 // ==================== 案例库页面 Mock 数据 ====================
-import type { ApiResponse } from '@/types/common'
-import type {
-  CaseLibraryPageState,
-  CaseItem,
-  CaseDetail,
-  CaseTypeOption,
-  CaseReservoirOption,
-} from '@/types/caseLibrary'
+import type { ApiResponse, OptionItem } from '@/types/common'
 
 // ── 页面状态 ──
 export const caseLibraryPageState: ApiResponse<CaseLibraryPageState> = {
@@ -405,7 +398,7 @@ export const caseDetail: ApiResponse<Record<string, CaseDetail>> = {
 }
 
 // ── 选项 ──
-export const caseTypeOptions: CaseTypeOption[] = [
+export const caseTypeOptions: OptionItem[] = [
   { label: '全部', value: 'all' },
   { label: '连丰', value: '连丰' },
   { label: '连枯', value: '连枯' },
@@ -416,7 +409,7 @@ export const caseTypeOptions: CaseTypeOption[] = [
   { label: '兴利调度', value: '兴利调度' },
 ]
 
-export const reservoirOptions: CaseReservoirOption[] = [
+export const reservoirOptions: OptionItem[] = [
   { label: '全部', value: 'all' },
   { label: '龙羊峡水库', value: '龙羊峡水库' },
   { label: '刘家峡水库', value: '刘家峡水库' },

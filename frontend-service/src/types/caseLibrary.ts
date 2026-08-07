@@ -118,8 +118,3 @@ export interface CaseDetail {
   historyResult: CaseHistoryResult
   evaluation: CaseEvaluation
 }
-
-// ==================== 选项 ====================
-
-export type CaseTypeOption = OptionItem
-export type CaseReservoirOption = OptionItem

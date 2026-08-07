@@ -1,15 +1,5 @@
 // ==================== 报表统计页面 Mock 数据 ====================
-import type { ApiResponse } from '@/types/common'
-import type {
-  ReportStatisticsPageState,
-  MonthlyOperationItem,
-  MonthlyEconomicItem,
-  MonthlyPowerItem,
-  YearlySummaryItem,
-  YearOption,
-  MonthOption,
-  ReportReservoirOption,
-} from '@/types/reportStatistics'
+import type { ApiResponse, OptionItem } from '@/types/common'
 
 // ── 页面状态 ──
 export const reportStatisticsPageState: ApiResponse<ReportStatisticsPageState> = {
@@ -24,7 +14,7 @@ export const reportStatisticsPageState: ApiResponse<ReportStatisticsPageState> =
 }
 
 // ── 选项 ──
-export const yearOptions: YearOption[] = [
+export const yearOptions: OptionItem[] = [
   { label: '2025年', value: '2025' },
   { label: '2024年', value: '2024' },
   { label: '2023年', value: '2023' },
@@ -32,7 +22,7 @@ export const yearOptions: YearOption[] = [
   { label: '2021年', value: '2021' },
 ]
 
-export const monthOptions: MonthOption[] = [
+export const monthOptions: OptionItem[] = [
   { label: '1月', value: '1' },
   { label: '2月', value: '2' },
   { label: '3月', value: '3' },
@@ -47,7 +37,7 @@ export const monthOptions: MonthOption[] = [
   { label: '12月', value: '12' },
 ]
 
-export const reservoirOptions: ReportReservoirOption[] = [
+export const reservoirOptions: OptionItem[] = [
   { label: '全部水库', value: 'all' },
   { label: '龙羊峡水库', value: 'longyangxia' },
   { label: '刘家峡水库', value: 'liujiaxia' },

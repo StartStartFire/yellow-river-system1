@@ -97,9 +97,3 @@ export interface YearlySummaryItem {
   yearUtilizationHours: number
   assessmentResult: string
 }
-
-// ==================== 选项 ====================
-
-export type YearOption = OptionItem
-export type MonthOption = OptionItem
-export type ReportReservoirOption = OptionItem

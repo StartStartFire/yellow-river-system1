@@ -117,11 +117,6 @@ export interface DecisionPowerData {
   liujiaCapacity: number
 }
 
-// ==================== 水量流向 ====================
-
-/** 水量流向数据（复用 DistributionItem 保持一致） */
-export type WaterFlowData = DistributionItem[]
-
 // ==================== 方案排名与目标满足 ====================
 
 /** 方案排名 */
