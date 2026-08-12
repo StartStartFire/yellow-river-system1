@@ -194,24 +194,6 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     }
   }
 
-  /**
-   * 根据场景联动调度主体（Step 1 → Step 2）
-   * 当前只处理 multi-year/multi-objective → 预设龙羊峡+刘家峡，日期可修改
-   */
-  const syncSubjectFromScenario = (categoryId: string, subOptionId: string) => {
-    if (categoryId === 'multi-year' && subOptionId === 'multi-objective') {
-      step2State.value = {
-        startTime: '1970',
-        endTime: '2023',
-        timeStep: '20时段/年',
-        scheduleFrequency: '无',
-        selectedReservoirIds: ['longyangxia', 'liujiaxia'],
-        selectedGroupId: 'long-liu',
-      }
-    }
-    // 其他场景暂不处理（保持现有值）
-  }
-
   // ==================== Step 2 操作（调度主体）====================
 
   const setDispatchSubject = (data: Partial<typeof step2State.value>) => {
@@ -335,7 +317,6 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     setDispatchScenario,
     syncObjectivesFromScenario,
     syncModelFromScenario,
-    syncSubjectFromScenario,
 
     // Step 2（调度主体）
     setDispatchSubject,

@@ -9,7 +9,7 @@ import ScenarioCard from '@/components/model-config/dispatch-scenario/ScenarioCa
 import ConfirmActionDialog from '@/components/model-config/common/ConfirmActionDialog.vue'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import { dispatchScenarioCategories } from '@/mock/model-config/dispatchScenario'
-import type { DispatchScenarioCategory, DispatchSubOption } from '@/types/model'
+import type { DispatchScenarioCategory } from '@/types/model'
 
 // ==================== 弹窗状态 ====================
 const saveDialogVisible = ref(false)
@@ -32,20 +32,6 @@ const selectedSubOptionId = ref<string>('')
 
 /** 方案名称 */
 const scenarioName = ref(store.dispatchScenario.scenarioName)
-
-// 查找选中的子选项对象
-const selectedSubOption = computed<DispatchSubOption | null>(() => {
-  if (!selectedCategoryId.value || !selectedSubOptionId.value) return null
-  const cat = categories.find(c => c.id === selectedCategoryId.value)
-  if (!cat) return null
-  return cat.subOptions.find(s => s.id === selectedSubOptionId.value) || null
-})
-
-// 查找选中的大类对象
-const selectedCategory = computed<DispatchScenarioCategory | null>(() => {
-  if (!selectedCategoryId.value) return null
-  return categories.find(c => c.id === selectedCategoryId.value) || null
-})
 
 /** 是否可以进入下一步 */
 const canNext = computed(() => {
@@ -95,8 +81,6 @@ const confirmSave = () => {
   store.syncObjectivesFromScenario(selectedSubOptionId.value)
   // 联动模型选择
   store.syncModelFromScenario(selectedCategoryId.value, selectedSubOptionId.value)
-  // 联动调度主体（锁定龙+刘）
-  store.syncSubjectFromScenario(selectedCategoryId.value, selectedSubOptionId.value)
   ElMessage.success('调度场景已保存')
 }
 

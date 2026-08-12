@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import ModelConfigStepBar from '@/components/model-config/ModelConfigStepBar.vue'
@@ -7,48 +7,28 @@ import ModelConfigFooter from '@/components/model-config/ModelConfigFooter.vue'
 import { useModelConfigStore } from '@/stores/modelConfig'
 import {
   subjectReservoirGroups,
-  scenarioToSubjectDefaults,
-  scenarioCategoryConstraints,
   reservoirNameMap,
 } from '@/mock/model-config/dispatchSubject'
-import { metricsMap, reservoirGroups as basicDataGroups } from '@/mock/basicData'
-import type { MetricCardData } from '@/types/reservoir'
+import { reservoirGroups as basicDataGroups } from '@/mock/basicData'
 
 const store = useModelConfigStore()
 const router = useRouter()
-
-// 水库指标数据（用于展示水位和入库流量）
-const reservoirMetrics = computed(() => {
-  const map: Record<string, Record<string, MetricCardData>> = {}
-  for (const [id, metrics] of Object.entries(metricsMap)) {
-    map[id] = metrics
-  }
-  return map
-})
 
 const saveDialogVisible = ref(false)
 const cancelDialogVisible = ref(false)
 
 // ==================== Step 1 ====================
-const subOptionId = computed(() => store.dispatchScenario.subOptionId)
 const categoryId = computed(() => store.dispatchScenario.categoryId)
-const categoryConstraint = computed(() => scenarioCategoryConstraints[categoryId.value] || null)
-
-/** 是否为多目标协同胁迫模型场景（锁定龙+刘、20时段/年、只读） */
-const isStressScenario = computed(() => {
-  return categoryId.value === 'multi-year' && subOptionId.value === 'multi-objective'
-})
 
 // ==================== 表单 ====================
 const startTime = ref('')
 const endTime = ref('')
-const timeStep = ref('每日')
+const timeStep = ref('20时段/年')
 const scheduleFrequency = ref('每月一次')
 const selectedReservoirIds = ref<string[]>([])
 const selectedGroupId = ref('')
 
-const allowedTimeSteps = computed(() => categoryConstraint.value?.allowedTimeSteps || ['每日', '每旬', '每月'])
-const isTimeStepLocked = computed(() => categoryId.value === 'realtime')
+const timeStepOptions = ['20时段/年', '每日', '每旬', '每月']
 
 const totalPeriods = computed(() => {
   if (!startTime.value || !endTime.value) return 0
@@ -72,34 +52,7 @@ const selectedReservoirSummary = computed(() => {
 
 const groups = subjectReservoirGroups
 
-const currentGroupName = computed(() => {
-  if (!selectedGroupId.value) return ''
-  const g = groups.find(g => g.id === selectedGroupId.value)
-  return g ? g.name : ''
-})
-
 // ==================== 联动 ====================
-const applyDefaultsFromScenario = () => {
-  const defaults = subOptionId.value ? scenarioToSubjectDefaults[subOptionId.value] : null
-  if (defaults) {
-    startTime.value = defaults.startTime
-    endTime.value = defaults.endTime
-    timeStep.value = defaults.timeStep
-    scheduleFrequency.value = defaults.scheduleFrequency
-    selectedReservoirIds.value = [...defaults.reservoirIds]
-    matchGroupFromReservoirs(defaults.reservoirIds)
-  }
-}
-
-const matchGroupFromReservoirs = (ids: string[]) => {
-  const sortedIds = [...ids].sort()
-  const matched = groups.find(g => {
-    const gIds = [...g.reservoirIds].sort()
-    return sortedIds.length === gIds.length && sortedIds.every((id, i) => id === gIds[i])
-  })
-  selectedGroupId.value = matched ? matched.id : ''
-}
-
 // ==================== 水库操作 ====================
 const handleSelectGroup = (groupId: string) => {
   if (selectedGroupId.value === groupId) {
@@ -120,7 +73,8 @@ const toggleReservoir = (id: string) => {
   } else {
     selectedReservoirIds.value.push(id)
   }
-  matchGroupFromReservoirs(selectedReservoirIds.value)
+  // 取消预设组合匹配（手动选择后清空组合选中状态）
+  selectedGroupId.value = ''
 }
 
 const getReservoirStatus = (id: string): { label: string; color: string } => {
@@ -151,46 +105,42 @@ const reservoirGroups = computed(() => {
 const validateTimeRange = (): string | null => {
   if (!startTime.value || !endTime.value) return '请选择调度起止时间'
 
-  if (isStressScenario.value) {
-    // 中长期场景：日期为纯年份格式，按年比较
-    const sy = parseInt(startTime.value)
-    const ey = parseInt(endTime.value)
-    if (isNaN(sy) || isNaN(ey)) return '年份格式错误'
-    if (ey < sy) return '结束年份不能早于开始年份'
-    const diffYears = ey - sy + 1
-    if (diffYears > 54) return '调度时间跨度不能超过54年'
-    if (diffYears < 1) return '调度时间跨度应不少于1年'
-    return null
-  }
-
-  // 其他场景：按日期比较
-  const start = new Date(startTime.value)
-  const end = new Date(endTime.value)
-  if (end < start) return '结束时间不能早于开始时间'
-  const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-  if (categoryConstraint.value) {
-    if (diffDays > categoryConstraint.value.maxDays) {
-      if (categoryId.value === 'realtime') return '实时调度时间范围不能超过31天'
-      if (categoryId.value === 'critical-period') return '关键期调度必须在同一年内'
-      return '中长期调度时间跨度不能超过5年'
-    }
-    if (categoryId.value === 'multi-year' && diffDays < 365) return '中长期调度时间跨度应不少于1年'
-    if (categoryId.value === 'critical-period') {
-      if (start.getFullYear() !== end.getFullYear()) return '关键期调度起止时间必须在同一年内'
-    }
-  }
+  const sy = parseInt(startTime.value)
+  const ey = parseInt(endTime.value)
+  if (isNaN(sy) || isNaN(ey)) return '年份格式错误'
+  if (ey < sy) return '结束年份不能早于开始年份'
+  const diffYears = ey - sy + 1
+  if (diffYears > 54) return '调度时间跨度不能超过54年'
+  if (diffYears < 1) return '调度时间跨度应不少于1年'
   return null
 }
 
 const validateTimeStep = (): string | null => {
   if (categoryId.value === 'multi-year' && timeStep.value === '每日') return '中长期调度不支持日步长'
-  if (categoryId.value === 'critical-period' && timeStep.value === '每日') return '关键期调度不支持日步长'
   return null
 }
 
 const validateReservoir = (): string | null => {
   if (selectedReservoirIds.value.length === 0) return '请至少选择一个参与调度的水库'
   return null
+}
+
+/** 年份选择器禁用范围：仅 1970~2023 可选 */
+const isYearDisabled = (date: Date) => {
+  const year = date.getFullYear()
+  return year < 1970 || year > 2023
+}
+
+/** 保存当前表单值到 store */
+const saveToStore = () => {
+  store.setDispatchSubject({
+    startTime: startTime.value,
+    endTime: endTime.value,
+    timeStep: timeStep.value,
+    scheduleFrequency: scheduleFrequency.value,
+    selectedReservoirIds: selectedReservoirIds.value,
+    selectedGroupId: selectedGroupId.value,
+  })
 }
 
 // ==================== 按钮 ====================
@@ -200,13 +150,20 @@ const handleCancel = () => { cancelDialogVisible.value = true }
 
 const confirmSave = () => {
   saveDialogVisible.value = false
-  store.setDispatchSubject({ startTime: startTime.value, endTime: endTime.value, timeStep: timeStep.value, scheduleFrequency: scheduleFrequency.value, selectedReservoirIds: selectedReservoirIds.value, selectedGroupId: selectedGroupId.value })
+  saveToStore()
   ElMessage.success('调度主体配置已保存')
 }
 
 const confirmCancel = () => {
   cancelDialogVisible.value = false
-  applyDefaultsFromScenario()
+  if (store.dispatchSubject.startTime) {
+    startTime.value = store.dispatchSubject.startTime
+    endTime.value = store.dispatchSubject.endTime
+    timeStep.value = store.dispatchSubject.timeStep
+    scheduleFrequency.value = store.dispatchSubject.scheduleFrequency
+    selectedReservoirIds.value = [...store.dispatchSubject.selectedReservoirIds]
+    selectedGroupId.value = store.dispatchSubject.selectedGroupId
+  }
   ElMessage.info('已取消，未保存任何更改')
 }
 
@@ -217,7 +174,7 @@ const handleNext = () => {
   if (stepErr) { ElMessage.warning(stepErr); return }
   const resErr = validateReservoir()
   if (resErr) { ElMessage.warning(resErr); return }
-  store.setDispatchSubject({ startTime: startTime.value, endTime: endTime.value, timeStep: timeStep.value, scheduleFrequency: scheduleFrequency.value, selectedReservoirIds: selectedReservoirIds.value, selectedGroupId: selectedGroupId.value })
+  saveToStore()
   store.markStepCompleted(2)
   router.push('/model-config/model-data')
 }
@@ -230,8 +187,6 @@ onMounted(() => {
     scheduleFrequency.value = store.dispatchSubject.scheduleFrequency
     selectedReservoirIds.value = [...store.dispatchSubject.selectedReservoirIds]
     selectedGroupId.value = store.dispatchSubject.selectedGroupId
-  } else {
-    applyDefaultsFromScenario()
   }
 })
 </script>
@@ -261,10 +216,8 @@ onMounted(() => {
           class="group-card"
           :class="{
             'group-selected': selectedGroupId === group.id,
-            'group-disabled': isStressScenario && group.id !== 'long-liu'
           }"
-          :style="isStressScenario && group.id !== 'long-liu' ? { cursor: 'not-allowed', opacity: 0.4 } : {}"
-          @click="isStressScenario && group.id !== 'long-liu' ? undefined : handleSelectGroup(group.id)"
+          @click="handleSelectGroup(group.id)"
         >
           <div v-if="selectedGroupId === group.id" class="group-check">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -274,7 +227,6 @@ onMounted(() => {
           </div>
           <div class="group-name">{{ group.name }}</div>
           <div class="group-count">{{ group.reservoirIds.length }} 座水库</div>
-          <div v-if="isStressScenario && group.id !== 'long-liu'" class="placeholder-tag" style="font-size:10px;color:var(--tech-text-placeholder);margin-top:4px;">待开放</div>
         </div>
       </div>
 
@@ -299,10 +251,9 @@ onMounted(() => {
               class="reservoir-item"
               :class="{
                 'item-checked': res.checked,
-                'item-disabled': isStressScenario && !['longyangxia','liujiaxia'].includes(res.id)
+
               }"
-              :style="isStressScenario && !['longyangxia','liujiaxia'].includes(res.id) ? { cursor: 'not-allowed', opacity: 0.35 } : {}"
-              @click="isStressScenario && !['longyangxia','liujiaxia'].includes(res.id) ? undefined : toggleReservoir(res.id)"
+              @click="toggleReservoir(res.id)"
             >
               <div class="item-checkbox" :class="{ 'checkbox-checked': res.checked }">
                 <svg v-if="res.checked" width="10" height="10" viewBox="0 0 16 16" fill="none">
@@ -311,7 +262,6 @@ onMounted(() => {
               </div>
               <span class="item-name">{{ res.fullName }}</span>
               <span class="item-status" :style="{ color: getReservoirStatus(res.id).color }">{{ getReservoirStatus(res.id).label }}</span>
-              <span v-if="isStressScenario && !['longyangxia','liujiaxia'].includes(res.id)" style="font-size:10px;color:var(--tech-text-placeholder);margin-left:auto;">待开放</span>
             </div>
           </div>
         </template>
@@ -329,89 +279,50 @@ onMounted(() => {
       </div>
 
       <div class="period-grid">
-        <!-- 多目标协同胁迫模型：起止时间可编辑，步长/频率只读 -->
-        <template v-if="isStressScenario">
-          <div class="param-card">
-            <div class="param-label">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-                <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/>
-                <path d="M5 1v4M11 1v4M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-              调度起止年份
-            </div>
-            <div class="year-picker-wrapper">
-              <el-date-picker v-model="startTime" type="year" placeholder="开始年份" class="year-picker-half" value-format="YYYY" />
-              <span class="date-separator">~</span>
-              <el-date-picker v-model="endTime" type="year" placeholder="结束年份" class="year-picker-half" value-format="YYYY" />
-            </div>
+        <div class="param-card" style="grid-column: 1 / -1;">
+          <div class="param-label">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
+              <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/>
+              <path d="M5 1v4M11 1v4M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            调度起止年份（1970~2023）
           </div>
-          <div class="param-card readonly-card">
-            <div class="param-label">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-                <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
-                <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-              时间步长
-            </div>
-            <div class="readonly-text">{{ timeStep }}</div>
+          <div class="year-picker-wrapper">
+            <el-date-picker v-model="startTime" type="year" placeholder="开始年份" class="year-picker-half" value-format="YYYY" :disabled-date="isYearDisabled" />
+            <span class="date-separator">~</span>
+            <el-date-picker v-model="endTime" type="year" placeholder="结束年份" class="year-picker-half" value-format="YYYY" :disabled-date="isYearDisabled" />
           </div>
-          <div class="param-card readonly-card">
-            <div class="param-label">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-                <path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/>
-              </svg>
-              调度频率
-            </div>
-            <div class="readonly-text">{{ scheduleFrequency }}</div>
+        </div>
+        <!-- 时间步长（始终可编辑） -->
+        <div class="param-card">
+          <div class="param-label">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
+              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
+              <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            时间步长
           </div>
-        </template>
-        <!-- 其他场景：原有可编辑组件 -->
-        <template v-else>
-          <div class="param-card">
-            <div class="param-label">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-                <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/>
-                <path d="M5 1v4M11 1v4M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-              调度起止时间
-            </div>
-            <div class="date-picker-wrapper">
-              <el-date-picker v-model="startTime" type="date" placeholder="开始日期" class="date-picker-half" value-format="YYYY-MM-DD" />
-              <span class="date-separator">~</span>
-              <el-date-picker v-model="endTime" type="date" placeholder="结束日期" class="date-picker-half" value-format="YYYY-MM-DD" />
-            </div>
+          <el-select v-model="timeStep" class="param-select">
+            <el-option v-for="ts in timeStepOptions" :key="ts" :label="ts" :value="ts" />
+          </el-select>
+        </div>
+        <!-- 调度频率（始终可编辑） -->
+        <div class="param-card">
+          <div class="param-label">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
+              <path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/>
+            </svg>
+            调度频率
           </div>
-          <div class="param-card">
-            <div class="param-label">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-                <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
-                <path d="M8 5v3.5H11" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-              时间步长
-              <span v-if="isTimeStepLocked" class="lock-badge">锁定</span>
-            </div>
-            <el-select v-model="timeStep" :disabled="isTimeStepLocked" class="param-select">
-              <el-option v-for="ts in allowedTimeSteps" :key="ts" :label="ts" :value="ts" />
-            </el-select>
-          </div>
-          <div class="param-card">
-            <div class="param-label">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="param-icon">
-                <path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/>
-              </svg>
-              调度频率
-            </div>
-            <el-select v-model="scheduleFrequency" class="param-select">
-              <el-option label="每月一次" value="每月一次" />
-              <el-option label="每旬一次" value="每旬一次" />
-              <el-option label="每周一次" value="每周一次" />
-            </el-select>
-          </div>
-        </template>
+          <el-select v-model="scheduleFrequency" class="param-select">
+            <el-option label="每月一次" value="每月一次" />
+            <el-option label="每旬一次" value="每旬一次" />
+            <el-option label="每周一次" value="每周一次" />
+          </el-select>
+        </div>
       </div>
-    </div>
+      </div>
 
     <ModelConfigFooter :step="2" @cancel="handleCancel" @save="handleSave" @prev="handlePrev" @next="handleNext" />
 
@@ -540,10 +451,6 @@ onMounted(() => {
 .group-selected .group-name { color: var(--tech-text-primary); }
 .group-count { font-size: 12px; color: #5a8abf; }
 
-/* 只读卡片样式 */
-.readonly-card { background: rgba(var(--tech-blue-rgb), 0.04); }
-.readonly-text { font-size: 14px; color: var(--tech-text-regular); padding: 4px 0; font-weight: 500; }
-
 /* 更多组合水库区域 */
 .reservoir-grid {
   display: grid;
@@ -590,7 +497,6 @@ onMounted(() => {
 .item-checkbox.checkbox-checked { border-color: var(--tech-cyan); background: var(--tech-cyan); }
 
 .item-name { font-size: 12px; font-weight: 600; color: var(--tech-text-regular); white-space: nowrap; }
-.item-meta { font-size: 10px; color: #5a8abf; white-space: nowrap; }
 .item-status { font-size: 10px; font-weight: 500; margin-left: auto; flex-shrink: 0; }
 
 /* 时段参数 */
@@ -623,15 +529,8 @@ onMounted(() => {
 
 .param-icon { color: #5a8abf; flex-shrink: 0; }
 
-.lock-badge {
-  font-size: 9px; padding: 1px 6px; border-radius: 4px;
-  background: rgba(240, 160, 32, 0.15); color: #f0a020; font-weight: 600; margin-left: 4px;
-}
-
 .param-select { width: 100%; min-width: 0; }
 
-.date-picker-wrapper { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
-.date-picker-half { flex: 1; min-width: 0; }
 .year-picker-wrapper { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
 .year-picker-half { flex: 1; min-width: 0; max-width: 160px; }
 .date-separator { color: var(--tech-text-placeholder); font-size: 12px; flex-shrink: 0; }
