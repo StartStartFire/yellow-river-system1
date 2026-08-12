@@ -21,7 +21,7 @@
 
 | 依赖 | 版本要求 | 说明 |
 |------|---------|------|
-| Python | **3.11** | MATLAB R2024a Engine API 仅支持 Python 3.9~3.11 |
+| Python | **3.11.9** | MATLAB R2024a Engine API 仅支持 Python 3.9~3.11 |
 | Conda | 任意 | 推荐 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) |
 | MATLAB | **R2024a** | 用于运行优化模型（含 MATLAB Engine API） |
 | Node.js | >=18 | 用于运行前端 |
