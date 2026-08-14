@@ -450,6 +450,8 @@ end
 Q_sed_bizhi=Q_sed_m/Y;%�����ɳ��������̶�
 
 % W_sed(i)=Q_sed(i)*t_sed(i)*24*3600/100000000;%ȫ������ɳˮ��(��m3)
+W_sed4_year = zeros(1, Y);  % 预初始化，防止来沙条件不满足时变量不存在
+anytrigger_year = false(1, Y);  % 预初始化
 for i = 1:Y
     Qsed4 = Qliuout(i,3:4) + LIU_LAN(i,3:4);
     % ��ÿ��ʱ���ж��Ƿ������ɳ����

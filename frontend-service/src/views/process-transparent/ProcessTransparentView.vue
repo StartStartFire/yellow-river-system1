@@ -253,8 +253,6 @@ const convergenceOption = computed(() => {
     yAxis: {
       ...baseValueYAxis,
       name: '缺水量（亿m³）',
-      min: 2.65,
-      max: 2.7,
       nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 },
       axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
     },
