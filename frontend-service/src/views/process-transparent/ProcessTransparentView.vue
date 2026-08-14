@@ -321,11 +321,12 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     return {
       tooltip: { ...baseTooltip },
       title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
-      grid: createGrid(42, 18, 42, 8),
+      grid: createGrid(42, 18, 42, 20),
       xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       yAxis: { ...baseValueYAxis, name: '水位（m）', min: yMin, max: yMax, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      dataZoom: [{ type: 'inside', start: 0, end: 100, minValueSpan: 10 }],
       series: [
-        { name: '当前优化方案', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
+        { name: '优化水位', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
       ],
     }
   } else if (tab === 'discharge') {
@@ -334,9 +335,10 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     return {
       tooltip: { ...baseTooltip },
       title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
-      grid: createGrid(42, 18, 46, 8),
+      grid: createGrid(42, 18, 46, 20),
       xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       yAxis: { ...baseValueYAxis, name: '流量（m³/s）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      dataZoom: [{ type: 'inside', start: 0, end: 100, minValueSpan: 10 }],
       series: [
         { name: '优化下泄流量', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
       ],
@@ -347,9 +349,10 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     return {
       tooltip: { ...baseTooltip },
       title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
-      grid: createGrid(42, 18, 46, 8),
+      grid: createGrid(42, 18, 46, 20),
       xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       yAxis: { ...baseValueYAxis, name: '出力（MW）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      dataZoom: [{ type: 'inside', start: 0, end: 100, minValueSpan: 10 }],
       series: [
         { name: '优化出力', type: 'line', data: r.optimal, smooth: true, symbol: 'none', lineStyle: { width: 2, color: lineColor } },
       ],

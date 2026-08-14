@@ -48,7 +48,7 @@ if strcmp(data_type, 'all')
     % 签名: evaluate_func(x, V, M, eval_extra_args{:})
     [~, results] = evaluate_func(best_x, V, M, eval_extra_args{:});
 
-    n_years = min(10, Y);
+    n_years = Y;
     year_start = Y - n_years + 1;
 
     process_data = struct();
