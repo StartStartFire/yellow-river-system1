@@ -6,7 +6,7 @@
  */
 import type { RadarData } from '@/types/evaluation'
 
-const API_BASE = 'http://127.0.0.1:18080'
+const API_BASE = `http://${window.location.hostname}:18080`
 
 /** POST /run 请求体 */
 export interface RunRequestPayload {

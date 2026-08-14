@@ -105,7 +105,7 @@ const scenarioData = computed(() => getScenarioData(activeScenarioId.value))
 const connectWebSocket = () => {
   if (!jobId.value) return
 
-  const wsUrl = `ws://127.0.0.1:18080/ws/${jobId.value}`
+  const wsUrl = `ws://${window.location.hostname}:18080/ws/${jobId.value}`
   try {
     ws = new WebSocket(wsUrl)
     ws.onopen = () => { status.value = '运行中' }

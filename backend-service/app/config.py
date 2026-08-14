@@ -20,20 +20,15 @@ class Config:
     """
 
     # 服务器
-    host: str = "127.0.0.1"
+    host: str = "0.0.0.0"
     port: int = 18080
 
-    # CORS（允许的前端 origin 列表）
+    # CORS（系统集成阶段允许所有来源，内网调试用）
     cors_origins: list[str] = None  # type: ignore[assignment]
 
     def __post_init__(self) -> None:
         if self.cors_origins is None:
-            self.cors_origins = [
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:3001",
-            ]
+            self.cors_origins = ["*"]
 
     # MATLAB 路径（自动基于项目根目录计算，换机器无需修改）
     @property

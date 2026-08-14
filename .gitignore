@@ -45,7 +45,7 @@ Thumbs.db
 
 # Claude Code personal config
 .claude/
-
+.trae
 # Logs
 logs/
 *.log
