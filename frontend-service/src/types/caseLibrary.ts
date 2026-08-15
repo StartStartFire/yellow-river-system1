@@ -109,8 +109,8 @@ export interface CaseFindingTableRow {
   indicator: string
   /** 优化调度值 */
   optValue: string
-  /** 实际调度值 */
-  actValue: string
+  /** 实际调度值（可选，无对比时可省略） */
+  actValue?: string
 }
 
 /** 历史结果 */
@@ -146,6 +146,8 @@ export interface CaseDetail {
   scoreLevel: string
   createdAt: string
   creator: string
+  /** 方案编号（如 SC-YI-003-2），仅部分案例有 */
+  caseCode?: string
   reservoirs: string[]
   caseType: string[]
   configSummary: CaseConfigSummary

@@ -40,7 +40,14 @@ const act012LiuOut = [952.0, 897.0, 696.0, 745.0, 903.0, 622.0, 548.0, 522.0, 45
 const opt012LiuPower = [682.7, 569.6, 281.7, 486.0, 534.9, 300.1, 334.4, 306.3, 392.6, 743.7, 481.8, 970.0, 871.0, 692.2, 430.4, 534.7, 555.6, 280.4, 394.1, 320.7, 508.8, 706.9, 968.0, 951.4, 763.4, 609.2, 394.5, 584.2, 579.4, 361.6, 327.8, 479.6, 641.4, 732.5, 974.3, 989.2]
 const act012LiuPower = [773.2, 732.6, 589.1, 644.3, 752.7, 503.8, 448.7, 433.0, 387.5, 542.2, 845.6, 636.0, 739.8, 586.8, 485.2, 543.3, 614.1, 412.2, 387.2, 382.4, 290.7, 374.9, 682.6, 493.7, 544.0, 523.0, 412.1, 587.8, 620.1, 498.7, 466.4, 465.7, 440.5, 474.2, 822.6, 710.4]
 
-// ── 页面状态 ──
+// ── SC-YI-016 方案的 24 个月过程数据（1975-07 ~ 1977-06，2年连丰+1年连枯） ──
+const times016 = ["1975-07", "1975-08", "1975-09", "1975-10", "1975-11", "1975-12", "1976-01", "1976-02", "1976-03", "1976-04", "1976-05", "1976-06", "1976-07", "1976-08", "1976-09", "1976-10", "1976-11", "1976-12", "1977-01", "1977-02", "1977-03", "1977-04", "1977-05", "1977-06"]
+const opt016LongLevel = [2574.9, 2579.9, 2583.9, 2592.2, 2595.4, 2592.2, 2591.6, 2588.7, 2585.0, 2582.3, 2580.5, 2580.1, 2582.8, 2588.0, 2593.1, 2593.7, 2591.8, 2588.1, 2586.2, 2582.4, 2576.6, 2575.3, 2574.5, 2575.0]
+const opt016LongOut = [2317.3, 1238.9, 1151.4, 809.1, 381.6, 818.8, 331.0, 732.9, 823.9, 821.5, 889.5, 1195.8, 1151.0, 1232.6, 1120.7, 913.9, 789.2, 800.0, 451.5, 771.8, 1012.2, 795.5, 954.6, 903.4]
+const opt016LongPower = [1147.2, 1195.8, 1192.3, 886.9, 443.8, 935.4, 380.9, 817.4, 893.7, 869.4, 922.9, 1220.7, 1187.2, 1275.3, 1241.9, 1038.7, 895.7, 889.1, 498.3, 822.7, 1031.5, 791.8, 937.4, 887.2]
+const opt016LiuLevel = [1727.6, 1709.4, 1733.9, 1736.3, 1734.3, 1732.2, 1722.2, 1730.9, 1732.5, 1731.7, 1728.2, 1733.1, 1716.9, 1702.5, 1734.5, 1733.7, 1734.4, 1734.4, 1734.3, 1732.1, 1730.9, 1727.1, 1725.3, 1720.3]
+const opt016LiuOut = [2266.0, 2118.7, 667.6, 1161.7, 701.6, 1013.4, 822.9, 372.0, 814.2, 997.6, 1195.4, 1289.6, 2085.5, 2395.0, 628.8, 1231.9, 894.9, 890.4, 526.1, 959.4, 1133.3, 1122.1, 1298.7, 1298.9]
+const opt016LiuPower = [1471.1, 1412.9, 535.7, 1027.7, 628.0, 882.7, 680.4, 310.6, 702.4, 859.5, 1005.9, 1091.7, 1502.1, 1258.9, 497.7, 1078.4, 787.3, 786.3, 469.2, 836.1, 969.0, 936.6, 1050.4, 1015.0]
 export const caseLibraryPageState: ApiResponse<CaseLibraryPageState> = {
   code: 200,
   message: 'success',
@@ -120,6 +127,21 @@ export const caseList: ApiResponse<CaseItem[]> = {
       statusColor: '#00ff88',
       score: 89.5,
       cover: 'drought',
+    },
+    {
+      id: 'case-1975-1977-mixed-001',
+      title: '1975-1977年黄河上游2年连丰+1年连枯混合调度案例',
+      tag: '混合',
+      tagColor: '#b37feb',
+      iconType: 'benefit',
+      reservoirs: ['龙羊峡水库', '刘家峡水库'],
+      caseType: ['连丰', '连枯', '兴利调度'],
+      createdAt: '2025-06-20 10:00:00',
+      summary: '1975-1977年经历2年丰水+1年枯水的混合来水条件，优化调度实现供水保证率100%、春灌期零缺水、弃水量仅3.95亿m³。',
+      status: '已验证',
+      statusColor: '#00ff88',
+      score: 88.0,
+      cover: 'benefit',
     },
     {
       id: 'case-1990-1992-drought-001',
@@ -465,6 +487,99 @@ export const caseDetail: ApiResponse<Record<string, CaseDetail>> = {
     },
 
     // ═══════════════════════════════════════════════════
+    // SC-YI-016：1975-1977年2年连丰+1年连枯混合调度案例
+    // ═══════════════════════════════════════════════════
+    'case-1975-1977-mixed-001': {
+      id: 'case-1975-1977-mixed-001',
+      title: '1975-1977年黄河上游2年连丰+1年连枯混合调度案例',
+      tag: '混合',
+      tagColor: '#b37feb',
+      status: '已验证',
+      statusColor: '#00ff88',
+      score: 88.0,
+      scoreLevel: '良好',
+      createdAt: '2025-06-20 10:00:00',
+      creator: '系统管理员',
+      caseCode: 'SC-YI-016',
+      reservoirs: ['龙羊峡水库', '刘家峡水库'],
+      caseType: ['连丰', '连枯', '兴利调度'],
+
+      configSummary: {
+        period: '1975-07-01 ~ 1977-06-30（ 24个月/2个水文年 ）',
+        reservoirs: '龙羊峡水库、刘家峡水库',
+        objective: '优化发电效益，保障供水安全，适应丰枯交替来水条件',
+        constraints: '发电保证率约束、供水保证率约束、生态流量约束、库容约束、最小出力约束',
+        modelType: '梯级水库多目标优化调度模型',
+        algorithm: 'NSGA-II 多目标遗传算法',
+        population: '200',
+        iterations: '500',
+        modelVersion: 'v2.3.1',
+      },
+
+      metrics: [
+        { name: '总发电量（亿kWh）', value: '436.70', change: '-', changeType: 'success', baseline: '' },
+        { name: '供水保证率', value: '100%', change: '-', changeType: 'success', baseline: '' },
+        { name: '总缺水量（亿m³）', value: '0', change: '-', changeType: 'success', baseline: '' },
+        { name: '总弃水量（亿m³）', value: '3.95', change: '-', changeType: 'success', baseline: '' },
+        { name: '综合满意度（分）', value: '88.0', change: '良好', changeType: 'excellent', baseline: '' },
+      ],
+
+      processCharts: {
+        waterLevel: {
+          title: '水位过程线',
+          unit: 'm',
+          times: times016,
+          series: [
+            { name: '龙羊峡水位', data: opt016LongLevel, color: '#00c8ff' },
+            { name: '刘家峡水位', data: opt016LiuLevel, color: '#ffa940' },
+          ],
+        },
+        outflow: {
+          title: '出库流量过程线',
+          unit: 'm³/s',
+          times: times016,
+          series: [
+            { name: '龙羊峡出库', data: opt016LongOut, color: '#00c8ff' },
+            { name: '刘家峡出库', data: opt016LiuOut, color: '#ffa940' },
+          ],
+        },
+        power: {
+          title: '出力过程线',
+          unit: 'MW',
+          times: times016,
+          series: [
+            { name: '龙羊峡出力', data: opt016LongPower, color: '#00c8ff' },
+            { name: '刘家峡出力', data: opt016LiuPower, color: '#ffa940' },
+          ],
+        },
+      },
+
+      historyResult: {
+        summary: '本案例基于1975-1977年2年丰水+1年枯水的混合来水条件，通过优化调度实现丰水期蓄水、枯水期保供的科学调度策略。优化调度供水保证率达100%，春灌期零缺水，总发电量436.70亿kWh，弃水量仅3.95亿m³，生态保证率100%。',
+        findingsTable: [
+          { dimension: '发电', indicator: '龙-刘凌汛期发电保证率', optValue: '73.33%' },
+          { dimension: '发电', indicator: '龙-刘非凌汛期发电保证率', optValue: '95.24%' },
+          { dimension: '发电', indicator: '总发电量', optValue: '436.70亿kWh' },
+          { dimension: '供水', indicator: '供水保证率', optValue: '100%' },
+          { dimension: '供水', indicator: '总缺水量', optValue: '0亿m³' },
+          { dimension: '供水', indicator: '4-6月春灌期缺水量', optValue: '0亿m³' },
+          { dimension: '供水', indicator: '总弃水量', optValue: '3.95亿m³' },
+          { dimension: '生态', indicator: '生态保证率', optValue: '100%' },
+        ],
+      },
+
+      evaluation: {
+        overall: 88.0,
+        dimensions: [
+          { name: '发电效益', score: 90, weight: 0.3 },
+          { name: '供水保障', score: 95, weight: 0.3 },
+          { name: '生态保障', score: 92, weight: 0.2 },
+          { name: '调度合理性', score: 78, weight: 0.2 },
+        ],
+      },
+    },
+
+    // ═══════════════════════════════════════════════════
     // SC-YI-012：1990-1992年3年连枯保供水调度案例
     // ═══════════════════════════════════════════════════
     'case-1990-1992-drought-001': {
@@ -478,6 +593,7 @@ export const caseDetail: ApiResponse<Record<string, CaseDetail>> = {
       scoreLevel: '良好',
       createdAt: '2025-06-15 10:00:00',
       creator: '系统管理员',
+      caseCode: 'SC-YI-012',
       reservoirs: ['龙羊峡水库', '刘家峡水库'],
       caseType: ['连枯', '保供水'],
 
@@ -576,6 +692,7 @@ export const caseDetail: ApiResponse<Record<string, CaseDetail>> = {
       scoreLevel: '优秀',
       createdAt: '2025-06-10 14:30:00',
       creator: '系统管理员',
+      caseCode: 'SC-YI-003-2',
       reservoirs: ['龙羊峡水库', '刘家峡水库'],
       caseType: ['连丰', '兴利调度'],
 

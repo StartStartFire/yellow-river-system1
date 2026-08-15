@@ -60,6 +60,8 @@ const handleDelete = () => ElMessage.info('删除功能开发中')
 
 /** 判断该行的优化调度值是否优于实际调度 */
 const isBetter = (row: any) => {
+  // 无实际调度时，不做优劣判断
+  if (row.actValue === undefined || row.actValue === null) return false
   // 提取数值进行比较
   const getNum = (s: string) => {
     const m = s.match(/[\d.]+/)
@@ -118,6 +120,12 @@ const groupedFindings = computed(() => {
 const showMetrics = computed(() =>
   props.activeTab === 'config-summary' || props.activeTab === 'history-result'
 )
+
+/** 判断表格是否有实际调度列 */
+const hasActColumn = computed(() => {
+  const table = props.caseData?.historyResult?.findingsTable
+  return table?.some((r: any) => r.actValue !== undefined && r.actValue !== null)
+})
 
 // ── 过程预览子页签 ──
 const processTabs = [
@@ -182,6 +190,7 @@ const processOption = computed<EChartsOption>(() => {
         <div class="detail-info">
           <span>创建时间：{{ caseData.createdAt }}</span>
           <span>创建人：{{ caseData.creator }}</span>
+          <span v-if="caseData.caseCode">方案编号：{{ caseData.caseCode }}</span>
         </div>
       </div>
       <div class="header-actions">
@@ -300,14 +309,14 @@ const processOption = computed<EChartsOption>(() => {
 
           <!-- 关键发现对比表格（优先） -->
           <div v-if="caseData.historyResult.findingsTable" class="findings-table-wrap">
-            <h4 class="findings-title">优化调度 vs 实际调度 关键指标对比</h4>
+            <h4 class="findings-title">{{ hasActColumn ? '优化调度 vs 实际调度 关键指标对比' : '优化调度关键指标' }}</h4>
             <table class="findings-table">
               <thead>
                 <tr>
                   <th class="th-dimension">维度</th>
                   <th class="th-indicator">指标</th>
                   <th class="th-opt">优化调度</th>
-                  <th class="th-act">实际调度</th>
+                  <th v-if="hasActColumn" class="th-act">实际调度</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,7 +325,7 @@ const processOption = computed<EChartsOption>(() => {
                     <td v-if="row.isGroupStart" class="td-dimension" :rowspan="row.rowspan">{{ row.dimension }}</td>
                     <td class="td-indicator">{{ row.indicator }}</td>
                     <td class="td-opt" :class="{ better: isBetter(row) }">{{ row.optValue }}</td>
-                    <td class="td-act">{{ row.actValue }}</td>
+                    <td v-if="hasActColumn" class="td-act">{{ row.actValue }}</td>
                   </tr>
                 </template>
               </tbody>
