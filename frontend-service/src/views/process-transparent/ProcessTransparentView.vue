@@ -27,7 +27,7 @@ const scenarios = [
 const activeScenarioId = ref('current')
 
 // ── 页面状态 ──
-const status = ref('运行中')
+const status = ref('等待任务')
 const progress = ref(0)
 const elapsedSec = ref(0)
 const elapsedTime = computed(() => {
@@ -59,6 +59,7 @@ const statusColor = computed(() => {
   if (status.value === '运行中') return '#00ff88'
   if (status.value === '已完成') return 'var(--tech-blue)'
   if (status.value === '已终止') return '#ff4d4f'
+  if (status.value === '等待任务') return 'var(--tech-text-placeholder)'
   return '#8aa0b8'
 })
 

@@ -67,7 +67,7 @@ defineProps<Props>()
       <div class="card-body">
         <div class="chart-legend-row">
           <BaseChart :option="modelChartOption" class="mini-donut" />
-          <div class="legend-list">
+          <div v-if="modelDist.length > 0" class="legend-list">
             <div v-for="(item, i) in modelDist" :key="item.name" class="legend-item">
               <span class="legend-dot" :style="{ background: SERIES_COLORS[i % SERIES_COLORS.length] }"></span>
               <span class="legend-name">{{ item.name }}</span>
@@ -92,7 +92,7 @@ defineProps<Props>()
       <div class="card-body">
         <div class="chart-legend-row">
           <BaseChart :option="algoChartOption" class="mini-donut" />
-          <div class="legend-list">
+          <div v-if="algoDist.length > 0" class="legend-list">
             <div v-for="(item, i) in algoDist" :key="item.name" class="legend-item">
               <span class="legend-dot" :style="{ background: SERIES_COLORS[i % SERIES_COLORS.length] }"></span>
               <span class="legend-name">{{ item.name }}</span>
@@ -211,13 +211,14 @@ defineProps<Props>()
 .chart-legend-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   height: 100%;
 }
 
 .mini-donut {
-  width: 80px;
-  height: 80px;
+  width: 160px;
+  height: 120px;
   flex-shrink: 0;
 }
 

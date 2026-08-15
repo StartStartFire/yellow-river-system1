@@ -64,12 +64,34 @@ export interface CaseMetric {
   baseline: string
 }
 
-/** 案例过程图（水位/下泄流量/出力 共用同一结构） */
+/** 图表系列定义（用于多系列对比图表） */
+export interface ChartSeries {
+  name: string
+  data: number[]
+  color: string
+  dashed?: boolean
+}
+
+/** 案例过程图（水位/下泄流量/出力 共用同一结构）
+ *
+ * 支持单系列、双系列对比、或多系列（多条线）展示。
+ * - 单系列：使用 data
+ * - 双系列（优化 vs 实际对比）：同时使用 data + compareData
+ * - 多系列（如龙羊峡+刘家峡的优化vs实际共4条线）：使用 series[]
+ */
 export interface CaseProcessChart {
   title: string
   unit: string
   times: string[]
   data: number[]
+  /** 对比系列数据（可选，用于优化 vs 实际对比展示） */
+  compareData?: number[]
+  /** 主系列名称（如 "优化调度"） */
+  legendName?: string
+  /** 对比系列名称（如 "实际调度"） */
+  compareName?: string
+  /** 多系列数据（优先于单系列/双系列） */
+  series?: ChartSeries[]
 }
 
 /** 案例过程图集合 */
@@ -79,10 +101,24 @@ export interface CaseProcessCharts {
   power: CaseProcessChart
 }
 
+/** 关键发现表格行（优化 vs 实际对比） */
+export interface CaseFindingTableRow {
+  /** 维度分类：发电 / 供水 / 输沙 / 生态 */
+  dimension: string
+  /** 具体指标名称 */
+  indicator: string
+  /** 优化调度值 */
+  optValue: string
+  /** 实际调度值 */
+  actValue: string
+}
+
 /** 历史结果 */
 export interface CaseHistoryResult {
   summary: string
   keyFindings: string[]
+  /** 关键发现对比表格（可选，优先于 keyFindings 列表展示） */
+  findingsTable?: CaseFindingTableRow[]
 }
 
 /** 评价维度 */

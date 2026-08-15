@@ -9,7 +9,7 @@
  * 业务事件通过 emits 抛给父组件处理：
  * favorite / export / view-report / compare / reproduce / tab-change
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { EChartsOption } from 'echarts'
 import { ElMessage } from 'element-plus'
 import BaseChart from '@/components/chart/BaseChart.vue'
@@ -58,91 +58,108 @@ const handleRename = () => ElMessage.info('重命名功能开发中')
 const handleCopy = () => ElMessage.info('复制案例功能开发中')
 const handleDelete = () => ElMessage.info('删除功能开发中')
 
+/** 判断该行的优化调度值是否优于实际调度 */
+const isBetter = (row: any) => {
+  // 提取数值进行比较
+  const getNum = (s: string) => {
+    const m = s.match(/[\d.]+/)
+    return m ? parseFloat(m[0]) : NaN
+  }
+  const optNum = getNum(row.optValue)
+  const actNum = getNum(row.actValue)
+  const hasNum = !isNaN(optNum) && !isNaN(actNum)
+
+  // 供水保证率、生态保证率、非凌汛期保证率等越高越好
+  if (row.indicator.includes('保证率') || row.indicator.includes('生态')) {
+    if (hasNum) return optNum >= actNum
+    return true
+  }
+  // 缺水量、弃水量、偏离度等越低越好
+  if (row.indicator.includes('缺水') || row.indicator.includes('弃水') || row.indicator.includes('偏离')) {
+    if (hasNum) return optNum <= actNum
+    return true
+  }
+  // 总发电量：高为好（优化调度可能更高也可能略低）
+  if (row.indicator === '总发电量') {
+    if (hasNum) return optNum >= actNum
+    return false
+  }
+  // 凌汛期保证率：优化调度可能高也可能低，比数值大小
+  if (row.indicator.includes('凌汛期')) {
+    if (hasNum) return optNum >= actNum
+    return false
+  }
+  // 相等时都算好
+  if (row.optValue === row.actValue) return true
+  return false
+}
+
+/** 对 findingsTable 按维度分组，为单元格合并准备 rowspan 信息 */
+const groupedFindings = computed(() => {
+  const table = props.caseData?.historyResult?.findingsTable
+  if (!table || !table.length) return []
+  const result: any[] = []
+  let i = 0
+  while (i < table.length) {
+    const dim = table[i].dimension
+    let count = 1
+    while (i + count < table.length && table[i + count].dimension === dim) {
+      count++
+    }
+    result.push({ ...table[i], rowspan: count, isGroupStart: true })
+    for (let j = 1; j < count; j++) {
+      result.push({ ...table[i + j], rowspan: 0, isGroupStart: false })
+    }
+    i += count
+  }
+  return result
+})
+
 const showMetrics = computed(() =>
   props.activeTab === 'config-summary' || props.activeTab === 'history-result'
 )
 
-const waterLevelOption = computed<EChartsOption>(() => {
-  if (!props.caseData) return {}
-  const data = props.caseData.processCharts.waterLevel
-  const color = TECH_CYAN
-  return {
-    backgroundColor: 'transparent',
-    title: {
-      text: data.title,
-      textStyle: { color: TEXT_PRIMARY, fontSize: 12, fontWeight: 500 },
-      left: 0, top: 0,
-    },
-    grid: createGrid(35, 25, 50, 15),
-    tooltip: { ...baseTooltip },
-    xAxis: { ...baseCategoryXAxis, data: data.times },
-    yAxis: { ...baseValueYAxis, name: data.unit },
-    series: [{
-      type: 'line',
-      smooth: true,
-      symbol: 'circle',
-      symbolSize: 6,
-      data: data.data,
-      lineStyle: { color, width: 2 },
-      itemStyle: { color },
-      areaStyle: createAreaGradient(color, 0.3, 0),
-    }],
-  }
-})
+// ── 过程预览子页签 ──
+const processTabs = [
+  { key: 'waterLevel', label: '水位' },
+  { key: 'outflow', label: '出库流量' },
+  { key: 'power', label: '出力' },
+]
+const activeProcessTab = ref('waterLevel')
 
-const outflowOption = computed<EChartsOption>(() => {
+const processOption = computed<EChartsOption>(() => {
   if (!props.caseData) return {}
-  const data = props.caseData.processCharts.outflow
-  const color = '#00ff88'
-  return {
-    backgroundColor: 'transparent',
-    title: {
-      text: data.title,
-      textStyle: { color: TEXT_PRIMARY, fontSize: 12, fontWeight: 500 },
-      left: 0, top: 0,
-    },
-    grid: createGrid(35, 25, 50, 15),
-    tooltip: { ...baseTooltip },
-    xAxis: { ...baseCategoryXAxis, data: data.times },
-    yAxis: { ...baseValueYAxis, name: data.unit },
-    series: [{
-      type: 'line',
-      smooth: true,
-      symbol: 'circle',
-      symbolSize: 6,
-      data: data.data,
-      lineStyle: { color, width: 2 },
-      itemStyle: { color },
-      areaStyle: createAreaGradient(color, 0.3, 0),
-    }],
-  }
-})
+  const chartKey = activeProcessTab.value as 'waterLevel' | 'outflow' | 'power'
+  const data = props.caseData.processCharts[chartKey]
+  if (!data || !data.series || !data.series.length) return {}
 
-const powerOption = computed<EChartsOption>(() => {
-  if (!props.caseData) return {}
-  const data = props.caseData.processCharts.power
-  const color = '#b37feb'
+  const seriesList: any[] = data.series.map((s: any) => ({
+    name: s.name,
+    type: 'line',
+    smooth: true,
+    symbol: 'none',
+    data: s.data,
+    lineStyle: { color: s.color, width: 2, type: s.dashed ? 'dashed' : 'solid' },
+    itemStyle: { color: s.color },
+  }))
+
   return {
     backgroundColor: 'transparent',
     title: {
       text: data.title,
-      textStyle: { color: TEXT_PRIMARY, fontSize: 12, fontWeight: 500 },
+      textStyle: { color: TEXT_PRIMARY, fontSize: 13, fontWeight: 500 },
       left: 0, top: 0,
     },
-    grid: createGrid(35, 25, 50, 15),
-    tooltip: { ...baseTooltip },
-    xAxis: { ...baseCategoryXAxis, data: data.times },
+    grid: createGrid(35, 25, 60, 15),
+    tooltip: { ...baseTooltip, trigger: 'axis' },
+    legend: {
+      data: data.series.map((s: any) => s.name),
+      textStyle: { color: TEXT_PRIMARY, fontSize: 10 },
+      top: 0, right: 0,
+    },
+    xAxis: { ...baseCategoryXAxis, data: data.times, axisLabel: { interval: 5, rotate: 0, color: TEXT_PRIMARY, fontSize: 10 } },
     yAxis: { ...baseValueYAxis, name: data.unit },
-    series: [{
-      type: 'line',
-      smooth: true,
-      symbol: 'circle',
-      symbolSize: 6,
-      data: data.data,
-      lineStyle: { color, width: 2 },
-      itemStyle: { color },
-      areaStyle: createAreaGradient(color, 0.3, 0),
-    }],
+    series: seriesList,
   }
 })
 </script>
@@ -280,7 +297,34 @@ const powerOption = computed<EChartsOption>(() => {
       <div v-if="activeTab === 'history-result'" class="tab-content">
         <div class="result-summary">
           <p class="summary-text">{{ caseData.historyResult.summary }}</p>
-          <div class="key-findings">
+
+          <!-- 关键发现对比表格（优先） -->
+          <div v-if="caseData.historyResult.findingsTable" class="findings-table-wrap">
+            <h4 class="findings-title">优化调度 vs 实际调度 关键指标对比</h4>
+            <table class="findings-table">
+              <thead>
+                <tr>
+                  <th class="th-dimension">维度</th>
+                  <th class="th-indicator">指标</th>
+                  <th class="th-opt">优化调度</th>
+                  <th class="th-act">实际调度</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="(row, idx) in groupedFindings" :key="idx">
+                  <tr>
+                    <td v-if="row.isGroupStart" class="td-dimension" :rowspan="row.rowspan">{{ row.dimension }}</td>
+                    <td class="td-indicator">{{ row.indicator }}</td>
+                    <td class="td-opt" :class="{ better: isBetter(row) }">{{ row.optValue }}</td>
+                    <td class="td-act">{{ row.actValue }}</td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 关键发现列表（降级方案） -->
+          <div v-else class="key-findings">
             <h4 class="findings-title">关键发现</h4>
             <ul class="findings-list">
               <li v-for="(finding, index) in caseData.historyResult.keyFindings" :key="index">
@@ -296,22 +340,19 @@ const powerOption = computed<EChartsOption>(() => {
 
       <!-- 过程预览 -->
       <div v-if="activeTab === 'process-preview'" class="tab-content">
-        <div class="preview-charts">
-          <div class="chart-box">
-            <div class="chart-container">
-              <BaseChart :option="waterLevelOption" />
-            </div>
-          </div>
-          <div class="chart-box">
-            <div class="chart-container">
-              <BaseChart :option="outflowOption" />
-            </div>
-          </div>
-          <div class="chart-box">
-            <div class="chart-container">
-              <BaseChart :option="powerOption" />
-            </div>
-          </div>
+        <div class="preview-tabs">
+          <button
+            v-for="tab in processTabs"
+            :key="tab.key"
+            class="preview-tab-btn"
+            :class="{ active: activeProcessTab === tab.key }"
+            @click="activeProcessTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+        <div class="preview-chart-box">
+          <BaseChart :option="processOption" />
         </div>
       </div>
 
@@ -574,19 +615,90 @@ const powerOption = computed<EChartsOption>(() => {
   margin: 0;
 }
 
-.key-findings {
+/* 关键发现对比表格 */
+.findings-table-wrap {
   background: transparent;
-  border: none;
-  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
-  border-radius: 0;
-  padding: 12px;
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.12);
+  border-radius: 6px;
+  padding: 10px 12px;
 }
 
 .findings-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--tech-cyan);
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
+}
+
+.findings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+}
+
+.findings-table thead th {
+  background: rgba(var(--tech-blue-rgb), 0.08);
+  color: var(--tech-text-secondary);
+  font-weight: 500;
+  padding: 6px 4px;
+  text-align: center;
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.15);
+}
+
+.findings-table tbody td {
+  padding: 5px 4px;
+  color: var(--tech-text-primary);
+  text-align: center;
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.06);
+}
+
+.findings-table tbody tr:hover {
+  background: rgba(var(--tech-blue-rgb), 0.03);
+}
+
+.th-dimension { width: 36px; }
+.th-indicator { width: 40%; }
+.th-opt { width: 80px; }
+.th-act { width: 80px; }
+
+.td-dimension {
+  color: var(--tech-text-secondary) !important;
+  font-size: 12px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.td-indicator {
+  font-size: 12px;
+  text-align: center !important;
+  word-break: break-word;
+}
+
+.td-opt {
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.td-opt.better {
+  color: #00ff88;
+}
+
+.td-act {
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--tech-text-secondary);
+}
+
+/* 关键发现列表（降级方案） */
+.key-findings {
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(var(--tech-blue-rgb), 0.1);
+  border-radius: 0;
+  padding: 12px;
 }
 
 .findings-list {
@@ -612,25 +724,37 @@ const powerOption = computed<EChartsOption>(() => {
 }
 
 /* 过程预览 */
-.preview-charts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  height: 100%;
-  min-height: 280px;
+.preview-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(var(--tech-blue-rgb), 0.1);
 }
 
-.chart-box {
+.preview-tab-btn {
+  padding: 6px 20px;
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(var(--tech-blue-rgb), 0.08);
-  border-radius: 0;
-  padding: 12px;
+  border-bottom: 2px solid transparent;
+  color: var(--tech-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.chart-container {
+.preview-tab-btn:hover {
+  color: var(--tech-text-primary);
+}
+
+.preview-tab-btn.active {
+  color: var(--tech-cyan);
+  border-bottom-color: rgba(var(--tech-cyan-rgb), 0.6);
+}
+
+.preview-chart-box {
   width: 100%;
-  height: 250px;
+  height: 340px;
+  padding: 4px 0;
 }
 
 /* 评价结论 */

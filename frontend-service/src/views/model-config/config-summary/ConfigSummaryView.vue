@@ -58,6 +58,21 @@ const totalCount = computed(() => plansList.value.length)
 /** 总页数 */
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value) || 1)
 
+/** 预估运行时间（基于种群大小 × 迭代次数） */
+const estimatedTime = computed(() => {
+  const pop = store.modelAlgorithm.parameters.populationSize || 15
+  const iter = store.modelAlgorithm.parameters.iterationCount || 30
+  // 基准：pop=15, iter=30 → 约 4 秒
+  const basePop = 15
+  const baseIter = 30
+  const baseSeconds = 4
+  const sec = Math.round(baseSeconds * (pop / basePop) * (iter / baseIter))
+  if (sec < 60) return `${sec} 秒`
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m} 分 ${s} 秒`
+})
+
 function buildPlanList(): ConfigPlan[] {
   const current: ConfigPlan = {
     id: 'current-plan',
@@ -83,17 +98,41 @@ function updatePageData() {
   currentPagePlans.value = filtered.slice(start, start + pageSize.value)
 }
 
-watch([plansList, currentPage, pageSize, searchQuery], updatePageData, { immediate: true })
+watch([plansList, currentPage, pageSize, searchQuery], updatePageData, { immediate: true, deep: true })
 
 // ==================== 图表 ====================
 
+
 const modelChartOption = computed(() => ({
-  tooltip: { ...baseItemTooltip, formatter: (params: any) => `${params.name}<br/>数量: ${params.value}个 (${params.percent}%)` },
+  tooltip: {
+    ...baseItemTooltip,
+    confine: true,
+    formatter: (p: any) => `${p.name}<br/>数量: ${p.value}个`,
+  },
   series: [{
-    type: 'pie', radius: ['45%', '70%'], center: ['35%', '50%'],
-    avoidLabelOverlap: false, padAngle: 2, itemStyle: { borderRadius: 4 },
-    label: { show: false },
-    emphasis: { label: { show: true, fontSize: 13, fontWeight: 'bold', color: TEXT_PRIMARY } },
+    type: 'pie',
+    radius: ['55%', '82%'],
+    center: ['40%', '50%'],
+    padAngle: 2,
+    itemStyle: { borderRadius: 4 },
+    label: {
+      show: true,
+      position: 'outside',
+      formatter: (p) => p.name + ' ' + p.percent + '%',
+      color: '#8aa0b8',
+      fontSize: 10,
+      lineHeight: 15,
+    },
+    labelLine: {
+      show: true,
+      length: 6,
+      length2: 6,
+    },
+    emphasis: {
+      label: { show: true, fontSize: 12, fontWeight: 'bold', color: TEXT_PRIMARY },
+      scale: false,
+      itemStyle: { color: SERIES_COLORS[0] },
+    },
     data: [{
       value: selectedCount.value || 1,
       name: modelLabelMap[store.modelAlgorithm.selectedModel] || store.modelAlgorithm.selectedModel,
@@ -103,12 +142,35 @@ const modelChartOption = computed(() => ({
 }))
 
 const algoChartOption = computed(() => ({
-  tooltip: { ...baseItemTooltip, formatter: (params: any) => `${params.name}<br/>数量: ${params.value}个 (${params.percent}%)` },
+  tooltip: {
+    ...baseItemTooltip,
+    confine: true,
+    formatter: (p: any) => `${p.name}<br/>数量: ${p.value}个`,
+  },
   series: [{
-    type: 'pie', radius: ['45%', '70%'], center: ['35%', '50%'],
-    avoidLabelOverlap: false, padAngle: 2, itemStyle: { borderRadius: 4 },
-    label: { show: false },
-    emphasis: { label: { show: true, fontSize: 13, fontWeight: 'bold', color: TEXT_PRIMARY } },
+    type: 'pie',
+    radius: ['55%', '82%'],
+    center: ['40%', '50%'],
+    padAngle: 2,
+    itemStyle: { borderRadius: 4 },
+    label: {
+      show: true,
+      position: 'outside',
+      formatter: (p) => p.name + ' ' + p.percent + '%',
+      color: '#8aa0b8',
+      fontSize: 10,
+      lineHeight: 15,
+    },
+    labelLine: {
+      show: true,
+      length: 6,
+      length2: 6,
+    },
+    emphasis: {
+      label: { show: true, fontSize: 12, fontWeight: 'bold', color: TEXT_PRIMARY },
+      scale: false,
+      itemStyle: { color: SERIES_COLORS[1] },
+    },
     data: [{
       value: selectedCount.value || 1,
       name: algorithmLabelMap[store.modelAlgorithm.selectedAlgorithm] || store.modelAlgorithm.selectedAlgorithm,
@@ -219,6 +281,9 @@ const handleAdd = () => {
   }
   plansList.value.forEach((p, i) => { p.index = i + 2 })
   plansList.value.unshift(newPlan)
+  selectedRowIds.value.add(newPlan.id)
+  selectedRowIds.value = new Set(selectedRowIds.value)
+  updatePageData()
   ElMessage.success(`已新增方案「${newPlan.name}」`)
 }
 
@@ -229,6 +294,8 @@ const handleEdit = () => { ElMessage.info('编辑功能开发中') }
 const handleCopy = (plan: ConfigPlan) => {
   const newPlan: ConfigPlan = { ...plan, id: `plan-copy-${Date.now()}`, index: plansList.value.length + 1, name: `${plan.name}_副本`, selected: false }
   plansList.value.unshift(newPlan)
+  selectedRowIds.value = new Set(selectedRowIds.value)
+  updatePageData()
   ElMessage.success(`已复制方案「${plan.name}」`)
 }
 
@@ -237,6 +304,8 @@ const handleDelete = (plan: ConfigPlan) => { detailPlan.value = plan; deleteDial
 const confirmDelete = () => {
   if (detailPlan.value) {
     plansList.value = plansList.value.filter(p => p.id !== detailPlan.value!.id)
+    selectedRowIds.value.delete(detailPlan.value.id)
+    selectedRowIds.value = new Set(selectedRowIds.value)
     ElMessage.success(`已删除方案「${detailPlan.value.name}」`)
   }
   deleteDialogVisible.value = false; detailPlan.value = null
@@ -291,7 +360,7 @@ void handleSave
       />
 
       <ConfigInfoPanel
-        :estimated-time="'--:--:--'"
+        :estimated-time="estimatedTime"
         :total-count="totalCount"
         :plan-count="totalCount"
         :model-chart-option="modelChartOption"

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { ConfigPlan } from '@/types/model'
 import { useModelConfigStore } from '@/stores/modelConfig'
+import { modelLabelMap, algorithmLabelMap } from '@/mock/model-config/linkage'
 
 type Store = ReturnType<typeof useModelConfigStore>
 
@@ -34,6 +35,22 @@ const reservoirGroupName = computed(() => {
   return map[groupId] || groupId || '龙刘组合'
 })
 
+const scenarioCategoryName = computed(() => {
+  const map: Record<string, string> = {
+    'multi-year': '多年调节',
+    'critical-period': '枯水期',
+    'realtime': '实时调度',
+  }
+  return map[props.store.dispatchScenario.categoryId] || props.store.dispatchScenario.categoryId || '—'
+})
+
+const scenarioSubOptionName = computed(() => {
+  const map: Record<string, string> = {
+    'multi-objective': '多目标调度',
+  }
+  return map[props.store.dispatchScenario.subOptionId] || props.store.dispatchScenario.subOptionId || '—'
+})
+
 const scenarioParamLabels: Record<string, Record<string, string>> = {
   westRoute: { none: '无', upper: '上线', lower: '下线', both: '上下线同引', all: '上线+下线' },
   backboneStatus: { normal: '正常运行', limited: '限制运行', maintenance: '检修停运', emergency: '应急运行' },
@@ -42,8 +59,18 @@ const scenarioParamLabels: Record<string, Record<string, string>> = {
 
 const scenarioParamLabel = (key: string) => {
   const value = props.store.scenarioConstraint.params[key]
-  return scenarioParamLabels[key]?.[value] || value
+  return scenarioParamLabels[key]?.[value] || value || '—'
 }
+
+const modelDisplay = computed(() => {
+  const id = props.store.modelAlgorithm.selectedModel
+  return modelLabelMap[id] || id
+})
+
+const algorithmDisplay = computed(() => {
+  const id = props.store.modelAlgorithm.selectedAlgorithm
+  return algorithmLabelMap[id] || id
+})
 </script>
 
 <template>
@@ -56,39 +83,42 @@ const scenarioParamLabel = (key: string) => {
   >
     <div class="summary-body">
 
-      <!-- Step 1: 调度数据 -->
+      <!-- Step 1: 调度场景 -->
       <div class="summary-section">
         <div class="summary-section-header">
           <div class="step-badge">1</div>
-          <span class="summary-section-title">调度数据</span>
+          <span class="summary-section-title">调度场景</span>
         </div>
         <div class="summary-fields">
           <el-descriptions :column="2" size="small" border class="dark-descriptions">
-            <el-descriptions-item label="时间范围">
-              {{ store.modelData.dateRange[0] }} ~ {{ store.modelData.dateRange[1] }}
+            <el-descriptions-item label="场景大类">
+              {{ scenarioCategoryName }}
             </el-descriptions-item>
-            <el-descriptions-item label="数据项数">
-              {{ store.modelData.selectedDataIds.length || 7 }} 项
+            <el-descriptions-item label="调度目标">
+              {{ scenarioSubOptionName }}
+            </el-descriptions-item>
+            <el-descriptions-item label="方案名称" :span="2">
+              {{ store.dispatchScenario.scenarioName || '（未命名）' }}
             </el-descriptions-item>
           </el-descriptions>
         </div>
       </div>
 
-      <!-- Step 2: 基础配置 -->
+      <!-- Step 2: 调度主体 -->
       <div class="summary-section">
         <div class="summary-section-header">
           <div class="step-badge">2</div>
-          <span class="summary-section-title">基础配置</span>
+          <span class="summary-section-title">调度主体</span>
         </div>
         <div class="summary-fields">
           <el-descriptions :column="2" size="small" border class="dark-descriptions">
-            <el-descriptions-item label="方案名称">
-              {{ store.dispatchScenario.scenarioName || '（未命名）' }}
+            <el-descriptions-item label="调度周期">
+              {{ store.dispatchSubject.startTime || '?' }} ~ {{ store.dispatchSubject.endTime || '?' }}
             </el-descriptions-item>
             <el-descriptions-item label="水库组合">
               {{ reservoirGroupName }}
             </el-descriptions-item>
-            <el-descriptions-item label="调度周期">
+            <el-descriptions-item label="时段划分">
               {{ store.dispatchSubject.timeStep }}
             </el-descriptions-item>
             <el-descriptions-item label="调度频率">
@@ -98,34 +128,61 @@ const scenarioParamLabel = (key: string) => {
         </div>
       </div>
 
-      <!-- Step 3: 模型算法 -->
+      <!-- Step 3: 调度数据 -->
       <div class="summary-section">
         <div class="summary-section-header">
           <div class="step-badge">3</div>
-          <span class="summary-section-title">模型算法</span>
+          <span class="summary-section-title">调度数据</span>
         </div>
         <div class="summary-fields">
           <el-descriptions :column="2" size="small" border class="dark-descriptions">
-            <el-descriptions-item label="调度模型">
-              {{ store.modelAlgorithm.selectedModel }}
+            <el-descriptions-item label="数据时间范围">
+              {{ store.modelData.dateRange[0] }} ~ {{ store.modelData.dateRange[1] }}
             </el-descriptions-item>
-            <el-descriptions-item label="优化算法">
-              {{ store.modelAlgorithm.selectedAlgorithm }}
-            </el-descriptions-item>
-            <el-descriptions-item label="参数摘要" :span="2">
-              种群: {{ store.modelAlgorithm.parameters.populationSize }} |
-              迭代: {{ store.modelAlgorithm.parameters.iterationCount }} |
-              交叉: {{ store.modelAlgorithm.parameters.crossoverRate }} |
-              变异: {{ store.modelAlgorithm.parameters.mutationRate }}
+            <el-descriptions-item label="数据项数">
+              {{ store.modelData.selectedDataIds.length || 7 }} 项
             </el-descriptions-item>
           </el-descriptions>
         </div>
       </div>
 
-      <!-- Step 4: 场景约束 -->
+      <!-- Step 4: 模型算法 -->
       <div class="summary-section">
         <div class="summary-section-header">
           <div class="step-badge">4</div>
+          <span class="summary-section-title">模型算法</span>
+        </div>
+        <div class="summary-fields">
+          <el-descriptions :column="2" size="small" border class="dark-descriptions">
+            <el-descriptions-item label="调度模型">
+              {{ modelDisplay }}
+            </el-descriptions-item>
+            <el-descriptions-item label="优化算法">
+              {{ algorithmDisplay }}
+            </el-descriptions-item>
+            <el-descriptions-item label="目标函数" :span="2">
+              {{ store.modelAlgorithm.selectedObjectives.join('、') || '—' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="种群规模">
+              {{ store.modelAlgorithm.parameters.populationSize || '—' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="迭代次数">
+              {{ store.modelAlgorithm.parameters.iterationCount || '—' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="交叉率">
+              {{ store.modelAlgorithm.parameters.crossoverRate || '—' }}
+            </el-descriptions-item>
+            <el-descriptions-item v-if="store.modelAlgorithm.selectedAlgorithm === 'paem'" label="变异参数 K_mut">
+              {{ store.modelAlgorithm.parameters.kMut || '—' }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+      </div>
+
+      <!-- Step 5: 场景约束 -->
+      <div class="summary-section">
+        <div class="summary-section-header">
+          <div class="step-badge">5</div>
           <span class="summary-section-title">场景约束</span>
         </div>
         <div class="summary-fields">
@@ -136,11 +193,8 @@ const scenarioParamLabel = (key: string) => {
             <el-descriptions-item label="西线调水">
               {{ scenarioParamLabel('westRoute') }}
             </el-descriptions-item>
-            <el-descriptions-item label="骨干工程">
-              {{ scenarioParamLabel('backboneStatus') }}
-            </el-descriptions-item>
-            <el-descriptions-item label="生态流量">
-              {{ scenarioParamLabel('ecologicalFlow') }}
+            <el-descriptions-item label="来沙界限流量">
+              {{ store.scenarioConstraint.params.sedimentFlow || '—' }} m³/s
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -166,7 +220,7 @@ const scenarioParamLabel = (key: string) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 480px;
+  max-height: 520px;
   overflow-y: auto;
   padding-right: 4px;
 }
