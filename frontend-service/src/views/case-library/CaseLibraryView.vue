@@ -22,7 +22,7 @@ import { caseList, caseDetail } from '@/mock/caseLibrary'
 
 const router = useRouter()
 
-const selectedCaseId = ref('case-2024-flood-001')
+const selectedCaseId = ref('case-1975-1977-mixed-001')
 const activeTab = ref('config-summary')
 const isFavorited = ref(false)
 
