@@ -40,6 +40,7 @@ class TaskResult:
     message: str = ""
     chromosome: list = field(default_factory=list)
     evaluating: list = field(default_factory=list)  # 22项评价指标矩阵
+    plan_details: list = field(default_factory=list)  # 每个种群个体的决策分析明细
     completed_at: str = ""
 
 

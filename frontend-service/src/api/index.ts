@@ -140,3 +140,75 @@ export async function getEvaluateResult(jobId: string): Promise<EvaluateCacheRes
   if (!res.ok) throw new Error(`获取评价结果失败 (${res.status})`)
   return res.json()
 }
+
+// ─── 决策分析方案明细 ────────────────────────────────────
+
+/** 目标满足度（0~100） */
+export interface DecisionPlanTargets {
+  power: number
+  ecology: number
+  irrigation: number
+  domestic: number
+  spill: number
+  sediment: number
+}
+
+/** 水量分配（亿m³） */
+export interface DecisionPlanWaterUsage {
+  power: number
+  ecology: number
+  irrigation: number
+  domestic: number
+  spill: number
+  sediment: number
+}
+
+/** 单个方案的决策明细 */
+export interface DecisionPlanDetail {
+  /** 种群个体索引（1 起） */
+  index: number
+  /** 展示名（方案N，与评价排名一致） */
+  label?: string
+  /** 目标函数值（缺水量/发电量/协同度） */
+  objectives: number[]
+  /** 龙羊峡水位过程（20Y 时段） */
+  level_long: number[]
+  /** 刘家峡水位过程 */
+  level_liu: number[]
+  /** 龙羊峡出库流量过程（m³/s） */
+  qout_long: number[]
+  /** 刘家峡出库流量过程 */
+  qout_liu: number[]
+  /** 龙羊峡出力过程（万kW） */
+  power_long: number[]
+  /** 刘家峡出力过程（万kW） */
+  power_liu: number[]
+  targets: DecisionPlanTargets
+  water_usage: DecisionPlanWaterUsage
+  coordination?: Record<string, number>
+}
+
+/** GET /decision/{job_id} 响应 */
+export interface DecisionPlansResponse {
+  job_id: string
+  status: string
+  algorithm: string
+  evaluated: boolean
+  year_start: number | null
+  year_end: number | null
+  plans: DecisionPlanDetail[]
+  message: string | null
+}
+
+/**
+ * 获取决策分析方案明细
+ * GET /decision/{job_id}
+ */
+export async function getDecisionPlans(jobId: string): Promise<DecisionPlansResponse> {
+  const res = await fetch(`${API_BASE}/decision/${jobId}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail || `获取决策方案失败 (${res.status})`)
+  }
+  return res.json()
+}

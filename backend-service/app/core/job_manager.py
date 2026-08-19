@@ -117,9 +117,15 @@ class JobManager:
                 # 通过 executor 接口执行（Step 2 使用 MockExecutor）
                 result = await self._executor.run(record.config)
 
-                # running → completed
-                record.status = "completed"
-                record.message = result.message or "任务完成"
+                # running → completed / failed（executor 内部捕获异常后
+                # 返回 success=False，此时任务实际已失败，不能标记为 completed，
+                # 否则下游（评价/决策接口）会误判为有效结果）
+                if result.success:
+                    record.status = "completed"
+                    record.message = result.message or "任务完成"
+                else:
+                    record.status = "failed"
+                    record.message = result.message or "任务失败"
                 record.progress_percent = 100.0
                 record.completed_at = (
                     result.completed_at

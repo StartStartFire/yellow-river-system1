@@ -119,16 +119,58 @@ fclose(log_fid);
 
 
 %% 评价指标矩阵（基于精确评价的染色体）
+% 同时保存每个个体的决策分析明细（过程曲线/目标满足度/水量分配）
+% 注意：MATLAB Engine 只能返回标量结构体，故 plan_details 打包为标量结构体（字段为 pop×n 矩阵）
 evaluating_matrix = zeros(pop, 22);
-for i = 1:pop
+objectives_mat = zeros(pop, M);
+level_long_mat = zeros(pop, V/2);
+level_liu_mat = zeros(pop, V/2);
+qout_long_mat = zeros(pop, V/2);
+qout_liu_mat = zeros(pop, V/2);
+power_long_mat = zeros(pop, V/2);
+power_liu_mat = zeros(pop, V/2);
+targets_mat = zeros(pop, 6);
+water_usage_mat = zeros(pop, 6);
+coordination_mat = zeros(pop, 4);
+for i=1:pop
     [~, info] = evaluate_objective_save_info(chromosome_acc(i, 1:V), V, M, Q_sediment);
     evaluating_matrix(i, :) = info.evaluating;
+    objectives_mat(i, :) = reshape(info.objectives, 1, []);
+    level_long_mat(i, :) = reshape(info.individual(1:V/2), 1, []);
+    level_liu_mat(i, :) = reshape(info.individual(V/2+1:V), 1, []);
+    qout_long_mat(i, :) = reshape(info.Long.Qout', 1, []);
+    qout_liu_mat(i, :) = reshape(info.Liu.Qout', 1, []);
+    power_long_mat(i, :) = reshape(info.N.Ntii_long', 1, []);
+    power_liu_mat(i, :) = reshape(info.N.Ntii_liu', 1, []);
+    targets_mat(i, :) = [info.targets.power, info.targets.ecology, info.targets.irrigation, ...
+        info.targets.domestic, info.targets.spill, info.targets.sediment];
+    water_usage_mat(i, :) = [info.water_usage.power, info.water_usage.ecology, info.water_usage.irrigation, ...
+        info.water_usage.domestic, info.water_usage.spill, info.water_usage.sediment];
+    coordination_mat(i, :) = [info.coordination.h_water, info.coordination.h_ele, ...
+        info.coordination.h_sed, info.coordination.h_eco];
 end
+
+% 决策分析明细（标量结构体，字段为矩阵，兼容 MATLAB Engine 返回值转换）
+plan_details = struct();
+plan_details.index = (1:pop)';
+plan_details.objectives = objectives_mat;
+plan_details.level_long = level_long_mat;
+plan_details.level_liu = level_liu_mat;
+plan_details.qout_long = qout_long_mat;
+plan_details.qout_liu = qout_liu_mat;
+plan_details.power_long = power_long_mat;
+plan_details.power_liu = power_liu_mat;
+% targets/water_usage 列顺序: [power, ecology, irrigation, domestic, spill, sediment]
+plan_details.targets = targets_mat;
+plan_details.water_usage = water_usage_mat;
+% coordination 列顺序: [h_water, h_ele, h_sed, h_eco]
+plan_details.coordination = coordination_mat;
 
 %% 标量结构体返回值
 output = struct();
 output.chromosome_acc = chromosome_acc;
 output.evaluating = evaluating_matrix;
+output.plan_details = plan_details;
 
 % 比较近似评价和精确评价的差异
 A = chromosome(:, V+1:V+M);

@@ -334,8 +334,39 @@ export function buildParetoOption(data: any, _selectedPlanLabels: string[]): ech
 
 // ==================== 决策分析-过程曲线 ====================
 
+/** 空状态 option（无真实数据时占位） */
+function buildDecisionEmptyOption(title: string): echarts.EChartsOption {
+  return {
+    title: {
+      text: title,
+      right: 12,
+      top: 2,
+      textStyle: { color: TEXT_SECONDARY, fontSize: 13, fontWeight: 600 },
+    },
+    graphic: {
+      type: 'text' as const,
+      left: 'center',
+      top: 'middle',
+      style: {
+        text: '暂无数据\n请先运行优化任务',
+        fill: TEXT_PLACEHOLDER,
+        fontSize: 13,
+        textAlign: 'center' as const,
+      },
+    },
+  }
+}
+
 /** 构建决策分析过程曲线 option（根据 tab 切换水位/流量/出力） */
 export function buildProcessOption(data: any, tab: string): echarts.EChartsOption {
+  const titles: Record<string, string> = {
+    water: '水位变化过程线',
+    flow: '流量变化过程线',
+    power: '出力变化过程线',
+  }
+  if (!data || !data.waterLevel || !data.waterLevel.dates || data.waterLevel.dates.length === 0) {
+    return buildDecisionEmptyOption(titles[tab] || titles.water)
+  }
   if (tab === 'water') {
     const d = data.waterLevel
     return {
@@ -528,6 +559,9 @@ export function buildProcessOption(data: any, tab: string): echarts.EChartsOptio
 
 /** 构建水量使用流向图 option */
 export function buildWaterFlowOption(data: any): echarts.EChartsOption {
+  if (!Array.isArray(data) || data.length === 0) {
+    return buildDecisionEmptyOption('水量使用流向图')
+  }
   const totalValue = data.reduce((sum: number, d: any) => sum + d.value, 0)
   const sourceName = `最终来水量\n${formatNumber(totalValue, 2)} 亿m³`
 

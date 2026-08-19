@@ -14,14 +14,14 @@ import {
   buildProcessOption,
   buildWaterFlowOption,
 } from '@/utils/evaluationCharts'
-import { getEvaluateResult, postEvaluate } from '@/api'
-import type { EvaluateDetails } from '@/api'
+import { getEvaluateResult, postEvaluate, getDecisionPlans } from '@/api'
+import type { EvaluateDetails, DecisionPlanDetail } from '@/api'
 import { useEvaluationData, ALGO_DISPLAY_NAMES } from '@/composables/useEvaluationData'
+import type { DecisionPlanDataBundle } from '@/types/evaluation'
 import {
   evaluationDecisionState as pageState,
   planOptions,
   planLabelMap,
-  getDecisionPlanData,
 } from '@/mock/evaluationDecision'
 
 const route = useRoute()
@@ -85,7 +85,116 @@ const activeTab = ref('evaluation')
 
 // 决策分析当前方案
 const currentDecisionPlan = ref(pageState.data.currentDecisionPlan)
-const decisionPlanData = computed(() => getDecisionPlanData(currentDecisionPlan.value))
+
+// ── 决策分析真实数据状态（GET /decision/{job_id}） ──
+const decisionPlans = ref<DecisionPlanDetail[] | null>(null)
+const decisionYears = ref<{ start: number | null; end: number | null }>({ start: null, end: null })
+
+/** 真实方案数据可用（有 job_id 且后端返回了 plan_details） */
+const hasRealDecisionData = computed(() => !!decisionPlans.value && decisionPlans.value.length > 0)
+
+// 目标项元数据（后端 key → 中文名）
+const TARGET_META: { key: keyof DecisionPlanDetail['targets']; name: string }[] = [
+  { key: 'power', name: '发电目标' },
+  { key: 'ecology', name: '生态目标' },
+  { key: 'irrigation', name: '灌溉目标' },
+  { key: 'domestic', name: '生活供水目标' },
+  { key: 'spill', name: '弃水控制' },
+  { key: 'sediment', name: '冲沙目标' },
+]
+
+// 水量分配元数据（后端 key → 中文名）
+const USAGE_META: { key: keyof DecisionPlanDetail['water_usage']; name: string }[] = [
+  { key: 'power', name: '发电' },
+  { key: 'ecology', name: '生态' },
+  { key: 'irrigation', name: '灌溉' },
+  { key: 'domestic', name: '生活' },
+  { key: 'spill', name: '弃水' },
+  { key: 'sediment', name: '冲沙' },
+]
+
+/** 目标满足状态：≥90 已满足，≥70 基本满足，否则未满足 */
+const targetStatus = (rate: number): string =>
+  rate >= 90 ? '已满足' : rate >= 70 ? '基本满足' : '未满足'
+
+/** 构造时间轴标签（每时段 = 1 旬，每年 20 时段；无年份信息时退化为序号） */
+const buildDecisionDates = (n: number, years: { start: number | null; end: number | null }): string[] => {
+  const labels: string[] = []
+  for (let k = 0; k < n; k++) {
+    const period = (k % 20) + 1
+    const year = years.start != null ? years.start + Math.floor(k / 20) : null
+    labels.push(year != null ? `${year}-${String(period).padStart(2, '0')}` : `T${k + 1}`)
+  }
+  return labels
+}
+
+/** 将后端方案明细转换为 DecisionPanel 所需的数据包 */
+const buildRealDecisionBundle = (p: DecisionPlanDetail): DecisionPlanDataBundle => {
+  const n = Math.max(p.level_long?.length || 0, p.qout_long?.length || 0, p.power_long?.length || 0)
+  const dates = buildDecisionDates(n, decisionYears.value)
+
+  const targets = TARGET_META.map(({ key, name }) => {
+    const rate = Number(p.targets?.[key] ?? 0)
+    return { name, status: targetStatus(rate), rate }
+  })
+
+  const usageItems = USAGE_META.map(({ key, name }) => ({
+    name,
+    value: Number(p.water_usage?.[key] ?? 0),
+  }))
+  const totalUsage = usageItems.reduce((s, u) => s + u.value, 0) || 1
+  const waterUsage = usageItems.map((u) => ({
+    ...u,
+    percent: parseFloat(((u.value / totalUsage) * 100).toFixed(1)),
+  }))
+
+  // 出力：模型单位为万kW（龙羊峡装机钳位 128、刘家峡 122.5），转为 MW 统一坐标轴
+  const toMW = (arr: number[]) => (arr || []).map((v) => v * 10)
+
+  return {
+    targets,
+    waterLevel: {
+      dates,
+      longyang: p.level_long || [],
+      liujia: p.level_liu || [],
+      floodLimit: 2594,   // 龙羊峡汛限水位（m）
+      normalLevel: 2600,  // 龙羊峡正常蓄水位（m）
+    },
+    flow: {
+      dates,
+      longyang: p.qout_long || [],
+      liujia: p.qout_liu || [],
+    },
+    power: {
+      dates,
+      longyang: toMW(p.power_long),
+      liujia: toMW(p.power_liu),
+      longyangCapacity: 1280,  // 龙羊峡装机容量（MW）
+      liujiaCapacity: 1225,    // 刘家峡装机容量（MW）
+    },
+    waterUsage,
+  }
+}
+
+// 决策分析空数据包（无 job_id / 无真实数据时使用，展示为空）
+const EMPTY_DECISION_BUNDLE: DecisionPlanDataBundle = {
+  targets: [],
+  waterLevel: { dates: [], longyang: [], liujia: [], floodLimit: 0, normalLevel: 0 },
+  flow: { dates: [], longyang: [], liujia: [] },
+  power: { dates: [], longyang: [], liujia: [], longyangCapacity: 0, liujiaCapacity: 0 },
+  waterUsage: [],
+}
+
+// 决策分析数据包：仅有真实数据时填充，否则为空（与评价分析展示一致）
+const decisionPlanData = computed<DecisionPlanDataBundle>(() => {
+  if (hasRealDecisionData.value) {
+    const k = parseInt(currentDecisionPlan.value.replace('plan-', '')) - 1
+    const plans = decisionPlans.value!
+    const p = (k >= 0 && k < plans.length) ? plans[k] : plans[0]
+    return buildRealDecisionBundle(p)
+  }
+  return EMPTY_DECISION_BUNDLE
+})
 const targets = computed(() => decisionPlanData.value.targets)
 
 // 过程曲线页签
@@ -151,6 +260,8 @@ const runEvaluation = async () => {
     evalCache.value = result.details as EvaluateDetails | null
     evalStatus.value = 'evaluated'
     console.log('[runEvaluation] evalCache set, has conv:', !!evalCache.value?.convergence, 'has rankings:', !!evalCache.value?.rankings)
+    // 评价完成后方案排序变化，重新拉取决策方案（按整合排名重排）
+    fetchDecisionPlans()
     ElMessage.success('评价完成')
   } catch (e: any) {
     evalStatus.value = 'error'
@@ -159,10 +270,26 @@ const runEvaluation = async () => {
   }
 }
 
+// ── 获取决策分析方案明细（真实数据） ──
+const fetchDecisionPlans = async () => {
+  if (!jobId.value) return
+  try {
+    const res = await getDecisionPlans(jobId.value)
+    if (res.plans && res.plans.length > 0) {
+      decisionPlans.value = res.plans
+      decisionYears.value = { start: res.year_start, end: res.year_end }
+      console.log('[fetchDecisionPlans] loaded', res.plans.length, 'plans, evaluated:', res.evaluated)
+    }
+  } catch (e) {
+    console.error('[fetchDecisionPlans] error:', e)
+  }
+}
+
 // ── onMounted ──
 onMounted(() => {
   if (jobId.value) {
     fetchEvalCache()
+    fetchDecisionPlans()
   }
 })
 

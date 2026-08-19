@@ -107,36 +107,39 @@ defineExpose({
         <div class="sub-chart-box">
           <div class="sub-chart-title">目标满足情况</div>
           <div class="target-list">
-            <div v-for="(target, i) in targets" :key="i" class="target-item">
-              <div class="target-icon" :class="target.status === '已满足' ? 'icon-satisfied' : target.status === '基本满足' ? 'icon-basic' : 'icon-unsatisfied'">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
-                  <path d="M4.5 7L6.5 9L9.5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="target-info">
-                <div class="target-name">{{ target.name }}</div>
-                <div class="target-status" :class="{
-                  'text-green': target.status === '已满足',
-                  'text-yellow': target.status === '基本满足',
-                  'text-red': target.status === '未满足',
-                }">{{ target.status }}</div>
-              </div>
-              <div class="target-progress-wrap">
-                <div class="target-progress-bg">
-                  <div
-                    class="target-progress-fill"
-                    :class="{
-                      'fill-green': target.status === '已满足',
-                      'fill-yellow': target.status === '基本满足',
-                      'fill-red': target.status === '未满足',
-                    }"
-                    :style="{ width: Math.min(target.rate, 100) + '%' }"
-                  ></div>
+            <template v-if="targets.length">
+              <div v-for="(target, i) in targets" :key="i" class="target-item">
+                <div class="target-icon" :class="target.status === '已满足' ? 'icon-satisfied' : target.status === '基本满足' ? 'icon-basic' : 'icon-unsatisfied'">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
+                    <path d="M4.5 7L6.5 9L9.5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
                 </div>
-                <span class="target-rate">{{ formatPercent(target.rate, 1) }}</span>
+                <div class="target-info">
+                  <div class="target-name">{{ target.name }}</div>
+                  <div class="target-status" :class="{
+                    'text-green': target.status === '已满足',
+                    'text-yellow': target.status === '基本满足',
+                    'text-red': target.status === '未满足',
+                  }">{{ target.status }}</div>
+                </div>
+                <div class="target-progress-wrap">
+                  <div class="target-progress-bg">
+                    <div
+                      class="target-progress-fill"
+                      :class="{
+                        'fill-green': target.status === '已满足',
+                        'fill-yellow': target.status === '基本满足',
+                        'fill-red': target.status === '未满足',
+                      }"
+                      :style="{ width: Math.min(target.rate, 100) + '%' }"
+                    ></div>
+                  </div>
+                  <span class="target-rate">{{ formatPercent(target.rate, 1) }}</span>
+                </div>
               </div>
-            </div>
+            </template>
+            <div v-else class="target-empty">暂无数据<br/>请先运行优化任务</div>
           </div>
           <div class="target-footnote">完成率 = 实际值 / 目标值 × 100%</div>
         </div>
@@ -359,6 +362,17 @@ defineExpose({
   padding: 4px 10px 6px;
   border-top: 1px solid rgba(50, 150, 255, 0.08);
   flex-shrink: 0;
+}
+
+.target-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--tech-text-placeholder);
 }
 
 /* ===== 过程曲线页签 ===== */

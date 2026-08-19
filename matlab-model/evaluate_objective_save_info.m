@@ -583,4 +583,43 @@ results.N.Ntii_bapanxia = Ntii_bapanxia;
 results.N.Ntii_xiaoxia = Ntii_xiaoxia;
 results.N.Ntii_daxia = Ntii_daxia;
 results.N.Ntii_qingtongxia = Ntii_qingtongxia;
+
+% ---- Decision-analysis extras: targets / water_usage / coordination ----
+xishu_mat = repmat(xishu, Y, 1);
+supply_lan = Qliuout + LIU_LAN;   % Lanzhou section water supply (Y x 20)
+
+% Coordination degree (annual mean)
+results.coordination.h_water = mean(h_water);
+results.coordination.h_ele = mean(h_ele);
+results.coordination.h_sed = mean(h_sed);
+results.coordination.h_eco = mean(h_eco);
+
+% Target satisfaction rates (0~100)
+t_gen  = mean([dn_elerate_long, dn_elerate_liu]) * 100;
+t_eco  = max(min(dn_eco_rate, 1), 0) * 100;
+t_agr  = dn_water_rate2 * 100;
+t_life = dn_water_rate1 * 100;
+t_qqs  = max(0, 1 - mean([Qqs_long_rata, Qqs_liu_rata])) * 100;
+t_sed  = Q_sed_bizhi * 100;
+results.targets.power      = min(round(t_gen, 1), 100);
+results.targets.ecology    = round(t_eco, 1);
+results.targets.irrigation = min(round(t_agr, 1), 100);
+results.targets.domestic   = min(round(t_life, 1), 100);
+results.targets.spill      = round(t_qqs, 1);
+results.targets.sediment   = min(round(t_sed, 1), 100);
+
+% Water usage by category (1e8 m3)
+W_qqs  = sum((Qqs_long + Qqs_liu) .* xishu_mat, 'all');
+W_sedt = sum(W_sed);
+W_ecow = sum(min(Q_eco, supply_lan) .* xishu_mat, 'all');
+d_agr  = max(LAN - LAN_unagr, 0);
+W_agr  = sum(min(d_agr, max(supply_lan - LAN_unagr, 0)) .* xishu_mat, 'all');
+W_life = sum(min(LAN_unagr, supply_lan) .* xishu_mat, 'all');
+W_gen  = sum((Qlongout - Qqs_long) .* xishu_mat, 'all') + sum((Qliuout - Qqs_liu) .* xishu_mat, 'all');
+results.water_usage.power      = round(W_gen, 2);
+results.water_usage.ecology    = round(W_ecow, 2);
+results.water_usage.irrigation = round(W_agr, 2);
+results.water_usage.domestic   = round(W_life, 2);
+results.water_usage.spill      = round(W_qqs, 2);
+results.water_usage.sediment   = round(W_sedt, 2);
 end
