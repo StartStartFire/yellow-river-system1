@@ -250,9 +250,9 @@ const wavePath2 = computed(() => {
               font-size="15" font-weight="550" opacity="0.95"
             >{{ lv.name }}</text>
             <text
-              :x="1555" :y="lv.y - 8"
+              :x="1290" :y="lv.y - 8"
               :fill="lv.color"
-              font-size="20" text-anchor="end"
+              font-size="20" text-anchor="middle"
               :font-weight="lv.isCurrent ? 700 : 500"
               font-family="'DIN Alternate', 'Roboto Mono', monospace"
             >{{ lv.value.toFixed(2) }} m</text>
@@ -260,13 +260,9 @@ const wavePath2 = computed(() => {
 
           <!-- ---- 坝顶标注（固定坐标，所有水库共用同一张 PNG，坝顶位置不变） ---- -->
           <g class="dam-label">
-            <line
-              x1="1295" y1="142" x2="1362" y2="142"
-              stroke="rgba(150,180,210,0.50)" stroke-width="2"
-            />
             <text
-              x="1350" y="135"
-              fill="#94A3B8" font-size="17" text-anchor="end" font-weight="600"
+              x="1290" y="18"
+              fill="#94A3B8" font-size="16" text-anchor="middle" font-weight="600"
             >坝顶 {{ section.dam.crestElevation.toFixed(2) }}m</text>
           </g>
 
@@ -292,18 +288,18 @@ const wavePath2 = computed(() => {
           <!-- ---- 出库流量 ---- -->
           <g class="flow-indicator outflow">
             <rect
-              :x="1470" :y="36"
+              :x="1520" :y="36"
               width="120" height="36" rx="6"
               fill="rgba(6,30,70,0.85)"
               stroke="rgba(0,212,255,0.30)" stroke-width="1"
             />
             <text
-              :x="1530" :y="53"
+              :x="1580" :y="53"
               fill="#00d4ff" font-size="20" text-anchor="middle" font-weight="600"
               font-family="'DIN Alternate', 'Roboto Mono', monospace"
             >{{ section.outflow }} m³/s</text>
             <text
-              :x="1530" :y="30"
+              :x="1580" :y="30"
               fill="#5a8aaa" font-size="17" text-anchor="middle"
             >出库流量</text>
           </g>
