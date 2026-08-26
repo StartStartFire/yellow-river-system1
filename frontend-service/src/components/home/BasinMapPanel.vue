@@ -113,8 +113,9 @@ const addReservoirMarkers = () => {
       className: 'reservoir-marker',
       html: `
         <div class="marker-pulse ${point.status}"></div>
-        <div class="marker-outer ${point.status}"></div>
-        <div class="marker-inner ${point.status}"></div>
+        <div class="marker-svg">
+          <svg width="14" height="14" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;"><circle cx="512" cy="512" r="512" fill="#3B82F6"></circle><path d="M118.153846 512 A393.846154 393.846154 0 0 1 905.846154 512 Z" fill="#ffffff"></path></svg>
+        </div>
         <div class="marker-label-text">${point.name}</div>
       `,
       iconSize: [100, 50],
@@ -426,50 +427,12 @@ onUnmounted(() => {
   background: rgba(255, 77, 79, 0.2);
 }
 
-.marker-outer {
+.marker-svg {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(var(--tech-blue-rgb), 0.3);
-  border: 2px solid rgba(var(--tech-cyan-rgb), 0.6);
   pointer-events: none;
-}
-
-.marker-outer.warning {
-  background: rgba(255, 170, 0, 0.3);
-  border-color: rgba(255, 204, 51, 0.6);
-}
-
-.marker-outer.abnormal {
-  background: rgba(255, 77, 79, 0.3);
-  border-color: rgba(255, 120, 117, 0.6);
-}
-
-.marker-inner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--tech-blue);
-  box-shadow: 0 0 8px rgba(var(--tech-blue-rgb), 0.8);
-  pointer-events: none;
-}
-
-.marker-inner.warning {
-  background: var(--tech-orange);
-  box-shadow: 0 0 8px rgba(255, 170, 0, 0.8);
-}
-
-.marker-inner.abnormal {
-  background: #ff4d4f;
-  box-shadow: 0 0 8px rgba(255, 77, 79, 0.8);
 }
 
 @keyframes markerPulse {
