@@ -116,7 +116,7 @@ const addReservoirMarkers = () => {
         <div class="marker-svg">
           <svg width="14" height="14" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;"><circle cx="512" cy="512" r="512" fill="#3B82F6"></circle><path d="M118.153846 512 A393.846154 393.846154 0 0 1 905.846154 512 Z" fill="#ffffff"></path></svg>
         </div>
-        <div class="marker-label-text">${point.name}</div>
+        <div class="marker-label-text">${point.name.replace(/水库$/, '')}</div>
       `,
       iconSize: [100, 50],
       iconAnchor: [50, 25],
