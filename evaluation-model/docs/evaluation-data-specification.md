@@ -165,12 +165,29 @@ POST /evaluate ALL
     "PP": [0.008, 0.006, 0.005, ..., 0.00048]
   },
 
-  "subsystem": {
-    "water":    { "name": "水子系统", "scores": [62.3, 58.1, ...], "ranking": [1, 2, ...] },
-    "sand":     { "name": "沙子系统", "scores": [45.8, 52.3, ...], "ranking": [2, 1, ...] },
-    "energy":   { "name": "能子系统", "scores": [71.2, 68.4, ...], "ranking": [1, 2, ...] },
-    "disaster": { "name": "灾子系统", "scores": [55.6, 61.2, ...], "ranking": [2, 1, ...] },
-    "ecology":  { "name": "生态子系统", "scores": [48.9, 53.7, ...], "ranking": [2, 1, ...] }
+  "radar": {
+    "indicators": [
+      { "name": "NMF", "max": 5246.93 },
+      { "name": "PP", "max": 908.31 },
+      { "name": "AHP_FUZZY", "max": 661.60 }
+    ],
+    "plans": [
+      { "plan": "方案1", "values": [5246.93, 908.31, 661.60] },
+      { "plan": "方案2", "values": [5201.15, 897.42, 655.10] }
+    ]
+  },
+
+  "raw_indicators": {
+    "subsystems": [
+      { "name": "水子系统", "indices": [0, 1, 2, 3, 4, 5] },
+      { "name": "沙子系统", "indices": [6, 7] },
+      { "name": "能子系统", "indices": [8, 9, 10, 11, 12] },
+      { "name": "灾子系统", "indices": [13, 14, 15] },
+      { "name": "生态子系统", "indices": [16, 17, 18, 19, 20, 21] }
+    ],
+    "schemes": [
+      { "plan": "方案1", "values": [8.80, 27.78, 0.007, ...] }
+    ]
   }
 }
 ```
@@ -179,8 +196,8 @@ POST /evaluate ALL
 
 | 行 | rank 字段 | scores 字段 | 页面呈现 |
 |----|-----------|------------|---------|
-| NMF / PP / AHP_FUZZY | 1, 2, 3 | 该算法的评分值（越大越好） | 得分 + 进度条 |
-| ALL | -1 | null | 排名徽章（🥇🥈🥉）展示每个方案的整合名次 |
+| NMF / PP / AHP_FUZZY | 各算法排名数组（0=最优） | 该算法的评分值（越大越好） | 得分 + 进度条 |
+| ALL | 序号总和整合排名数组（0=最优） | null | 排名徽章（🥇🥈🥉）展示每个方案的整合名次 |
 
 ### 3.2 收敛曲线说明
 
@@ -189,11 +206,11 @@ POST /evaluate ALL
 - 两条曲线 Y 轴尺度不同，通常用独立 Y 轴或分图展示
 - 曲线呈**下降趋势**：迭代越深，适应度越小（越优）
 
-### 3.3 子系统得分说明
+### 3.3 算法得分雷达图与原始指标说明
 
-- 5 个子系统各有一组 `(pop,)` 的得分数组
-- 由 AHP-Fuzzy 一级评价产生（NMF 和 PP 不产生子系统级别的数据）
-- 前端雷达图的 5 个轴对应 5 个子系统，每个方案是一条多边形
+- `radar.indicators` — 3 个评价算法（NMF / PP / AHP_FUZZY）各为一个轴，max 取该算法得分的最大值
+- `radar.plans` — 按 ALL 整合排名取前 10 个方案，每个方案一条多边形（三轴得分）
+- `raw_indicators` — 前 10 名方案的 22 项原始评价指标（`original_data_matrix` 对应行），`subsystems` 给出指标 → 5 子系统的分组索引，供桑基图等使用
 
 ---
 
@@ -203,45 +220,48 @@ POST /evaluate ALL
 
 | 图表位置 | 图表类型 | 数据来源 | 数据字段 |
 |---------|---------|---------|---------|
-| 左上 | 子系统得分雷达图 | AHP-Fuzzy 一级评价 | `subsystem.<key>.scores` |
-| 右上 | 评价指标桑基图 | 静态框架（R1-R22 → 5子系统 → 优劣） | 不依赖数据 |
-| 左下 | 算法收敛曲线 | NMF / PP | `convergence.NMF / convergence.PP` |
-| 右下 | 排名表格 | 全部算法 + 整合 | `rankings[*]` |
+| 雷达图 | 算法得分雷达图 | NMF / PP / AHP_FUZZY 得分 | `radar.indicators` + `radar.plans` |
+| 桑基图 | 评价指标桑基图 | 前 10 名方案原始指标 | `raw_indicators.schemes` + `raw_indicators.subsystems` |
+| 收敛曲线 | 算法收敛曲线 | NMF / PP | `convergence.NMF / convergence.PP` |
+| 排名表格 | 排名表 | 全部算法 + 整合 | `rankings[*]` |
 
 ### 4.2 决策分析页面
 
-> 当前决策分析页面数据来自 MATLAB 模拟结果（`process_data`），非评价系统产出
+> 决策分析页面数据来自 `GET /decision/{job_id}`（MATLAB `plan_details`，非评价系统产出）。方案排序与评价分析页一致（已评价时按 ALL 整合排名）。
 
 | 位置 | 内容 | 数据来源 | 来源字段 |
 |------|------|---------|---------|
-| 左列 | 目标满足情况 | 过程透明数据 | `process_data.constraint.*` |
-| 中列 | 过程曲线（水位/流量/出力） | 过程透明数据 | `process_data.*_level / *_outflow / *_power` |
-| 右列 | 水量使用流向图 | 过程透明数据 | 需从 results 中计算 |
+| 左列 | 目标满足情况 | 决策方案明细 | `plans[].targets.*` |
+| 中列 | 过程曲线（水位/流量/出力） | 决策方案明细 | `plans[].level_long / level_liu / qout_long / qout_liu / power_long / power_liu` |
+| 右列 | 水量使用流向图 | 决策方案明细 | `plans[].water_usage.*` |
 
-#### 决策分析可用数据字段
+#### 决策分析可用数据字段（plans[] 每项）
 
 ```
-process_data
-├── longyang_level:  (n_periods,)    龙羊峡水位
-├── liujia_level:    (n_periods,)    刘家峡水位
-├── longyang_outflow:(n_periods,)    龙羊峡下泄流量
-├── liujia_outflow:  (n_periods,)    刘家峡下泄流量
-├── longyang_power:  (n_periods,)    龙羊峡出力
-├── liujia_power:    (n_periods,)    刘家峡出力
-├── total_power:     (n_periods,)    梯级总出力
-├── water_shortage:  (n_periods,)    缺水
+plans[i]
+├── index:        int                种群中的原始索引（1-based）
+├── label:        string             按排名标注的方案名（方案1=最优）
+├── objectives:   (M,)               目标函数值
+├── level_long:   (V/2,)             龙羊峡逐时段水位
+├── level_liu:    (V/2,)             刘家峡逐时段水位
+├── qout_long:    (V/2,)             龙羊峡出库流量
+├── qout_liu:     (V/2,)             刘家峡出库流量
+├── power_long:   (V/2,)             龙羊峡出力
+├── power_liu:    (V/2,)             刘家峡出力
 │
-├── coordination
-│   ├── h_water:  float    水资源子系统有序度
-│   ├── h_ele:    float    发电子系统有序度
-│   ├── h_sed:    float    输沙子系统有序度
-│   └── h_eco:    float    生态子系统有序度
+├── targets                          各目标满足率 (0~100)
+│   ├── power:       发电
+│   ├── ecology:     生态
+│   ├── irrigation:  农业
+│   ├── domestic:    工业生活
+│   ├── spill:       不弃水
+│   └── sediment:    调沙
 │
-└── constraint
-    ├── water_guarantee: float (0-100)   供水保证率
-    ├── eco_guarantee:   float (0-100)   生态保证率
-    ├── power_guarantee: float (0-100)   发电保证率
-    └── combined_rate:   float (0-100)   综合约束满足率
+├── water_usage                      分类水量分配（亿 m³）
+│   ├── power / ecology / irrigation / domestic / spill / sediment
+│
+└── coordination                     子系统多年平均有序度
+    ├── h_water / h_ele / h_sed / h_eco
 ```
 
 ---
@@ -271,12 +291,20 @@ process_data
 evaluating: pop × 22 的 list[list[float|null]]
 ```
 
+### 5.4 GET /decision/{job_id}
+
+```
+响应: { job_id, status, algorithm, evaluated, year_start, year_end, plans: [...], message }
+plans: 按排名排序的前 10 个方案明细（见 4.2 节字段）
+evaluated: 是否按 ALL 整合排名排序（false = 按 Pareto rank + 拥挤距离）
+```
+
 ---
 
 ## 六、注意事项
 
 1. **NMF 和 PP 结果非确定性**：每次运行产出略有差异（布谷鸟搜索随机初始化+Levy flight 随机步长），AHP-Fuzzy 结果完全确定
-2. **收敛曲线只在前 200 个点传给前端**（`ch.slice(0, 200)`），减少网络传输量
-3. **子系统得分只有 ALL 和 AHP_FUZZY 方法返回**：NMF 和 PP 单独调用时不产生子系统数据
+2. **收敛曲线全量传给前端**（约 500 个点，无截断）
+3. **雷达图与原始指标只有 ALL 方法返回**（单算法模式仅有该算法自身的 radar）；子系统原始指标来自 `original_data_matrix`
 4. **ALL 的 scores 为 null**：ALL 是整合排名，不产生评分，前端直接展示名次徽章
 5. **评价结果有幂等性**：同一个 evaluating 矩阵跑两次 ALL，结果默认缓存不会重复计算（需手动清除或覆盖）

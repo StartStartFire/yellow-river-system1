@@ -4,9 +4,8 @@
 > 基础路径：`http://127.0.0.1:18080`
 >
 > **实现状态**：
-> - ✅ 已实现：健康检查、提交任务、任务状态、结果查询、任务列表、评价排名、评价缓存、WebSocket、回调接收
-> - 🚧 部分实现：过程数据补拉（端点已注册，但 MATLAB 侧尚未推送 `process_data` 类型消息）
-> - 📋 计划中：补充过程数据、WebSocket `process_data` 类型推送的完整前端展示
+> - ✅ 已实现：健康检查、提交任务、任务状态、结果查询、任务列表、过程数据补拉（MATLAB 已每 10 代推送 `process_data`）、评价排名、评价缓存、决策方案明细、WebSocket、回调接收
+> - 📋 计划中：无（当前端点均已在代码中注册）
 
 ---
 
@@ -20,8 +19,9 @@
 - [6. 补充过程数据](#6-补充过程数据)
 - [7. 评价排名](#7-评价排名)
 - [8. 获取评价结果](#8-获取评价结果)
-- [9. WebSocket 实时订阅](#9-websocket-实时订阅)
-- [10. MATLAB 回调接收](#10-matlab-回调接收)
+- [9. 决策方案明细](#9-决策方案明细)
+- [10. WebSocket 实时订阅](#10-websocket-实时订阅)
+- [11. MATLAB 回调接收](#11-matlab-回调接收)
 - [附录：完整调用流程](#附录完整调用流程)
 - [附录：常见错误码](#附录常见错误码)
 
@@ -280,12 +280,11 @@ GET /jobs?status=completed
 
 ---
 
-## 6. 补充过程数据 🚧（部分实现）
-
-> **当前状态**：`GET /process/{job_id}` 端点已注册，但 MATLAB 侧尚未推送 `type='process_data'` 消息，因此 `process_data` 字段始终为 `null`。
-> 完整功能依赖 Phase E（MATLAB 过程透明化改造）完成。
+## 6. 补充过程数据
 
 当 WebSocket 连接较晚时，可通过此端点补拉最新过程数据（水位、流量、出力曲线等）。
+
+> MATLAB 侧由 `push_callback_data.m` 每 10 代（含最后一代）推送 `type='process_data'` 消息，后端存储最近一次到 `JobRecord.process_data` 供本端点补拉。
 
 ```
 GET /process/{job_id}
@@ -320,6 +319,12 @@ GET /process/{job_id}
       "h_ele": 0.72,
       "h_sed": 0.68,
       "h_eco": 0.91
+    },
+    "constraint": {
+      "water_guarantee": 96.7,
+      "eco_guarantee": 92.3,
+      "power_guarantee": 88.5,
+      "combined_rate": 91.9
     }
   },
   "message": null
@@ -329,8 +334,9 @@ GET /process/{job_id}
 | 字段 | 说明 |
 |------|------|
 | `process_data` | 最近一次推送的过程数据，`null` 表示尚未生成 |
-| `process_data.longyang_level` | 龙羊峡最近 n 年逐时段水位 (m) |
-| `process_data.liujia_level` | 刘家峡最近 n 年逐时段水位 (m) |
+| `process_data.start_year` | 过程数据起始年份（BASE_YEAR + 截取偏移） |
+| `process_data.longyang_level` | 龙羊峡逐时段水位 (m) |
+| `process_data.liujia_level` | 刘家峡逐时段水位 (m) |
 | `process_data.longyang_outflow` | 龙羊峡下泄流量 (m³/s) |
 | `process_data.liujia_outflow` | 刘家峡下泄流量 (m³/s) |
 | `process_data.longyang_power` | 龙羊峡出力 (万 kW) |
@@ -338,6 +344,7 @@ GET /process/{job_id}
 | `process_data.total_power` | 梯级总出力 (万 kW) |
 | `process_data.water_shortage` | 兰州断面缺水量 (亿 m³) |
 | `process_data.coordination` | 各子系统多年平均有序度 |
+| `process_data.constraint` | 约束满足率（0~100）：供水/生态/发电保证率与综合满足率 |
 
 ---
 
@@ -431,7 +438,7 @@ POST /evaluate
         {"name": "沙子系统", "indices": [6, 7]},
         {"name": "能子系统", "indices": [8, 9, 10, 11, 12]},
         {"name": "灾子系统", "indices": [13, 14, 15]},
-        {"name": "生子系统", "indices": [16, 17, 18, 19, 20, 21]}
+        {"name": "生态子系统", "indices": [16, 17, 18, 19, 20, 21]}
       ],
       "schemes": [
         {
@@ -553,7 +560,95 @@ GET /evaluate/{job_id}
 
 ---
 
-## 9. WebSocket 实时订阅
+## 9. 决策方案明细
+
+获取决策分析所需的方案明细数据（每个种群个体的过程曲线、目标满足度、水量分配），按排名返回**前 10 个方案**。
+
+```
+GET /decision/{job_id}
+```
+
+**路径参数：**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `job_id` | string | 任务 ID（须为 `completed` 状态，否则返回 400） |
+
+**方案排序规则：**
+
+- 已运行评价（ALL 模式）：按序号总和整合排名排序，与评价分析页的"方案N"编号一致
+- 未评价：按 Pareto rank + 拥挤距离排序
+
+**响应示例：**
+
+```json
+{
+  "job_id": "a1b2c3d4-...",
+  "status": "completed",
+  "algorithm": "nsga2",
+  "evaluated": true,
+  "year_start": null,
+  "year_end": null,
+  "plans": [
+    {
+      "index": 6,
+      "label": "方案1",
+      "objectives": [2.71, -562.4],
+      "level_long": [2580.1, 2579.8, ...],
+      "level_liu": [1720.2, 1719.5, ...],
+      "qout_long": [1200.5, ...],
+      "qout_liu": [1350.2, ...],
+      "power_long": [48.2, ...],
+      "power_liu": [52.1, ...],
+      "targets": {
+        "power": 88.5,
+        "ecology": 92.3,
+        "irrigation": 96.7,
+        "domestic": 98.2,
+        "spill": 87.4,
+        "sediment": 75.0
+      },
+      "water_usage": {
+        "power": 210.5,
+        "ecology": 98.2,
+        "irrigation": 65.0,
+        "domestic": 40.1,
+        "spill": 12.4,
+        "sediment": 22.5
+      },
+      "coordination": {
+        "h_water": 0.85,
+        "h_ele": 0.72,
+        "h_sed": 0.68,
+        "h_eco": 0.91
+      }
+    }
+  ],
+  "message": null
+}
+```
+
+**字段说明：**
+
+| 字段 | 说明 |
+|------|------|
+| `evaluated` | 是否已按 ALL 评价整合排名排序（`false`=按 Pareto rank + 拥挤距离排序） |
+| `year_start` / `year_end` | 任务配置的年份范围（`null`=使用全部年份） |
+| `plans[].index` | 该方案在种群中的原始索引（1-based） |
+| `plans[].label` | 按排名标注的方案名（`方案1`=排序后最优） |
+| `plans[].objectives` | 目标函数值（与 chromosome 中 V+1~V+M 列一致） |
+| `plans[].level_long` / `level_liu` | 龙羊峡/刘家峡逐时段水位过程 |
+| `plans[].qout_long` / `qout_liu` | 龙羊峡/刘家峡逐时段出库流量过程 |
+| `plans[].power_long` / `power_liu` | 龙羊峡/刘家峡逐时段出力过程 |
+| `plans[].targets` | 各目标满足率（0~100）：power 发电 / ecology 生态 / irrigation 农业 / domestic 工业生活 / spill 不弃水 / sediment 调沙 |
+| `plans[].water_usage` | 分类水量分配（亿 m³）：power 发电 / ecology 生态 / irrigation 农业 / domestic 工业生活 / spill 弃水 / sediment 输沙 |
+| `plans[].coordination` | 四个子系统多年平均有序度（h_water/h_ele/h_sed/h_eco） |
+
+> **注意**：`plans` 最多返回 10 个。若任务结果无 `plan_details`（由旧版本模型运行），返回 `plans: []`、`evaluated: false` 并附带提示信息。
+
+---
+
+## 10. WebSocket 实时订阅
 
 在优化任务执行过程中，通过 WebSocket 实时接收进度推送。
 
@@ -623,6 +718,12 @@ ws.onmessage = (event) => {
       "h_ele": 0.72,
       "h_sed": 0.68,
       "h_eco": 0.91
+    },
+    "constraint": {
+      "water_guarantee": 96.7,
+      "eco_guarantee": 92.3,
+      "power_guarantee": 88.5,
+      "combined_rate": 91.9
     }
   }
 }
@@ -641,9 +742,9 @@ ws.onmessage = (event) => {
 
 ---
 
-## 10. MATLAB 回调接收
+## 11. MATLAB 回调接收
 
-MATLAB 在优化过程中通过 `webwrite` 调用此端点推送进度数据。**一般不需要手动调用。**
+MATLAB 在优化过程中每 10 代（含最后一代）由 `push_callback_data.m` 统一封装，经 `http_callback_push.m` 以 `webwrite` 调用此端点推送 `progress` 与 `process_data` 两种消息。**一般不需要手动调用。**
 
 ```
 POST /cb
@@ -745,6 +846,9 @@ curl -X POST http://127.0.0.1:18080/evaluate \
 
 # 6. 获取缓存的评价结果
 curl http://127.0.0.1:18080/evaluate/a1b2c3d4-...
+
+# 7. 获取决策方案明细（前 10 个方案）
+curl http://127.0.0.1:18080/decision/a1b2c3d4-...
 ```
 
 ---

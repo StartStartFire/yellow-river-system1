@@ -35,8 +35,8 @@
 ### 2. 克隆项目
 
 ```bash
-git clone <仓库地址> F:\Model\yellow_river_project
-cd F:\Model\yellow_river_project
+git clone <仓库地址> E:\model\yellow_river_project
+cd E:\model\yellow_river_project
 ```
 
 ### 3. 创建 Conda 环境
@@ -105,14 +105,15 @@ curl http://127.0.0.1:18080/status/<job_id>
 ## 项目目录结构
 
 ```
-F:\Model\yellow_river_project\
+E:\model\yellow_river_project\
 ├── matlab-model/           # MATLAB 优化模型
 │   ├── nsga_2_para.m       # NSGA-II 主循环
 │   ├── PAEM_para.m         # PAEM 主循环
 │   ├── evaluate_objective*.m  # 目标函数评估
 │   ├── load_data.m         # 数据加载（Excel → 全局变量）
-│   ├── data.xlsx           # 输入数据（17 个 sheet）
+│   ├── data.xlsx           # 输入数据（18 个 sheet）
 │   ├── http_callback_push.m # HTTP 回调推送
+│   ├── push_callback_data.m # 回调数据统一封装（progress + process_data）
 │   └── docs/               # 模型专属文档
 │
 ├── backend-service/        # Python FastAPI Web 服务
@@ -154,7 +155,7 @@ F:\Model\yellow_river_project\
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `host` / `port` | `127.0.0.1:18080` | 服务监听地址 |
+| `host` / `port` | `0.0.0.0:18080` | 服务监听地址（本机访问 `http://127.0.0.1:18080`） |
 | `callback_timeout` | `1.0` | MATLAB 回调 HTTP 超时（秒） |
 | `default_pop` | `15` | 默认种群规模 |
 | `default_iterate` | `20` | 默认迭代代数 |
@@ -170,7 +171,7 @@ A: MATLAB Engine 首次启动约需 10~30 秒，等待自动重试即可。
 A: 确保已安装 MATLAB Engine API for Python，参考上方"安装前置依赖"。
 
 **Q: 前端页面空白或 API 调用失败？**
-A: 检查后端是否在 `18080` 端口运行，以及 CORS 配置是否包含前端地址（`config.py` 中 `cors_origins`）。
+A: 检查后端是否在 `18080` 端口运行。CORS 默认放行所有来源（`config.py` 中 `cors_origins = ["*"]`，内网调试用），如需收紧可改为前端地址白名单。
 
 ---
 
@@ -183,3 +184,6 @@ A: 检查后端是否在 `18080` 端口运行，以及 CORS 配置是否包含�
 | 模型规格 | `matlab-model/docs/model-specification.md` | 目标函数、约束条件 |
 | 调度规则 | `matlab-model/docs/scheduling-rules.md` | 12 条调度规则 |
 | 评价数据规格 | `evaluation-model/docs/evaluation-data-specification.md` | 评价系统输入输出定义 |
+| 评价模型与算法 | `docs/evaluation-model-and-algorithm.md` | 论文用：指标体系、NMF/PP/AHP-Fuzzy/序号总和原理与运行环境 |
+| 项目目录导航 | `docs/project-nav.md` | 四端目录结构与职责总览 |
+| AI 工作日志 | `docs/work-log.md` | 完成任务记录 |

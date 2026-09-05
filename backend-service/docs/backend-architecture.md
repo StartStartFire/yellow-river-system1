@@ -12,7 +12,7 @@ backend-service/
     │
     ├── api/                        # API 路由层 — 只定义路由函数
     │   ├── health.py               # GET /health — 健康检查
-    │   ├── jobs.py                 # POST /run, GET /status, /jobs, /results, /process
+    │   ├── jobs.py                 # POST /run, GET /status, /jobs, /results, /process, /decision
     │   ├── evaluate.py             # POST /evaluate, GET /evaluate/{job_id}
     │   ├── ws.py                   # WS /ws/{job_id} — WebSocket 推送
     │   └── callback.py             # POST /cb — MATLAB 回调接收
@@ -51,9 +51,9 @@ backend-service/
 | 模块（文件） | 职责 | 关键点 |
 |-------------|------|--------|
 | `main.py` | 应用入口、生命周期、路由注册 | 不定义路由函数；lifespan 管理 executor/job_manager 生命周期 |
-| `config.py` | 单例 `Config` dataclass，所有可变参数 | 换机器只改 `matlab_root`；含 CORS origins 配置 |
+| `config.py` | 单例 `Config` dataclass，所有可变参数 | `matlab_root` 为自动计算的 property（基于项目根目录），换机器无需修改；含 CORS origins 配置 |
 | `api/health.py` | GET /health 健康检查 | 通过 `init()` 注入 executor 引用 |
-| `api/jobs.py` | POST /run, GET /status, /jobs, /results, /process | 通过 `init()` 注入 job_manager 引用 |
+| `api/jobs.py` | POST /run, GET /status, /jobs, /results, /process, /decision | 通过 `init()` 注入 job_manager 引用 |
 | `api/evaluate.py` | POST /evaluate, GET /evaluate/{job_id} | 调用 `evaluation_system` 模块 |
 | `api/ws.py` | WS /ws/{job_id} WebSocket 推送 | 通过 `connection_manager` 管理连接 |
 | `api/callback.py` | POST /cb MATLAB 回调接收 | Pydantic 校验后入 `CallbackQueue` |
@@ -130,9 +130,10 @@ backend-service/
 | GET | `/status/{job_id}` | 查询任务状态 |
 | GET | `/jobs` | 任务列表 |
 | GET | `/results/{job_id}` | 获取优化结果 |
-| GET | `/process/{job_id}` | 补拉过程数据 🚧 |
+| GET | `/process/{job_id}` | 补拉过程数据 |
 | POST | `/evaluate` | 运行评价算法 |
 | GET | `/evaluate/{job_id}` | 获取评价缓存 |
+| GET | `/decision/{job_id}` | 决策方案明细（前 10 个方案的过程曲线/目标满足度/水量分配） |
 | WS | `/ws/{job_id}` | 实时进度推送 |
 | POST | `/cb` | MATLAB 回调接收 |
 
@@ -165,19 +166,22 @@ executor.run(task_config)               ← 执行层
   ▼
 MatlabExecutor._run_optimization_sync() ← 在 ThreadPoolExecutor 线程中
   │
-  ├─ ① eng.load_data()                重载数据（西线调水方案）
-  ├─ ② eng.eval() 设置全局变量
+  ├─ ① eng.eval() 设置年份范围全局变量（可选）
+  │    - YEAR_START / YEAR_END         调度年份范围（供 load_data 截取）
+  │
+  ├─ ② eng.load_data()                重载数据（西线调水方案 + 年份范围截取）
+  ├─ ③ eng.eval() 设置全局变量
   │    - Q_sediment                    调沙流量
   │    - LONG_Z_INI_VAL                龙羊峡起调水位（可选）
   │    - LIU_Z_INI_VAL                 刘家峡起调水位（可选）
   │    - QMIN_VAL                      防凌流量（可选）
   │
-  ├─ ③ eng.nsga_2_para() 或 PAEM_para()
+  ├─ ④ eng.nsga_2_para() 或 PAEM_para()
   │    ↓
   │    MATLAB 内部循环（iterate 代）       ← 每次迭代回调
   │    ├─ write_json_log(...)          写入 JSONL 文件
-  │    ├─ http_callback_push.m          → 每 10 代 POST /cb
-  │    │    webwrite(POST /cb, {type:"progress", ...})
+  │    ├─ push_callback_data.m          → 每 10 代 POST /cb
+  │    │    http_callback_push('progress'/'process_data', ...)
   │    │    ↓
   │    │    callback.py:POST /cb        ← 路由层
   │    │    → CallbackQueue.put()       消息入队
@@ -185,7 +189,7 @@ MatlabExecutor._run_optimization_sync() ← 在 ThreadPoolExecutor 线程中
   │    │                                   → 前端 ECharts 实时更新
   │    └─ ... 继续进化
   │
-  └─ ④ 返回结果（chromosome + evaluating 矩阵）
+  └─ ⑤ 返回结果（chromosome + evaluating + plan_details）
   │
   ▼
 job_manager 处理完成
@@ -246,9 +250,10 @@ evaluate.py:evaluate_job()
 ### 回调推送（MATLAB → 前端）
 
 ```
-MATLAB 每 10 代
-  → http_callback_push.m
-    → webwrite /cb  (POST, Timeout=1s)
+MATLAB 每 10 代（含最后一代）
+  → push_callback_data.m            （统一封装：计算汇总指标 + 代表性解过程数据）
+    → http_callback_push.m
+      → webwrite /cb  (POST, Timeout=1s)
       → callback.py:POST /cb
         → CallbackQueue.put(envelope)
           → broadcast_loop (后台协程)

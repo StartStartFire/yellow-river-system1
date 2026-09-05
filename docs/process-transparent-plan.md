@@ -6,7 +6,12 @@
 > **当前状态**：
 > - Phase E（MATLAB 改造）：✅ **已完成**
 > - Phase F（后端改造）：✅ **已完成**
-> - Phase G（前端改造）：✅ **已完成**
+> - Phase G（前端改造）：✅ **已完成**（G2(c) 页面加载补拉 / G3 getProcessData 除外，见下）
+>
+> **实施与原计划的偏差**（以代码为准）：
+> 1. E3/E4 的回调逻辑已抽取为独立文件 `push_callback_data.m` 统一封装（两个主循环调用它，内部再调 `http_callback_push`），并非在主循环内直接调用 `http_callback_push`
+> 2. 过程数据年限由"最近 10 年"调整为**全部年份**（`push_callback_data.m` 中 `n_years = Y`），并新增 `start_year`、`coordination`、`constraint` 字段
+> 3. 前端未实现 G2(c) 的 `GET /process` 页面加载补拉与 G3 的 `getProcessData`（`src/api/index.ts` 无此函数），过程透明页完全依赖 WS 实时推送
 
 ---
 
@@ -605,7 +610,7 @@ G1 → G2 → G3
 |------|------|------|
 | 推送频率 | 每 10 代 | 你确认 |
 | 最优个体 | 拥挤度最大 Pareto 个体 | 问题 1 选 A |
-| 过程数据年限 | 最近 10 年 | 问题 2 选 A |
+| 过程数据年限 | 全部年份（`n_years = Y`，实施时由"最近 10 年"调整） | 实施调整 |
 | 汇总指标传递 | WebSocket 实时推 | 你确认 |
 | 过程数据传递 | WS 推送 + 后端存储供补拉 | 修复轮询延迟问题 |
 | PAEM | 同样改造 | 问题 4 确认 |

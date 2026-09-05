@@ -7,7 +7,7 @@
 > - Phase A（前端改造）：大部分已完成
 > - Phase B（MATLAB Pc参数化）：✅ **已完成**
 > - Phase C（后端改造）：✅ **已完成**
-> - Phase D（前后联调）：部分完成
+> - Phase D（前后联调）：D1（POST /run 对接）、D2（WebSocket 对接）✅ **已完成**；D3 的结果查看未走 `GET /results`，实际由评价决策页的 `POST /evaluate` + `GET /decision/{job_id}` 实现
 
 ---
 
@@ -866,9 +866,9 @@ Phase D1 → D2 → D3
 |------|------|---------|
 | `flag_xixian` 动态重载 | MATLAB 中每次 `_run_optimization_sync` 都调用 `load_data` 覆盖全局变量 | 确保只在优化开始前调用一次，不在进化循环中调用 |
 | MATLAB 参数顺序变化 | 修改函数签名后，Python 调用参数顺序需同步 | 修改后先在 MATLAB 命令行手动测试新签名 |
-| 过程透明化页面尚无真实 WebSocket 逻辑 | 目前只有 Mock，无 WS 客户端代码 | A8.5 中实现完整 WS 逻辑 |
+| ~~过程透明化页面尚无真实 WebSocket 逻辑~~ | 已解决：ProcessTransparentView 已接入 `ws://<host>:18080/ws/{job_id}` | — |
 | `genetic_operator.m` 被两个主循环共享 | B1 修改后需确保 NSGA-II 和 PAEM 都正确传入 Pc | B2/B3 同时检查调用点 |
-| 前端无 HTTP 客户端 | 项目无 axios/fetch 封装 | A7.1 中新增 `src/api/index.ts` |
-| CORS 跨域 | 前端 :3000 → 后端 :18080 被浏览器拦截 | C0 中配置 CORS 中间件 |
+| ~~前端无 HTTP 客户端~~ | 已解决：`src/api/index.ts` 已存在（fetch 封装，base URL 按 hostname 动态拼接） | — |
+| CORS 跨域 | 已解决：后端 CORS 默认 `["*"]`（内网调试用） | 上线前收紧为前端地址白名单 |
 | 前端提交类型转换 | `sedimentFlow` 是字符串，需转 number | A8.4 映射表中用 `parseFloat()` |
 | 提交失败时无反馈 | 后端未启动 / 网络超时 / 校验失败 | A8.4 中 `try-catch` + `ElMessage.error` |

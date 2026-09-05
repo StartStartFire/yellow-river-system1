@@ -6,12 +6,13 @@
 > **当前实现状态**：
 > - ✅ MATLAB → JSONL 文件（每代写入，已完成）
 > - ✅ MATLAB → POST /cb type='progress'（每 10 代推送汇总指标，已完成）
-> - ✅ MATLAB → POST /cb type='process_data'（每 10 代推送过程数据，已完成）
+> - ✅ MATLAB → POST /cb type='process_data'（每 10 代推送过程数据，已完成；由 `push_callback_data.m` 统一封装）
 > - ✅ 后端 /cb 端点接收（已完成）
 > - ✅ 后端 /cb 区分两种 type 分别处理（已完成）
 > - ✅ 后端 process_data 存储供 GET /process 补拉（已完成）
 > - ✅ WebSocket 广播（已完成）
 > - ✅ 前端 WS 接收 process_data 并更新图表（已完成）
+> - ⬜ 前端 GET /process 补拉（后端端点已就绪，前端当前未接入，仅依赖 WS 实时推送）
 >
 > 具体实施细节见 [process-transparent-plan.md](process-transparent-plan.md)。
 
@@ -60,6 +61,7 @@ MATLAB 每 10 代从当前种群计算汇总指标，通过 `http_callback_push(
 | `avg_objectives` | 种群各目标均值 |
 | `objective_std` | 种群各目标标准差 |
 | `pareto_size` | Pareto 前沿个体数 |
+| `avg_crowding_distance` | 种群平均拥挤距离 |
 | `pareto_objectives` | 所有 Pareto 解目标值矩阵 |
 
 ### 2.2 后端处理
@@ -87,11 +89,12 @@ MATLAB 每 10 代从当前种群计算汇总指标，通过 `http_callback_push(
 
 ### 3.1 MATLAB 侧（nsga_2_para.m）
 
-MATLAB 每 10 代选出代表性最优解（Pareto 前沿上拥挤度最大的个体），调用 `evaluate_objective_NSGA2` 获取完整过程变量，通过 `http_callback_push('process_data', process_data)` 推送。`process_data` 包含：
+MATLAB 每 10 代（含最后一代）经 `push_callback_data.m` 选出代表性最优解（Pareto 前沿上拥挤度最大的个体），调用 `evaluate_objective_NSGA2` 获取完整过程变量，推送 `process_data`（内部经 `http_callback_push`）。过程数据覆盖**全部年份**（`n_years = Y`，非仅最近 10 年）。`process_data` 包含：
 
 | 字段 | 来源 | 说明 |
 |------|------|------|
 | `iteration` | 当前代数 | — |
+| `start_year` | `year_start + BASE_YEAR - 1` | 过程数据起始年份 |
 | `longyang_level` | 决策变量前 V/2 列 | 龙羊峡逐时段水位 |
 | `liujia_level` | 决策变量后 V/2 列 | 刘家峡逐时段水位 |
 | `longyang_outflow` | `results.Long.Qout` | 龙羊峡出库流量 |
@@ -100,6 +103,8 @@ MATLAB 每 10 代选出代表性最优解（Pareto 前沿上拥挤度最大的�
 | `liujia_power` | `results.N.Ntii_liu` | 刘家峡出力 |
 | `total_power` | `results.N.Etii_longliu` | 梯级总出力 |
 | `water_shortage` | `results.liuzhou.Qshortage` | 兰州断面缺水量 |
+| `coordination` | `results.coordination` 各项均值 | 四子系统多年平均有序度（h_water/h_ele/h_sed/h_eco） |
+| `constraint` | 由缺水/生态/出力统计 | 约束满足率（water/eco/power_guarantee + combined_rate，0~100） |
 
 ### 3.2 后端处理
 
@@ -111,22 +116,22 @@ MATLAB 每 10 代选出代表性最优解（Pareto 前沿上拥挤度最大的�
 
 前端收到 `process_data` 消息后，更新水位图、流量图、出力图等图表数据。
 
-### 3.4 前端消费 — GET /process 补拉（页面初始化）
+### 3.4 前端消费 — GET /process 补拉（未接入）
 
-页面加载时调用 `GET /process/{job_id}` 补拉最新过程数据，防止因 WebSocket 连接较晚而丢失初始推送。
+> 后端 `GET /process/{job_id}` 端点已就绪（返回 `JobRecord.process_data`），但**前端当前未实现该补拉调用**（`src/api/index.ts` 无对应函数），页面完全依赖 WS 实时推送。若 WS 连接晚于任务启动，将错过此前的推送；后续可按需接入补拉。
 
 ### 3.5 数据对应关系
 
 | 前端组件 | MATLAB 来源 | 说明 |
 |---------|-------------|------|
-| 龙羊峡水位图 | `best_x(1:V/2)` 取最近 10 年 | 决策变量前 1080/2 列 |
-| 刘家峡水位图 | `best_x(V/2+1:V)` 取最近 10 年 | 决策变量后 1080/2 列 |
-| 龙羊峡出库流量 | `results.Long.Qout` 取最近 10 年 | `evaluate_objective_NSGA2` 计算的出库流量过程 |
-| 刘家峡出库流量 | `results.Liu.Qout` 取最近 10 年 | 同上 |
-| 龙羊峡出力 | `results.N.Ntii_long` 取最近 10 年 | `evaluate_objective_NSGA2` 计算的各电站出力 |
-| 刘家峡出力 | `results.N.Ntii_liu` 取最近 10 年 | 同上 |
-| 梯级总发电量 | `results.N.Etii_longliu` 取最近 10 年 | 所有梯级电站发电量之和 |
-| 兰州缺水量 | `results.liuzhou.Qshortage` 取最近 10 年 | 各时段兰州断面缺水量 |
+| 龙羊峡水位图 | `best_x(1:V/2)` 取全系列（n_years=Y） | 决策变量前 1080/2 列 |
+| 刘家峡水位图 | `best_x(V/2+1:V)` 取全系列（n_years=Y） | 决策变量后 1080/2 列 |
+| 龙羊峡出库流量 | `results.Long.Qout` 取全系列（n_years=Y） | `evaluate_objective_NSGA2` 计算的出库流量过程 |
+| 刘家峡出库流量 | `results.Liu.Qout` 取全系列（n_years=Y） | 同上 |
+| 龙羊峡出力 | `results.N.Ntii_long` 取全系列（n_years=Y） | `evaluate_objective_NSGA2` 计算的各电站出力 |
+| 刘家峡出力 | `results.N.Ntii_liu` 取全系列（n_years=Y） | 同上 |
+| 梯级总发电量 | `results.N.Etii_longliu` 取全系列（n_years=Y） | 所有梯级电站发电量之和 |
+| 兰州缺水量 | `results.liuzhou.Qshortage` 取全系列（n_years=Y） | 各时段兰州断面缺水量 |
 
 ---
 
@@ -143,18 +148,19 @@ output.chromosome = chromosome;  % pop × (V+M+2) 矩阵
 
 ### 4.2 前端消费
 
-```javascript
-// api/index.ts
-export async function getResults(jobId: string): Promise<ResultResponse> {
-  const res = await fetch(`${API_BASE}/results/${jobId}`)
-  return res.json()
-}
-// 响应结构:
+> 前端当前**未调用** `GET /results/{job_id}`（`src/api/index.ts` 无 getResults 函数）。
+> 结果消费的实际路径是：过程透明页完成后跳转评价决策页，经 `POST /evaluate`（排名/雷达图/原始指标）与 `GET /decision/{job_id}`（逐方案过程曲线/目标满足度/水量分配）展示。
+> `GET /results` 供 curl 调试与脚本使用。
+
+响应结构（供脚本参考）：
+
+```json
 {
   "job_id": "xxx",
   "status": "completed",
   "algorithm": "nsga2",
   "chromosome": [[...], ...],  // pop × (V+M+2) 矩阵
+  "evaluating": [[...], ...],  // pop × 22 评价指标矩阵
   "objective_names": ["缺水量", "发电量", "协同度"],
   "message": "NSGA2 优化完成",
   "generated_at": "2026-07-11 12:00"
@@ -178,14 +184,14 @@ export async function getResults(jobId: string): Promise<ResultResponse> {
 | 目标标准差 | `std(obj_values)` | progress → WS | 未展示 | ✅ 但未用 |
 | Pareto 前沿大小 | `sum(rank==1)` | progress → WS | 日志中显示 | ✅ |
 | Pareto 前沿目标值 | `obj_values(pareto_mask,:)` | progress → WS | 未展示 | ✅ 但未用 |
-| 龙羊峡水位 | `best_x(1:V/2)` | process_data → WS + GET | `longyang.optimal` | ✅ |
-| 刘家峡水位 | `best_x(V/2+1:V)` | process_data → WS + GET | `liujia.optimal` | ✅ |
-| 龙羊峡出库流量 | `results.Long.Qout` | process_data → WS + GET | `longyang.optimal` | ✅ |
-| 刘家峡出库流量 | `results.Liu.Qout` | process_data → WS + GET | `liujia.optimal` | ✅ |
-| 龙羊峡出力 | `results.N.Ntii_long` | process_data → WS + GET | `longyang.optimal` | ✅ |
-| 刘家峡出力 | `results.N.Ntii_liu` | process_data → WS + GET | `liujia.optimal` | ✅ |
-| 梯级总发电量 | `results.N.Etii_longliu` | process_data → WS + GET | 未展示 | ✅ 但未用 |
-| 兰州缺水量 | `results.liuzhou.Qshortage` | process_data → WS + GET | 未展示 | ✅ 但未用 |
+| 龙羊峡水位 | `best_x(1:V/2)` | process_data → WS（后端另存供 GET /process，前端暂未接入） | `longyang.optimal` | ✅ |
+| 刘家峡水位 | `best_x(V/2+1:V)` | process_data → WS（后端另存供 GET /process，前端暂未接入） | `liujia.optimal` | ✅ |
+| 龙羊峡出库流量 | `results.Long.Qout` | process_data → WS（后端另存供 GET /process，前端暂未接入） | `longyang.optimal` | ✅ |
+| 刘家峡出库流量 | `results.Liu.Qout` | process_data → WS（后端另存供 GET /process，前端暂未接入） | `liujia.optimal` | ✅ |
+| 龙羊峡出力 | `results.N.Ntii_long` | process_data → WS（后端另存供 GET /process，前端暂未接入） | `longyang.optimal` | ✅ |
+| 刘家峡出力 | `results.N.Ntii_liu` | process_data → WS（后端另存供 GET /process，前端暂未接入） | `liujia.optimal` | ✅ |
+| 梯级总发电量 | `results.N.Etii_longliu` | process_data → WS（后端另存供 GET /process，前端暂未接入） | 未展示 | ✅ 但未用 |
+| 兰州缺水量 | `results.liuzhou.Qshortage` | process_data → WS（后端另存供 GET /process，前端暂未接入） | 未展示 | ✅ 但未用 |
 | 最终 chromosome | `output.chromosome` | GET /results | `getResults()` | ✅ |
 | 预报/历史对照线 | — | — | `forecast/history/schedule` | ❌ 模型不生成 |
 | 装机容量 | — | — | `capacity` | ❌ 模型不推送 |
@@ -199,8 +205,9 @@ export async function getResults(jobId: string): Promise<ResultResponse> {
 
 | 链路环节 | 关键文件 | 说明 |
 |---------|---------|------|
-| MATLAB 推送 | `matlab-model/nsga_2_para.m` | 第 77-150 行：每 10 代推送两种消息 |
+| MATLAB 推送 | `matlab-model/nsga_2_para.m` | 进化循环每 10 代调用 `push_callback_data`（NSGA-II 版回调块约 L95-100） |
 | MATLAB 推送 | `matlab-model/PAEM_para.m` | 同上，PAEM 版本 |
+| MATLAB 工具 | `matlab-model/push_callback_data.m` | 回调数据统一封装（汇总指标 + 代表性解过程数据） |
 | MATLAB 工具 | `matlab-model/find_representative_solution.m` | 选代表性最优解 |
 | MATLAB 工具 | `matlab-model/http_callback_push.m` | webwrite POST 封装 |
 | 后端接收 | `backend-service/app/api/callback.py` | /cb 端点区分两种 type |
@@ -211,6 +218,6 @@ export async function getResults(jobId: string): Promise<ResultResponse> {
 | 模型评估 | `matlab-model/evaluate_objective_NSGA2.m` | `if nargout>1` 返回 results |
 | 模型评估 | `matlab-model/evaluate_objective_PAEM.m` | 同上 |
 | 模型评估 | `matlab-model/evaluate_objective.m` | 同上 |
-| 前端接收 | `frontend-service/.../ProcessTransparentView.vue` | handleWsMessage + fetchProcessData |
-| 前端 API | `frontend-service/src/api/index.ts` | postRun + getResults + getProcessData |
+| 前端接收 | `frontend-service/.../ProcessTransparentView.vue` | WS 消息处理（progress + process_data） |
+| 前端 API | `frontend-service/src/api/index.ts` | postRun + postEvaluate + getEvaluateResult + getDecisionPlans |
 | 前端类型 | `frontend-service/src/types/process.ts` | ProcessDataResponse + SummaryMetrics |

@@ -15,7 +15,7 @@
 
 ## 通用组件
 
-> 详见 `AGENTS.md` 第 21 章「代码复用强化策略」和第 21.2 节复用决策树。新增 UI 块前必须先查阅公共组件清单，优先复用，禁止复制粘贴相似组件。
+> 详见 `CLAUDE.md` 第 22 章「代码复用强化策略」和第 22.2 节复用决策树。新增 UI 块前必须先查阅公共组件清单，优先复用，禁止复制粘贴相似组件。
 
 - **分区面板 `PanelCard`**（`src/components/common/PanelCard.vue`）：统一面板容器，支持 `accent` 强调条 + `header-icon` / `header-actions` 插槽。所有卡片场景优先使用，禁止再手写 `.card-flat` / `.card-header`。
 - **状态标签 `StatusTag`**（`src/components/common/StatusTag.vue`）：统一状态指示，支持 `status` 预设（normal/warning/abnormal）或 `label`+`color`+`pulse` 自定义。禁止再写 `.status-dot` / `.status-badge`。
@@ -26,7 +26,7 @@
 - 数据表格（统一使用 `.dark-table` 类名复用全局表格样式）
 - 折叠面板
 
-> 全局样式类清单见 `AGENTS.md` 第 21.4 节；格式化工具清单见第 21.5 节。
+> 全局样式类清单见 `CLAUDE.md` 第 22.4 节；格式化工具清单见第 22.5 节。
 
 ## 全局风格
 
@@ -314,7 +314,7 @@ ECharts
 
 ## 数据状态体系
 
-> 优先使用 `StatusTag` 组件的预设状态渲染（`status` prop），自定义场景使用 `label`+`color`+`pulse` 模式。详见 AGENTS.md 第 21 章。
+> 优先使用 `StatusTag` 组件的预设状态渲染（`status` prop），自定义场景使用 `label`+`color`+`pulse` 模式。详见 CLAUDE.md 第 22 章。
 
 ### 正常（StatusTag status="normal"）
 

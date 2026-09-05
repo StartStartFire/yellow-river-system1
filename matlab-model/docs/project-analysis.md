@@ -1,8 +1,14 @@
 # 水库群（梯级）多目标调度模型 —— 项目逆向分析报告
 
 > **分析日期**: 2026-06-21
-> **项目路径**: F:/Model/yellow_river_project/matlab-model/
+> **项目路径**: E:/model/yellow_river_project/matlab-model/
 > **分析目标**: 对基于 NSGA-II / PAEM 算法的梯级水库多目标优化调度 MATLAB 项目进行完整逆向分析
+>
+> **⚠️ 快照说明**：本文档为 2026-06-21 的逆向分析快照。此后代码有如下演进（以代码为准，详见 model-specification.md）：
+> ① 主函数签名新增第 5 参数 `Pc`（交叉概率，原硬编码 0.9）；
+> ② 新增 `evaluate_objective_save_info.m`（返回 22 项评价指标 evaluating 与决策明细 plan_details）、`find_representative_solution.m`、`push_callback_data.m`（回调统一封装）、`http_callback_push.m`；
+> ③ 起调水位（LONG_Z_INI_VAL / LIU_Z_INI_VAL）、防凌流量（QMIN_VAL）、年份范围（YEAR_START / YEAR_END）支持 Web 服务动态注入；
+> ④ `nsga_2_para` 返回值扩展为 chromosome + evaluating + plan_details。
 
 ---
 
@@ -60,8 +66,8 @@ matlab-model/
 | 文件 | 功能 |
 |------|------|
 | `main.m` | **程序入口脚本**：加载数据 → 调用 NSGA-II 或 PAEM |
-| `nsga_2_para.m` | NSGA-II 算法主框架：种群 → 进化 → 评价 → 排序 → 替换 |
-| `PAEM_para.m` | PAEM 算法主框架：近似评价 + 精确评价两阶段 |
+| `nsga_2_para.m` | NSGA-II 算法主框架：种群 → 进化 → 评价 → 排序 → 替换（签名含 Pc） |
+| `PAEM_para.m` | PAEM 算法主框架：近似评价 + 精确评价两阶段（签名含 Pc） |
 
 #### 目标评估层（核心仿真模型）
 | 文件 | 功能 |
@@ -69,6 +75,7 @@ matlab-model/
 | `evaluate_objective.m` | **精确评价**：完整 Y 年逐时段仿真，含详细协同度计算 |
 | `evaluate_objective_NSGA2.m` | **NSGA-II 评价**：与精确评价逻辑相同，返回计算结果 |
 | `evaluate_objective_PAEM.m` | **PAEM 近似评价**：含 K_mut 次随机变异扰动 + 早停机制 |
+| `evaluate_objective_save_info.m` | **决策评价（新增）**：额外返回 22 项评价指标（evaluating）与决策明细（plan_details） |
 
 #### 遗传操作层
 | 文件 | 功能 |
@@ -84,16 +91,23 @@ matlab-model/
 | `non_domination_sort_mod.m` | 快速非支配排序 + 拥挤距离计算 |
 | `replace_chromosome.m` | 精英保留替换：rank + 拥挤距离择优 |
 | `find_nondominated_solution.m` | 提取 Pareto 非支配解集（PAEM 内部使用） |
+| `find_representative_solution.m` | 选代表性最优解（Pareto 前沿拥挤距离最大个体，回调过程数据用，新增） |
 
 #### 辅助工具层
 | 文件 | 功能 |
 |------|------|
 | `chz1.m` | 一维线性插值（已知 x 求 y，如水位→库容） |
 | `chz2.m` | 一维线性插值（已知 y 求 x，如库容→水位） |
-| `load_data.m` | Excel 数据加载：特性曲线、来水、需水、边界等 |
+| `load_data.m` | Excel 数据加载：特性曲线、来水、需水、边界等（支持年份范围截取） |
 | `init_log_file.m` | 日志文件初始化（目录创建 + fopen） |
 | `write_json_log.m` | JSON Lines 格式日志写入 |
 | `preprocess_results_for_json.m` | 结果预处理（NaN/Inf 转换） |
+
+#### 回调推送层（新增，Web 服务对接）
+| 文件 | 功能 |
+|------|------|
+| `push_callback_data.m` | 回调数据统一封装：汇总指标（progress）+ 代表性解过程数据（process_data），被两个主循环每 10 代调用 |
+| `http_callback_push.m` | webwrite HTTP POST 封装（超时 1s、失败静默降级） |
 
 ### 2.2 数据结构定义
 
@@ -119,7 +133,7 @@ main.m  [程序入口]
 │   ├── xlsread() × 多次 → 读取 data.xlsx 各表
 │   └── 生成全局变量: VarMin, VarMax, LONG_IN, LAN, ...
 │
-├── nsga_2_para(pop, iterate, M, Q_sediment)
+├── nsga_2_para(pop, iterate, M, Q_sediment, Pc)
 │   ├── init_log_file() → 打开日志文件
 │   ├── initialize_population()
 │   │   ├── unifrnd() → 随机生成水位
@@ -143,7 +157,7 @@ main.m  [程序入口]
 │   │   ├── non_domination_sort_mod()
 │   │   └── replace_chromosome()
 │
-├── PAEM_para(pop, iterate, K_mut, M, Q_sediment)
+├── PAEM_para(pop, iterate, K_mut, M, Q_sediment, Pc)
 │   ├── [同上框架，但评价函数不同]
 │   ├── evaluate_objective_PAEM() ← 近似评价
 │   │   ├── mutation_one_variable() → K_mut 次随机扰动
@@ -283,8 +297,9 @@ main.m  [程序入口]
 |------|------|------|------|
 | NSGA-II 进化过程日志 | JSON Lines (.jsonl) | `NSGA2_progress.jsonl` | 每代所有个体的目标值、进度百分比 |
 | PAEM 进化过程日志 | JSON (单文件) | `PAEM_progress.json` | PAEM 进化过程 |
-| nsga_2_para 返回值 | MATLAB struct | 工作区 | `output.chromosome` Pareto 解集 |
+| nsga_2_para 返回值 | MATLAB struct | 工作区 | `output.chromosome` Pareto 解集 + `output.evaluating`（pop×22 评价指标）+ `output.plan_details`（决策明细） |
 | PAEM_para 返回值 | MATLAB struct | 工作区 | `output.chromosome_acc` 精确评价解集 |
+| 回调推送 | HTTP POST | Web 服务 /cb | 每 10 代 progress 汇总指标 + process_data 过程数据（经 push_callback_data.m） |
 
 ---
 
@@ -359,11 +374,11 @@ PAEM 是 NSGA-II 框架的变体，仅用于学术对比实验，核心区别：
 
 | 位置 | 参数 | 数值 | 风险 |
 |------|------|------|------|
-| `evaluate_objective*.m` | 龙羊峡起调水位 | 2580 m | 不可改，更换初始条件需改代码 |
-| `evaluate_objective*.m` | 刘家峡起调水位 | 1720 m | 同上 |
+| `evaluate_objective*.m` | 龙羊峡起调水位 | 2580 m | 默认值，可经全局变量 LONG_Z_INI_VAL 动态注入 |
+| `evaluate_objective*.m` | 刘家峡起调水位 | 1720 m | 默认值，可经全局变量 LIU_Z_INI_VAL 动态注入 |
 | `evaluate_objective*.m` | 龙羊峡死/满库容 | 42.63 / 242.9 亿m³ | 硬编码在水库调度逻辑中 |
 | `evaluate_objective*.m` | 刘家峡死/满库容 | 6.223 / 39.93 亿m³ | 同上 |
-| `evaluate_objective*.m` | 防凌流量 Qmin | [610,420,420,420,420] | 仅5个时段，索引j-8 |
+| `evaluate_objective*.m` | 防凌流量 Qmin | [610,420,420,420,420] | 默认值，可经全局变量 QMIN_VAL 动态注入；仅5个时段，索引j-8 |
 | `evaluate_objective*.m` | 防凌期龙羊峡出库 | 550 m³/s | 固定值 |
 | `evaluate_objective*.m` | 生态流量下限 | 350 m³/s | 固定阈值 |
 | `evaluate_objective*.m` | 生态流量上限 | 1050 m³/s | 固定阈值 |
@@ -374,7 +389,7 @@ PAEM 是 NSGA-II 框架的变体，仅用于学术对比实验，核心区别：
 | `evaluate_objective*.m` | 装机容量 | 各电站固定值 | 扩建需改代码 |
 | `evaluate_objective*.m` | SBX 分配系数 mu | 20 | 遗传参数 |
 | `evaluate_objective*.m` | 多项式变异系数 mum | 20 | 遗传参数 |
-| `evaluate_objective*.m` | 交叉概率 | 0.9 | 遗传参数 |
+| `nsga_2_para.m` / `genetic_operator.m` | 交叉概率 Pc | 0.9（默认） | 已参数化：Pc 经主函数签名传入 |
 | `nsga_2_para.m` | 进化代数 | 20 (由调用方传参) | 当前配置过低 |
 | `nsga_2_para.m` | 种群规模 | 15 (由调用方传参) | 当前配置过低 |
 | `evaluate_objective*` | 时段转换系数 xishu | 20个固定值 | 对应时段划分硬编码 |
@@ -427,7 +442,7 @@ PAEM 是 NSGA-II 框架的变体，仅用于学术对比实验，核心区别：
 
 1. **种群规模过小**（pop=15）：对于 2160 维的高维优化问题，15 个个体远不足以覆盖 Pareto 前沿
 2. **进化代数过少**（iterate=20）：在如此高维的搜索空间中，20 代远未收敛
-3. **`numel` 误用**: `evaluate_objective_NSGA2:604` 行 `numel(Qshortage_eco(i,:), Qshortage_eco(i,:)==0)` 语法不正确，`numel` 不接受条件参数，该行实际不会计算生态保证率
+3. **`numel` 误用**: `evaluate_objective_NSGA2.m:617`、`evaluate_objective.m:616`、`evaluate_objective_PAEM.m:439` 三处 `numel(Qshortage_eco(i,:), Qshortage_eco(i,:)==0)` 语法不正确，`numel` 不接受条件参数，该行实际不会计算生态保证率
 4. **`find` 误用**: 协同度计算中多处使用 `length(find(condition))` 而非 `sum(condition)`，效率低下但逻辑正确
 5. **PAEM 精度控制缺陷**: `flag_s` 和 `flag_d` 循环内只在第一轮判断后 break，但 `i_start` 从随机年起始而非从头，可能导致状态变量未初始化
 6. **结果浮点精度**: `abs(chromosome(:, (V + 1): (V + M)))` 在 NSGA-II 日志中取绝对值，可能掩盖负号问题
@@ -468,7 +483,7 @@ PAEM 是 NSGA-II 框架的变体，仅用于学术对比实验，核心区别：
 
 ### 7.4 质量保障（低优先级）
 
-10. **修复 `numel` bug**：`evaluate_objective_NSGA2.m:604` 修复生态保证率计算。
+10. **修复 `numel` bug**：`evaluate_objective_NSGA2.m:617` 等三处（见 6.5 第 3 条）修复生态保证率计算。
 
 11. **优化性能**：对 2160 维 × 20 代 × 15 个体的逐时段仿真，考虑向量化和预分配优化，避免循环内动态数组增长。
 

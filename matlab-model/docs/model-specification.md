@@ -115,9 +115,10 @@ VarMin_k <= x_k <= VarMax_k,  k = 1,...,V
 
 ### 3.3 起调水位
 
-- **第一年起调水位**（给定值）：
+- **第一年起调水位**（默认值）：
   - 龙羊峡：**2580 m**
   - 刘家峡：**1720 m**
+- 可通过全局变量 `LONG_Z_INI_VAL` / `LIU_Z_INI_VAL` 动态注入（Web 服务 `POST /run` 的 `initial_water_level_*` 参数），未设置时使用上述默认值
 - **后续年起调水位** = 上年年末水位（j=20 时的水位值），形成序列耦合
 
 ---
@@ -417,8 +418,8 @@ Q_liuout(i,8) = 700 m^3/s
 ### 6.1 NSGA-II（主算法）
 
 ```
-输入: pop(种群大小), iterate(进化代数), M(目标数), Q_sediment(调沙流量)
-输出: Pareto 最优解集 chromosome
+输入: pop(种群大小), iterate(进化代数), M(目标数), Q_sediment(调沙流量), Pc(交叉概率，默认 0.9)
+输出: Pareto 最优解集 chromosome + evaluating 评价指标矩阵 + plan_details 决策明细
 
 1. 数据加载: load_data() -> 全局变量
 2. 种群初始化: initialize_population()
@@ -430,7 +431,7 @@ Q_liuout(i,8) = 700 m^3/s
    a. 锦标赛选择: tournament_selection(pool=pop/2, tour=2)
       - 选择标准: rank 小优先 -> 拥挤距离大优先
    b. 遗传操作: genetic_operator()
-      - SBX 交叉 (概率 0.9, eta_c=20)
+      - SBX 交叉 (概率 Pc=入参，默认 0.9, eta_c=20)
       - 多项式变异 (概率 0.1, eta_m=20)
       - 子代裁剪到 [VarMin, VarMax]
    c. 子代评价: evaluate_objective_NSGA2()
@@ -444,7 +445,9 @@ Q_liuout(i,8) = 700 m^3/s
       - 按 rank 分层，同层按拥挤距离降序
       - 取前 pop 个个体
    g. 日志记录: 每代写入 NSGA2_progress.jsonl
-4. 返回最终种群 chromosome
+   h. 回调推送: 每 10 代（含最后一代）调用 push_callback_data.m → POST /cb（progress 汇总指标 + process_data 过程数据）
+4. 结束后逐个体调用 evaluate_objective_save_info()，生成 evaluating (pop×22) 与 plan_details（决策明细）
+5. 返回最终种群 chromosome + evaluating + plan_details
 ```
 
 ### 6.2 PAEM 变体（学术对比实验算法）
@@ -558,7 +561,9 @@ H_liu(i,j)  = 0.5 * (x(20Y+j+(i-1)*20) + x(20Y+j-1+(i-1)*20)) - Z_liuxia(i,j)
 ### 9.1 主要输出
 
 - **Pareto 解集矩阵**：chromosome (pop x (V+M+2))，包含水位方案 + 目标值 + 排序信息
-- **NSGA-II 返回**：output.chromosome — 进化结束时的最终种群
+- **评价指标矩阵**：evaluating (pop × 22) — 每个方案的 22 项评价指标（供水/输沙/发电/灾害/生态五子系统），供评价系统排名
+- **决策明细**：plan_details — 每个方案的水位/出库流量/出力过程、目标满足率（targets）、分类水量分配（water_usage）、协同度（coordination）
+- **NSGA-II 返回**：output.chromosome + output.evaluating + output.plan_details
 - **PAEM 返回**：output.chromosome_acc — 精确评价后的最终种群（含近似/精确对比）
 
 ### 9.2 日志输出

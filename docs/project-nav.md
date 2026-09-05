@@ -8,13 +8,14 @@
 ## 一、总览
 
 ```
-F:\Model\yellow_river_project\
+E:\model\yellow_river_project\
 ├── matlab-model/                     # MATLAB 多目标优化调度模型
 │   ├── nsga_2_para.m          # NSGA-II 主循环（入口）
 │   ├── PAEM_para.m            # PAEM 主循环（入口）
 │   ├── evaluate_objective*.m  # 4 个评价函数（含 save_info 版本）
-│   ├── *.m                    # 20 个辅助函数
-│   ├── data.xlsx              # 输入数据（17 个 sheet）
+│   ├── *.m                    # 15 个辅助函数
+│   ├── data.xlsx              # 输入数据（18 个 sheet）
+│   ├── push_callback_data.m   # 回调数据统一封装（每 10 代推 progress + process_data）
 │   ├── http_callback_push.m    # HTTP 回调推送（webwrite POST）
 │   └── docs/                  # 专属文档
 │       ├── model-specification.md
@@ -35,7 +36,6 @@ F:\Model\yellow_river_project\
 │
 ├── evaluation-model/                # Python 评价系统（独立模块）
 │   ├── evaluation_system/     # NMF/PP/AHP_FUZZY + 整合
-│   ├── 使用说明.docx           # 本地文档
 │   └── docs/                  # 专属文档
 │       └── evaluation-data-specification.md
 │
@@ -49,7 +49,7 @@ F:\Model\yellow_river_project\
 │       ├── router/            # 路由（13 个视图）
 │       ├── stores/            # Pinia 状态管理
 │       ├── types/             # TypeScript 类型定义
-│       ├── mock/              # Mock 数据（暂未接入真实 API）
+│       ├── mock/              # Mock 数据（部分页面；过程透明/评价决策/配置汇总已接真实 API，见 §5.5）
 │       ├── views/             # 13 个页面视图
 │       ├── components/        # 35+ 组件
 │       └── layouts/           # 布局组件
@@ -73,7 +73,7 @@ F:\Model\yellow_river_project\
 
 ### 2.1 主要文件
 
-MATLAB 模型共 22 个 `.m` 文件，核心文件如下（完整列表见目录树上方）：
+MATLAB 模型共 23 个 `.m` 文件，核心文件如下（完整列表见目录树上方）：
 
 | 类别 | 文件 | 说明 |
 |------|------|------|
@@ -83,7 +83,7 @@ MATLAB 模型共 22 个 `.m` 文件，核心文件如下（完整列表见目录
 | 遗传 | `initialize_population.m`, `genetic_operator.m`, `tournament_selection.m`, `replace_chromosome.m`, `non_domination_sort_mod.m` | 种群初始化、SBX交叉+多项式变异、锦标赛选择、精英替换、非支配排序 |
 | 工具 | `chz1.m`, `chz2.m`, `mutation_one_variable.m`, `find_nondominated_solution.m`, `find_representative_solution.m` | 插值、PAEM变异、非支配解提取、代表性解选择 |
 | 日志 | `write_json_log.m`, `init_log_file.m`, `preprocess_results_for_json.m` | JSONL 文件写入和管理 |
-| 回调 | `http_callback_push.m` | HTTP POST 推送进度到 Web 服务 |
+| 回调 | `push_callback_data.m`, `http_callback_push.m` | 回调数据统一封装（汇总指标 + 过程数据）、HTTP POST 推送到 Web 服务 |
 
 ### 2.2 数据流
 
@@ -99,9 +99,9 @@ tournament_selection.m → genetic_operator.m → evaluate_objective*.m
 non_domination_sort_mod.m → replace_chromosome.m
      ↓  (每代)
 write_json_log.m → NSGA2_progress.jsonl / PAEM_progress.json
-http_callback_push.m → POST → Web 服务 /cb
+push_callback_data.m → http_callback_push.m → POST → Web 服务 /cb
      ↓
-结果 → output.chromosome / chromosome_acc
+结果 → output.chromosome / evaluating / plan_details（PAEM: chromosome_acc）
 ```
 
 ### 2.3 核心参数
@@ -125,7 +125,7 @@ http_callback_push.m → POST → Web 服务 /cb
 
 ### 2.4 数据文件
 
-- **`data.xlsx`** — 17 个 sheet，包含 54 年（1970-2023）实测数据
+- **`data.xlsx`** — 18 个 sheet，包含 54 年（1970-2023）实测数据
   - 水位-流量/库容曲线：`LONG-ZQ`, `LONG-ZV`, `LIU-ZQ`, `LIU-ZV`
   - 入流/区间：`LONGIN`, `LONG-LIU`, `LIU-LAN`
   - 用水/调水：`longliu_water`, `liulan_water`, `xixian_up`, `xixian_down`
@@ -184,18 +184,19 @@ http_callback_push.m → POST → Web 服务 /cb
 | GET | `/status/{job_id}` | 查询任务状态 |
 | GET | `/jobs` | 任务列表 |
 | GET | `/results/{job_id}` | 获取 Pareto 解集 |
-| GET | `/process/{job_id}` | 补拉过程数据 🚧 |
+| GET | `/process/{job_id}` | 补拉过程数据 |
 | POST | `/evaluate` | 运行评价算法 |
 | GET | `/evaluate/{job_id}` | 获取评价缓存 |
+| GET | `/decision/{job_id}` | 决策方案明细（前 10 个方案） |
 | POST | `/cb` | MATLAB 回调接收 |
 | WS | `/ws/{job_id}` | 实时订阅 |
 
 ### 3.3 通信链路
 
 ```
-MATLAB (nsga_2_para.m)
-  │ 每5代/每代 调用 http_callback_push.m
-  │ webwrite POST → http://127.0.0.1:18080/cb
+MATLAB (nsga_2_para.m / PAEM_para.m)
+  │ 每 10 代（含最后一代）调用 push_callback_data.m
+  │ （内部经 http_callback_push.m → webwrite POST → http://127.0.0.1:18080/cb）
   ▼
 FastAPI /cb 端点
   │ Pydantic 校验 → asyncio.Queue
@@ -209,11 +210,13 @@ WebSocket /ws/{job_id} → 前端实时更新
 ### 3.4 当前配置（config.py 默认值）
 
 ```
-host: 127.0.0.1
+host: 0.0.0.0                        # 监听所有网卡（本机访问 127.0.0.1:18080）
 port: 18080
-cors_origins: ["http://localhost:3000", ...]
-matlab_root: F:/Model/yellow_river_project/matlab-model
+cors_origins: ["*"]                  # 系统集成阶段允许所有来源，内网调试用
+matlab_root: <项目根>/matlab-model    # 自动基于项目根目录计算（property），换机器无需修改
 data_file: data.xlsx
+callback_host: 127.0.0.1             # MATLAB 回调地址（写死在 http_callback_push.m）
+callback_port: 18080
 callback_timeout: 1.0s
 default_pop: 15
 default_iterate: 20
@@ -230,7 +233,8 @@ default_k_mut: 50
 
 | 文件 | 职责 | 关键细节 |
 |------|------|----------|
-| `evaluation_system/__init__.py` | **统一入口** | `run_complete_evaluation(data_matrix, config)` 一键运行 3 种算法 + 整合 |
+| `evaluation_system/__init__.py` | **统一入口** | `run_complete_evaluation(data_source, config_dict)` 一键运行 3 种算法 + 整合（另有 `run_single_algorithm` 等导出） |
+| `evaluation_system/main_controller.py` | **主控制器** | `MainController`：单算法运行、全算法并行、排名整合、总结报告 |
 | `evaluation_system/unified_config.py` | **统一配置管理器** | 聚合 NMF/PP/AHP_FUZZY 三种算法的配置参数 |
 | `evaluation_system/unified_output.py` | **统一输出处理器** | 输出标准化，生成排名/收敛曲线/雷达图/子系统得分 |
 | `evaluation_system/algorithm_base.py` | **算法基类** | 定义 AlgorithmBase 公共接口 |
@@ -245,12 +249,12 @@ default_k_mut: 50
 
 ```
 POST /evaluate → evaluate.py
-  → run_complete_evaluation(matrix, config)
+  → run_complete_evaluation(data_source=矩阵, config_dict=配置)
     → NMFAlgorithm.run()       → W, H, ranks, cost_history
     → PPAlgorithm.run()        → a, z, ranks, cost_history
     → FuzzyAlgorithm.run()     → final_scores, ranks, ahp_weights, 一级评价
     → RankSumTheory.integrate() → final_ranking (序号总和)
-    → _build_evaluation_cache() → rankings + convergence + subsystem + raw_indicators
+    → _build_evaluation_cache() → rankings + convergence + radar + raw_indicators
 ```
 
 ---
@@ -275,7 +279,7 @@ src/
 │   ├── evaluation.ts           # 评价决策类型
 │   ├── caseLibrary.ts          # 案例库类型
 │   └── reportStatistics.ts     # 报表统计类型
-├── mock/                       # Mock 数据（所有页面，无真实 HTTP 调用）
+├── mock/                       # Mock 数据（部分页面仍在用；评价决策/过程透明/配置汇总已接真实 API）
 │   ├── model-config/           # 6 步流程的 Mock
 │   │   ├── dispatchScenario.ts
 │   │   ├── dispatchSubject.ts
@@ -388,10 +392,10 @@ Step 4 目标 → Step 5 场景（关联约束参数）
 
 ### 7.1 摸清数据从哪来到哪去
 ```
-data.xlsx 17 sheets → load_data.m (20 全局变量)
+data.xlsx 18 sheets → load_data.m (20 全局变量)
     → nsga_2_para.m / PAEM_para.m
     → evaluate_objective*.m (核心计算)
-    → http_callback_push.m → /cb → asyncio.Queue → WebSocket → 前端
+    → push_callback_data.m → http_callback_push.m → /cb → asyncio.Queue → WebSocket → 前端
     → write_json_log.m → *.jsonl 文件持久化
 ```
 

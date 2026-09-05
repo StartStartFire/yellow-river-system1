@@ -41,10 +41,12 @@
 
 | 组件 | 用途 |
 |------|------|
-| `ReservoirMap.vue` | Leaflet 地图：水库点位标注 + popup |
-| `ReservoirMonitorPanel.vue` | 右侧浮层：水库水情监控（水位/流量/库容） |
-| `PowerStatisticsPanel.vue` | 底部面板：出力统计图表 |
-| `DispatchStatusBar.vue` | 顶部状态条：调度指令执行状态 |
+| `BasinMapPanel.vue` | Leaflet 地图全屏背景：水库点位标注 + popup |
+| `ReservoirMonitorPanel.vue` | 水情监控面板（水位/流量/库容） |
+| `PowerStatisticsPanel.vue` | 发电统计面板 |
+| `WaterLevelChart.vue` | 水位过程线 ECharts |
+| `LoadChart.vue` | 负荷过程线 ECharts |
+| `WarningPanel.vue` | 预警信息列表 |
 
 ### 2.3 公共组件使用
 
@@ -345,8 +347,8 @@ src/mock/model-config/
 - 中部：左 40% 优化过程（收敛曲线 + 目标趋势）+ 右 60% 水库运行响应（龙羊峡/刘家峡 × 水位/流量/出力 Tab）
 - 底部 5 个卡片：运行日志 + 当前最优方案信息 + 约束满足情况 + 预估结果摘要 + 操作
 - 底部卡片使用 PanelCard，紧凑样式通过 `:deep(.section-header)` 等微调
-- 进度模拟使用 setInterval，100% 后自动变为"已完成"
-- 日志追加模拟使用 setInterval
+- 进度、日志与过程数据通过 WebSocket 实时接收，`progress_percent ≥ 100` 后自动变为"已完成"
+- 已运行时间计时使用 setInterval（仅本地走表）
 
 ---
 
@@ -531,9 +533,9 @@ src/mock/model-config/
   ├─ 模型配置（6 步流程）
   │     Step 1 调度场景 → Step 2 调度主体 → Step 3 模型数据
   │          → Step 4 模型算法 → Step 5 场景配置 → Step 6 配置汇总
-  │                                                       ↓ 一键运行
+  │                                                       ↓ 一键运行（POST /run）
   │                                                  过程透明
-  │                                                 （模拟计算过程）
+  │                                                 （WebSocket 实时计算过程）
   │                                                       ↓ 计算完成
   │                                                  评价决策
   │                                                 （Tab：评价/决策）

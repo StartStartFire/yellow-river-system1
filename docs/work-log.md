@@ -5,6 +5,27 @@
 
 ---
 
+## [11] 决策分析全链路 + 回调统一封装 + 文档全面同步
+
+**日期**: 2026-09-05
+**原因**: 打通"优化结果 → 评价 → 决策分析"闭环；回调逻辑收敛为统一封装；文档与代码全面对齐
+**涉及文件**:
+- `matlab-model/evaluate_objective_save_info.m` — **增强**：返回 22 项评价指标（evaluating）与决策明细（plan_details：过程曲线/目标满足率/水量分配/协同度）
+- `matlab-model/nsga_2_para.m` — **修改**：结束后逐个体生成 evaluating + plan_details，返回值扩展为三元组
+- `matlab-model/push_callback_data.m` — **新增**：回调统一封装（progress 汇总指标 + process_data 全年份过程数据，含 start_year/coordination/constraint 字段），两个主循环每 10 代调用
+- `backend-service/app/services/matlab.py` — **修改**：提取 evaluating/plan_details；年份范围（YEAR_START/YEAR_END）、起调水位、防凌流量动态注入
+- `backend-service/app/api/jobs.py` — **新增**：GET /decision/{job_id} 决策方案明细端点（前 10 方案，已评价按 ALL 整合排名、未评价按 Pareto rank + 拥挤距离排序）
+- `frontend-service/src/api/index.ts` — **新增**：postEvaluate / getEvaluateResult / getDecisionPlans（base URL 按 hostname 动态拼接）
+- `frontend-service/src/views/evaluation-decision/` — **对接**：评价分析 + 决策分析 Tab 接真实 API（mock 仅作无 job_id/失败回退）
+- 各子项目 docs/ — **修订**：API 文档补 /decision；清理"全 Mock""17 个 sheet""F 盘路径""MATLAB 未推送 process_data"等过时表述
+
+**验证**:
+- POST /run → WS 实时推送 → POST /evaluate（ALL）→ GET /decision 全链路跑通 ✓
+- 决策分析页方案编号与评价分析页排名一致 ✓
+- 文档 grep 校验：过时关键词（F 盘路径/17 个 sheet/进度模拟等）零残留 ✓
+
+---
+
 ## [10] MATLAB 评价函数增强 + 约束参数动态注入
 
 **日期**: 2026-08-03
@@ -46,23 +67,3 @@
 - POST /evaluate 三种算法（NMF/PP/AHP_FUZZY）+ ALL 整合模式均返回排名 ✓
 - GET /evaluate/{job_id} 缓存查询正常 ✓
 - CORS 跨域 localhost:3000 正常 ✓
-
----
-
-## [8] 前端 Vue3 项目搭建
-
-**日期**: 2026-07-11
-**原因**: 提供完整的用户交互界面，支撑全链路验证
-**涉及文件**:
-- `frontend-service/` — **新增**：Vue3 + TypeScript + Vite + Pinia 前端项目
-- `src/views/` — **新增**：13 个页面视图（首页、基础数据、来水条件、模型配置 6 步流程、过程透明化、评价决策、案例库、报表统计）
-- `src/components/` — **新增**：35+ 组件（通用/图表/模型配置/评价决策/案例库组件群）
-- `src/stores/modelConfig.ts` — **新增**：模型配置 6 步流程状态管理（Pinia）
-- `src/types/` — **新增**：7 个类型定义文件（model/reservoir/common/process/evaluation-model/caseLibrary/reportStatistics）
-- `src/mock/` — **新增**：所有页面 Mock 数据（暂未接入真实 API）
-- `src/router/index.ts` — **新增**：13 个路由配置
-
-**验证**:
-- 浏览器访问 localhost:3000 首页正常 ✓
-- 6 步流程导航联动正常 ✓
-- 所有页面 Mock 数据渲染正常 ✓

@@ -4,7 +4,7 @@
 
 当前阶段：**前后端对接 + MATLAB 模型集成**。前端页面已开发完毕，正在将静态 mock 数据替换为后端 API + WebSocket 实时数据。
 
-后端位于 `F:\Model\yellow_river_project\backend-service\`，提供 FastAPI HTTP API + WebSocket 服务，通过 MATLAB Engine 调用 NSGA-II / PAEM 优化模型。
+后端位于 `E:\model\yellow_river_project\backend-service\`，提供 FastAPI HTTP API + WebSocket 服务，通过 MATLAB Engine 调用 NSGA-II / PAEM 优化模型。
 
 当前目标是：
 
@@ -181,17 +181,12 @@ docs/page-design/README.md
 写全局页面设计规范，例如整体风格、导航栏、通用布局、通用组件。
 
 ```text
-docs/page-design/01-home.md
-docs/page-design/02-basic-data.md
-docs/page-design/03-water-condition.md
-docs/page-design/04-model-config.md
-docs/page-design/05-process-transparent.md
-docs/page-design/06-evaluation-decision.md
-docs/page-design/07-case-library.md
-docs/page-design/08-report-statistics.md
+docs/page-design/README.md
+docs/page-design/pages-reference.md
 ```
 
-分别写每个页面的具体布局、区域划分、交互规则、图表内容和 mock 数据要求。
+- `README.md` — 全局设计规范（整体风格、导航栏、通用布局、通用组件）
+- `pages-reference.md` — 页面速查表（路由映射、状态颜色、联动规则、格式化函数；原 14 个独立页面设计文档已合并删除）
 
 ```text
 src/mock/
@@ -221,7 +216,7 @@ docs/development/SESSIONS.md
 
 ```text
 project-root/
-├─ AGENTS.md
+├─ CLAUDE.md
 ├─ package.json
 ├─ vite.config.ts
 ├─ tsconfig.json
@@ -237,22 +232,8 @@ project-root/
 │  │  └─ SESSIONS.md                    # 开发流水账，滚动保留近 5 次
 │  │
 │  └─ page-design/
-│     ├─ README.md
-│     ├─ 01-home.md
-│     ├─ 02-basic-data.md
-│     ├─ 03-water-condition.md
-│     ├─ 04-model-config/
-│     │  ├─ README.md                    # 模型配置模块总说明，只写六步流程关系
-│     │  ├─ 01-dispatch-scenario.md      # Step 1 调度场景
-│     │  ├─ 02-dispatch-subject.md       # Step 2 调度主体
-│     │  ├─ 03-model-data.md             # Step 3 模型数据
-│     │  ├─ 04-model-algorithm.md        # Step 4 模型算法
-│     │  ├─ 05-scenario-constraint.md    # Step 5 场景约束
-│     │  └─ 06-config-summary.md         # Step 6 配置汇总
-│     ├─ 05-process-transparent.md
-│     ├─ 06-evaluation-decision.md
-│     ├─ 07-case-library.md
-│     └─ 08-report-statistics.md
+│     ├─ README.md                        # 全局设计规范
+│     └─ pages-reference.md               # 页面速查表（14 个旧页面文档已合并）
 │
 ├─ public/
 │  ├─ map/
@@ -263,7 +244,7 @@ project-root/
    ├─ App.vue
    │
    ├─ router/
-   │  └─ index.ts                        # 8 主页面 + 6 模型配置子页面
+   │  └─ index.ts                        # 7 主页面 + 6 模型配置子页面（13 个路由）
    │
    ├─ stores/
    │  ├─ app.ts                          # 全局导航 / 当前水库
@@ -782,16 +763,16 @@ camelCase，例如 reservoir.ts
    → 评价模型数据产出规格、API 端点、前端数据映射
 
 3. 了解前后端架构：
-   - 后端: F:\Model\yellow_river_project\backend-service\ (FastAPI + MATLAB Engine)
+   - 后端: E:\model\yellow_river_project\backend-service\ (FastAPI + MATLAB Engine)
    - 前端: 本项目 (Vue 3 + Vite)
-   - API 调用: src/api/index.ts (fetch，base URL: http://127.0.0.1:18080)
-   - WebSocket: ws://127.0.0.1:18080/ws/{job_id}
+   - API 调用: src/api/index.ts (fetch，base URL: http://<window.location.hostname>:18080)
+   - WebSocket: ws://<window.location.hostname>:18080/ws/{job_id}
 
 4. 了解已对接的页面：
    - 模型配置 → 提交任务 (POST /run)
    - 过程透明 → WebSocket 实时推送 (progress + process_data)
-   - 评价决策 → POST /evaluate + GET /evaluate/{job_id}
-   - 待对接: 决策分析页、案例库、报表统计
+   - 评价决策 → POST /evaluate + GET /evaluate/{job_id} + GET /decision/{job_id}
+   - 待对接: 案例库、报表统计、基础数据、水调水情、首页
 
 5. job_id 流向: 模型配置 → URL query → 过程透明 → URL query → 评价决策
 
@@ -807,31 +788,32 @@ camelCase，例如 reservoir.ts
 | 项目 | 值 |
 |------|-----|
 | 框架 | FastAPI |
-| 端口 | `127.0.0.1:18080` |
-| CORS | `localhost:3000/3001` + `127.0.0.1:3000/3001` |
+| 监听 | `0.0.0.0:18080`（本机访问 `http://127.0.0.1:18080`） |
+| CORS | `["*"]`（系统集成阶段允许所有来源，内网调试用） |
 | API 文档 | `http://127.0.0.1:18080/docs` (自动生成) |
 
 ### 21.2 API 端点
 
 | 方法 | 路径 | 说明 | 前端调用 |
 |------|------|------|---------|
-| GET | `/health` | 健康检查 | `healthCheck()` |
+| GET | `/health` | 健康检查 | — |
 | POST | `/run` | 提交优化任务 → 返回 job_id | `postRun()` |
-| GET | `/status/{job_id}` | 查询任务状态 | `getJobStatus()` |
+| GET | `/status/{job_id}` | 查询任务状态 | — |
 | GET | `/jobs` | 任务列表 | — |
-| GET | `/results/{job_id}` | 获取结果（chromosome + evaluating） | `getResults()` |
-| GET | `/process/{job_id}` | 获取最新过程数据 | `getProcessData()` |
+| GET | `/results/{job_id}` | 获取结果（chromosome + evaluating） | — |
+| GET | `/process/{job_id}` | 获取最新过程数据 | — |
 | POST | `/evaluate` | 运行评价（body: {job_id, method}） | `postEvaluate()` |
 | GET | `/evaluate/{job_id}` | 获取已缓存的评价结果 | `getEvaluateResult()` |
+| GET | `/decision/{job_id}` | 决策方案明细（前 10 个方案的过程曲线/目标满足度/水量分配） | `getDecisionPlans()` |
 | POST | `/cb` | MATLAB 回调接收 | — |
-| WS | `/ws/{job_id}` | 实时推送 progress + process_data | `connectWebSocket()` |
+| WS | `/ws/{job_id}` | 实时推送 progress + process_data | 页面内联 `new WebSocket(...)`（过程透明页） |
 
 ### 21.3 前端 API 调用规范
 
 - 所有 HTTP 调用集中在 `src/api/index.ts`，通过 `fetch` 实现
 - 每个 API 函数必须导出对应的 TypeScript 接口（请求/响应类型）
 - 错误处理：检查 `res.ok`，失败时抛出 `Error`，业务代码 catch 后展示 `ElMessage.error`
-- API_BASE 硬编码为 `http://127.0.0.1:18080`（系统集成阶段可接受）
+- API_BASE 为 `http://${window.location.hostname}:18080`（按当前页面 hostname 动态拼接，便于局域网内其他机器访问）
 
 ### 21.4 job_id 传递路径
 
