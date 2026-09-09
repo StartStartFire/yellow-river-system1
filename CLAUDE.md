@@ -126,14 +126,13 @@ E:\model\yellow_river_project\
 │
 ├── matlab-model\             # MATLAB 模型（含专属文档）
 │   └── docs/                 # MATLAB 模型专属文档
-│       ├── model-specification.md  # 模型技术规格书
-│       ├── scheduling-rules.md     # 12 条调度规则
-│       └── project-analysis.md     # 逆向分析报告
+│       ├── model-specification.md  # 模型技术规格书（含 §11 已知问题与技术债）
+│       └── scheduling-rules.md     # 12 条调度规则
 │
 ├── backend-service\          # Python Web 服务（含专属文档）
 │   └── docs/                 # Web 服务专属文档
 │       ├── api-reference.md  # API 参考文档
-│       └── backend-architecture.md  # 后端架构梳理
+│       └── backend-architecture.md  # 后端架构与设计决策（执行链路 + 为什么）
 │
 ├── evaluation-model\         # 评价系统（含专属文档）
 │   └── docs/                 # 评价系统专属文档
@@ -143,13 +142,11 @@ E:\model\yellow_river_project\
 │   └── docs/                 # 前端专属文档
 │       └── 常见问题.md        # 前端开发常见问题
 │
-├── docs\                     # 跨项目文档（日志、导航、计划）
+├── docs\                     # 跨项目文档（日志、导航）
 │   ├── work-log.md           # AI 工作日志
 │   ├── project-nav.md        # 项目目录导航（跨项目总览）
 │   ├── evaluation-model-and-algorithm.md  # 评价模型与算法（论文用）
-│   ├── model-run-integration.md  # ✅ 模型运行对接方案（已实施）
-│   ├── process-transparent-plan.md  # ✅ 过程透明化方案（已实施）
-│   ├── data-flow.md          # ✅ 全过程数据流向（已基本实现）
+│   └── archive\              # 已归档：实施完毕的计划、历史流水账、未实施设计
 │
 ├── README.md                # 项目说明（可选）
 ```
@@ -252,7 +249,28 @@ E:\model\yellow_river_project\
 | **数据加载**               | 使用 `load_data.m` 加载 Excel 数据                                           |
 | **内存管理**               | 多次优化后 MATLAB 进程内存可能增长，建议定期重启引擎                                         |
 
-## 技术文档索引
+## AI 会话必读路径
+
+> 面向 AI 新会话。原则：**一种"失效模式"对应一份权威文档**——AI 出错通常因为不知道四类事之一（规则 / 位置 / 领域数学 / 接口契约），每类只读一份，其余按需。
+
+### 第 0 层 · 全局必读（每次会话开头，整份读）
+
+| 顺序 | 文档 | 解决什么 |
+|------|------|---------|
+| 1 | 本文件（`CLAUDE.md`） | 规则、约束、开发与沟通规范 |
+| 2 | [docs/project-nav.md](docs/project-nav.md) | 四端目录地图与"想改什么查哪里"的快速定位索引 |
+
+### 第 1 层 · 按域必读（进入该域工作前，整份读）
+
+| 工作域 | 必读文档 |
+|--------|---------|
+| MATLAB 模型 | [matlab-model/docs/model-specification.md](matlab-model/docs/model-specification.md) |
+| 后端 API / Web 服务 | [backend-service/docs/api-reference.md](backend-service/docs/api-reference.md) + [backend-service/docs/backend-architecture.md](backend-service/docs/backend-architecture.md)（设计决策） |
+| 前端 UI | [frontend-service/CLAUDE.md](frontend-service/CLAUDE.md) + [frontend-service/docs/page-design/pages-reference.md](frontend-service/docs/page-design/pages-reference.md) |
+| 评价系统（含评价页数据） | [evaluation-model/docs/evaluation-data-specification.md](evaluation-model/docs/evaluation-data-specification.md) |
+| 论文写作 | [docs/evaluation-model-and-algorithm.md](docs/evaluation-model-and-algorithm.md) |
+
+### 第 2 层 · 按需查阅（不属于必读，出现具体问题时再查）
 
 > 文档按"谁所属"分散在各子项目 `docs/` 目录下，跨项目文档留在根 `docs/`。
 
@@ -262,9 +280,8 @@ E:\model\yellow_river_project\
 | ------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------- |
 | **matlab-model/** (MATLAB)     | 模型技术规格书    | [matlab-model/docs/model-specification.md](matlab-model/docs/model-specification.md)                             |
 | <br />                         | 调度规则（12 条） | [matlab-model/docs/scheduling-rules.md](matlab-model/docs/scheduling-rules.md)                                   |
-| <br />                         | 项目逆向分析报告   | [matlab-model/docs/project-analysis.md](matlab-model/docs/project-analysis.md)                                   |
 | **backend-service/** (Python)  | API 参考文档   | [backend-service/docs/api-reference.md](backend-service/docs/api-reference.md)                                   |
-| <br />                         | 后端架构梳理     | [backend-service/docs/backend-architecture.md](backend-service/docs/backend-architecture.md)                     |
+| <br />                         | 后端架构与设计决策 | [backend-service/docs/backend-architecture.md](backend-service/docs/backend-architecture.md)                     |
 | **evaluation-model/** (Python) | 评价模型数据产出规格 | [evaluation-model/docs/evaluation-data-specification.md](evaluation-model/docs/evaluation-data-specification.md) |
 | **frontend-service/** (Vue3)   | 前端开发常见问题   | [frontend-service/docs/常见问题.md](frontend-service/docs/常见问题.md)                                                   |
 
@@ -275,7 +292,11 @@ E:\model\yellow_river_project\
 | [项目目录导航](docs/project-nav.md)               | 四端（MATLAB/Web/评价/前端）目录结构与职责总览 |
 | [AI 工作日志](docs/work-log.md)                 | 完成任务记录                        |
 | [评价模型与算法](docs/evaluation-model-and-algorithm.md) | 论文用：指标体系、评价算法原理与运行环境 |
-| [模型运行对接方案](docs/model-run-integration.md)   | ✅ Phase A-D 前后联调（D1/D2 已完成；D3 由 /evaluate + /decision 实现） |
-| [过程透明化方案](docs/process-transparent-plan.md) | ✅ Phase E-G 过程透明化（已实施，含实施偏差说明） |
-| [全过程数据流向](docs/data-flow.md)                | ✅ 基本实现（前端 GET /process 补拉未接入，见文档头部状态块） |
+| [已归档文档](docs/archive/)                     | 实施完毕的计划（模型运行对接/过程透明化/数据流向）、历史会话流水账、未实施设计 |
+
+### 新增文档规则
+
+1. 新增文档前先回答：**为什么 AI 不能从代码中读到这条知识？** 答不出就不写——文件树、端点清单、依赖表等由代码与自动生成文档（如 FastAPI `/docs`）承担，禁止另建文档复制
+2. 可数的事实（sheet 数、文件数、行号等）不在文档中写死，标注"以代码为准"
+3. 一个事实只在一处维护；必须跨文档引用时用链接，不复制内容
 

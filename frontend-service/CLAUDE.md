@@ -12,7 +12,7 @@
 打通 模型配置 → 任务提交 → 过程透明(WebSocket) → 评价决策 全链路。
 ```
 
----
+***
 
 ## 2. 当前阶段开发目标
 
@@ -39,7 +39,7 @@
 5. 不进行性能优化（懒加载/SSR/缓存）
 ```
 
----
+***
 
 ## 3. 技术栈约束
 
@@ -91,7 +91,7 @@ Three.js
 
 如确实需要新增依赖，必须先说明原因。
 
----
+***
 
 ## 4. AI 开发总原则
 
@@ -111,7 +111,7 @@ AI 编程必须遵守以下原则：
 11. 涉及后端和前端同步修改时，先改后端并验证 API，再改前端对接。
 ```
 
----
+***
 
 ## 5. 代码质量与架构原则
 
@@ -162,7 +162,7 @@ AI 编程必须遵守以下原则：
 6. SelectCard 系列（带 icon + subtitle + badge）保留 .card-base 结构，不强迁到 PanelCard。
 ```
 
----
+***
 
 ## 6. 文档职责划分
 
@@ -186,6 +186,7 @@ docs/page-design/pages-reference.md
 ```
 
 - `README.md` — 全局设计规范（整体风格、导航栏、通用布局、通用组件）
+
 - `pages-reference.md` — 页面速查表（路由映射、状态颜色、联动规则、格式化函数；原 14 个独立页面设计文档已合并删除）
 
 ```text
@@ -202,15 +203,15 @@ docs/requirements/system-requirements.md
 
 ```text
 docs/development/SNAPSHOT.md
-docs/development/SESSIONS.md
 ```
 
 说明：
 
 - `SNAPSHOT.md` — 项目快照（模块状态/设计规范/关键文件），新会话必读
-- `SESSIONS.md` — 开发流水账，每次会话记录，滚动保留近 5 次，按需查阅
 
----
+- 会话流水账已归档至（项目根）`docs/archive/SESSIONS.md`，按需查阅
+
+***
 
 ## 7. 推荐项目目录结构
 
@@ -228,8 +229,7 @@ project-root/
 │  │  └─ system-requirements.md
 │  │
 │  ├─ development/
-│  │  ├─ SNAPSHOT.md                  # 项目快照，新会话必读
-│  │  └─ SESSIONS.md                    # 开发流水账，滚动保留近 5 次
+│  │  └─ SNAPSHOT.md                  # 项目快照，新会话必读
 │  │
 │  └─ page-design/
 │     ├─ README.md                        # 全局设计规范
@@ -329,7 +329,7 @@ project-root/
       └─ caseLibrary.ts                  # 案例库专用辅助
 ```
 
----
+***
 
 ## 8. 页面开发顺序
 
@@ -356,7 +356,7 @@ project-root/
 
 每次只允许开发其中一个任务，不允许一次性全部开发。
 
----
+***
 
 ## 9. 页面开发参考
 
@@ -371,7 +371,7 @@ project-root/
 
 不再使用逐页的独立设计文档（已删除）。开发时不允许凭记忆猜测页面结构，必须先读实际代码。
 
----
+***
 
 ## 10. 全局页面风格约束
 
@@ -400,7 +400,7 @@ project-root/
 9. 优先使用卡片、标签页、折叠面板组织内容。
 ```
 
----
+***
 
 ## 11. Mock 数据约束（过渡阶段）
 
@@ -458,7 +458,7 @@ export const reservoirOverviewMock = {
 }
 ```
 
----
+***
 
 ## 12. Element Plus 使用约束
 
@@ -500,7 +500,7 @@ el-tooltip
 7. 表格统一使用 .dark-table 类名复用全局表格样式。
 ```
 
----
+***
 
 ## 13. ECharts 使用约束
 
@@ -539,7 +539,7 @@ ECharts 用于业务图表。
 src/components/chart/BaseChart.vue
 ```
 
----
+***
 
 ## 14. Leaflet 使用约束
 
@@ -571,7 +571,7 @@ Leaflet 用于首页或水库空间展示。
 src/mock/home.ts
 ```
 
----
+***
 
 ## 15. 路由约束
 
@@ -602,7 +602,7 @@ src/mock/home.ts
 报表统计 → /report-statistics
 ```
 
----
+***
 
 ## 16. 状态管理约束
 
@@ -663,7 +663,7 @@ return {
 }
 ```
 
----
+***
 
 ## 17. 命名规范
 
@@ -704,7 +704,7 @@ camelCase，例如 reservoir.ts
 过程：process
 ```
 
----
+***
 
 ## 18. AI 每次任务输出要求
 
@@ -739,7 +739,7 @@ camelCase，例如 reservoir.ts
 
 两者均通过才算任务完成。任一失败必须修复后再次输出"修改文件"和"验证"。
 
----
+***
 
 ## 19. 最重要原则
 
@@ -749,73 +749,60 @@ camelCase，例如 reservoir.ts
 打通 模型运行 → 实时监控 → 评价决策 全链路，逐步替换 mock 为真实数据。
 ```
 
----
+***
 
 ## 20. 新会话启动指引
 
-每次新开 AI 会话时，AI 应先执行以下步骤恢复上下文：
+前端域新会话按以下顺序恢复上下文。全局必读路径见根 `CLAUDE.md`「AI 会话必读路径」，此处只列前端域相关项。
 
 ```text
-1. 阅读 docs/development/SNAPSHOT.md（如存在）
-   → 了解项目当前快照：模块状态、设计规范参数、关键文件索引、核心设计决策
+1. 全局必读（整份）：根 CLAUDE.md + docs/project-nav.md
 
-2. 阅读 docs/evaluation-data-specification.md
-   → 评价模型数据产出规格、API 端点、前端数据映射
+2. 前端域必读（整份）：
+   - 本文件（CLAUDE.md）——前端开发约束
+   - docs/page-design/pages-reference.md ——页面速查表（路由映射/状态颜色/联动规则/格式化函数）
 
-3. 了解前后端架构：
-   - 后端: E:\model\yellow_river_project\backend-service\ (FastAPI + MATLAB Engine)
-   - 前端: 本项目 (Vue 3 + Vite)
-   - API 调用: src/api/index.ts (fetch，base URL: http://<window.location.hostname>:18080)
-   - WebSocket: ws://<window.location.hostname>:18080/ws/{job_id}
+3. 前端接入现状（以代码为准，直接从 src/api/index.ts 确认）：
+   - 已接真实数据：模型配置 Step 6（POST /run）、过程透明（WS /ws/{job_id}）、评价决策（POST /evaluate + GET /evaluate/{job_id} + GET /decision/{job_id}）
+   - 仍用 mock：首页、基础数据、水调水情、案例库、报表统计、模型配置 Step 1-5
+   - API 封装：src/api/index.ts（postRun / postEvaluate / getEvaluateResult / getDecisionPlans；base URL = http://<window.location.hostname>:18080）
 
-4. 了解已对接的页面：
-   - 模型配置 → 提交任务 (POST /run)
-   - 过程透明 → WebSocket 实时推送 (progress + process_data)
-   - 评价决策 → POST /evaluate + GET /evaluate/{job_id} + GET /decision/{job_id}
-   - 待对接: 案例库、报表统计、基础数据、水调水情、首页
+4. 改评价决策页时另读（项目根）evaluation-model/docs/evaluation-data-specification.md（评价/决策数据结构）
 
 5. job_id 流向: 模型配置 → URL query → 过程透明 → URL query → 评价决策
 
-6. 涉及公共组件 / 格式化 / 样式时，先查阅 src/components/common/、src/utils/format.ts、src/styles/variables.css
+6. 涉及公共组件 / 格式化 / 样式时，先查 src/components/common/、src/utils/format.ts、src/styles/variables.css
 ```
 
----
+***
 
 ## 21. 后端 API 对接规范
 
 ### 21.1 后端服务
 
-| 项目 | 值 |
-|------|-----|
-| 框架 | FastAPI |
-| 监听 | `0.0.0.0:18080`（本机访问 `http://127.0.0.1:18080`） |
-| CORS | `["*"]`（系统集成阶段允许所有来源，内网调试用） |
-| API 文档 | `http://127.0.0.1:18080/docs` (自动生成) |
+| 项目     | 值                                              |
+| ------ | ---------------------------------------------- |
+| 框架     | FastAPI                                        |
+| 监听     | `0.0.0.0:18080`（本机访问 `http://127.0.0.1:18080`） |
+| CORS   | `["*"]`（系统集成阶段允许所有来源，内网调试用）                    |
+| API 文档 | `http://127.0.0.1:18080/docs` (自动生成)           |
 
 ### 21.2 API 端点
 
-| 方法 | 路径 | 说明 | 前端调用 |
-|------|------|------|---------|
-| GET | `/health` | 健康检查 | — |
-| POST | `/run` | 提交优化任务 → 返回 job_id | `postRun()` |
-| GET | `/status/{job_id}` | 查询任务状态 | — |
-| GET | `/jobs` | 任务列表 | — |
-| GET | `/results/{job_id}` | 获取结果（chromosome + evaluating） | — |
-| GET | `/process/{job_id}` | 获取最新过程数据 | — |
-| POST | `/evaluate` | 运行评价（body: {job_id, method}） | `postEvaluate()` |
-| GET | `/evaluate/{job_id}` | 获取已缓存的评价结果 | `getEvaluateResult()` |
-| GET | `/decision/{job_id}` | 决策方案明细（前 10 个方案的过程曲线/目标满足度/水量分配） | `getDecisionPlans()` |
-| POST | `/cb` | MATLAB 回调接收 | — |
-| WS | `/ws/{job_id}` | 实时推送 progress + process_data | 页面内联 `new WebSocket(...)`（过程透明页） |
+- 端点契约、请求/响应字段以（项目根）`backend-service/docs/api-reference.md` 为唯一权威，本文件不复制端点表
+- 前端已封装调用见 `src/api/index.ts`（postRun / postEvaluate / getEvaluateResult / getDecisionPlans，以代码为准）；WS 连接由过程透明页内联 `new WebSocket(...)`
 
 ### 21.3 前端 API 调用规范
 
 - 所有 HTTP 调用集中在 `src/api/index.ts`，通过 `fetch` 实现
-- 每个 API 函数必须导出对应的 TypeScript 接口（请求/响应类型）
-- 错误处理：检查 `res.ok`，失败时抛出 `Error`，业务代码 catch 后展示 `ElMessage.error`
-- API_BASE 为 `http://${window.location.hostname}:18080`（按当前页面 hostname 动态拼接，便于局域网内其他机器访问）
 
-### 21.4 job_id 传递路径
+- 每个 API 函数必须导出对应的 TypeScript 接口（请求/响应类型）
+
+- 错误处理：检查 `res.ok`，失败时抛出 `Error`，业务代码 catch 后展示 `ElMessage.error`
+
+- API\_BASE 为 `http://${window.location.hostname}:18080`（按当前页面 hostname 动态拼接，便于局域网内其他机器访问）
+
+### 21.4 job\_id 传递路径
 
 ```
 模型配置(ConfigSummaryView) → postRun() → 获取 job_id
@@ -827,21 +814,21 @@ camelCase，例如 reservoir.ts
 
 ### 21.5 已对接 vs 未对接状态
 
-| 页面/区域 | 数据来源 | 状态 |
-|----------|---------|------|
-| 过程透明 - 运行状态/收敛曲线 | WebSocket `progress` | ✅ 已对接 |
-| 过程透明 - 水位/流量/出力图表 | WebSocket `process_data` | ✅ 已对接 |
-| 评价决策 - 雷达图 | API `evaluate` → `radar` | ✅ 已对接 |
-| 评价决策 - 收敛曲线 | API `evaluate` → `convergence` | ✅ 已对接 |
-| 评价决策 - 排名表格 | API `evaluate` → `rankings` | ✅ 已对接 |
-| 评价决策 - 桑基图 | Mock `evaluationSankeyData` | ⏳ 待对接 |
-| 决策分析 - 全部 | Mock `getDecisionPlanData` | ⏳ 待对接 |
-| 案例库 | Mock | ⏳ 待对接 |
-| 报表统计 | Mock | ⏳ 待对接 |
-| 首页/基础数据/水调水情 | Mock | ⏳ 待对接 |
-| 模型配置 | Pinia store (本地状态) | ✅ 不需要后端 |
+| 页面/区域             | 数据来源                           | 状态      |
+| ----------------- | ------------------------------ | ------- |
+| 过程透明 - 运行状态/收敛曲线  | WebSocket `progress`           | ✅ 已对接   |
+| 过程透明 - 水位/流量/出力图表 | WebSocket `process_data`       | ✅ 已对接   |
+| 评价决策 - 雷达图        | API `evaluate` → `radar`       | ✅ 已对接   |
+| 评价决策 - 收敛曲线       | API `evaluate` → `convergence` | ✅ 已对接   |
+| 评价决策 - 排名表格       | API `evaluate` → `rankings`    | ✅ 已对接   |
+| 评价决策 - 桑基图        | Mock `evaluationSankeyData`    | ⏳ 待对接   |
+| 决策分析 - 全部         | Mock `getDecisionPlanData`     | ⏳ 待对接   |
+| 案例库               | Mock                           | ⏳ 待对接   |
+| 报表统计              | Mock                           | ⏳ 待对接   |
+| 首页/基础数据/水调水情      | Mock                           | ⏳ 待对接   |
+| 模型配置              | Pinia store (本地状态)             | ✅ 不需要后端 |
 
----
+***
 
 ## 22. 代码复用强化策略
 
@@ -849,11 +836,11 @@ camelCase，例如 reservoir.ts
 
 ### 21.1 通用组件清单
 
-| 组件      | 路径                                  | 用途         | 扩展点                                                       |
-| --------- | ------------------------------------- | ------------ | ------------------------------------------------------------ |
-| PanelCard | `src/components/common/PanelCard.vue` | 统一面板容器 | `accent` 强调条 / `header-icon` / `header-actions` 插槽      |
-| StatusTag | `src/components/common/StatusTag.vue` | 状态标签     | `status` 预设（normal/warning/abnormal）或 `label`+`color`+`pulse` 自定义 |
-| BaseChart | `src/components/chart/BaseChart.vue`  | ECharts 包装 | 通过 `option` prop 传入完整配置                              |
+| 组件        | 路径                                    | 用途         | 扩展点                                                               |
+| --------- | ------------------------------------- | ---------- | ----------------------------------------------------------------- |
+| PanelCard | `src/components/common/PanelCard.vue` | 统一面板容器     | `accent` 强调条 / `header-icon` / `header-actions` 插槽                |
+| StatusTag | `src/components/common/StatusTag.vue` | 状态标签       | `status` 预设（normal/warning/abnormal）或 `label`+`color`+`pulse` 自定义 |
+| BaseChart | `src/components/chart/BaseChart.vue`  | ECharts 包装 | 通过 `option` prop 传入完整配置                                           |
 
 ### 21.2 复用决策树
 
@@ -918,4 +905,5 @@ formatPower(value)                          # 发电量（千分位整数）
 formatScore(value)                          # 评价得分（3位小数）
 ```
 
----
+***
+

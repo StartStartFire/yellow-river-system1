@@ -1,282 +1,71 @@
-# Web 服务后端架构梳理
+# 后端架构与设计决策
 
-## 1. 目录结构
+> **定位（与 api-reference.md 的分工）**：接口契约（端点/请求响应/字段）见 [api-reference.md](api-reference.md)；本文件只记**代码里读不出的东西**——两条核心执行链路与"为什么这样设计"。
+> 目录结构、模块职责、端点清单均以代码为准（从 `app/main.py` 与 `app/api/` 可读），不再复制。
 
-```
-backend-service/
-├── run.py                          # 启动入口
-├── requirements.txt                # 依赖
-└── app/
-    ├── main.py                     # FastAPI 应用实例 + 生命周期（lifespan）
-    ├── config.py                   # 全局配置单例（端口、路径、默认参数）
-    │
-    ├── api/                        # API 路由层 — 只定义路由函数
-    │   ├── health.py               # GET /health — 健康检查
-    │   ├── jobs.py                 # POST /run, GET /status, /jobs, /results, /process, /decision
-    │   ├── evaluate.py             # POST /evaluate, GET /evaluate/{job_id}
-    │   ├── ws.py                   # WS /ws/{job_id} — WebSocket 推送
-    │   └── callback.py             # POST /cb — MATLAB 回调接收
-    │
-    ├── core/                       # 核心业务层 — 纯逻辑，无路由定义
-    │   ├── executor.py             # BaseExecutor 抽象接口 + TaskConfig/TaskResult
-    │   ├── job_manager.py          # JobManager 任务队列管理（生命周期 + 串行执行）
-    │   ├── callback.py             # CallbackQueue（回调消息缓冲区）
-    │   └── websocket.py            # ConnectionManager + broadcast_loop
-    │
-    ├── schemas/                    # Pydantic 数据模型层
-    │   ├── job.py                  # RunRequest, JobStatusResponse, JobSummary
-    │   ├── evaluate.py             # EvaluateRequest, EvaluateResponse
-    │   ├── result.py               # ResultResponse
-    │   └── callback.py             # CallbackPayload, CallbackResponse
-    │
-    └── services/                   # 服务封装层
-        └── matlab.py               # MatlabExecutor（Engine 生命周期管理）
-```
+***
 
-### 与旧版扁平结构的区别
+## 1. 分层（一句话）
 
-旧版 `backend-service/app/` 只有 8 个扁平文件（main.py, models.py, executor.py, matlab_engine.py, job_manager.py, callback.py, websocket.py, config.py），现已重构为四层架构：
+`api/`（路由）→ `core/`（任务队列/回调缓冲/WS 管理）→ `schemas/`（Pydantic 契约）→ `services/`（MATLAB Engine 封装）。lifespan 中初始化 executor/job\_manager 并 `init()` 注入各路由模块，广播协程 `broadcast_loop` 常驻后台。
 
-| 层 | 职责 | 路由定义？ | 生命周期钩子？ |
-|---|------|-----------|--------------|
-| `api/` | HTTP/WS 路由函数 | ✅ 是 | ❌ 否 |
-| `core/` | 业务逻辑抽象 | ❌ 否 | ❌ 否 |
-| `schemas/` | Pydantic 请求/响应模型 | ❌ 否 | ❌ 否 |
-| `services/` | 外部服务封装（MATLAB） | ❌ 否 | ✅ 是 |
+***
 
----
-
-## 2. 模块职责
-
-| 模块（文件） | 职责 | 关键点 |
-|-------------|------|--------|
-| `main.py` | 应用入口、生命周期、路由注册 | 不定义路由函数；lifespan 管理 executor/job_manager 生命周期 |
-| `config.py` | 单例 `Config` dataclass，所有可变参数 | `matlab_root` 为自动计算的 property（基于项目根目录），换机器无需修改；含 CORS origins 配置 |
-| `api/health.py` | GET /health 健康检查 | 通过 `init()` 注入 executor 引用 |
-| `api/jobs.py` | POST /run, GET /status, /jobs, /results, /process, /decision | 通过 `init()` 注入 job_manager 引用 |
-| `api/evaluate.py` | POST /evaluate, GET /evaluate/{job_id} | 调用 `evaluation_system` 模块 |
-| `api/ws.py` | WS /ws/{job_id} WebSocket 推送 | 通过 `connection_manager` 管理连接 |
-| `api/callback.py` | POST /cb MATLAB 回调接收 | Pydantic 校验后入 `CallbackQueue` |
-| `core/executor.py` | `BaseExecutor` 抽象基类 + `TaskConfig`/`TaskResult` | 定义执行器抽象接口，MatlabExecutor 实现 |
-| `core/job_manager.py` | `JobManager` 任务生命周期：queued→running→completed/failed | `asyncio.Queue` 串行化，后台 worker 消费 |
-| `core/callback.py` | `CallbackQueue` — MATLAB 回调的消息缓冲区 | 生产者 MATLAB→/cb，消费者 WS→前端 |
-| `core/websocket.py` | `ConnectionManager` — WS 连接分组管理 + `broadcast_loop` | 按 `job_id` 分组广播 |
-| `schemas/job.py` | RunRequest, JobStatusResponse, JobSummary Pydantic 模型 | RunRequest 含 13+ 字段 |
-| `schemas/evaluate.py` | EvaluateRequest, EvaluateResponse | 评价请求/响应模型 |
-| `schemas/result.py` | ResultResponse | 含 chromosome + evaluating 双矩阵 |
-| `schemas/callback.py` | CallbackPayload, CallbackResponse | 回调数据校验 |
-| `services/matlab.py` | `MatlabExecutor` 实现，封装 `matlab.engine` 调用 | `ThreadPoolExecutor(max_workers=1)` 串行化；约束参数动态注入 |
-
----
-
-## 3. 数据流转全过程
+## 2. POST /run 执行链路
 
 ```
-┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────────────┐
-│  前端     │    │  FastAPI      │    │  JobManager  │    │  MatlabExecutor│
-│ (Vue)    │    │  (路由层)     │    │  (调度层)    │    │  (执行层)      │
-└────┬─────┘    └──────┬───────┘    └──────┬───────┘    └───────┬────────┘
-     │                  │                    │                    │
-     │ ① POST /run     │                    │                    │
-     │────────────────→│                    │                    │
-     │                  │  ② submit_task()  │                    │
-     │                  │─────────────────→│                    │
-     │                  │                    │  ③ 入队 asyncio.Queue      │
-     │                  │                    │  (queued)          │
-     │ ④ 返回 job_id   │                    │                    │
-     │←────────────────│                    │                    │
-     │                  │                    │                    │
-     │                  │                    │  ⑤ worker 出队    │
-     │                  │                    │  → running         │
-     │                  │                    │──────────────────→│
-     │                  │                    │  ⑥ eng.eval()     │
-     │                  │                    │    load_data()     │
-     │                  │                    │    nsga_2_para()   │
-     │                  │                    │                    │
-     │                  │     ┌─────────┐    │                    │
-     │                  │     │ MATLAB   │    │                    │
-     │                  │     │ Engine   │    │                    │
-     │                  │     └──┬───────┘    │                    │
-     │                  │        │            │                    │
-     │                  │   ──── ⑦ ──────────│                    │
-     │                  │   webwrite POST/cb  │                    │
-     │                  │   {iteration, ...}  │                    │
-     │   ┌────────┐    │        │            │                    │
-     │   │ 前端    │    │   ┌──────────┐     │                    │
-     │   │ECharts  │    │   │CallbackQ │     │                    │
-     │   │ 实时    │    │   │ asyncio  │     │                    │
-     │   │ 渲染    │    │   │ Queue    │     │                    │
-     │   └────▲───┘    │   └────┬─────┘     │                    │
-     │        │        │        │            │                    │
-     │  ⑨ WS 广播     │   ⑧ broadcast      │                    │
-     │────────│────────│─── loop 消费 ───────│                    │
-     │        │        │        │            │                    │
-     │                  │  ⑩ 优化完成        │                    │
-     │                  │  ←────────────────│
-     │                  │  返回 chromosome   │
-     │                  │                    │
+jobs.py:run() 解析 RunRequest → TaskConfig（含算法/参数/约束/年份范围）
+  → JobManager.submit_task()：生成 UUID → JobRecord 入 asyncio.Queue → 立即返回 queued
+  → 后台 worker 出队 → status=running
+  → MatlabExecutor._run_optimization_sync()（专用单线程 ThreadPoolExecutor 内）
+      ① eng.eval 设置 YEAR_START / YEAR_END（可选，供 load_data 截取年份）
+      ② eng.load_data(data_file, flag_xixian)  按西线调水方案重载数据
+      ③ eng.eval 注入 Q_sediment / LONG_Z_INI_VAL / LIU_Z_INI_VAL / QMIN_VAL（可选）
+      ④ eng.nsga_2_para(pop, iterate, M, Q_sediment, Pc) 或 eng.PAEM_para(...)
+           内部：每代 write_json_log → NSGA2_progress.jsonl
+                 每 10 代 push_callback_data.m → http_callback_push.m → POST /cb
+                     → CallbackQueue → broadcast_loop → WS /ws/{job_id} → 前端
+      ⑤ 返回 (chromosome, evaluating, plan_details)（Inf/NaN 清洗为 null）
+  → JobRecord.result / status=completed（失败则 failed + message）
 ```
 
----
+***
 
-## 4. API 端点汇总
-
-完整 API 文档（含请求/响应示例、字段说明、错误码）见 [api-reference.md](api-reference.md)。
-
-| 方法 | 路径 | 用途 |
-|------|------|------|
-| GET | `/health` | 健康检查 |
-| POST | `/run` | 提交优化任务 |
-| GET | `/status/{job_id}` | 查询任务状态 |
-| GET | `/jobs` | 任务列表 |
-| GET | `/results/{job_id}` | 获取优化结果 |
-| GET | `/process/{job_id}` | 补拉过程数据 |
-| POST | `/evaluate` | 运行评价算法 |
-| GET | `/evaluate/{job_id}` | 获取评价缓存 |
-| GET | `/decision/{job_id}` | 决策方案明细（前 10 个方案的过程曲线/目标满足度/水量分配） |
-| WS | `/ws/{job_id}` | 实时进度推送 |
-| POST | `/cb` | MATLAB 回调接收 |
-
----
-
-## 5. POST /run 执行过程（核心流程）
+## 3. POST /evaluate 执行链路
 
 ```
-前端 POST /run
-  │
-  ▼
-jobs.py:run()                          ← 路由层
-  │ 解析 RunRequest → TaskConfig
-  │
-  ▼
-job_manager.submit_task(config)         ← 调度层
-  │ ① 生成 uuid → JobRecord(job_id, config)
-  │ ② Record 入队 _queue.put_nowait()
-  │ ③ 立即返回 Record（此时 status=queued）
-  │
-  ▼
-后台 worker 协程 (_worker_loop)         ← 异步消费
-  │ ① 出队 _queue.get()（阻塞，直到有任务）
-  │ ② JobRecord.status = "running"
-  │ ③ _current_job_id = record.job_id
-  │
-  ▼
-executor.run(task_config)               ← 执行层
-  │
-  ▼
-MatlabExecutor._run_optimization_sync() ← 在 ThreadPoolExecutor 线程中
-  │
-  ├─ ① eng.eval() 设置年份范围全局变量（可选）
-  │    - YEAR_START / YEAR_END         调度年份范围（供 load_data 截取）
-  │
-  ├─ ② eng.load_data()                重载数据（西线调水方案 + 年份范围截取）
-  ├─ ③ eng.eval() 设置全局变量
-  │    - Q_sediment                    调沙流量
-  │    - LONG_Z_INI_VAL                龙羊峡起调水位（可选）
-  │    - LIU_Z_INI_VAL                 刘家峡起调水位（可选）
-  │    - QMIN_VAL                      防凌流量（可选）
-  │
-  ├─ ④ eng.nsga_2_para() 或 PAEM_para()
-  │    ↓
-  │    MATLAB 内部循环（iterate 代）       ← 每次迭代回调
-  │    ├─ write_json_log(...)          写入 JSONL 文件
-  │    ├─ push_callback_data.m          → 每 10 代 POST /cb
-  │    │    http_callback_push('progress'/'process_data', ...)
-  │    │    ↓
-  │    │    callback.py:POST /cb        ← 路由层
-  │    │    → CallbackQueue.put()       消息入队
-  │    │    → broadcast_loop 消费        → WS /ws/{job_id}
-  │    │                                   → 前端 ECharts 实时更新
-  │    └─ ... 继续进化
-  │
-  └─ ⑤ 返回结果（chromosome + evaluating + plan_details）
-  │
-  ▼
-job_manager 处理完成
-  ├─ JobRecord.result = TaskResult
-  ├─ JobRecord.status = "completed"
-  ├─ _current_job_id = null
-  ├─ 最后一次过程数据通过 CallbackQueue 推送完成 →
-  │
-  ▼
-前端可轮询 GET /results/{job_id} 获取最终结果
+evaluate.py:evaluate_job() 校验 job 存在且 completed、存在 evaluating 矩阵
+  → 动态注入 evaluation-model 到 sys.path（import matplotlib Agg 后端）
+  → 方法 = ALL：run_complete_evaluation(data_source=矩阵, config_dict=静默配置)
+           = 单算法：run_single_algorithm(...)
+  → _build_evaluation_cache() 聚合为前端结构：
+       convergence（NMF/PP 收敛曲线）、rankings（三算法 + ALL 整合排名）、
+       radar（算法得分雷达图，前 10 方案）、raw_indicators（前 10 方案 22 项原始指标）
+  → 存 JobRecord.evaluation_result（后续 GET /evaluate/{job_id} 读缓存，
+     另一端 GET /decision/{job_id} 用其 ALL 排名给方案排序）
 ```
 
----
+***
 
-## 6. POST /evaluate 执行过程
+## 4. 关键设计决策（为什么）
 
-```
-前端 POST /evaluate
-  │
-  ▼
-evaluate.py:evaluate_job()
-  │
-  ├─ ① 验证 job_id 存在且 completed
-  │
-  ├─ ② 调用 evaluation_system
-  │    ├─ run_complete_evaluation("ALL")
-  │    │   ├─ NMFAlgorithm
-  │    │   ├─ PPAlgorithm
-  │    │   ├─ AHP_FUZZYAlgorithm
-  │    │   └─ RankSumTheory.rank_sum_integrate()
-  │    └─ → algorithm_results + integrated_results
-  │
-  └─ ③ _build_evaluation_cache()
-       ├─ convergence             收敛曲线 {NMF: [...], PP: [...]}
-       ├─ rankings                NMF/PP/AHP_FUZZY 得分 + ALL 整合排名
-       ├─ radar                   算法得分雷达图（3 个算法 × 10 方案）
-       └─ raw_indicators          R1~R22 原始指标（10 方案 × 22 指标）
-```
+| 决策               | 原因                                                                           |
+| ---------------- | ---------------------------------------------------------------------------- |
+| MATLAB Engine 串行 | 非线程安全 → `ThreadPoolExecutor(max_workers=1)`                                  |
+| 任务队列串行执行         | Engine 进程内全局变量（数据、约束）共享，不能并发跑两个任务 → `asyncio.Queue` + 单 worker               |
+| 回调静默降级           | Web 服务故障不能影响 MATLAB 模型 → 回调 `try-catch` + `Timeout=1s`，数据仍由 JSONL 持久化        |
+| 约束参数动态注入         | 不改 MATLAB 核心逻辑 → `eng.eval("global QMIN_VAL; ...")`，起调水位/防凌流量/年份范围由 API 传入   |
+| WS 广播而非轮询        | 前端实时性 → `CallbackQueue` + 常驻 `broadcast_loop`；补拉由 `GET /process/{job_id}` 兜底 |
+| 求值结果缓存           | 重复 GET 不重算评价 → `JobRecord.evaluation_result`                                 |
+| Pydantic 双端校验    | 请求/响应与回调数据统一契约 → `schemas/` 一层                                               |
 
----
+***
 
-## 7. 关键设计决策
+## 5. 已知边界
 
-| 决策 | 原因 | 实现方式 |
-|------|------|----------|
-| **MATLAB Engine 串行** | 非线程安全 | `ThreadPoolExecutor(max_workers=1)` |
-| **任务串行执行** | Engine 进程内状态（数据、变量）共享 | `asyncio.Queue` + 后台 worker |
-| **回调静默降级** | Web 故障不影响 MATLAB 模型 | `http_callback_push.m` 中 try-catch + Timeout=1s |
-| **数据持久化** | 服务重启后任务数据不丢失 | JSONL 文件 + 内存 JobRecord |
-| **WebSocket 广播** | 实时推送优化进度 | `CallbackQueue`(asyncio.Queue) + `broadcast_loop` |
-| **约束参数注入** | 不改 MATLAB 核心逻辑，运行时动态传参 | `eng.eval("global QMIN_VAL; ...")` 全局变量 |
-| **Pydantic 校验** | 保证 API 请求/响应符合类型契约 | `RunRequest`/`EvaluateResponse` 等 schema |
+- **内存态存储**：任务记录在进程内存，服务重启即丢失（JSONL 文件仍在，但 JobRecord 不可恢复）；多次优化后 MATLAB 进程内存增长，建议定期重启 Engine
 
----
+- **plan\_details 兼容**：旧版模型运行的任务无 plan\_details，`GET /decision` 返回 `plans: []` + 提示
 
-## 8. 数据流补充说明
+- **process\_data 仅存最新一份**：`JobRecord.process_data` 只保留最近一次推送，不累积
 
-### 回调推送（MATLAB → 前端）
-
-```
-MATLAB 每 10 代（含最后一代）
-  → push_callback_data.m            （统一封装：计算汇总指标 + 代表性解过程数据）
-    → http_callback_push.m
-      → webwrite /cb  (POST, Timeout=1s)
-      → callback.py:POST /cb
-        → CallbackQueue.put(envelope)
-          → broadcast_loop (后台协程)
-            → ConnectionManager.broadcast(job_id, envelope)
-              → ws.send_json(envelope)  (对所有订阅该 job 的客户端)
-```
-
-### 评价系统数据流（evaluation_system → API）
-
-```
-evaluation_system (Python 独立模块)
-  → run_complete_evaluation(data_matrix)
-    → NMF / PP / AHP_FUZZY 算法
-    → RankSumTheory 整合
-  → algorithm_results
-  → integrated_results
-    ↓
-_build_evaluation_cache()
-  → rankings[]       → 排名表格
-  → radar            → 算法得分雷达图
-  → convergence      → 收敛曲线
-  → raw_indicators   → 桑基图（R1~R22 原始指标）
-    ↓
-缓存到 JobRecord.evaluation_result
-  → GET /evaluate/{job_id} 读取
-```

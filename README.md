@@ -6,27 +6,28 @@
 
 ### 四端架构
 
-| 模块 | 路径 | 技术栈 | 职责 |
-|------|------|--------|------|
-| **模型** | `matlab-model/` | MATLAB (R2024a) | NSGA-II / PAEM 多目标优化调度核心算法 |
-| **后端** | `backend-service/` | Python 3.11 + FastAPI | HTTP API + WebSocket + MATLAB Engine 桥接 |
-| **评价** | `evaluation-model/` | Python 3.11 | NMF / PP / AHP-FUZZY 多算法评价决策 |
-| **前端** | `frontend-service/` | Vue 3 + TypeScript + Vite | 可视化交互界面 |
+| 模块     | 路径                  | 技术栈                       | 职责                                      |
+| ------ | ------------------- | ------------------------- | --------------------------------------- |
+| **模型** | `matlab-model/`     | MATLAB (R2024a)           | NSGA-II / PAEM 多目标优化调度核心算法              |
+| **后端** | `backend-service/`  | Python 3.11 + FastAPI     | HTTP API + WebSocket + MATLAB Engine 桥接 |
+| **评价** | `evaluation-model/` | Python 3.11               | NMF / PP / AHP-FUZZY 多算法评价决策            |
+| **前端** | `frontend-service/` | Vue 3 + TypeScript + Vite | 可视化交互界面                                 |
 
----
+***
 
 ## 环境搭建（全新机器）
 
 ### 1. 安装前置依赖
 
-| 依赖 | 版本要求 | 说明 |
-|------|---------|------|
-| Python | **3.11.9** | MATLAB R2024a Engine API 仅支持 Python 3.9~3.11 |
-| Conda | 任意 | 推荐 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) |
-| MATLAB | **R2024a** | 用于运行优化模型（含 MATLAB Engine API） |
-| Node.js | >=18 | 用于运行前端 |
+| 依赖      | 版本要求       | 说明                                                             |
+| ------- | ---------- | -------------------------------------------------------------- |
+| Python  | **3.11.9** | MATLAB R2024a Engine API 仅支持 Python 3.9\~3.11                  |
+| Conda   | 任意         | 推荐 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) |
+| MATLAB  | **R2024a** | 用于运行优化模型（含 MATLAB Engine API）                                  |
+| Node.js | >=18       | 用于运行前端                                                         |
 
 > **注意**：如果 MATLAB 安装目录下的 Engine API 尚未注册到 Python，需手动安装：
+>
 > ```bash
 > cd "C:\Program Files\MATLAB\R2024a\extern\engines\python"
 > python setup.py install
@@ -82,7 +83,7 @@ npm run dev
 
 前端运行在 `http://localhost:3000`。
 
----
+***
 
 ## 快速验证
 
@@ -100,7 +101,7 @@ curl -X POST http://127.0.0.1:18080/run \
 curl http://127.0.0.1:18080/status/<job_id>
 ```
 
----
+***
 
 ## 项目目录结构
 
@@ -145,7 +146,7 @@ E:\model\yellow_river_project\
 └── README.md               # 本文件
 ```
 
----
+***
 
 ## 配置说明
 
@@ -153,37 +154,40 @@ E:\model\yellow_river_project\
 
 如需调整，可修改 `config.py` 中的以下参数：
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `host` / `port` | `0.0.0.0:18080` | 服务监听地址（本机访问 `http://127.0.0.1:18080`） |
-| `callback_timeout` | `1.0` | MATLAB 回调 HTTP 超时（秒） |
-| `default_pop` | `15` | 默认种群规模 |
-| `default_iterate` | `20` | 默认迭代代数 |
+| 参数                 | 默认值             | 说明                                    |
+| ------------------ | --------------- | ------------------------------------- |
+| `host` / `port`    | `0.0.0.0:18080` | 服务监听地址（本机访问 `http://127.0.0.1:18080`） |
+| `callback_timeout` | `1.0`           | MATLAB 回调 HTTP 超时（秒）                  |
+| `default_pop`      | `15`            | 默认种群规模                                |
+| `default_iterate`  | `20`            | 默认迭代代数                                |
 
----
+***
 
 ## 常见问题
 
-**Q: 启动后 `health` 返回 `engine:starting`？**
-A: MATLAB Engine 首次启动约需 10~30 秒，等待自动重试即可。
+**Q: 启动后** **`health`** **返回** **`engine:starting`？**
+A: MATLAB Engine 首次启动约需 10\~30 秒，等待自动重试即可。
 
-**Q: 运行时提示找不到 `matlab.engine`？**
+**Q: 运行时提示找不到** **`matlab.engine`？**
 A: 确保已安装 MATLAB Engine API for Python，参考上方"安装前置依赖"。
 
 **Q: 前端页面空白或 API 调用失败？**
 A: 检查后端是否在 `18080` 端口运行。CORS 默认放行所有来源（`config.py` 中 `cors_origins = ["*"]`，内网调试用），如需收紧可改为前端地址白名单。
 
----
+***
 
 ## 技术文档索引
 
-| 文档 | 路径 | 内容 |
-|------|------|------|
-| API 参考 | `backend-service/docs/api-reference.md` | 所有 HTTP/WS 端点说明 |
-| 后端架构 | `backend-service/docs/backend-architecture.md` | 四层架构设计 |
-| 模型规格 | `matlab-model/docs/model-specification.md` | 目标函数、约束条件 |
-| 调度规则 | `matlab-model/docs/scheduling-rules.md` | 12 条调度规则 |
-| 评价数据规格 | `evaluation-model/docs/evaluation-data-specification.md` | 评价系统输入输出定义 |
-| 评价模型与算法 | `docs/evaluation-model-and-algorithm.md` | 论文用：指标体系、NMF/PP/AHP-Fuzzy/序号总和原理与运行环境 |
-| 项目目录导航 | `docs/project-nav.md` | 四端目录结构与职责总览 |
-| AI 工作日志 | `docs/work-log.md` | 完成任务记录 |
+> AI 会话的阅读顺序见 [CLAUDE.md](CLAUDE.md)「AI 会话必读路径」（全局必读 2 份 + 按域必读）。本表为全量清单，供人类查阅。
+
+| 文档      | 路径                                                       | 内容                                    |
+| ------- | -------------------------------------------------------- | ------------------------------------- |
+| API 参考  | `backend-service/docs/api-reference.md`                  | 所有 HTTP/WS 端点说明                       |
+| 后端架构    | `backend-service/docs/backend-architecture.md`           | 后端架构与设计决策（执行链路 + 为什么）                       |
+| 模型规格    | `matlab-model/docs/model-specification.md`               | 目标函数、约束条件                             |
+| 调度规则    | `matlab-model/docs/scheduling-rules.md`                  | 12 条调度规则                              |
+| 评价数据规格  | `evaluation-model/docs/evaluation-data-specification.md` | 评价系统输入输出定义                            |
+| 评价模型与算法 | `docs/evaluation-model-and-algorithm.md`                 | 论文用：指标体系、NMF/PP/AHP-Fuzzy/序号总和原理与运行环境 |
+| 项目目录导航  | `docs/project-nav.md`                                    | 四端目录结构与职责总览                           |
+| AI 工作日志 | `docs/work-log.md`                                       | 完成任务记录                                |
+

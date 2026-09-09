@@ -19,8 +19,7 @@ E:\model\yellow_river_project\
 │   ├── http_callback_push.m    # HTTP 回调推送（webwrite POST）
 │   └── docs/                  # 专属文档
 │       ├── model-specification.md
-│       ├── scheduling-rules.md
-│       └── project-analysis.md
+│       └── scheduling-rules.md        # 逆向报告已归档 → docs/archive/project-analysis.md
 │
 ├── backend-service/               # Python FastAPI Web 服务
 │   ├── run.py                 # 启动脚本
@@ -57,9 +56,8 @@ E:\model\yellow_river_project\
 ├── docs/                      # 跨项目文档
 │   ├── project-nav.md         # ← 本文档（项目目录导航）
 │   ├── work-log.md            # AI 工作日志
-│   ├── model-run-integration.md   # ⬜ 模型运行对接方案
-│   ├── process-transparent-plan.md # ⬜ 过程透明化方案
-│   ├── data-flow.md           # ⬜ 全过程数据流向（目标设计）
+│   ├── evaluation-model-and-algorithm.md  # 评价模型与算法（论文用）
+│   ├── archive/               # 已归档：实施完毕的计划、历史流水账、未实施设计
 │   │
 │   └── 子项目专属文档见各自 directory/docs/
 │
@@ -377,7 +375,7 @@ Step 4 目标 → Step 5 场景（关联约束参数）
 
 ## 六、前后端配置对齐
 
-前端（Vue3）和后端（FastAPI）之间存在参数名、默认值和模型能力的差异。详细的对齐方案和分步实施计划见 [model-run-integration.md](model-run-integration.md)。
+前端（Vue3）和后端（FastAPI）之间存在参数名、默认值和模型能力的差异。详细的对齐方案和分步实施计划见 [archive/model-run-integration.md](archive/model-run-integration.md)（已归档，供参考）。
 
 **主要差距：**
 - 前端参数名（`populationSize`/`iterationCount`/`crossoverRate`）vs 后端模型参数（`pop`/`iterate`/`Pc`）

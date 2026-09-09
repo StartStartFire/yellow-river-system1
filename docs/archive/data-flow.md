@@ -169,7 +169,7 @@ output.chromosome = chromosome;  % pop × (V+M+2) 矩阵
 
 ### 4.3 Pydantic 模型定义
 
-后端 `schemas/result.py` 中定义 `ResultResponse` 模型，详见 [api-reference.md](../backend-service/docs/api-reference.md#4-获取优化结果)。
+后端 `schemas/result.py` 中定义 `ResultResponse` 模型，详见 [api-reference.md](../../backend-service/docs/api-reference.md#4-获取优化结果)。
 
 ---
 

@@ -5,6 +5,27 @@
 
 ---
 
+## [12] 文档治理：必读路径 + 归档 + 三项合并
+
+**日期**: 2026-09-07
+**原因**: 文档达 22 份、同一事实多处复制导致持续过时（[11] 一次修订 ~100 处），需结构性治理而非逐处修补；原则：一个事实只活在一处，代码可推断的信息不写文档
+**涉及文件**:
+- `CLAUDE.md` — **新增「AI 会话必读路径」**（三层：全局必读 2 份 → 按域必读 → 按需查阅）与「新增文档规则」3 条（AI 从代码读不到的知识才写 / 可数事实不写死 / 一处维护跨档用链接）；目录树与文档索引同步
+- `docs/archive/` — **新增目录**，归档 6 份：model-run-integration / process-transparent-plan / data-flow（已实施计划）、SESSIONS（历史流水账）、database-design（未实施设计）、project-analysis（技术债已提取）
+- `frontend-service/CLAUDE.md` — §20 启动指引瘦身为前端域必读（全局路径指回根 CLAUDE）；§21.2 端点表删改为指向 api-reference 的链接
+- `frontend-service/docs/requirements/system-requirements.md` — **纯需求化**：删头部状态、各模块"数据来源"行、§5.1 来源列、§6 开发边界，新增「文档职责说明」节
+- `frontend-service/docs/development/SNAPSHOT.md` — 顶部声明定位为前端接入状态唯一出处
+- `backend-service/docs/backend-architecture.md` — **重写 280 → 68 行**：删目录树/模块职责表/端点表（与代码及 api-reference 重复），保留 POST /run 与 POST /evaluate 执行链路、设计决策（为什么）、新增「已知边界」
+- `matlab-model/docs/model-specification.md` — **新增 §11 已知问题与技术债**（numel bug、三份 ~550 行重复仿真循环、全局变量副作用、PAEM 早停缺陷等，自 project-analysis 提取，位置以搜索关键词定位）
+- `README.md` / `docs/project-nav.md` / `SNAPSHOT.md` — 引用修复共 11 处指向归档路径；修复归档产生的 1 处相对路径断链
+
+**验证**:
+- 22 份 → 13 份现行 + 6 份归档，每类信息单一权威出处 ✓
+- 3 轮 grep 扫描（旧路径 / 旧锚点 / 过时关键词）零残留 ✓
+- requirements 无状态类表述；backend-architecture 5 节结构完整；断链深扫通过 ✓
+
+---
+
 ## [11] 决策分析全链路 + 回调统一封装 + 文档全面同步
 
 **日期**: 2026-09-05
@@ -44,26 +65,3 @@
 - 起调水位动态注入：LONG_Z_INI_VAL / LIU_Z_INI_VAL 全局变量传入 ✓
 - 防凌流量动态注入：QMIN_VAL 全局变量传入 ✓
 - evaluate_objective_save_info 返回完整 results 结构体（含 Long/Liu/N/liuzhou/ecology/coordination） ✓
-
----
-
-## [9] Web 服务模块化重构 + 评价系统集成
-
-**日期**: 2026-07-16
-**原因**: 系统集成阶段功能扩展，提升服务架构质量，增加方案评价排名能力
-**涉及文件**:
-- `backend-service/app/` — **重构**：扁平 7 文件结构拆分为 `api/`（5 路由）、`core/`（5 核心模块）、`schemas/`（5 Pydantic 模型）、`services/`（MATLAB Engine 封装）
-- `evaluation-model/` — **新增**：独立评价系统模块，含 NMF/PP/AHP_FUZZY 三种算法 + RankSumTheory 序号总和整合
-- `backend-service/app/main.py` — **重写**：lifespan 生命周期 + 按模块注册路由
-- `backend-service/app/config.py` — **修改**：新增 CORS origins 配置
-- `backend-service/app/api/evaluate.py` — **新增**：POST /evaluate、GET /evaluate/{job_id} 端点
-- `backend-service/app/schemas/evaluate.py` — **新增**：EvaluateRequest/EvaluateResponse Pydantic 模型
-- `backend-service/docs/api-reference.md` — **新增**：完整 API 参考文档
-- `backend-service/docs/backend-architecture.md` — **新增**：后端架构梳理文档
-- `evaluation-model/docs/evaluation-data-specification.md` — **新增**：评价系统数据产出规格文档
-
-**验证**:
-- /health 返回 engine=ready ✓
-- POST /evaluate 三种算法（NMF/PP/AHP_FUZZY）+ ALL 整合模式均返回排名 ✓
-- GET /evaluate/{job_id} 缓存查询正常 ✓
-- CORS 跨域 localhost:3000 正常 ✓
