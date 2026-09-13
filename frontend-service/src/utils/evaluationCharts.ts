@@ -231,6 +231,8 @@ export function buildSankeyOptionFromRaw(data: any): echarts.EChartsOption {
           fontSize: n.category === 2 ? 12 : 11,
           fontWeight: 600,
           position: n.category === 2 ? 'right' : 'inside',
+          // 综合得分节点标签竖排显示
+          ...(n.category === 2 ? { formatter: () => '综\n合\n得\n分' } : {}),
         },
       })),
       links: links.map((l: any) => ({
@@ -579,6 +581,23 @@ export function buildWaterFlowOption(data: any): echarts.EChartsOption {
     value: d.value,
   }))
 
+  // 根据右侧 label 文字宽度动态计算右边距，确保最右侧标注完整显示
+  const LABEL_FONT_SIZE = 10
+  const labelWidth = (line: string) => {
+    let w = 0
+    for (const ch of line) {
+      w += ch.charCodeAt(0) > 127 ? LABEL_FONT_SIZE : LABEL_FONT_SIZE * 0.6
+    }
+    return w
+  }
+  let maxLabelWidth = 0
+  for (const n of nodes) {
+    for (const line of n.name.split('\n')) {
+      maxLabelWidth = Math.max(maxLabelWidth, labelWidth(line))
+    }
+  }
+  const rightMargin = Math.ceil(maxLabelWidth) + 14
+
   return {
     title: {
       text: '水量使用流向图',
@@ -607,7 +626,7 @@ export function buildWaterFlowOption(data: any): echarts.EChartsOption {
       nodeGap: 10,
       nodeWidth: 18,
       left: 20,
-      right: 40,
+      right: rightMargin,
       top: 36,
       bottom: 20,
       data: nodes,
