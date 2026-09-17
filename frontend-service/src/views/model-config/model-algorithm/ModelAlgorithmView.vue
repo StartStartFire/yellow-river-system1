@@ -79,7 +79,7 @@ const currentModel = computed(() => models.value.find(m => m.id === selectedMode
 // 当前场景名称
 const currentScenarioName = computed(() => {
   const nameMap: Record<string, string> = {
-    'multi-year': '多年的中长期调度',
+    'multi-year': '中长期调度',
     'critical-period': '年内关键期调度',
     'realtime': '实时调度',
   }

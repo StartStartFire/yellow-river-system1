@@ -6,7 +6,7 @@ import type { DispatchScenarioCategory } from '@/types/model'
 export const dispatchScenarioCategories: DispatchScenarioCategory[] = [
   {
     id: 'multi-year',
-    name: '多年的中长期调度',
+    name: '中长期调度',
     icon: 'calendar',
     description: '以年为单位的长期调度规划，统筹多目标水资源配置，适用于年度调度方案编制与中长期水资源优化分配',
     subOptions: [

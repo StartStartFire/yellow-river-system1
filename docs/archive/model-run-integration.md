@@ -79,7 +79,7 @@ parameters: {
 ```typescript
 {
   id: 'multi-year',
-  name: '多年的中长期调度',
+  name: '中长期调度',
   icon: 'calendar',
   description: '...',
   subOptions: [
@@ -480,7 +480,7 @@ export interface ResultResponse {
 
   | 配置项 | 来源 Store 路径 | 示例值 |
   |-------|----------------|--------|
-  | 调度场景 | `dispatchScenario.categoryId + subOptionId` | 多年的中长期调度 → 多目标优化调度 |
+  | 调度场景 | `dispatchScenario.categoryId + subOptionId` | 中长期调度 → 多目标优化调度 |
   | 调度主体 | `dispatchSubject.selectedReservoirIds` | 龙羊峡 + 刘家峡 |
   | 调度时段 | `dispatchSubject.timeStep` | 20时段/年 |
   | 调度频率 | `dispatchSubject.scheduleFrequency` | 无 |

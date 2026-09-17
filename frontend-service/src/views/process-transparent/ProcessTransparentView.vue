@@ -6,9 +6,10 @@ import BaseChart from '@/components/chart/BaseChart.vue'
 import PanelCard from '@/components/common/PanelCard.vue'
 import StatusTag from '@/components/common/StatusTag.vue'
 import {
-  TEXT_SECONDARY, baseTooltip, baseCategoryXAxis, baseValueYAxis,
-  createGrid, createAreaGradient, SERIES_COLORS,
+  TEXT_SECONDARY, baseTooltip, baseItemTooltip, baseCategoryXAxis, baseValueYAxis,
+  baseValueXAxis, createGrid, createAreaGradient, SERIES_COLORS,
 } from '@/utils/chart'
+import { formatNumber } from '@/utils/format'
 import { useModelConfigStore } from '@/stores/modelConfig'
 
 const router = useRouter()
@@ -248,9 +249,23 @@ const activeRightTab = ref('water')
 const convergenceOption = computed(() => {
   const d = scenarioData.value.convergenceData
   return {
-    tooltip: { ...baseTooltip },
-    grid: createGrid(30, 20, 46, 12),
-    xAxis: { ...baseCategoryXAxis, data: d.iterations, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+    tooltip: {
+      ...baseTooltip,
+      formatter: (params: any) => {
+        const p = Array.isArray(params) ? params[0] : params
+        return `迭代次数：${p.axisValue}<br/>${p.seriesName}：${formatNumber(p.value, 4)}`
+      },
+    },
+    grid: createGrid(30, 36, 46, 12),
+    xAxis: {
+      ...baseCategoryXAxis,
+      data: d.iterations,
+      name: '迭代次数',
+      nameLocation: 'middle',
+      nameGap: 24,
+      nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 },
+      axisLabel: { color: TEXT_SECONDARY, fontSize: 9 },
+    },
     yAxis: {
       ...baseValueYAxis,
       name: '缺水量（亿m³）',
@@ -269,15 +284,16 @@ const objectiveOption = computed(() => {
   const history = paretoHistory.value
   if (history.length === 0) {
     return {
-      tooltip: { ...baseTooltip },
-      grid: createGrid(32, 20, 46, 12),
-      xAxis: { ...baseCategoryXAxis, data: [], axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
-      yAxis: { ...baseValueYAxis, name: '发电量（亿kWh）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      tooltip: { ...baseItemTooltip },
+      grid: createGrid(32, 36, 46, 12),
+      xAxis: { ...baseValueXAxis, scale: true, name: '缺水量（亿m³）', nameLocation: 'middle', nameGap: 24, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9, formatter: (v: number) => v.toFixed(4) } },
+      yAxis: { ...baseValueYAxis, scale: true, name: '发电量（亿kWh）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       series: [],
     }
   }
 
-  const colors = ['rgba(0,175,255,0.15)', 'rgba(0,175,255,0.25)', 'rgba(0,175,255,0.4)', 'rgba(0,175,255,0.6)', 'rgba(0,175,255,0.9)']
+  // 不同代使用不同颜色区分（从旧到新，最新一代用亮绿色最醒目）
+  const colors = ['#5a8ab8', '#00afff', '#b37feb', '#ffaa00', '#00e5a0']
   const legends: string[] = []
   const series: any[] = []
 
@@ -285,27 +301,30 @@ const objectiveOption = computed(() => {
   snapshots.forEach((snap, idx) => {
     const label = `第${snap.iteration}代`
     legends.push(label)
+    // 散点展示；早期代淡化、最新代醒目，突出演化推进趋势
+    const isLatest = idx === snapshots.length - 1
+    const color = colors[idx % colors.length]
     series.push({
       name: label,
       type: 'scatter',
       data: snap.points,
-      symbolSize: 6,
-      itemStyle: { color: colors[idx % colors.length] },
+      symbolSize: isLatest ? 6 : 4,
+      itemStyle: { color, opacity: isLatest ? 1 : 0.55 },
     })
   })
 
   return {
     tooltip: {
-      ...baseTooltip,
+      ...baseItemTooltip,
       formatter: (params: any) => {
         const p = Array.isArray(params) ? params[0] : params
-        return `${p.seriesName}<br/>缺水量: ${p.value[0]} 亿m³<br/>发电量: ${p.value[1]} 亿kWh`
+        return `${p.seriesName}<br/>缺水量: ${formatNumber(p.value[0], 4)} 亿m³<br/>发电量: ${formatNumber(p.value[1], 4)} 亿kWh`
       }
     },
     legend: { data: legends, textStyle: { color: TEXT_SECONDARY, fontSize: 9 }, top: 0 },
-    grid: createGrid(32, 20, 46, 12),
-    xAxis: { ...baseCategoryXAxis, name: '缺水量（亿m³）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
-    yAxis: { ...baseValueYAxis, name: '发电量（亿kWh）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+    grid: createGrid(32, 36, 46, 12),
+    xAxis: { ...baseValueXAxis, scale: true, name: '缺水量（亿m³）', nameLocation: 'middle', nameGap: 24, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9, formatter: (v: number) => v.toFixed(4) } },
+    yAxis: { ...baseValueYAxis, scale: true, name: '发电量（亿kWh）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
     series: series,
   }
 })
@@ -320,10 +339,16 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     const [yMin, yMax] = reservoirKey === 'lyx' ? [2530, 2600] : [1690, 1735]
     return {
-      tooltip: { ...baseTooltip },
+      tooltip: {
+        ...baseTooltip,
+        formatter: (params: any) => {
+          const p = Array.isArray(params) ? params[0] : params
+          return `${p.axisValue ? `日期：${p.axisValue}<br/>` : ''}${p.seriesName}：${formatNumber(p.value, 4)} m`
+        },
+      },
       title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
-      grid: createGrid(42, 18, 42, 20),
-      xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      grid: createGrid(42, 36, 42, 20),
+      xAxis: { ...baseCategoryXAxis, data: d.dates, name: '日期', nameLocation: 'middle', nameGap: 24, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       yAxis: { ...baseValueYAxis, name: '水位（m）', min: yMin, max: yMax, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       dataZoom: [{ type: 'inside', start: 0, end: 100, minValueSpan: 10 }],
       series: [
@@ -334,10 +359,16 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     const d = scenarioData.value.dischargeData
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
-      tooltip: { ...baseTooltip },
+      tooltip: {
+        ...baseTooltip,
+        formatter: (params: any) => {
+          const p = Array.isArray(params) ? params[0] : params
+          return `${p.axisValue ? `日期：${p.axisValue}<br/>` : ''}${p.seriesName}：${formatNumber(p.value, 4)} m³/s`
+        },
+      },
       title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
-      grid: createGrid(42, 18, 46, 20),
-      xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      grid: createGrid(42, 36, 46, 20),
+      xAxis: { ...baseCategoryXAxis, data: d.dates, name: '日期', nameLocation: 'middle', nameGap: 24, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       yAxis: { ...baseValueYAxis, name: '流量（m³/s）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       dataZoom: [{ type: 'inside', start: 0, end: 100, minValueSpan: 10 }],
       series: [
@@ -348,10 +379,16 @@ const buildReservoirOption = (reservoirKey: 'lyx' | 'ljx') => {
     const d = scenarioData.value.powerOutputData
     const r = reservoirKey === 'lyx' ? d.longyang : d.liujia
     return {
-      tooltip: { ...baseTooltip },
+      tooltip: {
+        ...baseTooltip,
+        formatter: (params: any) => {
+          const p = Array.isArray(params) ? params[0] : params
+          return `${p.axisValue ? `日期：${p.axisValue}<br/>` : ''}${p.seriesName}：${formatNumber(p.value, 4)} MW`
+        },
+      },
       title: { text: name, left: 'center', top: 2, textStyle: { color: TEXT_SECONDARY, fontSize: 11, fontWeight: 600 } },
-      grid: createGrid(42, 18, 46, 20),
-      xAxis: { ...baseCategoryXAxis, data: d.dates, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
+      grid: createGrid(42, 36, 46, 20),
+      xAxis: { ...baseCategoryXAxis, data: d.dates, name: '日期', nameLocation: 'middle', nameGap: 24, nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       yAxis: { ...baseValueYAxis, name: '出力（MW）', nameTextStyle: { color: TEXT_SECONDARY, fontSize: 9 }, axisLabel: { color: TEXT_SECONDARY, fontSize: 9 } },
       dataZoom: [{ type: 'inside', start: 0, end: 100, minValueSpan: 10 }],
       series: [

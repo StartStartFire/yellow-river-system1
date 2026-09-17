@@ -385,7 +385,7 @@ export function buildProcessOption(data: any, tab: string): echarts.EChartsOptio
         textStyle: { color: TEXT_SECONDARY, fontSize: 10 },
         top: 18,
       },
-      grid: createGrid(46, 16, 42, 8),
+      grid: createGrid(46, 24, 42, 8),
       xAxis: {
         ...baseCategoryXAxis,
         data: d.dates,
@@ -460,7 +460,7 @@ export function buildProcessOption(data: any, tab: string): echarts.EChartsOptio
         textStyle: { color: TEXT_SECONDARY, fontSize: 10 },
         top: 18,
       },
-      grid: createGrid(46, 16, 42, 8),
+      grid: createGrid(46, 24, 42, 8),
       xAxis: {
         ...baseCategoryXAxis,
         data: d.dates,
@@ -507,7 +507,7 @@ export function buildProcessOption(data: any, tab: string): echarts.EChartsOptio
         textStyle: { color: TEXT_SECONDARY, fontSize: 10 },
         top: 18,
       },
-      grid: createGrid(46, 16, 42, 8),
+      grid: createGrid(46, 24, 42, 8),
       xAxis: {
         ...baseCategoryXAxis,
         data: d.dates,
