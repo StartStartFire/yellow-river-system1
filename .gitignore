@@ -18,7 +18,7 @@ venv/
 .venv/
 env/
 .env/
-
+frontend-service/public/static/
 # Build output
 dist/
 dist-ssr/
