@@ -1,5 +1,6 @@
 # Generated MATLAB runtime logs (not config JSONs)
 matlab-model/*.jsonl
+matlab-model/*.json
 matlab-model/results/*.json
 
 # Dependencies

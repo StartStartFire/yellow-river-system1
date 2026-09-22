@@ -237,7 +237,7 @@ const wavePath2 = computed(() => {
             class="level-line-group"
           >
             <line
-              :x1="0" :y1="lv.y" :x2="1560" :y2="lv.y"
+              :x1="0" :y1="lv.y" :x2="lv.isCurrent ? 1560 : DAM_FACE_X" :y2="lv.y"
               :stroke="lv.color"
               :stroke-width="lv.isCurrent ? 3 : 2"
               :stroke-dasharray="lv.isCurrent ? 'none' : '12,6'"
