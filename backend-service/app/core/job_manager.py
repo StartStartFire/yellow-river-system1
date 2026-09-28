@@ -10,11 +10,14 @@ JobManager 通过 BaseExecutor 接口执行任务，不直接依赖 MATLAB。
 """
 
 import asyncio
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Callable
 
 from app.core.executor import BaseExecutor, TaskConfig, TaskResult
+
+logger = logging.getLogger(__name__)
 
 
 class JobRecord:
@@ -39,16 +42,31 @@ class JobManager:
     使用 asyncio.Queue 串行化任务提交，
     后台 worker 通过 executor 接口执行任务。
 
+    支持按 algorithm 注册多个执行器（多算法路由）：
+    - 'nsga2' / 'paem' → MatlabExecutor
+    - 'water_sediment' → WaterSedimentExecutor
+    未匹配到执行器的任务按默认执行器处理。
+
     提供 current_job_id 属性，用于标记 MATLAB 回调所属的任务。
     """
 
     def __init__(self, executor: BaseExecutor):
-        self._executor = executor
+        self._executor = executor  # 默认执行器（MATLAB）
+        self._executors: dict[str, BaseExecutor] = {}  # 算法名 → 执行器
         self._jobs: dict[str, JobRecord] = {}
         self._queue: asyncio.Queue[JobRecord] = asyncio.Queue()
         self._running = False
         self._worker_task: asyncio.Task | None = None
         self._current_job_id: str | None = None  # 当前正在执行的任务 ID
+
+    def register_executor(self, algorithm: str, executor: BaseExecutor) -> None:
+        """注册指定算法对应的执行器"""
+        self._executors[algorithm] = executor
+        logger.info("已注册执行器: %s → %s", algorithm, type(executor).__name__)
+
+    def _get_executor(self, algorithm: str) -> BaseExecutor:
+        """按算法获取对应执行器，未匹配时回退默认执行器"""
+        return self._executors.get(algorithm, self._executor)
 
     @property
     def current_job_id(self) -> str | None:
@@ -114,8 +132,9 @@ class JobManager:
                 record.message = "任务开始执行"
                 self._current_job_id = record.job_id
 
-                # 通过 executor 接口执行（Step 2 使用 MockExecutor）
-                result = await self._executor.run(record.config)
+                # 按算法路由到对应执行器（未注册的算法回退默认/默认允许任意算法）
+                executor = self._get_executor(record.config.algorithm)
+                result = await executor.run(record.config)
 
                 # running → completed / failed（executor 内部捕获异常后
                 # 返回 success=False，此时任务实际已失败，不能标记为 completed，

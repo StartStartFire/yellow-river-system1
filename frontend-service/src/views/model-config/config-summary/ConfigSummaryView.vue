@@ -18,16 +18,27 @@ const router = useRouter()
 
 // ==================== 方案名称 & 描述 ====================
 
+/** 是否为水沙耦合仿真模型 */
+const isWaterSediment = () => store.modelAlgorithm.selectedModel === 'water_sediment'
+
+/** 方案名按模型自动生成：水沙方案-2年 / 缺水发电调度方案-NSGA-II，同名加序号 */
 const currentPlanName = computed(() => {
+  if (isWaterSediment()) {
+    return `水沙方案-${store.modelAlgorithm.floodFrequency}`
+  }
   const name = store.dispatchScenario.scenarioName?.trim()
   if (name) return name
   const objectives = store.modelAlgorithm.selectedObjectives
   const objNames: Record<string, string> = { 'water-shortage': '缺水', 'power-generation': '发电', 'coordination': '协同' }
   const tag = objectives.map(o => objNames[o] || o).join('')
-  return `${tag}调度方案_${store.dispatchSubject.startTime || 'today'}`
+  const base = `${tag}调度方案_${store.dispatchSubject.startTime || 'today'}`
+  return `${base}-${(store.modelAlgorithm.selectedAlgorithm || 'nsga2').toUpperCase()}`
 })
 
 const currentScenarioDesc = computed(() => {
+  if (isWaterSediment()) {
+    return `${store.modelAlgorithm.floodFrequency}一遇洪水水沙耦合仿真`
+  }
   const type = store.scenarioConstraint.scenarioType === 'typical' ? '典型场景' : '自定义场景'
   const westRoute = store.scenarioConstraint.params.westRoute
   const westRouteLabels: Record<string, string> = { none: '无', upper: '有上无下', lower: '有下无上', all: '上线+下线' }
@@ -58,8 +69,11 @@ const totalCount = computed(() => plansList.value.length)
 /** 总页数 */
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value) || 1)
 
-/** 预估运行时间（基于种群大小 × 迭代次数） */
+/** 预估运行时间（基于种群大小 × 迭代次数；水沙模型约 160 秒） */
 const estimatedTime = computed(() => {
+  if (isWaterSediment()) {
+    return '约 160 秒'
+  }
   const pop = store.modelAlgorithm.parameters.populationSize || 15
   const iter = store.modelAlgorithm.parameters.iterationCount || 30
   // 基准：pop=15, iter=30 → 约 4 秒
@@ -73,16 +87,23 @@ const estimatedTime = computed(() => {
   return `${m} 分 ${s} 秒`
 })
 
-function buildPlanList(): ConfigPlan[] {
-  const current: ConfigPlan = {
-    id: 'current-plan',
-    index: 1,
+function makePlan(id: string, index: number): ConfigPlan {
+  return {
+    id,
+    index,
     name: currentPlanName.value,
     model: modelLabelMap[store.modelAlgorithm.selectedModel] || store.modelAlgorithm.selectedModel,
-    algorithm: algorithmLabelMap[store.modelAlgorithm.selectedAlgorithm] || store.modelAlgorithm.selectedAlgorithm,
+    algorithm: isWaterSediment()
+      ? '确定性仿真'
+      : algorithmLabelMap[store.modelAlgorithm.selectedAlgorithm] || store.modelAlgorithm.selectedAlgorithm,
     scenario: currentScenarioDesc.value,
     selected: true,
+    payload: assembleRunRequest(),
   }
+}
+
+function buildPlanList(): ConfigPlan[] {
+  const current = makePlan('current-plan', 1)
   return [current]
 }
 
@@ -181,10 +202,28 @@ const algoChartOption = computed(() => ({
 
 // ==================== 初始化 ====================
 
+/**
+ * 方案列表 = 当前正在配置的方案（第一行） + 已入列保存的方案（store.configPlans）。
+ * 当前方案永远是第一条，确保"我配置的"一定可见；序号连续递增。
+ */
+function syncPlansFromStore() {
+  const current = buildPlanList()[0]  // 当前配置方案（makePlan，名字/模型来自当前 store）
+  const saved = store.configPlans.filter(p => p.name !== current.name)
+  const all = [current, ...saved]
+  plansList.value = all.map((p, i) => ({ ...p, index: i + 1, selected: selectedRowIds.value.has(p.id) }))
+}
+
 onMounted(() => {
-  plansList.value = buildPlanList()
-  selectedRowIds.value = new Set(['current-plan'])
+  syncPlansFromStore()
+  selectedRowIds.value = new Set(plansList.value.map(p => p.id))
 })
+
+// store.configPlans 变化时实时同步到页面（handleAdd/handleRun*/复制 后自动刷新）
+watch(
+  () => store.configPlans.map(p => p.id + p.name).join('|'),
+  () => syncPlansFromStore(),
+  { immediate: false },
+)
 
 watch(searchQuery, () => { currentPage.value = 1 })
 
@@ -221,6 +260,15 @@ const westRouteMap: Record<string, string> = {
 }
 
 function assembleRunRequest() {
+  // 水沙耦合仿真模型：仅需 algorithm + flood_frequency
+  if (isWaterSediment()) {
+    const payload: Record<string, unknown> = {
+      algorithm: 'water_sediment',
+      flood_frequency: store.modelAlgorithm.floodFrequency,
+    }
+    return payload
+  }
+
   // 从日期字符串中提取年份（"YYYY-MM-DD" 或 "YYYY-MM" → YYYY）
   const startDate = store.dispatchSubject.startTime
   const endDate = store.dispatchSubject.endTime
@@ -249,7 +297,13 @@ const handleRunAll = async () => {
     return
   }
   try {
-    const payload = assembleRunRequest()
+    const selectedPlans = plansList.value.filter(p => selectedRowIds.value.has(p.id))
+    const plan = selectedPlans[0]
+    const payload = (plan?.payload || assembleRunRequest()) as any
+    // 运行成功后自动把该方案入列记录（持久化，手动删除前一直保留）
+    if (plan) {
+      store.registerPlan({ ...plan, id: `saved-${Date.now()}`, selected: true })
+    }
     const result = await postRun(payload)
     ElMessage.success('任务已提交，正在跳转至过程透明页面...')
     setTimeout(() => router.push(`/process-transparent?job_id=${result.job_id}`), 500)
@@ -260,7 +314,9 @@ const handleRunAll = async () => {
 
 const handleRunSingle = async (plan: ConfigPlan) => {
   try {
-    const payload = assembleRunRequest()
+    const payload = (plan.payload || assembleRunRequest()) as any
+    // 运行成功后自动把该方案入列记录（持久化，手动删除前一直保留）
+    store.registerPlan({ ...plan, selected: true })
     const result = await postRun(payload)
     ElMessage.success(`方案「${plan.name}」已启动`)
     setTimeout(() => router.push(`/process-transparent?job_id=${result.job_id}`), 500)
@@ -269,22 +325,17 @@ const handleRunSingle = async (plan: ConfigPlan) => {
   }
 }
 
+/**
+ * 新增方案：把当前配置入列保存 → 重置配置 → 跳回 Step1 重新配置。
+ * 配置完再回到汇总页时，即多一个新方案（方案存 Pinia，跨步骤保留）。
+ */
 const handleAdd = () => {
-  const newPlan: ConfigPlan = {
-    id: `plan-new-${Date.now()}`,
-    index: 1,
-    name: currentPlanName.value,
-    model: modelLabelMap[store.modelAlgorithm.selectedModel] || store.modelAlgorithm.selectedModel,
-    algorithm: algorithmLabelMap[store.modelAlgorithm.selectedAlgorithm] || store.modelAlgorithm.selectedAlgorithm,
-    scenario: currentScenarioDesc.value,
-    selected: true,
-  }
-  plansList.value.forEach((p, i) => { p.index = i + 2 })
-  plansList.value.unshift(newPlan)
-  selectedRowIds.value.add(newPlan.id)
-  selectedRowIds.value = new Set(selectedRowIds.value)
-  updatePageData()
-  ElMessage.success(`已新增方案「${newPlan.name}」`)
+  const current = makePlan(`saved-${Date.now()}`, store.configPlans.length + 1)
+  store.registerPlan(current)
+  ElMessage.success(`方案「${current.name}」已保存，请配置新方案`)
+  // 重置当前配置（保留已入列方案），跳回 Step1 重新选择场景/模型
+  store.resetAll(false)
+  router.push('/model-config/dispatch-scenario')
 }
 
 const handleFilter = () => { ElMessage.info('筛选功能开发中') }
@@ -292,10 +343,8 @@ const handleDetail = () => { detailDialogVisible.value = true }
 const handleEdit = () => { ElMessage.info('编辑功能开发中') }
 
 const handleCopy = (plan: ConfigPlan) => {
-  const newPlan: ConfigPlan = { ...plan, id: `plan-copy-${Date.now()}`, index: plansList.value.length + 1, name: `${plan.name}_副本`, selected: false }
-  plansList.value.unshift(newPlan)
-  selectedRowIds.value = new Set(selectedRowIds.value)
-  updatePageData()
+  const newPlan: ConfigPlan = { ...plan, id: `plan-copy-${Date.now()}`, name: `${plan.name}_副本`, selected: false }
+  store.registerPlan(newPlan)
   ElMessage.success(`已复制方案「${plan.name}」`)
 }
 
@@ -303,9 +352,7 @@ const handleDelete = (plan: ConfigPlan) => { detailPlan.value = plan; deleteDial
 
 const confirmDelete = () => {
   if (detailPlan.value) {
-    plansList.value = plansList.value.filter(p => p.id !== detailPlan.value!.id)
-    selectedRowIds.value.delete(detailPlan.value.id)
-    selectedRowIds.value = new Set(selectedRowIds.value)
+    store.removePlan(detailPlan.value.id)
     ElMessage.success(`已删除方案「${detailPlan.value.name}」`)
   }
   deleteDialogVisible.value = false; detailPlan.value = null

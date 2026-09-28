@@ -52,6 +52,7 @@ async def run(req: RunRequest):
         initial_water_level_longyangxia=req.initial_water_level_longyangxia,
         initial_water_level_liujiaxia=req.initial_water_level_liujiaxia,
         ice_prevention_flows=req.ice_prevention_flows,
+        flood_frequency=req.flood_frequency,
     )
     record = await _job_manager.submit_task(task_config)
 
@@ -118,11 +119,14 @@ async def get_results(job_id: str):
 
     chromosome = None
     evaluating = None
+    result_dict = None
     if record.result:
         if record.result.chromosome:
             chromosome = record.result.chromosome
         if record.result.evaluating is not None:
             evaluating = record.result.evaluating
+        if record.result.result:
+            result_dict = record.result.result
 
     try:
         return ResultResponse(
@@ -133,6 +137,7 @@ async def get_results(job_id: str):
             evaluating=evaluating,
             message=record.result.message if record.result else None,
             generated_at=record.completed_at,
+            result=result_dict,
         )
     except Exception as e:
         logger.error("构建 ResultResponse 失败: %s", str(e), exc_info=True)

@@ -31,3 +31,4 @@ class ResultResponse(BaseModel):
     objective_names: list[str] = ["缺水量", "发电量", "协同度"]
     message: str | None = None
     generated_at: str | None = None
+    result: dict | None = None  # 水沙耦合模型的结构化结果（algorithm=water_sediment 时）

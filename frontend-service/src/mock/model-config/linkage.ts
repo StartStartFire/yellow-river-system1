@@ -26,13 +26,14 @@ export const reservoirGroupModelMap: ReservoirGroupModelMap = {
 /** 调度场景大类 → 兼容的模型ID列表 */
 export const scenarioModelMap: ScenarioModelMap = {
   'multi-year': ['stress'],
-  'critical-period': [],
+  'critical-period': ['water_sediment'],
   'realtime': [],
 }
 
 /** 调度场景子选项 → 推荐的模型ID */
 export const scenarioSubOptionModelMap: ScenarioSubOptionModelMap = {
   'multi-objective': 'stress',
+  'sediment-period': 'water_sediment',
 }
 
 /** 时间步长 → 建议的算法参数 */
@@ -52,7 +53,7 @@ export const modelLabelMap: ModelLabelMap = {
   stress: '多目标协同胁迫调度模型',
   lro: '水库群优化调度模型（LRO）',
   multi_objective_dispatch: '多目标优化调度模型',
-  water_sediment_realtime: '水沙实时调度模型（WSS）',
+  water_sediment: '水沙耦合仿真模型',
 }
 
 /** 算法ID → 中文显示名称 */

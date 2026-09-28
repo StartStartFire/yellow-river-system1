@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import config
 from app.services.matlab import MatlabExecutor
+from app.services.water_sediment import WaterSedimentExecutor
 from app.core.job_manager import JobManager
 from app.core.websocket import connection_manager, broadcast_loop
 
@@ -33,19 +34,31 @@ logger = logging.getLogger(__name__)
 
 # 全局实例（startup 时初始化）
 executor: MatlabExecutor | None = None
+water_sediment_executor: WaterSedimentExecutor | None = None
 job_manager: JobManager | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    global executor, job_manager
+    global executor, water_sediment_executor, job_manager
 
     # ── startup ──
+    # MATLAB Engine 可选：启动失败时容错，后端照常启动（水沙模型不依赖 MATLAB），
+    # NSGA-II/PAEM 任务将返回 "Engine 未就绪"。
     executor = MatlabExecutor()
-    await executor.start()
+    try:
+        await executor.start()
+    except Exception as e:
+        logger.warning("MATLAB Engine 启动失败（水沙模型不受影响）: %s", e)
+
+    # 水沙耦合模型执行器（子进程运行，无需常驻 MATLAB）
+    water_sediment_executor = WaterSedimentExecutor()
+    await water_sediment_executor.start()
 
     job_manager = JobManager(executor)
+    # 注册多算法执行器：水沙 → WaterSedimentExecutor（MATLAB 算法回退默认执行器）
+    job_manager.register_executor("water_sediment", water_sediment_executor)
     await job_manager.start()
 
     # 注入依赖到各路由模块
@@ -68,6 +81,8 @@ async def lifespan(app: FastAPI):
 
     if job_manager:
         await job_manager.stop()
+    if water_sediment_executor:
+        await water_sediment_executor.stop()
     if executor:
         await executor.stop()
 

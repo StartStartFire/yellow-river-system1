@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 @dataclass
 class TaskConfig:
     """优化任务参数配置"""
-    algorithm: str  # 'nsga2' | 'paem'
+    algorithm: str  # 'nsga2' | 'paem' | 'water_sediment'
     pop: int
     iterate: int
     M: int
@@ -27,6 +27,8 @@ class TaskConfig:
     initial_water_level_longyangxia: float | None = None  # 龙羊峡起调水位，默认 2580
     initial_water_level_liujiaxia: float | None = None    # 刘家峡起调水位，默认 1720
     ice_prevention_flows: list[float] | None = None        # 防凌流量 [11月,12月,1月,2月,3月]，默认 [610,420,420,420,420]
+    # 水沙耦合模型专用
+    flood_frequency: str = "2年"  # 洪水频率：2年/5年/10年/50年/100年
 
 
 @dataclass
@@ -34,6 +36,7 @@ class TaskResult:
     """优化任务执行结果
 
     实际数据通过 JSONL 文件持久化，result 仅含摘要信息。
+    water_sediment 算法的结构化结果通过 result 字段承载（dict）。
     """
     job_id: str = ""
     success: bool = True
@@ -41,6 +44,7 @@ class TaskResult:
     chromosome: list = field(default_factory=list)
     evaluating: list = field(default_factory=list)  # 22项评价指标矩阵
     plan_details: list = field(default_factory=list)  # 每个种群个体的决策分析明细
+    result: dict | None = None  # 水沙耦合模型的结构化结果（dict）
     completed_at: str = ""
 
 

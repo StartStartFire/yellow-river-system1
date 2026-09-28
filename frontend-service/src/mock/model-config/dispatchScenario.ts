@@ -49,9 +49,9 @@ export const dispatchScenarioCategories: DispatchScenarioCategory[] = [
       {
         id: 'sediment-period',
         name: '调水调沙',
-        description: '水沙联合调度，利用洪水过程输沙减淤',
+        description: '水沙联合调度，给定设计洪水重现期，开展龙羊峡-刘家峡水库群反馈实时凑峰调度与河道冲淤模拟',
         linkedObjectives: [],
-        status: 'placeholder',
+        status: 'active',
       },
     ],
   },

@@ -7,15 +7,18 @@
 interface Props {
   /** 当前激活的 Tab 标识：'evaluation' | 'decision' */
   activeTab: string
+  /** 是否禁用「决策分析」Tab（水沙仿真无 Pareto 解集时不参与多算法评价） */
+  decisionDisabled?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'switch', tab: string): void
 }>()
 
 const handleSwitch = (tab: string) => {
+  if (props.decisionDisabled && tab === 'decision') return
   emit('switch', tab)
 }
 </script>
@@ -35,7 +38,8 @@ const handleSwitch = (tab: string) => {
     </button>
     <button
       class="tab-nav-btn"
-      :class="{ active: activeTab === 'decision' }"
+      :class="{ active: activeTab === 'decision', disabled: decisionDisabled }"
+      :disabled="decisionDisabled"
       @click="handleSwitch('decision')"
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -86,5 +90,13 @@ const handleSwitch = (tab: string) => {
 
 .tab-nav-btn svg {
   flex-shrink: 0;
+}
+
+.tab-nav-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tab-nav-btn.disabled:hover {
+  background: transparent;
 }
 </style>

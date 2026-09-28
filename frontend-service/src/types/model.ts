@@ -158,6 +158,17 @@ export interface ConfigPlan {
   algorithm: string
   scenario: string
   selected: boolean
+  /** 运行载荷：按模型类型组装的 RunRequest 局部字段（水沙方案带 flood_frequency 等） */
+  payload?: Record<string, unknown>
+}
+
+/** 水沙耦合仿真模型的洪水频率（重现期） */
+export type FloodFrequency = '2年' | '5年' | '10年' | '50年' | '100年'
+
+/** 水沙耦合仿真模型的运行载荷（algorithm = 'water_sediment' 时） */
+export interface WaterSedimentPayload {
+  algorithm: 'water_sediment'
+  flood_frequency: FloodFrequency
 }
 
 export interface DistributionItem {

@@ -5,6 +5,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import BaseChart from '@/components/chart/BaseChart.vue'
 import PanelCard from '@/components/common/PanelCard.vue'
 import StatusTag from '@/components/common/StatusTag.vue'
+import WaterSedimentPanel from '@/components/water-sediment/WaterSedimentPanel.vue'
+import { getProcessData } from '@/api'
+import type { WaterSedimentResult } from '@/api'
 import {
   TEXT_SECONDARY, baseTooltip, baseItemTooltip, baseCategoryXAxis, baseValueYAxis,
   baseValueXAxis, createGrid, createAreaGradient, SERIES_COLORS,
@@ -17,6 +20,64 @@ const route = useRoute()
 
 // ── 从 URL 获取 job_id ──
 const jobId = ref(route.query.job_id as string || '')
+
+// ── 水沙耦合仿真分支 ──
+const resultData = ref<WaterSedimentResult | null>(null)
+/** 是否水沙仿真任务：后端 process_data 含 sections 或 liujiaxia_outflow */
+const isWaterSediment = ref(false)
+
+/** 水沙：兰州断面洪峰 */
+const waterLanzhouPeak = computed(() => {
+  const s = resultData.value?.sections?.['兰州']
+  return s && s.length > 0 ? `${Math.max(...s).toFixed(0)} m³/s` : '--'
+})
+
+/** 水沙：全河段冲淤量 */
+const waterTotalSediment = computed(() => {
+  const t = resultData.value?.sediment?.total
+  return t != null ? `${t.toFixed(0)} m³` : '--'
+})
+
+/** 归一化水沙结果：把 /process 的 iteration 补充为 iteration_count（字段命名不一致） */
+const normalizeWaterSediment = (d: any): WaterSedimentResult => {
+  if (!d) return d
+  const r = { ...d }
+  if (r.iteration_count == null && r.iteration != null) {
+    r.iteration_count = r.iteration
+  }
+  return r
+}
+
+/** 初始补拉过程数据 / 结果（任务结束后才进入页面时） */
+const initWaterSedimentFetch = async () => {
+  if (!jobId.value) return
+
+  // 1. 尝试补拉 /process（含 sections 则为水沙）
+  try {
+    const proc = await getProcessData(jobId.value)
+    if (proc.process_data && (proc.process_data.sections || proc.process_data.liujiaxia_outflow)) {
+      resultData.value = normalizeWaterSediment(proc.process_data)
+      isWaterSediment.value = true
+      progress.value = 100
+      status.value = '已完成'
+      return
+    }
+  } catch { /* 无 process_data 则继续 */ }
+
+  // 2. 尝试从 /results 的 result 字段读取（水沙结构化结果）
+  try {
+    const res = await fetch(`${window.location.hostname ? `http://${window.location.hostname}` : ''}:18080/results/${jobId.value}`)
+    if (res.ok) {
+      const body = await res.json()
+      if (body.result && (body.result.sections || body.result.liujiaxia_outflow)) {
+        resultData.value = normalizeWaterSediment(body.result)
+        isWaterSediment.value = true
+        progress.value = 100
+        status.value = '已完成'
+      }
+    }
+  } catch { /* ignore */ }
+}
 
 // ── WebSocket ──
 let ws: WebSocket | null = null
@@ -182,6 +243,39 @@ const handleWsMessage = (msg: any) => {
   // 过程数据更新
   if (msg.type === 'process_data' && msg.payload) {
     const pd = msg.payload
+
+    // ⚠️ 水沙耦合仿真：payload 含 sections / liujiaxia_outflow，走独立分支
+    if (pd.sections || pd.liujiaxia_outflow) {
+      isWaterSediment.value = true
+      const hasFullResult = !!pd.sections
+      if (hasFullResult) {
+        // 最终结果：含完整 8 断面 sections → 点亮结果面板
+        resultData.value = normalizeWaterSediment(pd)
+        progress.value = 100
+        status.value = '已完成'
+        if (pd.iteration != null && pd.iteration > 0) {
+          logsDisplay.value.unshift({
+            time: '',
+            level: 'INFO',
+            message: `水沙仿真迭代 ${pd.iteration} 次，兰州断面流量已收敛`,
+          })
+        }
+      } else {
+        // 迭代进度回调：仅含 liujiaxia_outflow / lanzhou_flow（无 sections）
+        // 根据迭代号估算进度，不点亮最终面板
+        const it = pd.iteration || 0
+        const pct = Math.min(100, it / 21 * 100)
+        progress.value = Math.min(progress.value, pct)
+        status.value = '运行中'
+        logsDisplay.value.unshift({
+          time: '',
+          level: 'INFO',
+          message: `水沙仿真反馈迭代 ${it} 次，兰州断面流量 ${pd.lanzhou_flow != null ? `= ${Number(pd.lanzhou_flow).toFixed(0)} m³/s` : '收敛中'}`,
+        })
+      }
+      return
+    }
+
     const labels = buildTimeLabels(pd.longyang_level?.length || 0, pd.start_year || 2014)
     waterLevelData.value = {
       dates: labels,
@@ -404,6 +498,7 @@ const ljxOption = computed(() => buildReservoirOption('ljx'))
 // ── 生命周期 ──
 onMounted(() => {
   connectWebSocket()
+  initWaterSedimentFetch()
   elapsedTimer = setInterval(() => {
     if (status.value === '运行中' && progress.value > 0 && progress.value < 100) {
       elapsedSec.value++
@@ -474,8 +569,62 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- ===== 水沙耦合仿真：独立面板（断面洪水/迭代收敛/调度/冲淤） ===== -->
+    <template v-if="isWaterSediment">
+      <WaterSedimentPanel v-if="resultData" :result="resultData" class="water-sediment-area" />
+      <div v-else class="ws-empty">
+        <StatusTag label="水沙仿真运行中，等待结果..." color="var(--tech-blue)" :pulse="true" />
+      </div>
+
+      <!-- ===== 底部辅助信息区（与多目标优化模型统一布局） ===== -->
+      <div class="bottom-section">
+        <PanelCard title="运行日志" class="bottom-card log-card">
+          <div class="log-list">
+            <div v-for="(log, i) in logsDisplay.slice(0, 3)" :key="i" class="log-entry">
+              <span class="log-time">{{ log.time }}</span>
+              <span class="log-level">{{ log.level }}</span>
+              <span class="log-msg">{{ log.message }}</span>
+            </div>
+          </div>
+        </PanelCard>
+
+        <PanelCard title="水沙仿真结果" class="bottom-card">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">洪水重现期</span>
+              <span class="info-value" style="color:var(--tech-blue);">{{
+                resultData ? (resultData.flood_frequency + '一遇') : '--'
+              }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">反馈迭代次数</span>
+              <span class="info-value" style="color:var(--tech-cyan);">{{
+                resultData ? (resultData.iteration_count ?? 0) : '--'
+              }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">兰州断面洪峰</span>
+              <span class="info-value" style="color:#00ff88;">{{ waterLanzhouPeak }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">全河段冲淤</span>
+              <span class="info-value" style="color:#f0a020;">{{ waterTotalSediment }}</span>
+            </div>
+          </div>
+        </PanelCard>
+
+        <PanelCard title="操作" class="bottom-card ops-card">
+          <div class="ops-buttons">
+            <button class="op-btn primary" @click="handleViewEvaluation">查看仿真详情</button>
+            <button class="op-btn" @click="handleSave">保存当前方案</button>
+            <button class="op-btn danger" @click="handleTerminate">终止计算</button>
+          </div>
+        </PanelCard>
+      </div>
+    </template>
+
     <!-- ===== 中部图表区：左40% 优化过程 + 右60% 水库运行响应 ===== -->
-    <div class="middle-section">
+    <div v-else class="middle-section">
       <!-- 左侧：优化过程分析（40%） -->
       <div class="left-panel">
         <div class="left-charts">
@@ -517,7 +666,7 @@ onUnmounted(() => {
     </div>
 
     <!-- ===== 底部辅助信息区 ===== -->
-    <div class="bottom-section">
+    <div v-if="!isWaterSediment" class="bottom-section">
       <PanelCard title="运行日志" class="bottom-card log-card">
         <div class="log-list">
           <div v-for="(log, i) in logsDisplay.slice(0, 3)" :key="i" class="log-entry">
@@ -867,4 +1016,17 @@ onUnmounted(() => {
 .process-transparent-view::-webkit-scrollbar { width: 4px; }
 .process-transparent-view::-webkit-scrollbar-track { background: transparent; }
 .process-transparent-view::-webkit-scrollbar-thumb { background: rgba(50,150,255,0.2); border-radius: 2px; }
+
+/* ── 水沙仿真区域 ── */
+.water-sediment-area {
+  flex: 1;
+  min-height: 0;
+}
+.ws-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
 </style>

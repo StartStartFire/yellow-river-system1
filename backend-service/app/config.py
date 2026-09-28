@@ -35,6 +35,16 @@ class Config:
     def matlab_root(self) -> str:
         return str(_PROJECT_ROOT / "matlab-model")
 
+    # 水沙耦合模型路径（自动基于项目根目录计算）
+    @property
+    def river_model_root(self) -> str:
+        return str(_PROJECT_ROOT / "river_model")
+
+    # 水沙模型子进程入口（run_model_service.py，位于 river_model 目录）
+    @property
+    def river_model_service_script(self) -> str:
+        return str(_PROJECT_ROOT / "river_model" / "run_model_service.py")
+
     data_file: str = "data.xlsx"
 
     # 回调
@@ -52,6 +62,7 @@ class Config:
     default_m: int = 2
     default_q_sediment: float = 1800.0
     default_k_mut: int = 50
+    default_flood_frequency: str = "2年"
 
 
 # 全局单例

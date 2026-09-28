@@ -18,7 +18,7 @@ import {
   dispatchObjectives,
 } from '@/mock/model-config/modelAlgorithm'
 import { scenarioModelMap } from '@/mock/model-config/linkage'
-import type { DispatchModel, OptimizationAlgorithm, AlgorithmParameter } from '@/types/model'
+import type { DispatchModel, OptimizationAlgorithm, AlgorithmParameter, FloodFrequency } from '@/types/model'
 
 const store = useModelConfigStore()
 const router = useRouter()
@@ -32,6 +32,19 @@ const selectedModelId = ref(store.modelAlgorithm.selectedModel)
 const selectedAlgorithmId = ref(store.modelAlgorithm.selectedAlgorithm)
 const paramValues = ref<Record<string, number>>({...store.modelAlgorithm.parameters})
 paramDefs.forEach(p => { if (!(p.id in paramValues.value)) paramValues.value[p.id] = p.value })
+
+// 水沙耦合仿真模型：洪水频率（重现期）
+const FLOOD_FREQUENCIES: { label: string; value: FloodFrequency }[] = [
+  { label: '2 年一遇', value: '2年' },
+  { label: '5 年一遇', value: '5年' },
+  { label: '10 年一遇', value: '10年' },
+  { label: '50 年一遇', value: '50年' },
+  { label: '100 年一遇', value: '100年' },
+]
+const floodFrequency = ref<FloodFrequency>(store.modelAlgorithm.floodFrequency || '2年')
+
+/** 是否为水沙耦合仿真模型（确定性仿真，无算法/目标/约束） */
+const isWaterSedimentModel = computed(() => selectedModelId.value === 'water_sediment')
 
 const visibleParams = computed(() => {
   if (!currentAlgorithm.value) return paramDefs
@@ -126,6 +139,19 @@ const handleCancel = () => { cancelDialogVisible.value = true }
 const handleSave = () => { saveDialogVisible.value = true }
 
 const handleNext = () => {
+  if (!selectedModelId.value) { ElMessage.warning('请选择调度模型'); return }
+  if (isWaterSedimentModel.value) {
+    store.setModelAlgorithm({
+      selectedModel: selectedModelId.value,
+      selectedAlgorithm: '',
+      selectedObjectives: [],
+      parameters: {},
+      floodFrequency: floodFrequency.value,
+    })
+    store.markStepCompleted(4)
+    router.push('/model-config/scenario-constraint')
+    return
+  }
   if (!selectedModelId.value || !selectedAlgorithmId.value) { ElMessage.warning('请选择调度模型和优化算法'); return }
   if (selectedObjectives.value.length === 0) { ElMessage.warning('请至少选择一个调度目标'); return }
   store.setModelAlgorithm({
@@ -174,22 +200,41 @@ const objectiveIcons: Record<string, string> = {
           :group-name="currentGroupName"
         />
 
-        <AlgorithmSelectCard
-          v-model:algorithmId="selectedAlgorithmId"
-          :algorithms="supportedAlgorithms"
-          @open-params="paramDialogVisible = true"
-        />
+        <!-- 水沙耦合仿真模型：无需算法/目标，显示重现期选择卡 -->
+        <template v-if="isWaterSedimentModel">
+          <div class="flood-frequency-card">
+            <div class="card-title">洪水重现期</div>
+            <div class="freq-options">
+              <button
+                v-for="opt in FLOOD_FREQUENCIES"
+                :key="opt.value"
+                class="freq-btn"
+                :class="{ active: floodFrequency === opt.value }"
+                @click="floodFrequency = opt.value"
+              >{{ opt.label }}</button>
+            </div>
+            <div class="card-desc">设定设计洪水重现期，运行确定性洪水情景仿真（反馈实时凑峰调度 + 河道冲淤模拟）</div>
+          </div>
+        </template>
 
-        <ObjectiveSelectCard
-          :objectives="objectivesDef"
-          :selected="selectedObjectives"
-          :icons="objectiveIcons"
-          @toggle="handleToggleObjective"
-        />
+        <template v-else>
+          <AlgorithmSelectCard
+            v-model:algorithmId="selectedAlgorithmId"
+            :algorithms="supportedAlgorithms"
+            @open-params="paramDialogVisible = true"
+          />
+
+          <ObjectiveSelectCard
+            :objectives="objectivesDef"
+            :selected="selectedObjectives"
+            :icons="objectiveIcons"
+            @toggle="handleToggleObjective"
+          />
+        </template>
       </div>
 
-      <!-- ===== 底部：约束条件 ===== -->
-      <ConstraintPanel v-model="constraintValues" />
+      <!-- ===== 底部：约束条件（水沙模型无约束面板） ===== -->
+      <ConstraintPanel v-if="!isWaterSedimentModel" v-model="constraintValues" />
     </div>
 
     <ModelConfigFooter :step="4" @cancel="handleCancel" @save="handleSave" @prev="handlePrev" @next="handleNext" />
@@ -260,5 +305,49 @@ const objectiveIcons: Record<string, string> = {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
   flex-shrink: 0;
+}
+
+/* ===== 水沙重现期卡 ===== */
+.flood-frequency-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.15);
+  border-radius: 8px;
+  background: rgba(var(--tech-blue-rgb), 0.04);
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tech-text-primary);
+}
+.freq-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.freq-btn {
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--tech-text-regular);
+  background: rgba(6, 30, 70, 0.6);
+  border: 1px solid rgba(var(--tech-blue-rgb), 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.freq-btn:hover {
+  border-color: rgba(var(--tech-blue-rgb), 0.5);
+}
+.freq-btn.active {
+  color: var(--tech-cyan);
+  border-color: rgba(var(--tech-cyan-rgb), 0.6);
+  background: rgba(var(--tech-blue-rgb), 0.15);
+}
+.card-desc {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--tech-text-secondary);
 }
 </style>

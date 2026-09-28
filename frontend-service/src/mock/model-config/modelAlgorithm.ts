@@ -75,10 +75,10 @@ export const dispatchModels = {
       status: 'placeholder',
     },
     {
-      id: 'water_sediment_realtime',
-      name: '水沙实时调度模型',
-      supportedAlgorithms: ['nsga3'],
-      status: 'placeholder',
+      id: 'water_sediment',
+      name: '水沙耦合仿真模型',
+      supportedAlgorithms: [],
+      status: 'active',
     },
   ] as DispatchModel[],
 }

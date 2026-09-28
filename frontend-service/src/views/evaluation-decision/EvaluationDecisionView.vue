@@ -7,6 +7,7 @@ import EvalTabNav from '@/components/evaluation-decision/EvalTabNav.vue'
 import PlanSelectorBar from '@/components/evaluation-decision/PlanSelectorBar.vue'
 import EvaluationPanel from '@/components/evaluation-decision/EvaluationPanel.vue'
 import DecisionPanel from '@/components/evaluation-decision/DecisionPanel.vue'
+import WaterSedimentPanel from '@/components/water-sediment/WaterSedimentPanel.vue'
 import {
   buildRadarOption,
   buildSankeyOptionFromRaw,
@@ -14,8 +15,8 @@ import {
   buildProcessOption,
   buildWaterFlowOption,
 } from '@/utils/evaluationCharts'
-import { getEvaluateResult, postEvaluate, getDecisionPlans } from '@/api'
-import type { EvaluateDetails, DecisionPlanDetail } from '@/api'
+import { getEvaluateResult, postEvaluate, getDecisionPlans, getProcessData } from '@/api'
+import type { EvaluateDetails, DecisionPlanDetail, WaterSedimentResult } from '@/api'
 import { useEvaluationData, ALGO_DISPLAY_NAMES } from '@/composables/useEvaluationData'
 import type { DecisionPlanDataBundle } from '@/types/evaluation'
 import {
@@ -28,6 +29,27 @@ const route = useRoute()
 
 // ── job_id（来自 URL query，从过程透明页面传入） ──
 const jobId = ref((route.query.job_id as string) || '')
+
+// ── 水沙耦合仿真分支：无 evaluating 矩阵，不参与多算法评价 ──
+const isWaterSediment = ref(false)
+const waterSedimentResult = ref<WaterSedimentResult | null>(null)
+const wsChecked = ref(false)
+
+/** 检测是否为水沙任务并拉取结果 */
+const checkWaterSediment = async () => {
+  if (!jobId.value) return
+  try {
+    const proc = await getProcessData(jobId.value)
+    if (proc.process_data && (proc.process_data.sections || proc.process_data.liujiaxia_outflow)) {
+      isWaterSediment.value = true
+      // 归一化：/process 用 iteration，面板用 iteration_count
+      const d: any = { ...proc.process_data }
+      if (d.iteration_count == null && d.iteration != null) d.iteration_count = d.iteration
+      waterSedimentResult.value = d as WaterSedimentResult
+    }
+  } catch { /* ignore */ }
+  wsChecked.value = true
+}
 
 // ── 评价真实数据状态 ──
 const evalStatus = ref<'not_requested' | 'loading' | 'evaluated' | 'error'>('not_requested')
@@ -245,6 +267,11 @@ const fetchEvalCache = async () => {
 // ── 运行评价 ──
 const runEvaluation = async () => {
   if (!jobId.value) return
+  // 水沙仿真：无 evaluating 矩阵，跳过评价
+  if (isWaterSediment.value) {
+    ElMessage.info('水沙仿真任务无 Pareto 解集，不参与多算法评价')
+    return
+  }
   evalStatus.value = 'loading'
   evalError.value = ''
   try {
@@ -286,8 +313,14 @@ const fetchDecisionPlans = async () => {
 }
 
 // ── onMounted ──
-onMounted(() => {
+onMounted(async () => {
   if (jobId.value) {
+    await checkWaterSediment()
+    if (isWaterSediment.value) {
+      evalStatus.value = 'evaluated'
+      evalError.value = ''
+      return
+    }
     fetchEvalCache()
     fetchDecisionPlans()
   }
@@ -328,11 +361,24 @@ watch(activeTab, () => {
 
 <template>
   <div class="evaluation-decision-view">
-    <!-- ===== Tab 导航栏 ===== -->
-    <EvalTabNav :active-tab="activeTab" @switch="handleTabSwitch" />
+    <!-- ===== Tab 导航栏（水沙仿真禁用"决策分析"） ===== -->
+    <EvalTabNav :active-tab="activeTab" :decision-disabled="isWaterSediment" @switch="handleTabSwitch" />
+
+    <!-- ===== 水沙耦合仿真：无 Pareto 解集，显示仿真结果面板 ===== -->
+    <div v-if="isWaterSediment" class="tab-content">
+      <div class="eval-status-bar eval-evaluated">
+        <span class="eval-status-label">
+          📋 任务 {{ jobId.slice(0, 8) }}… — 水沙耦合仿真结果（确定性仿真，无 Pareto 方案集，不参与多算法评价）
+        </span>
+      </div>
+      <WaterSedimentPanel v-if="waterSedimentResult" :result="waterSedimentResult" class="ws-panel" />
+      <div v-else class="ws-empty">
+        <span style="color:var(--tech-text-secondary);">水沙仿真结果加载中...</span>
+      </div>
+    </div>
 
     <!-- ===== 评价分析内容 ===== -->
-    <div v-show="activeTab === 'evaluation'" class="tab-content">
+    <div v-else-if="activeTab === 'evaluation'" class="tab-content">
       <!-- 评价状态提示栏（有 job_id 时显示） -->
       <div v-if="jobId" class="eval-status-bar" :class="'eval-' + evalStatus">
         <span class="eval-status-label">
@@ -370,7 +416,7 @@ watch(activeTab, () => {
     </div>
 
     <!-- ===== 决策分析内容 ===== -->
-    <div v-show="activeTab === 'decision'" class="tab-content tab-content-decision">
+    <div v-else class="tab-content tab-content-decision">
       <DecisionPanel
         ref="decisionPanelRef"
         :plans="plans"
@@ -446,5 +492,18 @@ watch(activeTab, () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* ===== 水沙仿真 ===== */
+.ws-panel {
+  flex: 1;
+  min-height: 0;
+}
+.ws-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
 }
 </style>

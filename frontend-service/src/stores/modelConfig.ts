@@ -9,6 +9,7 @@ import {
   algorithmLabelMap,
 } from '@/mock/model-config/linkage'
 import { dispatchModels, optimizationAlgorithms } from '@/mock/model-config/modelAlgorithm'
+import type { ConfigPlan, FloodFrequency } from '@/types/model'
 
 /**
  * 模型配置 Pinia Store
@@ -61,6 +62,8 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       crossoverRate: 0.9,
       // mutationRate/eliteRate/crowdingFactor 已废弃删除
     } as Record<string, number>,
+    // 水沙耦合仿真模型专用：洪水频率（重现期）
+    floodFrequency: '2年' as FloodFrequency,
     // 约束参数
     initialWaterLevelLongyangxia: null as number | null,  // 龙羊峡起调水位(m)
     initialWaterLevelLiujiaxia: null as number | null,    // 刘家峡起调水位(m)
@@ -77,6 +80,66 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       // sedimentRequirement/ecologicalFlow/icePreventionFlow 当前阶段暂不处理
     } as Record<string, string>,
   })
+
+  // ==================== 多方案列表（跨步骤保留 + localStorage 持久化） ====================
+  // key 带版本：v3 清空此前累积的历史垃圾数据（乱序号/多目标残留/临时名），一次恢复干净
+  const CONFIG_PLANS_KEY = 'yellow-river-config-plans-v3'
+
+  /** 判断一个方案是否有效（过滤脏数据）：有名字、有模型。只挡住明显无意义条目，
+   *  payload 可有可无（早期入列方案可能未带 payload，宽松保留）。 */
+  const isValidPlan = (p: any): p is ConfigPlan => {
+    return !!p && typeof p === 'object' &&
+      typeof p.name === 'string' && p.name.trim().length > 0 && p.name.trim() !== '—' &&
+      typeof p.model === 'string' && p.model.trim().length > 0
+  }
+
+  /** 从 localStorage 读取已保存的方案列表（刷新不丢，过滤无效脏数据） */
+  const loadConfigPlans = (): ConfigPlan[] => {
+    try {
+      const raw = localStorage.getItem(CONFIG_PLANS_KEY)
+      if (!raw) return []
+      const parsed = JSON.parse(raw)
+      if (!Array.isArray(parsed)) return []
+      return parsed.filter(isValidPlan)
+    } catch {
+      return []
+    }
+  }
+
+  /** 同步方案列表到 localStorage */
+  const persistConfigPlans = () => {
+    try {
+      localStorage.setItem(CONFIG_PLANS_KEY, JSON.stringify(configPlans.value))
+    } catch {
+      /* 存储失败（隐私模式等）静默降级，不影响内存态 */
+    }
+  }
+
+  const configPlans = ref<ConfigPlan[]>(loadConfigPlans())
+
+  /** 入列一个方案；同名已存在则不重复添加（避免列表里出现同名多条） */
+  const registerPlan = (plan: ConfigPlan): boolean => {
+    if (configPlans.value.some(p => p.name === plan.name)) {
+      return false
+    }
+    configPlans.value.push(plan)
+    persistConfigPlans()
+    return true
+  }
+
+  /** 删除方案（持久化） */
+  const removePlan = (id: string) => {
+    configPlans.value = configPlans.value.filter(p => p.id !== id)
+    persistConfigPlans()
+  }
+
+  const isCurrentPlanInList = (name: string): boolean =>
+    configPlans.value.some(p => p.name === name)
+
+  const resetConfigPlans = () => {
+    configPlans.value = []
+    persistConfigPlans()
+  }
 
   // ==================== 计算属性 ====================
 
@@ -231,6 +294,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     step4State.value.parameters[key] = value
   }
 
+  /** 设置水沙耦合仿真模型的洪水频率（重现期） */
+  const setFloodFrequency = (freq: FloodFrequency) => {
+    step4State.value.floodFrequency = freq
+  }
+
   // ==================== Step 5 操作（场景约束）====================
 
   const setScenarioConstraint = (data: Partial<typeof step5State.value>) => {
@@ -243,8 +311,12 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   // ==================== 重置 ====================
 
-  /** 重置所有配置 */
-  const resetAll = () => {
+  /** 重置所有配置
+   *
+   * 默认清空已入列的多方案（configPlans）。
+   * 新增方案跳转 Step1 时传 clearPlans=false，保留已入列方案。
+   */
+  const resetAll = (clearPlans: boolean = true) => {
     currentStep.value = 1
     step1State.value = {
       categoryId: '',
@@ -273,6 +345,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
         iterationCount: 30,
         crossoverRate: 0.9,
       },
+      floodFrequency: '2年',
     }
     step5State.value = {
       scenarioType: 'typical',
@@ -283,6 +356,9 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       },
     }
     resetSteps()
+    if (clearPlans) {
+      resetConfigPlans()
+    }
   }
 
   return {
@@ -327,10 +403,18 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     // Step 4（模型算法）
     setModelAlgorithm,
     setAlgorithmParam,
+    setFloodFrequency,
 
     // Step 5（场景约束）
     setScenarioConstraint,
     setScenarioParam,
+
+    // 多方案列表
+    configPlans,
+    registerPlan,
+    removePlan,
+    isCurrentPlanInList,
+    resetConfigPlans,
 
     // 重置
     resetAll,

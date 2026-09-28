@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class RunRequest(BaseModel):
     """POST /run 请求体"""
-    algorithm: str = Field(default="nsga2", pattern=r"^(nsga2|paem)$")
+    algorithm: str = Field(default="nsga2", pattern=r"^(nsga2|paem|water_sediment)$")
     pop: int = Field(default=15, ge=1, description="种群大小")
     iterate: int = Field(default=20, ge=1, description="进化代数")
     M: int = Field(default=2, ge=1, description="目标函数个数")
@@ -20,6 +20,8 @@ class RunRequest(BaseModel):
     initial_water_level_longyangxia: float | None = Field(default=None, description="龙羊峡起调水位(m)")
     initial_water_level_liujiaxia: float | None = Field(default=None, description="刘家峡起调水位(m)")
     ice_prevention_flows: list[float] | None = Field(default=None, description="防凌流量 [11月,12月,1月,2月,3月](m³/s)")
+    # 水沙耦合模型专用（algorithm=water_sediment 时使用）
+    flood_frequency: str = Field(default="2年", pattern=r"^(2年|5年|10年|50年|100年)$", description="洪水频率（重现期）")
 
 
 class JobStatusResponse(BaseModel):

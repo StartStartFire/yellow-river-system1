@@ -69,3 +69,11 @@ coverage/
 
 # Optional local notes (避免 AI 会话临时笔记误提交)
 *.local.md
+
+# 个人资料 / 生成物（不提交）
+文献/
+thesis/
+_docx_backup/
+matlab-model/*.json.local
+river_model/输出文件/
+docs/*.docx

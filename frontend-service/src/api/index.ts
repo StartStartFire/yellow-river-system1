@@ -23,6 +23,7 @@ export interface RunRequestPayload {
   ice_prevention_flows?: number[]           // 防凌流量 [11月,12月,1月,2月,3月](m³/s)
   year_start?: number                        // 调度起始年份（从日期中提取）
   year_end?: number                          // 调度结束年份（从日期中提取）
+  flood_frequency?: string                   // 洪水频率（重现期），仅 water_sediment 算法
 }
 
 /** POST /run 响应体 */
@@ -209,6 +210,66 @@ export async function getDecisionPlans(jobId: string): Promise<DecisionPlansResp
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
     throw new Error(err.detail || `获取决策方案失败 (${res.status})`)
+  }
+  return res.json()
+}
+
+// ─── 水沙耦合仿真 ────────────────────────────────────────
+
+/** 冲淤段结果 */
+export interface SedimentSegment {
+  段号: string
+  '段长(km)': number
+  '总冲淤量(m³)': number
+}
+
+/** 水沙耦合模型结构化结果（/results 的 result 字段） */
+export interface WaterSedimentResult {
+  flood_frequency: string
+  iteration_count: number
+  /** 兼容：/process 的 process_data 用 iteration 字段（等于 iteration_count） */
+  iteration?: number
+  liujiaxia_outflow: number[]
+  sections: Record<string, number[]>
+  iteration_history: {
+    liujiaxia: number[][]
+    lanzhou: number[][]
+  }
+  reservoir: {
+    longyangxia: {
+      level: number[]
+      power: number[]
+      inflow: number[]
+      outflow: number[]
+      abandoned: number[]
+    }
+  }
+  sediment?: {
+    segments: SedimentSegment[]
+    total: number
+    reach: { in: string; out: string }
+    n_segments: number
+    n_time: number
+  }
+}
+
+/** GET /process/{job_id} 响应 */
+export interface ProcessResponse {
+  job_id: string
+  status: string
+  process_data: WaterSedimentResult | null
+  message: string | null
+}
+
+/**
+ * 补拉最新过程数据
+ * GET /process/{job_id}
+ */
+export async function getProcessData(jobId: string): Promise<ProcessResponse> {
+  const res = await fetch(`${API_BASE}/process/${jobId}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail || `获取过程数据失败 (${res.status})`)
   }
   return res.json()
 }
